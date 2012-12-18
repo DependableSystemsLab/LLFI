@@ -1,0 +1,356 @@
+; ModuleID = 'fi_random.c'
+target datalayout = "e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:32:64-v64:64:64-v128:128:128-a0:0:64-f80:32:32-f128:128:128-n8:16:32"
+target triple = "i386-pc-linux-gnu"
+
+%struct.FILE = type { i32, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, i8*, %struct._IO_marker*, %struct.FILE*, i32, i32, i32, i16, i8, [1 x i8], i8*, i64, i8*, i8*, i8*, i8*, i32, i32, [40 x i8] }
+%struct._IO_marker = type { %struct._IO_marker*, %struct.FILE*, i32 }
+
+@branch_count = unnamed_addr global i32 0
+@curr_count = unnamed_addr global i32 0
+@datavar_count = unnamed_addr global i32 0
+@bs_count = unnamed_addr global i32 0
+@inject_instance = unnamed_addr global i32 0
+@done_injection = unnamed_addr global i32 0
+@instance_count = unnamed_addr global i32 0
+@iter_count = unnamed_addr global i32 0
+@instance = unnamed_addr global i32 0
+@finally_injected = unnamed_addr global i32 0
+@stderr = external unnamed_addr global %struct.FILE*
+@logFile = common unnamed_addr global %struct.FILE* null
+@profilingFileName = common unnamed_addr global [80 x i8] zeroinitializer, align 32
+@.str = private unnamed_addr constant [10 x i8] c".prof.txt\00", align 1
+@activatedFileName = common unnamed_addr global [80 x i8] zeroinitializer, align 32
+@.str1 = private unnamed_addr constant [21 x i8] c".activatedFaults.txt\00", align 1
+@.str2 = private unnamed_addr constant [2 x i8] c"r\00", align 1
+@profilingFile = common unnamed_addr global %struct.FILE* null
+@.str3 = private unnamed_addr constant [34 x i8] c"Unable to open profiling file %s\0A\00", align 4
+@.str4 = private unnamed_addr constant [2 x i8] c"a\00", align 1
+@activatedFile = common unnamed_addr global %struct.FILE* null
+@.str5 = private unnamed_addr constant [34 x i8] c"Unable to open activated file %s\0A\00", align 4
+@.str6 = private unnamed_addr constant [13 x i8] c"/dev/urandom\00", align 1
+@.str7 = private unnamed_addr constant [25 x i8] c"BackwardSliceCount = %d\0A\00", align 1
+@.str8 = private unnamed_addr constant [18 x i8] c"id:count = %d:%d\0A\00", align 1
+@.str9 = private unnamed_addr constant [63 x i8] c"Injected Fault : ID = %d\09size = %d\09old=0x%x\09new=0x%x\09count=%d\0A\00", align 4
+@.str10 = private unnamed_addr constant [66 x i8] c"size_byte=%d\09address=%p\09bytepos=%d\09bitpos=%d\09old errorbuf = 0x%x\0A\00", align 4
+@.str11 = private unnamed_addr constant [64 x i8] c"Injected Fault : ID = %d\09size = %d\09old=0x%x\09new=0x%x\09count=%ld\0A\00", align 4
+@branchstaticfile = common unnamed_addr global %struct.FILE* null
+@datastaticfile = common unnamed_addr global %struct.FILE* null
+@branchstaticFileName = common unnamed_addr global [80 x i8] zeroinitializer, align 32
+@datastaticFileName = common unnamed_addr global [80 x i8] zeroinitializer, align 32
+@option = common unnamed_addr global [10 x i8] zeroinitializer
+@str = common unnamed_addr global [100 x i8] zeroinitializer, align 32
+
+define void @initInjections(i8* %appName) nounwind {
+entry:
+  %appName_addr = alloca i8*, align 4
+  %i = alloca i32
+  %seed = alloca i32
+  %urandom = alloca %struct.FILE*
+  %"alloca point" = bitcast i32 0 to i32
+  store i8* %appName, i8** %appName_addr
+  store i32 0, i32* %i, align 4
+  %0 = load %struct.FILE** @stderr, align 4
+  store %struct.FILE* %0, %struct.FILE** @logFile, align 4
+  %1 = load i8** %appName_addr, align 4
+  %2 = call i8* @strcpy(i8* noalias getelementptr inbounds ([80 x i8]* @profilingFileName, i32 0, i32 0), i8* noalias %1) nounwind
+  %3 = call i8* @strcat(i8* noalias getelementptr inbounds ([80 x i8]* @profilingFileName, i32 0, i32 0), i8* noalias getelementptr inbounds ([10 x i8]* @.str, i32 0, i32 0)) nounwind
+  %4 = load i8** %appName_addr, align 4
+  %5 = call i8* @strcpy(i8* noalias getelementptr inbounds ([80 x i8]* @activatedFileName, i32 0, i32 0), i8* noalias %4) nounwind
+  %6 = call i8* @strcat(i8* noalias getelementptr inbounds ([80 x i8]* @activatedFileName, i32 0, i32 0), i8* noalias getelementptr inbounds ([21 x i8]* @.str1, i32 0, i32 0)) nounwind
+  %7 = call %struct.FILE* @fopen(i8* noalias getelementptr inbounds ([80 x i8]* @profilingFileName, i32 0, i32 0), i8* noalias getelementptr inbounds ([2 x i8]* @.str2, i32 0, i32 0)) nounwind
+  store %struct.FILE* %7, %struct.FILE** @profilingFile, align 4
+  %8 = load %struct.FILE** @profilingFile, align 4
+  %9 = icmp eq %struct.FILE* %8, null
+  br i1 %9, label %bb, label %bb1
+
+bb:                                               ; preds = %entry
+  %10 = load %struct.FILE** @stderr, align 4
+  %11 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %10, i8* noalias getelementptr inbounds ([34 x i8]* @.str3, i32 0, i32 0), i8* getelementptr inbounds ([80 x i8]* @profilingFileName, i32 0, i32 0)) nounwind
+  br label %bb5
+
+bb1:                                              ; preds = %entry
+  %12 = call %struct.FILE* @fopen(i8* noalias getelementptr inbounds ([80 x i8]* @activatedFileName, i32 0, i32 0), i8* noalias getelementptr inbounds ([2 x i8]* @.str4, i32 0, i32 0)) nounwind
+  store %struct.FILE* %12, %struct.FILE** @activatedFile, align 4
+  %13 = load %struct.FILE** @activatedFile, align 4
+  %14 = icmp eq %struct.FILE* %13, null
+  br i1 %14, label %bb2, label %bb3
+
+bb2:                                              ; preds = %bb1
+  %15 = load %struct.FILE** @stderr, align 4
+  %16 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %15, i8* noalias getelementptr inbounds ([34 x i8]* @.str5, i32 0, i32 0), i8* getelementptr inbounds ([80 x i8]* @activatedFileName, i32 0, i32 0)) nounwind
+  br label %bb5
+
+bb3:                                              ; preds = %bb1
+  %17 = call %struct.FILE* @fopen(i8* noalias getelementptr inbounds ([13 x i8]* @.str6, i32 0, i32 0), i8* noalias getelementptr inbounds ([2 x i8]* @.str2, i32 0, i32 0)) nounwind
+  store %struct.FILE* %17, %struct.FILE** %urandom, align 4
+  %seed4 = bitcast i32* %seed to i8*
+  %18 = load %struct.FILE** %urandom, align 4
+  %19 = call i32 @fread(i8* noalias %seed4, i32 4, i32 1, %struct.FILE* noalias %18) nounwind
+  %20 = load %struct.FILE** %urandom, align 4
+  %21 = call i32 @fclose(%struct.FILE* %20) nounwind
+  %22 = load i32* %seed, align 4
+  call void @srand(i32 %22) nounwind
+  %23 = load %struct.FILE** @profilingFile, align 4
+  %24 = call i32 (%struct.FILE*, i8*, ...)* @"\01__isoc99_fscanf"(%struct.FILE* noalias %23, i8* noalias getelementptr inbounds ([25 x i8]* @.str7, i32 0, i32 0), i32* @bs_count) nounwind
+  %25 = call i32 @random() nounwind
+  %26 = sitofp i32 %25 to double
+  %27 = fdiv double %26, 0x41DFFFFFFFC00000
+  %28 = load i32* @bs_count, align 4
+  %29 = sitofp i32 %28 to double
+  %30 = fmul double %27, %29
+  %31 = fptosi double %30 to i32
+  store i32 %31, i32* @inject_instance, align 4
+  %32 = load %struct.FILE** @profilingFile, align 4
+  %33 = call i32 @fclose(%struct.FILE* %32) nounwind
+  br label %bb5
+
+bb5:                                              ; preds = %bb3, %bb2, %bb
+  br label %return
+
+return:                                           ; preds = %bb5
+  ret void
+}
+
+declare i8* @strcpy(i8* noalias, i8* noalias) nounwind
+
+declare i8* @strcat(i8* noalias, i8* noalias) nounwind
+
+declare %struct.FILE* @fopen(i8* noalias, i8* noalias)
+
+declare i32 @fprintf(%struct.FILE* noalias, i8* noalias, ...) nounwind
+
+declare i32 @fread(i8* noalias, i32, i32, %struct.FILE* noalias)
+
+declare i32 @fclose(%struct.FILE*)
+
+declare void @srand(i32) nounwind
+
+declare i32 @"\01__isoc99_fscanf"(%struct.FILE* noalias, i8* noalias, ...) nounwind
+
+declare i32 @random() nounwind
+
+define i32 @preFunc(i32 %faultIndexNum, i32 %type, i32 %size) nounwind {
+entry:
+  %faultIndexNum_addr = alloca i32, align 4
+  %type_addr = alloca i32, align 4
+  %size_addr = alloca i32, align 4
+  %retval = alloca i32
+  %0 = alloca i32
+  %"alloca point" = bitcast i32 0 to i32
+  store i32 %faultIndexNum, i32* %faultIndexNum_addr
+  store i32 %type, i32* %type_addr
+  store i32 %size, i32* %size_addr
+  %1 = load i32* @done_injection, align 4
+  %2 = icmp eq i32 %1, 0
+  br i1 %2, label %bb, label %bb2
+
+bb:                                               ; preds = %entry
+  %3 = load i32* @curr_count, align 4
+  %4 = add nsw i32 %3, 1
+  store i32 %4, i32* @curr_count, align 4
+  %5 = load i32* @curr_count, align 4
+  %6 = load i32* @inject_instance, align 4
+  %7 = icmp eq i32 %5, %6
+  br i1 %7, label %bb1, label %bb2
+
+bb1:                                              ; preds = %bb
+  store i32 1, i32* @done_injection, align 4
+  store i32 1, i32* %0, align 4
+  br label %bb3
+
+bb2:                                              ; preds = %bb, %entry
+  store i32 0, i32* %0, align 4
+  br label %bb3
+
+bb3:                                              ; preds = %bb2, %bb1
+  %8 = load i32* %0, align 4
+  store i32 %8, i32* %retval, align 4
+  br label %return
+
+return:                                           ; preds = %bb3
+  %retval4 = load i32* %retval
+  ret i32 %retval4
+}
+
+define void @injectFunc(i32 %id, i32 %type, i32 %size) nounwind {
+entry:
+  %id_addr = alloca i32, align 4
+  %type_addr = alloca i32, align 4
+  %size_addr = alloca i32, align 4
+  %buf = alloca [1 x i8]
+  %bytepos = alloca i8
+  %bitpos = alloca i8
+  %single_bit = alloca i8
+  %errorbuf = alloca [32 x i8]
+  %offset = alloca i32
+  %size_byte = alloca i32
+  %i = alloca i32
+  %"alloca point" = bitcast i32 0 to i32
+  store i32 %id, i32* %id_addr
+  store i32 %type, i32* %type_addr
+  store i32 %size, i32* %size_addr
+  store i32 13, i32* %offset, align 4
+  store i32 73, i32* %offset, align 4
+  %0 = load i32* %size_addr, align 4
+  %1 = icmp eq i32 %0, 1
+  br i1 %1, label %bb, label %bb1
+
+bb:                                               ; preds = %entry
+  %2 = load i32* @curr_count, align 4
+  %3 = load %struct.FILE** @logFile, align 4
+  %4 = load i32* %id_addr, align 4
+  %5 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %3, i8* noalias getelementptr inbounds ([18 x i8]* @.str8, i32 0, i32 0), i32 %4, i32 %2) nounwind
+  %6 = load i32* %offset, align 4
+  %7 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %6
+  %8 = load i8* %7, align 1
+  store i8 %8, i8* %single_bit, align 1
+  %9 = load i32* %offset, align 4
+  %10 = load i32* %offset, align 4
+  %11 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %10
+  %12 = load i8* %11, align 1
+  %13 = xor i8 %12, 1
+  %14 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %9
+  store i8 %13, i8* %14, align 1
+  %15 = load i32* @curr_count, align 4
+  %16 = load i32* %offset, align 4
+  %17 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %16
+  %18 = load i8* %17, align 1
+  %19 = sext i8 %18 to i32
+  %20 = load i8* %single_bit, align 1
+  %21 = sext i8 %20 to i32
+  %22 = load %struct.FILE** @logFile, align 4
+  %23 = load i32* %id_addr, align 4
+  %24 = load i32* %size_addr, align 4
+  %25 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %22, i8* noalias getelementptr inbounds ([63 x i8]* @.str9, i32 0, i32 0), i32 %23, i32 %24, i32 %21, i32 %19, i32 %15) nounwind
+  %26 = load i32* @curr_count, align 4
+  %27 = load i32* %offset, align 4
+  %28 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %27
+  %29 = load i8* %28, align 1
+  %30 = sext i8 %29 to i32
+  %31 = load i8* %single_bit, align 1
+  %32 = sext i8 %31 to i32
+  %33 = load %struct.FILE** @activatedFile, align 4
+  %34 = load i32* %id_addr, align 4
+  %35 = load i32* %size_addr, align 4
+  %36 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %33, i8* noalias getelementptr inbounds ([63 x i8]* @.str9, i32 0, i32 0), i32 %34, i32 %35, i32 %32, i32 %30, i32 %26) nounwind
+  %37 = load %struct.FILE** @activatedFile, align 4
+  %38 = call i32 @fflush(%struct.FILE* %37) nounwind
+  br label %bb4
+
+bb1:                                              ; preds = %entry
+  %39 = load i32* %size_addr, align 4
+  %40 = sdiv i32 %39, 8
+  store i32 %40, i32* %size_byte, align 4
+  %41 = call i32 @random() nounwind
+  %42 = sitofp i32 %41 to double
+  %43 = fdiv double %42, 0x41DFFFFFFFC00000
+  %44 = load i32* %size_byte, align 4
+  %45 = sitofp i32 %44 to double
+  %46 = fmul double %43, %45
+  %47 = fptosi double %46 to i8
+  store i8 %47, i8* %bytepos, align 1
+  %48 = call i32 @random() nounwind
+  %49 = sitofp i32 %48 to double
+  %50 = fdiv double %49, 0x41DFFFFFFFC00000
+  %51 = fmul double %50, 8.000000e+00
+  %52 = fptosi double %51 to i8
+  store i8 %52, i8* %bitpos, align 1
+  %53 = load i32* @curr_count, align 4
+  %54 = load %struct.FILE** @logFile, align 4
+  %55 = load i32* %id_addr, align 4
+  %56 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %54, i8* noalias getelementptr inbounds ([18 x i8]* @.str8, i32 0, i32 0), i32 %55, i32 %53) nounwind
+  %57 = load i32* %size_byte, align 4
+  %58 = load i32* %offset, align 4
+  %59 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %58
+  %errorbuf2 = bitcast [32 x i8]* %errorbuf to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i32(i8* %errorbuf2, i8* %59, i32 %57, i32 1, i1 false)
+  %60 = load i8* %bytepos, align 1
+  %61 = sext i8 %60 to i32
+  %62 = getelementptr inbounds [32 x i8]* %errorbuf, i32 0, i32 %61
+  %63 = load i8* %62, align 1
+  %64 = sext i8 %63 to i32
+  %65 = load i8* %bitpos, align 1
+  %66 = sext i8 %65 to i32
+  %67 = load i8* %bytepos, align 1
+  %68 = sext i8 %67 to i32
+  %69 = load i32* %offset, align 4
+  %70 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %69
+  %71 = load %struct.FILE** @logFile, align 4
+  %72 = load i32* %size_byte, align 4
+  %73 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %71, i8* noalias getelementptr inbounds ([66 x i8]* @.str10, i32 0, i32 0), i32 %72, i8* %70, i32 %68, i32 %66, i32 %64) nounwind
+  %74 = load i8* %bytepos, align 1
+  %75 = sext i8 %74 to i32
+  %76 = load i8* %bytepos, align 1
+  %77 = sext i8 %76 to i32
+  %78 = getelementptr inbounds [32 x i8]* %errorbuf, i32 0, i32 %77
+  %79 = load i8* %78, align 1
+  %80 = load i8* %bitpos, align 1
+  %81 = sext i8 %80 to i32
+  %82 = shl i32 1, %81
+  %83 = trunc i32 %82 to i8
+  %84 = xor i8 %79, %83
+  %85 = getelementptr inbounds [32 x i8]* %errorbuf, i32 0, i32 %75
+  store i8 %84, i8* %85, align 1
+  %86 = load i32* @curr_count, align 4
+  %87 = load i8* %bytepos, align 1
+  %88 = sext i8 %87 to i32
+  %89 = getelementptr inbounds [32 x i8]* %errorbuf, i32 0, i32 %88
+  %90 = load i8* %89, align 1
+  %91 = sext i8 %90 to i32
+  %92 = load i8* %bytepos, align 1
+  %93 = sext i8 %92 to i32
+  %94 = load i32* %offset, align 4
+  %95 = add nsw i32 %93, %94
+  %96 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %95
+  %97 = load i8* %96, align 1
+  %98 = sext i8 %97 to i32
+  %99 = load %struct.FILE** @logFile, align 4
+  %100 = load i32* %id_addr, align 4
+  %101 = load i32* %size_addr, align 4
+  %102 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %99, i8* noalias getelementptr inbounds ([64 x i8]* @.str11, i32 0, i32 0), i32 %100, i32 %101, i32 %98, i32 %91, i32 %86) nounwind
+  %103 = load i32* @curr_count, align 4
+  %104 = load i8* %bytepos, align 1
+  %105 = sext i8 %104 to i32
+  %106 = getelementptr inbounds [32 x i8]* %errorbuf, i32 0, i32 %105
+  %107 = load i8* %106, align 1
+  %108 = sext i8 %107 to i32
+  %109 = load i8* %bytepos, align 1
+  %110 = sext i8 %109 to i32
+  %111 = load i32* %offset, align 4
+  %112 = add nsw i32 %110, %111
+  %113 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %112
+  %114 = load i8* %113, align 1
+  %115 = sext i8 %114 to i32
+  %116 = load %struct.FILE** @activatedFile, align 4
+  %117 = load i32* %id_addr, align 4
+  %118 = load i32* %size_addr, align 4
+  %119 = call i32 (%struct.FILE*, i8*, ...)* @fprintf(%struct.FILE* noalias %116, i8* noalias getelementptr inbounds ([64 x i8]* @.str11, i32 0, i32 0), i32 %117, i32 %118, i32 %115, i32 %108, i32 %103) nounwind
+  %120 = load %struct.FILE** @activatedFile, align 4
+  %121 = call i32 @fflush(%struct.FILE* %120) nounwind
+  %122 = load i32* %size_byte, align 4
+  %123 = load i32* %offset, align 4
+  %124 = getelementptr inbounds [1 x i8]* %buf, i32 0, i32 %123
+  %errorbuf3 = bitcast [32 x i8]* %errorbuf to i8*
+  call void @llvm.memcpy.p0i8.p0i8.i32(i8* %124, i8* %errorbuf3, i32 %122, i32 1, i1 false)
+  br label %bb4
+
+bb4:                                              ; preds = %bb1, %bb
+  br label %return
+
+return:                                           ; preds = %bb4
+  ret void
+}
+
+declare i32 @fflush(%struct.FILE*)
+
+declare void @llvm.memcpy.p0i8.p0i8.i32(i8* nocapture, i8* nocapture, i32, i32, i1) nounwind
+
+define void @postInjections() nounwind {
+entry:
+  %0 = load %struct.FILE** @activatedFile, align 4
+  %1 = call i32 @fclose(%struct.FILE* %0) nounwind
+  br label %return
+
+return:                                           ; preds = %entry
+  ret void
+}

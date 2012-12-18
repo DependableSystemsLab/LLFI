@@ -1,0 +1,10 @@
+GOTCHAS:
+	1. For injecting fault n times, use the same IR file (i.e. run the script once, while calling the fault injector with the same IR file n times). 
+		
+	2. The classification of the injection results depends on the comparison of fault-free execution and fault-injected execution.
+		That means non-deterministic programs may not work well in classification.
+		
+KNOWN PROBLEMS:
+	1. On 32 bit systems, llvm-gcc 4.2.1 might not be compatible with GCC other than version 4.4.5. 
+		Runing llvm-gcc 4.2.1 on Ubuntu 12.04 with GCC-4.6 has failed on our test computers.
+	2. The "offset" in function "injectFunc" in "fi_random.c" chooses between 32 and 64 bit, and has been tested on linux machines (Debian and Ubuntu). 

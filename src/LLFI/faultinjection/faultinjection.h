@@ -1,0 +1,96 @@
+#ifndef FAULTINJECT_H
+
+#define FAULTINJECT_H
+
+#include "llvm/Constants.h"
+#include "llvm/DerivedTypes.h"
+#include "llvm/GlobalValue.h"
+#include "llvm/Pass.h"
+#include "llvm/Function.h"
+#include "llvm/Module.h"
+#include "llvm/Support/CFG.h"
+#include "llvm/Support/InstIterator.h"
+#include "llvm/Support/InstVisitor.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Instruction.h"
+#include "llvm/Instructions.h"
+#include "llvm/ADT/Statistic.h"
+#include "llvm/LLVMContext.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Analysis/PostDominators.h"
+#include "llvm/Analysis/Dominators.h"
+#include "llvm/Analysis/AliasAnalysis.h"
+#include "llvm/Analysis/AliasSetTracker.h"
+#include "llvm/Transforms/Utils/PromoteMemToReg.h"
+#include "llvm/Target/TargetData.h"
+#include "llvm/Support/CommandLine.h"
+
+// STL includes
+#include <iostream>
+#include <fstream>
+#include <list>
+#include <map>
+#include <vector>
+#include <stack>
+#include <algorithm>
+#include <set>
+#include <string>
+
+using namespace llvm;
+using namespace std;
+// if no fioption, faults injected at all instruction
+//options are :
+//all (all injection)
+//nobranch (injection everything except branch)
+//nobranchnobcv (injection everything except branch and bcv)
+static cl::opt<string> fioption("fioption", cl::desc("The option for Fi: branch (b) or defs(d)! or all(a) or backward slice (s)"), cl::value_desc("fioption"));
+
+namespace
+{
+class FaultInjectionRandom:public FunctionPass {
+  public:
+    FaultInjectionRandom() : FunctionPass(ID) {
+		all = "all";
+		nobranch = "nobranch";
+		nobranchnobcv = "nobranchnobcv";
+		onlybranch = "Branch";
+	}
+	virtual bool doInitialization(Module &M);
+	virtual bool runOnFunction(Function &F);	
+	virtual bool doFinalization(Module& M);
+	static char ID; // Pass identification, replacement for typeid
+	virtual void getAnalysisUsage(AnalysisUsage &AU) const {
+	    AU.addRequired<TargetData>();
+	    AU.addRequired<DominatorTree>();
+	    AU.addRequired<AliasAnalysis>();		// Make sure that some Alias Analysis is computed before this pass	
+
+       }
+  private:
+	map<const Type*, string> FiFuncName;				// Map of fault-injection function names and types
+	int faultIndex; 						// index of instruction for fault-injection purposes
+	map<Instruction*, Instruction*> FaultIndexMap;			// Map of instructions to their fault-indices
+		set<Instruction*> fixupSet;			// Working set of all instructions that need to be converted to loads and stores
+	enum function_type {FAULTINJECT, TRACE}; //can add more types for tracing
+	void insertInjectionFunc(set<Instruction*>&, Module*);
+	void createInjectionFunc(Module*, const Type*, string&, Constant*, Constant*);
+	void createInjectionFunctions(Module* m);
+	void printFaultIndices(Module *M);
+	Instruction* findInstrumentationPoint(Instruction* Insn);
+	bool is_branch_or_datavar(Instruction *I, Instruction *fi);
+	Instruction* insertPrintStatement(string& checkStr, Value* printVal, Instruction* I);
+	uint64_t getStaticId(Instruction *I); //get the static id of the fault injection hook for I
+	bool is_injectFaultFuncCall(Instruction *I);
+	void getStaticInstances();
+	bool is_used_by_branch(Instruction *I);
+	//void remove_other_FIs(Module &M);	
+	std::string Filenamebranch, Filenamedatavar, ErrorInfo;
+	fstream branchstaticfile, datavarstaticfile;
+	
+	string all;
+	string nobranch;
+	string nobranchnobcv, onlybranch;
+};
+}
+char FaultInjectionRandom::ID=0;
+
+#endif

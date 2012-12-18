@@ -1,0 +1,17 @@
+This file is a list of people who have contributed to the LLFI 
+project.  If you have contributed a patch or made some other contribution to
+LLFI, please submit a patch to this file to add yourself, and it will be 
+done!
+
+The list is formatted to allow easy grepping and
+beautification by scripts.  The fields are: name (N), and description (D). 
+
+N: Anna Thomas
+D: Coding for LLFI - passes and scripts.
+
+N: Karthik Pattabiraman
+D: Provider of initial code and ideas
+
+N: Qining Li
+D: Documented README file and examples, fixed offset for 32 bit machines. 
+ 
