@@ -13,7 +13,7 @@ Developed by:
 
     University of British Columbia
 
-    http://llvm.org
+    https://github.com/DependableSystemsLab/LLFI
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal with
