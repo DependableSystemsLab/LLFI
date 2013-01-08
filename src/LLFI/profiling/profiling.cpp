@@ -203,18 +203,6 @@ bool ProfilingPass::is_used_by_branch(Instruction *I)
 	return false;
 }
 
-uint64_t ProfilingPass::getStaticId(Instruction *I)
-{
-	if(is_injectFaultFuncCall(I))
-	{
-		CallInst *ci = dyn_cast<CallInst>(I);
-		Value *faultindex = ci->getArgOperand(0); 
-		ConstantInt *cint = cast<ConstantInt>(faultindex);
-		uint64_t staticid = cint->getZExtValue();
-		return staticid;
-	}
-	return -1;
-}
 bool ProfilingPass::is_injectFaultFuncCall(Instruction *I)
 {
 	string injectfunc("injectFault");

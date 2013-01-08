@@ -21,13 +21,14 @@
 Instruction* FaultInjectionRandom::findInstrumentationPoint(Instruction *Insn) {
 	//DEBUG( cerr << "Finding instrumentation point for basic block " << bb->getName() << "\n"; );
 	// skip over the phiNodes and Alloca Instructions at the beginning of the basic block
+	// If Insn is a PHI, then other InjectFault instructions should also be skipped. Qining
 	Instruction* instrumentInsn;
 	BasicBlock *bb = Insn->getParent();
 	BasicBlock::iterator ii, ie;
 	for (ii = bb->begin(), ie = bb->end(); ii!=ie; ++ii) {
 		Instruction* I = &(*ii);
 		if(isa<PHINode>(Insn))
-		{  if (! dyn_cast<PHINode>(I) && ! dyn_cast<AllocaInst>(I) ) break; }
+		{  if (! dyn_cast<PHINode>(I) && ! dyn_cast<AllocaInst>(I) && !is_injectFaultFuncCall(I) ) break; }
 		else if(I==Insn)
 		{	++ii; break; }
 		  

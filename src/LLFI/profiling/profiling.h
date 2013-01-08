@@ -44,7 +44,7 @@ namespace
 			enum optiontype {BRANCH, DEF, ALL, BACKWARD_SLICE};
 			bool is_used_by_branch(Instruction *I);
 			Instruction* getFI(Instruction *I);
-			uint64_t getStaticId(Instruction *I); //get the static id of the fault injection hook for I
+//			uint64_t getStaticId(Instruction *I); //get the static id of the fault injection hook for I
 // 			bool is_in_funcavoidlist(string funcname);
  			bool is_injectFaultFuncCall(Instruction *I);
 			std::string Filename, ErrorInfo;
