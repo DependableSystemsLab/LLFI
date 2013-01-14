@@ -72,7 +72,8 @@ void initInjections(char *appName)
 #ifdef BACKWARD_SLICE_TRACING	
 	fscanf(profilingFile, "BackwardSliceCount = %d\n", &bs_count);
 	//inject_instance = rand()%bs_count + 1;	
-	inject_instance = random() / (RAND_MAX * 1.0) * bs_count;
+	inject_instance = random() / (RAND_MAX * 1.0) * bs_count + 1; 
+	//the "+1" is needed or inject_instance might be zero, which can not be equal to curr_count in all cases.
 #endif	
 	
 	fclose(profilingFile);
