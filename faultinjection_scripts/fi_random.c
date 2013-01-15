@@ -94,8 +94,8 @@ int preFunc(int faultIndexNum, int type, int size)
 }
 //each integer is 4 bytes (64 bit machine) ... offset is 3 ints + 1
 void injectFunc(int id, int type, int size) {
-	char buf[1], bytepos, bitpos,single_bit;
-	char errorbuf[32];
+	unsigned char buf[1], bytepos, bitpos,single_bit;
+	unsigned char errorbuf[32];
 	int offset = 13, size_byte,i;
 
 #ifdef __LP64__
