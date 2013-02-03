@@ -56,17 +56,17 @@ void initInjections(char *appName)
 	fread(&seed, sizeof(int), 1, urandom);
 	fclose(urandom);
 	srand(seed);
-	#ifdef BRANCH_PROF
-		fprintf(logFile,"reached here branch prof\n");
-		fscanf(profilingFile, "BranchCount = %d\n", &branch_count);
-		//instance_count = branch_count;
-		inject_instance = rand()%branch_count + 1;
-	#endif 
+#ifdef BRANCH_PROF
+	fprintf(logFile,"reached here branch prof\n");
+	fscanf(profilingFile, "BranchCount = %d\n", &branch_count);
+	//instance_count = branch_count;
+	inject_instance = rand()%branch_count + 1;
+#endif 
 #ifdef DATA_PROF	
 	//data profiling
     fprintf(logFile,"reached here data profiling\n");
-		fscanf(profilingFile, "DataVariableCount = %d\n", &datavar_count);
-		inject_instance = rand()%datavar_count + 1;		
+	fscanf(profilingFile, "DataVariableCount = %d\n", &datavar_count);
+	inject_instance = rand()%datavar_count + 1;		
 	#endif 
 
 #ifdef BACKWARD_SLICE_TRACING	
@@ -108,33 +108,31 @@ void injectFunc(int id, int type, int size) {
 	
 	if(size == 1) //1 bit --> branch result injection
 	{
-	  //insert this branch id into the file... next injection is into the defs of this branch. 
-    fprintf(logFile, "id:count = %d:%d\n", id, curr_count);
-	  //fprintf(logFile, "address=%p\n", &buf[offset]); 
-	  single_bit = buf[offset];
-	  buf[offset] ^= 0x1;
-	  //fprintf(activatedFile, "id = %d:%d\n", id, curr_count);
-	  fprintf(logFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%d\n", 
+		//insert this branch id into the file... next injection is into the defs of this branch. 
+		fprintf(logFile, "id:count = %d:%d\n", id, curr_count);
+		//fprintf(logFile, "address=%p\n", &buf[offset]); 
+		single_bit = buf[offset];
+		buf[offset] ^= 0x1;
+		//fprintf(activatedFile, "id = %d:%d\n", id, curr_count);
+		fprintf(logFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%d\n", 
 		id, size, single_bit, buf[offset],curr_count);
-	 fprintf(activatedFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%d\n", id, size, single_bit, buf[offset],curr_count);
-	 fflush(activatedFile); // flush the buffer of stdout, print into activated fault file even it crashes later.
+		fprintf(activatedFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%d\n", id, size, single_bit, buf[offset],curr_count);
+		fflush(activatedFile); // flush the buffer of stdout, print into activated fault file even it crashes later.
 	}
 	else //data var injection
 	{     
-	  size_byte = size/8;
-	  bytepos = random() / (RAND_MAX * 1.0) * size_byte;
-	  bitpos = random() / (RAND_MAX * 1.0) * 8;
+		size_byte = size/8;
+		bytepos = random() / (RAND_MAX * 1.0) * size_byte;
+		bitpos = random() / (RAND_MAX * 1.0) * 8;
 	  
-    fprintf(logFile, "id:count = %d:%d\n", id, curr_count);
-	  memcpy(errorbuf, &buf[offset], size_byte);
-	  fprintf(logFile, "size_byte=%d\taddress=%p\tbytepos=%d\tbitpos=%d\told errorbuf = 0x%x\n", size_byte, &buf[offset],bytepos,bitpos, errorbuf[ bytepos ]);
-	/*  for(i =0;i < size_byte; i++)
-          fprintf(logFile, "bytepos=%d\t errorbuf at bytepos = 0x%x\n", i, errorbuf[i]);*/
-      errorbuf[ bytepos ] = errorbuf[ bytepos ] ^ (0x1 << bitpos);
+		fprintf(logFile, "id:count = %d:%d\n", id, curr_count);
+		memcpy(errorbuf, &buf[offset], size_byte);
+		fprintf(logFile, "size_byte=%d\taddress=%p\tbytepos=%d\tbitpos=%d\told errorbuf = 0x%x\n", size_byte, &buf[offset],bytepos,bitpos, errorbuf[ bytepos ]);
+		errorbuf[ bytepos ] = errorbuf[ bytepos ] ^ (0x1 << bitpos);
 	    fprintf(logFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%ld\n", id, size, buf[offset + bytepos], errorbuf[bytepos], curr_count);
-	  fprintf(activatedFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%ld\n", id, size, buf[offset + bytepos], errorbuf[bytepos], curr_count);
-	  fflush(activatedFile); // flush the buffer of stdout, print into activated fault file even it meets a crash latter. Qining
-	  memcpy(&buf[offset], errorbuf, size_byte); // Overwrite the original value
+		fprintf(activatedFile, "Injected Fault : ID = %d\tsize = %d\told=0x%x\tnew=0x%x\tcount=%ld\n", id, size, buf[offset + bytepos], errorbuf[bytepos], curr_count);
+		fflush(activatedFile); // flush the buffer of stdout, print into activated fault file even it meets a crash latter. Qining
+		memcpy(&buf[offset], errorbuf, size_byte); // Overwrite the original value
 	}
 }
 
