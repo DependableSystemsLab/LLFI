@@ -3,6 +3,12 @@ GOTCHAS:
 		
 	2. The classification of the injection results depends on the comparison of fault-free execution and fault-injected execution.
 		That means non-deterministic programs may not work well in classification.
+
+	3. For different test benches, the method used to classify the results of faulty executions might be different. Please write your own specific classification 		code in faultoutcomes.pl.
+
+	4. Please check the the variable: "run_in_script" in faultinject.pl before running injection. Make sure it is set to 1 for the tests that run target 		application in scripts, and set to 0 for tests that can be executed directly by llvm interpreter.
+
+	5. When writing scripts in which the target application run, users should ensure the application can finish its execution normally for baseline (fault free) 		run. All three scripts: test_baseline.sh, test_prof.sh and test_fi.sh should be the same except the bitcode files they take into llvm interpreter.
 		
 KNOWN PROBLEMS:
 	1. On 32 bit systems, llvm-gcc 4.2.1 might not be compatible with GCC other than version 4.4.5. 

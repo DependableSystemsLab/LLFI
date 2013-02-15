@@ -23,7 +23,7 @@ void endProfiling(char *appName)
 		strcat(profileFileName,".prof.txt");
     if ((profileFile = fopen(profileFileName,"w"))==NULL) {
 		fprintf(stderr,"Unable to open profiling file %s\n", profileFileName);
-		return 0;	
+		return;	
 	}
 	if(prof_option == BRANCH)
     {	fprintf(profileFile,"BranchCount = %d\n", count); }

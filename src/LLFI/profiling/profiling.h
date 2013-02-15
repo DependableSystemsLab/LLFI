@@ -21,10 +21,35 @@
 #include "llvm/Analysis/Dominators.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Support/CommandLine.h"
-
+//////////////////////////////////////////
+//#include "../filter/filter.h"
 #include <iostream>
-#include<fstream>
-#include<string>
+#include <fstream>
+#include <list>
+#include <map>
+#include <vector>
+#include <stack>
+#include <algorithm>
+#include <set>
+#include <string>
+//////////////////////////////////////////
+
+//----------Parameter types-------------
+#define INTEGER  1
+#define ARRAY 2
+#define STRUCT 3
+#define POINTER 4
+#define FLOAT 5
+#define DOUBLE 6
+//--------------------------------------
+
+//----------Fault information-----------
+#define ONE_BIT_FLAG_POS 0
+#define INCLUSIVE_FLAG_POS 1
+#define LOWERBOUND_POS 2
+#define UPPERBOUND_POS 3
+//-------------------------------------- //this part is useless here, it should be used in faultinjection and fi_random.c, just write here
+
 using namespace llvm;
 using namespace std;
 //might extend with profiling for defs of branches
@@ -40,6 +65,7 @@ namespace
 			virtual bool runOnFunction(Function &F);	
 			static char ID; // Pass identification, replacement for typeid
 			//Instruction* insertPrintStatement(Instruction *I);
+			
 		private:
 			enum optiontype {BRANCH, DEF, ALL, BACKWARD_SLICE};
 			bool is_used_by_branch(Instruction *I);
@@ -47,8 +73,15 @@ namespace
 //			uint64_t getStaticId(Instruction *I); //get the static id of the fault injection hook for I
 // 			bool is_in_funcavoidlist(string funcname);
  			bool is_injectFaultFuncCall(Instruction *I);
+ 			bool filter(Instruction *I);
 			std::string Filename, ErrorInfo;
 			std::string Filenameptrvar;
+
+			//------------------------FOR filter USE-------------------------
+			map<string, set<unsigned int> > map_func_argu; //Qining
+			map<string, vector<int> > map_func_fault_range; //Qining
+			map<string, set<unsigned int> > map_func_fault_type; //Qining
+			//---------------------------------------------------------------
   };
 }
 char ProfilingPass::ID=0;

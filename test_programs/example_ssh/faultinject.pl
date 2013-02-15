@@ -2,8 +2,11 @@
 
 #use lib 'path_to_your_local_directory_for_timeout_package'; 
 
+#$LDFLAGS="-L. -Lopenbsd-compat/  -fstack-protector-all";
+#$LIBS="-lcrypto -ldl -lutil -lz -lnsl  -lcrypt -lresolv";
+
 #if the target program needs to run in script (because of "lli -load=<external libraries> or using expect)
-$run_in_script = 0; ## 1 means run in script, 0 means run directly
+$run_in_script = 1; ## 1 means run in script, 0 means run directly
 
 use Time::Out qw(timeout) ;
 $input_file = $ARGV[0];

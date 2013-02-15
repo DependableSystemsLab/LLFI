@@ -35,6 +35,27 @@
 #include <algorithm>
 #include <set>
 #include <string>
+#include <utility>
+
+
+//----------Parameter types-------------
+#define INTEGER  1
+#define ARRAY 2
+#define STRUCT 3
+#define POINTER 4
+#define FLOAT 5
+#define DOUBLE 6
+//--------------------------------------
+
+//----------Fault information-----------
+#define BIT_BYTE_WHOLE_FLAG_POS 0
+#define INCLUSIVE_FLAG_POS 1
+#define LOWERBOUND_POS 2
+#define UPPERBOUND_POS 3
+#define BIT_FAULT 0
+#define BYTE_FAULT 1
+#define WHOLE_FAULT 2
+//-------------------------------------- //
 
 using namespace llvm;
 using namespace std;
@@ -89,6 +110,16 @@ class FaultInjectionRandom:public FunctionPass {
 	string all;
 	string nobranch;
 	string nobranchnobcv, onlybranch;
+
+	//-----------------------FOR filter USE-------------------------
+	map<string, vector<pair<unsigned int, int> > > map_func_argu; //Qining
+	map<string, vector<int> > map_func_fault_range; //Qining
+	map<string, set<unsigned int> > map_func_fault_type; //Qining
+	map<string, int > map_func_bit_byte_whole; //Qining
+	int bit_byte_whole_flag;
+	bool filter(Instruction *I); //filter function
+	int searchArgument(string func_name, int pos);
+	//--------------------------------------------------------------
 };
 }
 char FaultInjectionRandom::ID=0;

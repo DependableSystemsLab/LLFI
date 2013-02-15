@@ -45,13 +45,15 @@ void FaultInjectionRandom::insertInjectionFunc(set<Instruction*>& insnSet, Modul
 	for (set<Instruction*>::iterator si = insnSet.begin(), se = insnSet.end(); si!=se; ++si) {
 		Instruction* I = *si;
 		const Type* returnType = I->getType();
-		if (returnType->isVoidTy()) 
+		if (returnType->isVoidTy() || !filter(I)) //here we can insert a filter
 		  continue;
-		vector<const Type*> argTypes(3);
+		
+		vector<const Type*> argTypes(4); // Qining, add one more argument to determing bit,byte or whole
 		LLVMContext& context = M->getContext();
 		argTypes[0] = Type::getInt32Ty(context);	// Fault-index number
 		argTypes[1] = Type::getInt32Ty(context); // the Enum saying if it is TRACE or FAULTINJECT
 		argTypes[2] = returnType;	// Actual value
+		argTypes[3] = Type::getInt32Ty(context); // bit, byte or whole flag
 		FunctionType* injectFuncType = FunctionType::get( returnType, argTypes, 0 );
 		string funcName;
 		if ( FiFuncName.find( returnType )!= FiFuncName.end() ) {
@@ -68,11 +70,13 @@ void FaultInjectionRandom::insertInjectionFunc(set<Instruction*>& insnSet, Modul
 		int size = argTypes[0]->getPrimitiveSizeInBits();
 		const IntegerType* itype = IntegerType::get(context,size);
 		Value* indexVal = ConstantInt::get(itype, faultIndex );
-		vector<Value*> args(3);
+		
+		vector<Value*> args(4); // Qining, bit, byte or whole flag
 		args[0] = indexVal;
 		Constant *faultinjectval = ConstantInt::get(Type::getInt32Ty(context),FAULTINJECT); //always fault inject. if tracing required, add separately.
 		args[1] = faultinjectval;
 		args[2] = I;
+		args[3] = ConstantInt::get(Type::getInt32Ty(context), bit_byte_whole_flag); // Qining, bit, byte or whole flag
 		char indexStr[20];
 		sprintf(indexStr, "%d", faultIndex);
 		Instruction* insertInst;
@@ -99,7 +103,8 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 		args.push_back(&*ai);
 	// Insert call to prefix function
 	BasicBlock* entryBlock = BasicBlock::Create(context, "entry", f );		// create an entry block for the func()
-	vector<Value*> preArgs(3);
+	
+	vector<Value*> preArgs(4); // Qining, bit_byte_whole_flag, add one more for appName
 	preArgs[0] = args[0]; //FI Number
 	
 	preArgs[1] = args[1]; // the ENUM
@@ -108,6 +113,8 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 	TargetData& td = getAnalysis<TargetData>();
 	size = td.getTypeSizeInBits( argType );
 	preArgs[2] = ConstantInt::get(Type::getInt32Ty(context), size ); 
+	preArgs[3] = args[3];
+	//preArgs[4] = args[4];// appName
 	Value* preBranchVal;
 	DEBUG( errs()<<"Inserting call to preFunc() :" <<*preFunc<<"\n" );
 	if (preFunc!=NULL)
@@ -122,22 +129,26 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 	string preStr("pre-injection");
 	// Insert call to injection function
 	DEBUG( errs()<<"Inserting call to injectFunc() :" <<*injectFunc<<"\n" );
-	vector<Value*> injectArgs(3);
+	//vector<Value*> injectArgs(3);
+	vector<Value*> injectArgs(4); // Qining, add one more argument for bit_byte_whole_flag
 	injectArgs[0] = args[0]; //FINumber
 
 	injectArgs[1] = preArgs[1]; // the ENUM
 	injectArgs[2] = preArgs[2]; // The size
-	
+	injectArgs[3] = preArgs[3]; // Qining, add one more argument for bit_byte_whole_flag
+
 	CallInst::Create( injectFunc, injectArgs.begin(),injectArgs.end(), "", bi2); 	// Insert the inject call before the branch instruction to exit block
 	ReturnInst::Create(context,args[2], exitBlock );		// create a return instruction at the end of the block
 }
 
 void FaultInjectionRandom::createInjectionFunctions(Module* m) {
-	vector<const Type*> argTy(3);
+	
+	vector<const Type*> argTy(4); // Qining, add one more argument for bit_byte_whole_flag
 	LLVMContext& context = m->getContext();
 	argTy[0] = Type::getInt32Ty(context);
 	argTy[1] = Type::getInt32Ty(context);
 	argTy[2] = Type::getInt32Ty(context);
+	argTy[3] = Type::getInt32Ty(context); // Qining, add one more argument for bit_byte_whole_flag//argTy[4] = PointerType::get(Type::getInt8Ty(context),0);
 	FunctionType* injectFuncType = FunctionType::get(Type::getVoidTy(context), argTy, 0);
 	FunctionType* preFuncType = FunctionType::get(Type::getInt1Ty(context), argTy, 0); 
 	DEBUG( cerr<<"Inserting fault-injection function into module\n");
@@ -186,7 +197,7 @@ void FaultInjectionRandom::getStaticInstances()
 		Instruction* I = (*mi).first;
 		Instruction* fi = (*mi).second;
 		finumber = getStaticId(fi);
-		if(finumber == -1)
+		if((int)finumber == -1)
 		{	
 			errs() << "Badly formed fault injection func\n";
 			continue; 
@@ -247,6 +258,86 @@ bool FaultInjectionRandom::doInitialization(Module &M)
 	{ errs() <<"cannot open " << Filenamebranch << "\n";	return false; }
 	if(!datavarstaticfile.is_open())
 	{ errs() <<"cannot open " << Filenamedatavar << "\n";	return false; }
+
+	//***********************************************************************************************************
+	//code for loading configure file should be here
+	ifstream config ("llfi_configure.txt");
+	if (config.is_open())
+	{
+		// we need to extract information from config file here Qining
+		// this loop is used to know if the file is end
+		while ( config.good() )
+    	{
+    		string line;
+      		getline (config,line);
+      		if(line.empty())	continue;
+      		//if the line is empty, just skip.
+      		//Any block of configure is started with one specific function
+      		unsigned found = line.find("FUNCTION_NAME:");
+      		if (found < line.length())
+      		{
+    			//std::cout << "\nfound FUNCTION_NAME at " << found << '\n';
+    			std::string func_name = line.substr (found + string("FUNCTION_NAME:").length(),line.length() - found - string("FUNCTION_NAME:").length());
+    			//first, I need to trim it
+    			while(func_name[0] == ' ')
+    			{
+    				func_name.erase(0, 1);
+    			}
+    			while(func_name[func_name.length() - 1] == ' ')
+    			{
+    				func_name.erase(func_name.length() - 1, 0);
+    			}
+    			//so now I've got the name of the function
+    			if(func_name.empty())	continue;
+				std::cout << "The func_name is " << func_name << "\n";
+				map_func_argu[func_name] = vector< pair<unsigned int, int> >(); // creat entry
+				
+				//second, I need to load argument set and type set
+				do
+				{
+					line.clear();
+					getline(config,line); // get the next line
+					if(!config.good())	break; // if the new line is the end of file, our job is done.
+					if(line.find("ARGUMENT:") < line.length())
+					{
+						//insert argument id to argument set
+						std::string arg_set = line.substr(line.find("ARGUMENT:")+string("ARGUMENT:").length(), line.length() - line.find("ARGUMENT:")-string("ARGUMENT:").length());
+						std::string arg;
+						while(!arg_set.empty())
+						{
+							while(arg_set[0] <= '9' && arg_set[0] >= '0')
+							{
+								arg.append(arg_set.substr(0,1));
+								if(!arg_set.empty())	arg_set.erase(0,1);
+							}
+							if(!arg.empty())
+							{
+								int fault_type = BIT_FAULT;
+								if(arg_set.find("<BYTE>") < arg_set.length())	fault_type = BYTE_FAULT;
+								else if(arg_set.find("<WHOLE>") < arg_set.length())	fault_type = WHOLE_FAULT;
+								unsigned int arg_num = atoi(arg.c_str()) - 1;
+								map_func_argu[func_name].push_back(make_pair(arg_num, fault_type));
+								std::cout << "\tinclude arg: " << map_func_argu[func_name].back().first + 1<<" type: "<<map_func_argu[func_name].back().second << "\n";
+							}
+							arg.clear();
+							if(!arg_set.empty())	arg_set.erase(0,1);
+
+						}
+					}
+					
+				}while(line.find("FUNC_DEF_END") != 0);
+
+    		}
+
+    	}
+    	// The file is end, we should have already finished our work, now close the file
+    	config.close();
+	}
+	else errs()<<"Unable to open config file, use default config: all instructions, one bit flip\n";
+
+	bit_byte_whole_flag = 0;
+	//***********************************************************************************************************
+
 	return FunctionPass::doInitialization(M);	
 
 }
@@ -402,6 +493,75 @@ bool FaultInjectionRandom::is_injectFaultFuncCall(Instruction *I)
     if(funcname.find(injectfunc) != string::npos)
 		return true;
 	return false;
+}
+
+bool FaultInjectionRandom::filter(Instruction *I)
+{
+	bit_byte_whole_flag = BIT_FAULT; //set flag to default
+	if(map_func_argu.empty())	
+		{
+			return true;
+		}
+	//if this variable is a function pointer, we skip it now
+	if(const PointerType* ptr_ty = dyn_cast<PointerType>(I->getType()))
+	{
+		if(isa<FunctionType>(ptr_ty->getElementType()))
+		{
+			return false;
+		}
+	}
+	//only check when there is a list of function
+	for(Value::use_iterator UI = I->use_begin(), UE = I->use_end(); UI != UE; ++UI)
+	{
+		Instruction *user = cast<Instruction>(*UI);
+		if(CallInst* callinst = dyn_cast<CallInst>(user))
+		{
+			Function* func_called = callinst->getCalledFunction();
+			//return (map_func_argu.count(func_called->getName()) > 0);
+			//check function
+			if(func_called==NULL)
+			{
+				//errs()<<"\nCall function pointer\n";
+				return false;
+			}
+			if(!map_func_argu.count(func_called->getName()))	continue;
+			//check argument
+			unsigned int argu_i = 0;
+			for(argu_i = 0; argu_i < callinst->getNumOperands(); argu_i++)
+			{
+				if(callinst->getOperand(argu_i) == I)	break;
+			}
+			if(argu_i == callinst->getNumOperands())	continue;
+			//if the argument set is empty, all arguments are candidates for insertion
+			if(searchArgument(func_called->getName(), argu_i) == -1 && !map_func_argu[func_called->getName()].empty())	continue;
+			if(!map_func_argu[func_called->getName()].empty())
+				bit_byte_whole_flag = map_func_argu[func_called->getName()][searchArgument(func_called->getName(), argu_i)].second;
+			else
+				bit_byte_whole_flag = BIT_FAULT;
+			
+			return true;
+		}
+		else
+		{
+			continue;
+		}
+
+	}
+	// if instruction I should not be instrumented, we will be here.
+	//errs()<<"instruction: "<< *I << "is not instrumented\n"; // TODO: remove this
+	return false;
+}
+
+int FaultInjectionRandom::searchArgument(string func_name, int pos_in_argu_list)
+{
+	int pos_in_vector = 0;
+	for(pos_in_vector = 0; pos_in_vector < map_func_argu[func_name].size(); pos_in_vector++)
+	{
+		if(map_func_argu[func_name][pos_in_vector].first == pos_in_argu_list)	break;
+	}
+	if(pos_in_vector == map_func_argu[func_name].size())	pos_in_vector = -1;
+	//printf("found %d at: %d\n",pos_in_argu_list,pos_in_vector);
+	return pos_in_vector;
 }
 
 static RegisterPass<FaultInjectionRandom> X("FaultInjectionRandom", "FaultInjectionRandom Pass",false,false);

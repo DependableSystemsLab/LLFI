@@ -2,6 +2,9 @@
 
 #use lib 'path_to_your_local_directory_for_timeout_package'; 
 
+#if the target program needs to run in script (because of "lli -load=<external libraries> or using expect)
+$run_in_script = 0; ## 1 means run in script, 0 means run directly
+
 use Time::Out qw(timeout) ;
 $input_file = $ARGV[0];
 $sopath = $ARGV[1];
@@ -38,6 +41,21 @@ $fi_randombc = "fi_random.bc";
 
 $baseline_output = $filename."_baseline";
 $dir_output_type = $filename."_output_$type";
+
+if($run_in_script == 1)
+{
+	print "Application runs in script\n";
+	$exec_baseline = "./test_baseline.sh";
+	$exec_prof = "./test_prof.sh";
+	$exec_fi = "./test_fi.sh";
+}
+elsif($run_in_script == 0)
+{
+	print "Application runs directly\n";
+	$exec_baseline = "lli $cleanexec";
+	$exec_prof = "lli $linkedproffile_bs";
+	$exec_fi = "lli $linkedfaultinjectfile_bs";
+}
 
 
 if(-d $baseline_output)
@@ -100,7 +118,11 @@ sub runFaultInjection
 	system("cp $fi_randomc tmp.$fi_randomc");
 	$inputline = $inputs[0];
 
-	system("lli $linkedprofile $inputline output.prof.txt");
+	#system("llc $linkedproffile_bs -o $linkedproffile_bs.s");
+	#system("gcc $LDFLAGS $LIBS $linkedproffile_bs.s -o $linkedproffile_bs.native");
+	##################### run Profiling #########################
+	system("$exec_prof $inputline");
+	#############################################################
 	system("cp $prof_file $type.$prof_file");
 	if($type eq "Branch")
 	{ 	
@@ -122,12 +144,23 @@ sub runFaultInjection
 		$run = $num_branch_bs;
 		#$dir_output = $dir_output_bs;	
 	}
-	system("llvm-gcc -emit-llvm $fi_randomc -S -o $fi_randombc"); 
+	if($run_in_script == 1)
+	{
+		system("llvm-gcc -emit-llvm -DNO_STDOUTPUT $fi_randomc -S -o $fi_randombc"); 
+	}
+	else
+	{
+		system("llvm-gcc -emit-llvm $fi_randomc -S -o $fi_randombc"); 
+	}
 	system("llvm-link $fifile $fi_randombc -o $linkedfifile");
+	#system("llc $linkedfifile -o $linkedfifile.s");
+	#system("gcc $LDFLAGS $LIBS $linkedfifile.s -o $linkedfifile.native");
 	print "NUM INJECTIONS: $run\n";
 	open HANGFILE, "> $hangfile" or die "cant open $hangfile\n";
 	for($i=0;$i<$run;$i++)
-	{  timeout $nb_secs => sub {system("lli $linkedfifile $inputline > $dir_output_type/input$input_count.faultyoutput.$i.txt"); };
+	{  	####################### run injection ###########################
+		timeout $nb_secs => sub {system("$exec_fi $inputline > $dir_output_type/input$input_count.faultyoutput.$i.txt"); };
+		#################################################################
 		if ($@){
 		#timed out operation
 			print HANGFILE "$i\n";
@@ -148,5 +181,12 @@ sub runBaseline
 	close INPUT_FILE;
 	$input_count =0;
 	$inputline= $inputs[0];
-	system("lli $cleanexec $inputline > $baseline_output/input$input_count.cleanoutput.txt"); 
+	#system("lli $cleanexec $inputline > $baseline_output/input$input_count.cleanoutput.txt"); 
+	##system("./test_baseline.sh > $baseline_output/input$input_count.cleanoutput.txt"); 
+	#system("llc $cleanexec -o $cleanexec.s");
+	#system("gcc $LDFLAGS $LIBS $cleanexec.s -o $cleanexec.native");
+	##system("./$cleanexec.native $inputline > $baseline_output/input$input_count.cleanoutput.txt");
+	#########################run baseline###########################
+	system("$exec_baseline $inputline > $baseline_output/input$input_count.cleanoutput.txt"); 
+	################################################################
 }
