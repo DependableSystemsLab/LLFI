@@ -112,7 +112,7 @@ void injectFunc(int id, int type, int size, int bit_byte_whole_flag)
 	offset = 25;
 // 64-bit code
 #else
-	offset = 73;//unknown yet
+	offset = 77;
 // 32-bit code
 #endif
 	/*for(myi = 0; myi<100; myi++)
