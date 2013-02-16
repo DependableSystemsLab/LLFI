@@ -101,24 +101,25 @@ int preFunc(int faultIndexNum, int type, int size, int bit_byte_whole_flag)
 	}
 	return 0;
 }
-//each integer is 4 bytes (64 bit machine) ... offset is 3 ints + 1
+
 void injectFunc(int id, int type, int size, int bit_byte_whole_flag) 
 {
 	unsigned char buf[1], bytepos, bitpos,single_bit;
 	unsigned char errorbuf[8];
 	int offset = 25, size_byte,i;
+	/*for(i = 0; i<1000 ;i++)
+	{
+		printf("%d:\t%d\t%x\n",i,buf[i],&buf[i]);
+	}*/
+	//printf("the return stack frame address: %x\n", __builtin_frame_address(0));
 
 #ifdef __LP64__
 	offset = 25;
 // 64-bit code
 #else
-	offset = 77;
+	offset = __builtin_frame_address(0) - (void*)&buf[0] + 48;
 // 32-bit code
 #endif
-	/*for(myi = 0; myi<100; myi++)
-	{
-		printf("%d:\t%d\n",myi,buf[myi]);
-	}*/
 	
 	if(size == 1) //1 bit --> branch result injection
 	{

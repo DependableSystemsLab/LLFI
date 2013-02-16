@@ -1,0 +1,11 @@
+#!/bin/sh
+lli=${LLVMINTERP-lli}
+exec $lli \
+    -load=/usr/lib/libresolv.so \
+    -load=/usr/lib/libcrypto.so \
+    -load=/usr/lib/libdl.so \
+    -load=/usr/lib/libutil.so \
+    -load=/usr/lib/libz.so \
+    -load=/usr/lib/libnsl.so \
+    -load=/usr/lib/libcrypt.so \
+    ssh.bc ${1+"$@"}
