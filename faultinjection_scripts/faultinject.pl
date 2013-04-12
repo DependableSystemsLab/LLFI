@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#use lib 'path_to_your_local_directory_for_timeout_package'; 
+use lib '/data/usr/local/share/perl/5.10.1'; 
 
 #if the target program needs to run in script (because of "lli -load=<external libraries> or using expect)
 $run_in_script = 0; ## 1 means run in script, 0 means run directly

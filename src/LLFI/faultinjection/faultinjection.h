@@ -70,7 +70,7 @@ namespace
 {
 class FaultInjectionRandom:public FunctionPass {
   public:
-    FaultInjectionRandom() : FunctionPass(ID) {
+    FaultInjectionRandom() : FunctionPass(ID), ptrinstnum(0), cmpinstnum(0), totalinstnum(0) {
 		all = "all";
 		nobranch = "nobranch";
 		nobranchnobcv = "nobranchnobcv";
@@ -120,6 +120,12 @@ class FaultInjectionRandom:public FunctionPass {
 	bool filter(Instruction *I); //filter function
 	int searchArgument(string func_name, int pos);
 	//--------------------------------------------------------------
+
+  // Stat purpose //Jiesheng
+  unsigned long ptrinstnum;
+  unsigned long cmpinstnum;
+  unsigned long totalinstnum;
+
 };
 }
 char FaultInjectionRandom::ID=0;

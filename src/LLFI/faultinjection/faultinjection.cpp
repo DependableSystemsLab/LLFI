@@ -48,6 +48,17 @@ void FaultInjectionRandom::insertInjectionFunc(set<Instruction*>& insnSet, Modul
 		if (returnType->isVoidTy() || !filter(I)) //here we can insert a filter
 		  continue;
 		
+
+    // Jiesheng
+    if (returnType->isPointerTy())
+      ptrinstnum++;
+    if (isa<CmpInst>(I))
+      cmpinstnum++;
+    totalinstnum++;
+
+
+
+
 		vector<const Type*> argTypes(4); // Qining, add one more argument to determing bit,byte or whole
 		LLVMContext& context = M->getContext();
 		argTypes[0] = Type::getInt32Ty(context);	// Fault-index number
@@ -122,6 +133,16 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 	else	
 		preBranchVal = ConstantInt::getTrue(context);
 	BasicBlock* injectBlock = BasicBlock::Create(context,"inject", f );	
+
+//// added by Jiesheng
+  AllocaInst *tmploc = new AllocaInst(argType, 
+                              ConstantInt::get(Type::getInt32Ty(context), 0),
+                              "tmploc", entryBlock);
+  new StoreInst(args[2], tmploc, entryBlock);
+
+
+
+
 	BasicBlock* exitBlock = BasicBlock::Create(context,"exit", f );
 	//if pre condition is true, goto inject function
 	BranchInst::Create( injectBlock, exitBlock, preBranchVal, entryBlock );		
@@ -130,15 +151,25 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 	// Insert call to injection function
 	DEBUG( errs()<<"Inserting call to injectFunc() :" <<*injectFunc<<"\n" );
 	//vector<Value*> injectArgs(3);
-	vector<Value*> injectArgs(4); // Qining, add one more argument for bit_byte_whole_flag
+	vector<Value*> injectArgs(5); // Qining, add one more argument for bit_byte_whole_flag, Jiesheng added one more
 	injectArgs[0] = args[0]; //FINumber
 
 	injectArgs[1] = preArgs[1]; // the ENUM
 	injectArgs[2] = preArgs[2]; // The size
 	injectArgs[3] = preArgs[3]; // Qining, add one more argument for bit_byte_whole_flag
+  
+  //Jiesheng
+  injectArgs[4] = new BitCastInst(tmploc, 
+                    PointerType::get(Type::getInt8Ty(context), 0), "tmploc_cast", bi2);
+
 
 	CallInst::Create( injectFunc, injectArgs.begin(),injectArgs.end(), "", bi2); 	// Insert the inject call before the branch instruction to exit block
-	ReturnInst::Create(context,args[2], exitBlock );		// create a return instruction at the end of the block
+	
+  //Jiesheng
+  LoadInst *updateval = new LoadInst(tmploc, "updateval", exitBlock);
+  
+  // changed from args[2] to updateval by Jiesheng
+  ReturnInst::Create(context,updateval, exitBlock );		// create a return instruction at the end of the block
 }
 
 void FaultInjectionRandom::createInjectionFunctions(Module* m) {
@@ -149,7 +180,15 @@ void FaultInjectionRandom::createInjectionFunctions(Module* m) {
 	argTy[1] = Type::getInt32Ty(context);
 	argTy[2] = Type::getInt32Ty(context);
 	argTy[3] = Type::getInt32Ty(context); // Qining, add one more argument for bit_byte_whole_flag//argTy[4] = PointerType::get(Type::getInt8Ty(context),0);
-	FunctionType* injectFuncType = FunctionType::get(Type::getVoidTy(context), argTy, 0);
+	
+  // Jiesheng
+  vector<const Type*> fiargsTy(5);
+  fiargsTy[0] = argTy[0]; fiargsTy[1] = argTy[1]; 
+  fiargsTy[2] = argTy[2]; fiargsTy[3] = argTy[3];
+  fiargsTy[4] = PointerType::get(Type::getInt8Ty(context), 0);
+
+
+  FunctionType* injectFuncType = FunctionType::get(Type::getVoidTy(context), fiargsTy, 0);
 	FunctionType* preFuncType = FunctionType::get(Type::getInt1Ty(context), argTy, 0); 
 	DEBUG( cerr<<"Inserting fault-injection function into module\n");
 	Constant* injectFunc = m->getOrInsertFunction("injectFunc", injectFuncType);			// get the injection function
@@ -374,6 +413,15 @@ bool FaultInjectionRandom::doFinalization(Module &M)
 	}
 	// Create the fault-injection functions
 	createInjectionFunctions( &M );
+
+
+  // Jiesheng
+  errs() << "Pointer Instruction Number: " << ptrinstnum << "\n";
+  errs() << "Cmp Instruction Number: " << cmpinstnum << "\n";
+  errs() << "Total Instruction Number: " << totalinstnum << "\n";
+
+
+
 	if(!fioption.compare(onlybranch))
 		return FunctionPass::doFinalization(M);	
 	// Print the list of instructions that are involved in the checks
@@ -554,7 +602,7 @@ bool FaultInjectionRandom::filter(Instruction *I)
 
 int FaultInjectionRandom::searchArgument(string func_name, int pos_in_argu_list)
 {
-	int pos_in_vector = 0;
+	unsigned pos_in_vector = 0;
 	for(pos_in_vector = 0; pos_in_vector < map_func_argu[func_name].size(); pos_in_vector++)
 	{
 		if(map_func_argu[func_name][pos_in_vector].first == pos_in_argu_list)	break;
