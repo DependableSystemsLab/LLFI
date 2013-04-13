@@ -23,9 +23,9 @@ C. Build LLFI libraries
 	1. Extract the code from LLFI archive (/LLFI)
 	2. Copy the content under LLFI/src/ (excluding 'LLFI/src/') into your $LLVMSRC/lib/Transforms,  
 	3. copy the content under LLFI/dst to your $LLVMOBJ/lib/Transforms 
-	3. Under directory "$LLVMOBJ/lib/Transforms/faultinjection/", do make.
-	4. Under directory "$LLVMOBJ/lib/Transforms/profiling/", do make.
-	5. You should be able to find "LLFI.so" and "LLFIProfiling.so" under "$LLVMOBJ/<your_llvm_build>/lib/". (Eg: ~/llvm/build/Release/lib/)
+	4. Under directory "$LLVMOBJ/lib/Transforms/LLFI/faultinjection/", do make.
+	5. Under directory "$LLVMOBJ/lib/Transforms/LLFI/profiling/", do make
+	6. You should be able to find "LLFI.so" and "LLFIProfiling.so" under "$LLVMOBJ/<your_llvm_build>/lib/". (Eg: ~/llvm/build/Release/lib/)
 	
 D. Testing LLFI
 	You can use example programs in /LLFI/test_programs folder to test LLFI, including: 
