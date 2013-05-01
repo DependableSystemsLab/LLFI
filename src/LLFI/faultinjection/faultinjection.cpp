@@ -15,6 +15,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "faultinjection.h"
+//#define EXCLUDE_CASTINST
 
 //Acknowledgement: Used parts of Karthik's code
 
@@ -136,7 +137,6 @@ void FaultInjectionRandom::createInjectionFunc(Module* m, const Type* fiType, st
 
 //// added by Jiesheng
   AllocaInst *tmploc = new AllocaInst(argType, 
-                              ConstantInt::get(Type::getInt32Ty(context), 0),
                               "tmploc", entryBlock);
   new StoreInst(args[2], tmploc, entryBlock);
 
@@ -266,7 +266,7 @@ bool FaultInjectionRandom::runOnFunction(Function &F)
 	//int is_used_by_branch = 0;
     for (inst_iterator fi = inst_begin(&F), fe = inst_end(&F); fi!=fe; ++fi) {
 	    Instruction* I = &*fi;
-		  if(!fioption.compare(onlybranch)){
+		  if(fioption.compare(onlybranch) == 0){
 			if(!isa<CmpInst>(I))
 				continue;
 			if(is_used_by_branch(I))
@@ -274,7 +274,13 @@ bool FaultInjectionRandom::runOnFunction(Function &F)
 			continue;
 		  }
 		  //for injection into all instructions except invoke instructions (these are same as unconditional branch instructions with exception handling mechanism)
-		  if(!isa<InvokeInst>(I))
+		  if((!isa<InvokeInst>(I)) 
+
+#ifdef EXCLUDE_CASTINST
+&& (!isa<CastInst>(I))
+#endif
+
+) // cast instruction added by Jiesheng
 			injectSet.insert(I);
     }
     insertInjectionFunc(injectSet, F.getParent()); // Insert code to inject faults for the instructions checked in function

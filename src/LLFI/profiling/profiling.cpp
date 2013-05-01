@@ -24,7 +24,7 @@
 
 #include "profiling.h"
 
-
+//#define EXCLUDE_CASTINST
 
 bool ProfilingPass::runOnFunction(Function &F)
 {
@@ -126,6 +126,13 @@ bool ProfilingPass::runOnFunction(Function &F)
 				//errs()<<"filter not passed\n";
 				continue;
 			}
+//for injection into all instructions except invoke instructions (these are same as unconditional branch instructions with exception handling mechanism)
+		  if((isa<InvokeInst>(I)) 
+#ifdef EXCLUDE_CASTINST
+|| (isa<CastInst>(I))
+#endif
+) // cast instruction added by Jiesheng
+        continue;
 			
 			//errs()<<"filter passed\n";
 			Instruction *beforeInst;
