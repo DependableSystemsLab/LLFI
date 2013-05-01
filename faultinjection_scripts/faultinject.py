@@ -12,14 +12,16 @@ import shutil
 #basedir = "/home/jshwei/Desktop/splash_time_automated"
 # config
 basedir = "/data/experiment/LLFI/NoBrNoStack"
-currdir = basedir + "/999.specrand"
-progbin = currdir + "/specrand"
-timeout = 100
-optionlist = ["32434", "2423"]
+currdir = basedir + "/daxpy"
+progbin = currdir + "/daxpy"
+timeout = 500
+optionlist = []
 
 optbin = "/data/llvm-2.9_build/Debug+Asserts/bin/opt"
 llibin = "/data/llvm-2.9_build/Debug+Asserts/bin/lli"
 linkbin = "/data/llvm-2.9_build/Debug+Asserts/bin/llvm-link"
+llcbin = "/data/llvm-2.9_build/Debug+Asserts/bin/llc"
+llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
 instcountlib = "/data/llvm-2.9_build/Debug+Asserts/lib/LLFIProfiling.so"
 filib = "/data/llvm-2.9_build/Debug+Asserts/lib/LLFI.so"
 profilell = basedir + "/../lib/profiling_lib.ll"
@@ -87,6 +89,15 @@ def compileProg():
   execCompilation(execlist)
   execlist = [linkbin, '-S', '-o', filinkfile, fifile, fill]
   execCompilation(execlist)
+  
+  execlist = [llcbin, '-filetype=obj', '-o', proflinkfile + '.o', proflinkfile]
+  execCompilation(execlist)
+  execlist = [llcbin, '-filetype=obj', '-o', filinkfile + '.o', filinkfile]
+  execCompilation(execlist)
+  execlist = [llvmgcc, '-o', proflinkfile + '.exe', proflinkfile + '.o']
+  execCompilation(execlist)
+  execlist = [llvmgcc, '-o', filinkfile + '.exe', filinkfile + '.o']
+  execCompilation(execlist)
 	
 def main():
   #clear previous output
@@ -94,14 +105,14 @@ def main():
   global run_number, optionlist, outputfile, proflinkfile, filinkfile
   # baseline
   outputfile = basedir + "/golden_output"
-  execlist = [llibin, proflinkfile]
+  execlist = [ proflinkfile + '.exe']
   execlist.extend(optionlist)
   execute(execlist)
   # fault injection
   for index in range(0, run_number):
     outputfile = outputdir + "/outputfile-" + str(index)
     errorfile = errordir + "/errorfile-" + str(index)
-    execlist = [llibin, filinkfile]
+    execlist = [filinkfile + '.exe']
     execlist.extend(optionlist)
     ret = execute(execlist)
     if ret == "timed-out":

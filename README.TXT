@@ -49,6 +49,10 @@ The perl script (faultinject.pl) runs the fault injector (assumption is text fil
 		4. Following instructions use "appName" to represent your target program, 
 		   "input.appName" for the input file, 
 		   "num_injection" for the number of injection tests.
+
+		5. Add-ons on the latest version:
+			5.1. change the fi_random.c and profiling.c in faultinjection_scripts with the files in lib/
+			5.2. If you want to use faultinjection.py instead of faultinjection.pl/run_all.sh for fault injection, you need to compile the fi_random.c and profiling.c to .ll files and link them at the end
 	
 	B. Injection 
 		1. Change to your test program directory. 

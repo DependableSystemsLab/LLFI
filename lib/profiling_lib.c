@@ -5,7 +5,7 @@
 enum {BRANCH, DEF, ALL, BACKWARD_SLICE};
 FILE *profileFile;
 char profileFileName[80];
-int count = 0;
+long count = 0;
 int prof_option;
 //can extend later with other profilings
 
@@ -26,13 +26,13 @@ void endProfiling(char *appName)
 		return;	
 	}
 	if(prof_option == BRANCH)
-    {	fprintf(profileFile,"BranchCount = %d\n", count); }
+    {	fprintf(profileFile,"BranchCount = %ld\n", count); }
     else if(prof_option == DEF)
-    {	fprintf(profileFile, "DataVariableCount = %d\n", count); }
+    {	fprintf(profileFile, "DataVariableCount = %ld\n", count); }
     else if(prof_option == ALL)
-	{   fprintf(profileFile, "AllCount = %d\n", count);}
+	{   fprintf(profileFile, "AllCount = %ld\n", count);}
 	else if(prof_option == BACKWARD_SLICE)
-	{	fprintf(profileFile, "BackwardSliceCount = %d\n", count); }
+	{	fprintf(profileFile, "BackwardSliceCount = %ld\n", count); }
 		
     fclose(profileFile); 
 }

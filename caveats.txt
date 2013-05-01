@@ -13,7 +13,6 @@ GOTCHAS:
 KNOWN PROBLEMS:
 	1. On 32 bit systems, llvm-gcc 4.2.1 might not be compatible with GCC other than version 4.4.5. 
 		Runing llvm-gcc 4.2.1 on Ubuntu 12.04 with GCC-4.6 has failed on our test computers.
-	2. The "offset" in function "injectFunc" in "fi_random.c" chooses between 32 and 64 bit, and has been tested on linux machines (Debian and Ubuntu).
 	3. On Default 64bit installations of Debian "Wheezy", running LLFI will fail on our test computers.
 
 Recommended Environment:
