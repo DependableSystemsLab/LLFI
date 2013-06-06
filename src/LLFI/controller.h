@@ -24,7 +24,7 @@ enum FIRegSelSrc {
 };
 
 enum FIRegLoc {
-  destreg, allsrcreg, srcreg1, srcreg2, srcreg3, srcreg4
+  dstreg, allsrcreg, srcreg1, srcreg2, srcreg3, srcreg4
 };
 
 // TODO: change it to singleton model

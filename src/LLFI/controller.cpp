@@ -19,46 +19,52 @@ namespace llfi {
  */
 // TODO: adding default values
 static cl::opt< FIInstSelSrc > fiinstselsrc(
-    cl::desc("Choose where the fault injection targets are specified"),
+    cl::desc("Choose how to specify the fault injection target instructions"),
+    cl::init(insttype),
     cl::values(
-      clEnumVal(insttype, "Specified through selecting instruction type"),
-      clEnumVal(sourcecode, "Specified through source code"),
-      clEnumVal(custominst, "Specified through custom function"),
+      clEnumVal(insttype, "Specify through instruction type/opcode"),
+      clEnumVal(sourcecode, "Specify through source code"),
+      clEnumVal(custominst, "Specify through custom function"),
       clEnumValEnd));
 
 // inst type
 static cl::list< std::string > includeinst("includeinst", 
-    cl::desc("The type of instruction to be included into fault injection"), 
+    cl::desc("The type of instruction to be included for fault injection"), 
     cl::ZeroOrMore);
 static cl::list< std::string > excludeinst("excludeinst", 
-    cl::desc("The type of instruction to be excluded into fault injection"), 
+    cl::desc("The type of instruction to be excluded for fault injection"), 
     cl::ZeroOrMore);
 
 // custom function
 static cl::opt < std::string > fiinstselfunc("fiinstselfunc",
-    cl::desc("Fault injection instruction selection function name (for custom)"));
+    cl::desc("Custom function name for fault injection instruction selection"));
 
 // backtrace or forwardtrace included
 static cl::opt< bool > includebackwardtrace("includebackwardtrace", 
-    cl::desc("Include backtrace of the selected instructions into fault injection"));
-static cl::opt< bool > includeforwardtrace("includeforwardtrace", 
-    cl::desc("Include forwardtrace of the selected instructions into fault injection"));
+    cl::init(false),
+    cl::desc("Include backward trace of the selected instructions for fault injection"));
+static cl::opt< bool > includeforwardtrace("includeforwardtrace",
+    cl::init(false),
+    cl::desc("Include forward trace of the selected instructions for fault injection"));
 
 /**
  * Inject Register
  */
 static cl::opt< FIRegSelSrc > firegselsrc(
-    cl::desc("Choose where the source variable targets are spedified (for source case)"),
+    cl::desc("Choose how to specify the fault injection target registers"),
+    cl::init(index),
     cl::values(
-      clEnumVal(index, "Selecting source variable by source index (all, 0, 1, etc.)"),
-      clEnumVal(customreg, "Selecting source variable by custom function"),
+      clEnumVal(index, "Specify through register index, e.g. dstreg, srcreg1."),
+      clEnumVal(customreg, "Specify through custom funtion"),
       clEnumValEnd));
 
 static cl::opt< FIRegLoc > fireglocation(
     cl::desc("Choose fault injection location:"),
+    cl::init(dstreg),
     cl::values(
-      clEnumVal(destreg, "Inject into destination register"),
-      clEnumVal(allsrcreg, "Inject into all source registers"),
+      clEnumVal(dstreg, "Inject into destination register"),
+      // TODO: disabled the option for now
+      //clEnumVal(allsrcreg, "Inject into all source registers"),
       clEnumVal(srcreg1, "Inject into 1st source register"),
       clEnumVal(srcreg2, "Inject into 2nd source register"),
       clEnumVal(srcreg3, "Inject into 3rd source register"),
@@ -66,11 +72,12 @@ static cl::opt< FIRegLoc > fireglocation(
       clEnumValEnd));
 
 static cl::opt < std::string > firegselfunc("firegselfunc",
-    cl::desc("Source variable selection function name (for custom)"));
+    cl::desc("Custom function name for fault injection register selection"));
 
 
 void Controller::genFullNameOpcodeMap(NameOpcodeMap &opcodenamemap) {
-#define HANDLE_INST(N, OPC, CLASS) opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
+#define HANDLE_INST(N, OPC, CLASS) \
+  opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
 #include "llvm/Instruction.def"
 }
 
