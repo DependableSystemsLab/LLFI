@@ -18,7 +18,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "faultinjection.h"
+#include "faultinjectionpass.h"
 #include "controller.h"
 #include "utils.h"
 
@@ -237,6 +237,6 @@ Constant *FaultInjection::getLLFILibPostInjectionFunc(Module &M) {
   return postfifunc;
 }
 
-static RegisterPass<FaultInjection> X("faultinjection", "FaultInjection Pass",
+static RegisterPass<FaultInjection> X("faultinjectionpass", "FaultInjection Pass",
                                       false, false);
 }

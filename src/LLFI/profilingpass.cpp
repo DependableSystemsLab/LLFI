@@ -13,7 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 
-#include "profiling.h"
+#include "profilingpass.h"
 #include "controller.h"
 #include "utils.h"
 

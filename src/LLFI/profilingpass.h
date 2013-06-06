@@ -1,6 +1,6 @@
 //This pass is run after the transform pass for inserting hooks for fault injection 
-#ifndef PROFILING_H
-#define PROFILING_H
+#ifndef PROFILING_PASS_H
+#define PROFILING_PASS_H
 
 // TODO: move unnessary headers to cpp file
 #include "llvm/Constants.h"

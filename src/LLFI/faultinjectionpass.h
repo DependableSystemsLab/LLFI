@@ -1,5 +1,5 @@
-#ifndef FAULTINJECT_H
-#define FAULTINJECT_H
+#ifndef FAULTINJECTION_PASS_H
+#define FAULTINJECTION_PASS_H
 
 #include "llvm/Constants.h"
 #include "llvm/DerivedTypes.h"
