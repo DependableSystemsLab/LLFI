@@ -72,4 +72,11 @@ long getFIIndexofReg(Value *reg) {
   return fi_index++;
 }
 
+void genFullNameOpcodeMap(
+    std::map<std::string, unsigned> &opcodenamemap) {
+#define HANDLE_INST(N, OPC, CLASS) \
+  opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
+#include "llvm/Instruction.def"
+}
+
 }

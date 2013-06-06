@@ -1,6 +1,9 @@
 #ifndef LLFI_UTILS_H
 #define LLFI_UTILS_H
 
+#include <map>
+#include <string>
+
 #include "llvm/Function.h"
 #include "llvm/Instruction.h"
 #include "llvm/Value.h"
@@ -16,6 +19,8 @@ std::string intToString(int i);
 bool is_injectFaultFuncCall(Instruction *I);
 
 long getFIIndexofReg(Value *reg);
+
+void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 }
 
 #endif

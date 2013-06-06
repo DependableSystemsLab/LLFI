@@ -25,9 +25,9 @@ bool ProfilingPass::runOnModule(Module &M) {
 	LLVMContext &context = M.getContext();
 
   std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
-  llfi::Controller ctrl;
-  ctrl.init(&M);
-  ctrl.getFIInstRegsMap(&fi_inst_regs_map);
+  Controller *ctrl = Controller::getInstance(M);
+  //ctrl.init(&M);
+  ctrl->getFIInstRegsMap(&fi_inst_regs_map);
 
   for (std::map<Instruction*, std::list< Value* >* >::iterator inst_reg_it =
        fi_inst_regs_map->begin(); inst_reg_it != fi_inst_regs_map->end(); 

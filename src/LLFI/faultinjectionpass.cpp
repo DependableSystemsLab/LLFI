@@ -156,9 +156,8 @@ bool FaultInjection::runOnModule(Module &M) {
   doInitialization(M);
 
   std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
-  llfi::Controller ctrl;
-  ctrl.init(&M);
-  ctrl.getFIInstRegsMap(&fi_inst_regs_map);
+  Controller *ctrl = Controller::getInstance(M);
+  ctrl->getFIInstRegsMap(&fi_inst_regs_map);
   
   insertInjectionFuncCall(fi_inst_regs_map, M);
 

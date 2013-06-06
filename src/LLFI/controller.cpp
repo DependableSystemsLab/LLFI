@@ -6,6 +6,7 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "controller.h"
+#include "utils.h"
 #include "fiinstselector.h"
 #include "insttypefiinstselector.h"
 #include "firegselector.h"
@@ -41,11 +42,13 @@ static cl::opt < std::string > fiinstselfunc("fiinstselfunc",
 
 // backtrace or forwardtrace included
 static cl::opt< bool > includebackwardtrace("includebackwardtrace", 
-    cl::init(false),
-    cl::desc("Include backward trace of the selected instructions for fault injection"));
+  cl::init(false),
+  cl::desc(
+    "Include backward trace of the selected instructions for fault injection"));
 static cl::opt< bool > includeforwardtrace("includeforwardtrace",
     cl::init(false),
-    cl::desc("Include forward trace of the selected instructions for fault injection"));
+    cl::desc(
+     "Include forward trace of the selected instructions for fault injection"));
 
 /**
  * Inject Register
@@ -75,13 +78,9 @@ static cl::opt < std::string > firegselfunc("firegselfunc",
     cl::desc("Custom function name for fault injection register selection"));
 
 
-void Controller::genFullNameOpcodeMap(NameOpcodeMap &opcodenamemap) {
-#define HANDLE_INST(N, OPC, CLASS) \
-  opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
-#include "llvm/Instruction.def"
-}
+Controller *Controller::ctrl = NULL;
 
-void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_list) {
+void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
   NameOpcodeMap fullnameopcodemap;
   genFullNameOpcodeMap(fullnameopcodemap);
 
@@ -91,15 +90,16 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_list) {
     if (includeinst[i] == "all") {
       for (NameOpcodeMap::const_iterator it = fullnameopcodemap.begin();
           it != fullnameopcodemap.end(); ++it) {
-        fi_opcode_list->insert(it->second);  
+        fi_opcode_set->insert(it->second);  
       }
       break;
     } else {
       NameOpcodeMap::iterator loc = fullnameopcodemap.find(includeinst[i]);
       if (loc != fullnameopcodemap.end()) {
-        fi_opcode_list->insert(loc->second);
+        fi_opcode_set->insert(loc->second);
       } else {
-        errs() << "Invalid included instruction type: " << includeinst[i] << "\n";
+        errs() << "Invalid include instruction type: " << includeinst[i] << 
+            "\n";
         exit(1);
       }
     }
@@ -109,9 +109,9 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_list) {
   for (unsigned i = 0; i != excludeinst.size(); ++i) {
     NameOpcodeMap::iterator loc = fullnameopcodemap.find(excludeinst[i]);
     if (loc != fullnameopcodemap.end()) {
-      fi_opcode_list->erase(loc->second);
+      fi_opcode_set->erase(loc->second);
     } else {
-      errs() << "Invalid excluded instruction type: " << excludeinst[i] << "\n";
+      errs() << "Invalid exclude instruction type: " << excludeinst[i] << "\n";
       exit(1);
     }
   }
@@ -120,14 +120,17 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_list) {
 void Controller::processInstSelArgs() {
   fiinstselector = NULL;
   if (fiinstselsrc == insttype) {
-    std::set<unsigned> *fi_opcode_list = new std::set<unsigned>;
-    getOpcodeListofFIInsts(fi_opcode_list);
-    fiinstselector = new InstTypeFIInstSelector(fi_opcode_list,
+    std::set<unsigned> *fi_opcode_set = new std::set<unsigned>;
+    getOpcodeListofFIInsts(fi_opcode_set);
+    fiinstselector = new InstTypeFIInstSelector(fi_opcode_set,
                                                 includebackwardtrace,
                                                 includeforwardtrace);
   } else if (fiinstselsrc == custominst) {
     // TODO: convert the function name to function 
-  }   
+  } else {
+    // TODO: handle the source code case
+  
+  }
 }
 
 void Controller::processRegSelArgs() {
@@ -146,7 +149,7 @@ void Controller::processCmdArgs() {
 }
 
 
-void Controller::init(Module *M) {
+void Controller::init(Module &M) {
   processCmdArgs();
   
   // select fault injection instructions
@@ -160,6 +163,8 @@ void Controller::init(Module *M) {
 Controller::~Controller() {
   delete fiinstselector;
   delete firegselector;
+  delete ctrl;
+  ctrl = NULL;
 }
 
 void Controller::dump() const {
@@ -174,4 +179,9 @@ void Controller::dump() const {
   }
 }
 
+Controller *Controller::getInstance(Module &M) {
+  if (ctrl == NULL)
+    ctrl = new Controller(M);
+  return ctrl;
+}
 }

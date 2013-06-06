@@ -27,27 +27,30 @@ enum FIRegLoc {
   dstreg, allsrcreg, srcreg1, srcreg2, srcreg3, srcreg4
 };
 
-// TODO: change it to singleton model
 class Controller {
   typedef std::map<std::string, unsigned> NameOpcodeMap;
  public:
-  void init(Module *M);
- public:
+  static Controller *getInstance(Module &M);
   ~Controller(); 
 
  public:
-  void getFIInstRegsMap(std::map<Instruction*, std::list<Value*>* > **fiinstreg) {
+  void getFIInstRegsMap(
+      std::map<Instruction*, std::list<Value*>* > **fiinstreg) {
     *fiinstreg = &fi_inst_regs_map;
   }
   void dump() const;
 
  private:
+  Controller() {}
+  Controller(Module &M) {
+    init(M);
+  }
+  void init(Module &M);
   void processCmdArgs();
   void processInstSelArgs();
   void processRegSelArgs();
 
-  void getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_list);
-  void genFullNameOpcodeMap(NameOpcodeMap &opcodenamemap);
+  void getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set);
 
  // output of the controller
  private:
@@ -60,6 +63,9 @@ class Controller {
  private:
   FIInstSelector *fiinstselector;
   FIRegSelector *firegselector;
+
+ private:
+  static Controller *ctrl;
 };
 
 }
