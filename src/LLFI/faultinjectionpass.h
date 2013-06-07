@@ -40,9 +40,9 @@
 using namespace llvm;
 
 namespace llfi {
-class FaultInjection: public ModulePass {
+class FaultInjectionPass: public ModulePass {
  public:
-  FaultInjection() : ModulePass(ID) { }
+  FaultInjectionPass() : ModulePass(ID) { }
   virtual bool runOnModule(Module &M);	
   static char ID;
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
@@ -73,6 +73,6 @@ class FaultInjection: public ModulePass {
   std::map<const Type*, std::string> fi_rettype_funcname_map;
 };
 
-char FaultInjection::ID=0;
+char FaultInjectionPass::ID=0;
 }
 #endif

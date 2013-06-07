@@ -95,6 +95,7 @@ void initInjections() {
 }
 
 //br and data are defined according to the static instances
+// TODO: change the parameter of size to opcode and make changes to passes
 bool preFunc(long faultindex, int size) {
   if (config.usefiinstance) {
     curr_count++;

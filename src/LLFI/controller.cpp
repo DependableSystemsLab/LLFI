@@ -77,6 +77,14 @@ static cl::opt< FIRegLoc > fireglocation(
 static cl::opt < std::string > firegselfunc("firegselfunc",
     cl::desc("Custom function name for fault injection register selection"));
 
+/**
+ * Log file
+ */
+cl::opt < std::string > llfilogfile("llfilogfile",
+      cl::init("llfi.log.compilation.txt"),
+      cl::Hidden,
+      cl::desc("Name of compilation passes logging file"));
+
 
 Controller *Controller::ctrl = NULL;
 
@@ -143,8 +151,18 @@ void Controller::processRegSelArgs() {
 }
 
 void Controller::processCmdArgs() {
-  processInstSelArgs();
+  // clear the log file
+  std::string err;
+  raw_fd_ostream logFile(llfilogfile.c_str(), err, raw_fd_ostream::F_Append);
+  if (err == "") {
+    logFile << "\n\nStart of a pass\n";
+  } else {
+    errs() << "Unable to output logging information to file " << llfilogfile
+        << "\n";
+  }
+  logFile.close();
 
+  processInstSelArgs();
   processRegSelArgs();
 }
 

@@ -67,8 +67,9 @@ bool is_injectFaultFuncCall(Instruction *I) {
 }
 
 // TODO: use metadata to generate the index
-static long long fi_index = 0;
-long getFIIndexofReg(Value *reg) {
+static long fi_index = 0;
+long getLLFIIndexofInst(Instruction *inst) {
+  assert (fi_index >= 0 && "static instruction number exceeds index max");
   return fi_index++;
 }
 

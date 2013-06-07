@@ -14,10 +14,11 @@ class FIInstSelector {
       includebackwardtrace(includebt), includeforwardtrace(includeft) {}
 
  public:
-  // virtual in case instruction selection on source needs to rewrite
-  virtual void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
+  void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
   
  private:
+  // selection from source code may need to rewrite this function
+  virtual void getInitFIInsts(Module &M, std::set<Instruction*> *fiinsts);
   virtual bool isInstFITarget(Instruction* inst) = 0;
 
  protected:

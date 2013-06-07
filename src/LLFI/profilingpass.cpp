@@ -26,15 +26,14 @@ bool ProfilingPass::runOnModule(Module &M) {
 
   std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
   Controller *ctrl = Controller::getInstance(M);
-  //ctrl.init(&M);
   ctrl->getFIInstRegsMap(&fi_inst_regs_map);
 
-  for (std::map<Instruction*, std::list< Value* >* >::iterator inst_reg_it =
-       fi_inst_regs_map->begin(); inst_reg_it != fi_inst_regs_map->end(); 
-       ++inst_reg_it) {
+  for (std::map<Instruction*, std::list< Value* >* >::const_iterator 
+       inst_reg_it = fi_inst_regs_map->begin(); 
+       inst_reg_it != fi_inst_regs_map->end(); ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
     std::list<Value* > *fi_regs = inst_reg_it->second;
-    for (std::list<Value* >::iterator reg_it = fi_regs->begin(); 
+    for (std::list<Value* >::const_iterator reg_it = fi_regs->begin(); 
          reg_it != fi_regs->end(); ++reg_it) {
       Value *fi_reg = *reg_it;
       Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
@@ -47,14 +46,12 @@ bool ProfilingPass::runOnModule(Module &M) {
       const IntegerType* itype = IntegerType::get(context, 32);
       Value* opcode = ConstantInt::get(itype, fi_inst->getOpcode());
       profilingarg[0] = opcode; 
-      
       CallInst::Create(profilingfunc, profilingarg.begin(), profilingarg.end(),
                        "", insertptr);
     }
   }
 
   doFinalization(M);
-
   return true;
 }
 
@@ -68,13 +65,9 @@ bool ProfilingPass::doFinalization(Module &M) {
     Instruction *term = getTermInstofFunction(mainfunc);
     CallInst::Create(endprofilefunc, "", term);
   } else {
-    // TODO: logging information other that standard output
-    // TODO: see if we can return non-zero value to terminate the pass
     errs() << "Function main does not exist, which is required by LLFI\n";
     exit(1);
   }
-
-  // TODO: understand what the return value means and what's the impact
   return true; 
 }
 
