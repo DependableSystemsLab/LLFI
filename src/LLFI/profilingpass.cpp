@@ -92,5 +92,5 @@ Constant *ProfilingPass::getLLFILibEndProfilingFunc(Module &M) {
 }
 
 static RegisterPass<ProfilingPass> X("profilingpass", 
-                                     "Profiling Pass", false, false);
+                                     "Profiling pass", false, false);
 }

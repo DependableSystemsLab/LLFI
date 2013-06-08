@@ -1,5 +1,6 @@
 #include "llvm/BasicBlock.h"
 #include "llvm/Instructions.h"
+#include "llvm/MetaData.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "utils.h"
@@ -66,11 +67,27 @@ bool is_injectFaultFuncCall(Instruction *I) {
   return false;
 }
 
-// TODO: use metadata to generate the index
-static long fi_index = 0;
 long getLLFIIndexofInst(Instruction *inst) {
+  MDNode *mdnode = inst->getMetadata("llfi_index");
+  if (mdnode) {
+    ConstantInt *cns_index = dyn_cast<ConstantInt>(mdnode->getOperand(0));
+    return cns_index->getSExtValue();
+  } else {
+    errs() << "LLFI indices for instructions are required for the pass, " << 
+        "please run genllfiindexpass first\n";
+    exit(3);
+  }
+}
+
+static long fi_index = 0;
+void setLLFIIndexofInst(Instruction *inst) {
   assert (fi_index >= 0 && "static instruction number exceeds index max");
-  return fi_index++;
+  Function *func = inst->getParent()->getParent();
+  LLVMContext &context = func->getContext();
+  std::vector<Value*> llfiindex(1);
+  llfiindex[0] = ConstantInt::get(Type::getInt64Ty(context), fi_index++);
+  MDNode *mdnode = MDNode::get(context, llfiindex);
+  inst->setMetadata("llfi_index", mdnode);
 }
 
 void genFullNameOpcodeMap(

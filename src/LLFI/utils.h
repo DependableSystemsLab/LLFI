@@ -19,6 +19,7 @@ std::string intToString(int i);
 bool is_injectFaultFuncCall(Instruction *I);
 
 long getLLFIIndexofInst(Instruction *inst);
+void setLLFIIndexofInst(Instruction *inst);
 
 void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 }
