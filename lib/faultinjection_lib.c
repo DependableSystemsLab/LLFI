@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include<string.h>
 #include <stdbool.h>
+#include <time.h>
 #include <assert.h>
 #include "utils.h"
 
@@ -9,7 +10,6 @@ static FILE *ficonfigFile;
 static FILE *logFile;
 static FILE *activatedFile;
 
-#define OPCODE_CYCLE_ARRAY_LEN 100
 static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
 
@@ -26,7 +26,7 @@ static struct {
 
 // private functions
 bool _getDecision(double probability) {
-  return random() / (RAND_MAX * 1.0) <= probability;
+  return (rand() / (RAND_MAX * 1.0)) <= probability;
 }
 
 void _parseLLFIConfigFile() {
@@ -71,7 +71,7 @@ void _parseLLFIConfigFile() {
     }
   }
 
-  debug(("collected data, %s, %lld, %ld", config.faulttype, config.fi_cycle,
+  debug(("collected data, %s, %lld, %ld\n", config.faulttype, config.fi_cycle,
          config.fi_index));
 
   fclose(ficonfigFile);
@@ -82,6 +82,11 @@ void _parseLLFIConfigFile() {
 void initInjections() {
   int i =0;
   logFile = stderr;
+  unsigned int seed;
+	FILE* urandom = fopen("/dev/urandom", "r");
+	fread(&seed, sizeof(int), 1, urandom);
+	fclose(urandom);
+	srand(seed);
 
   _parseLLFIConfigFile();
 
@@ -117,9 +122,12 @@ bool preFunc(long faultindex, unsigned opcode, unsigned my_reg_index,
   // each register target of the instruction get equal probability of getting
   // selected. the idea comes from equal probability of draw lots
   if (inst_selected && (!is_fault_injected_in_curr_dyn_inst)) {
+    debug(("reg index %u\n", my_reg_index));
     reg_selected = _getDecision(1.0 / (total_reg_target_num - my_reg_index));
-    if (reg_selected)
+    if (reg_selected) {
+      debug(("selected reg index %u\n", my_reg_index));
       is_fault_injected_in_curr_dyn_inst = true;
+    }
   }
 
   if (my_reg_index == total_reg_target_num - 1)
@@ -150,8 +158,8 @@ void injectFunc(long faultindex, int size, char *buf) {
 	} else {
     // TODO: change the bit to be something specified by the config
     size_byte = size / 8;
-    bytepos = random() / (RAND_MAX * 1.0) * size_byte;
-    bitpos = random() / (RAND_MAX * 1.0) * 8;
+    bytepos = rand() / (RAND_MAX * 1.0) * size_byte;
+    bitpos = rand() / (RAND_MAX * 1.0) * 8;
     memcpy(&oldbuf, &buf[bytepos], 1);
 
 	  buf[bytepos] = buf[bytepos] ^ (0x1 << bitpos);

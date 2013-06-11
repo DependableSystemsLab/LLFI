@@ -33,22 +33,19 @@ bool ProfilingPass::runOnModule(Module &M) {
        inst_reg_it != fi_inst_regs_map->end(); ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
     std::list<Value* > *fi_regs = inst_reg_it->second;
-    for (std::list<Value* >::const_iterator reg_it = fi_regs->begin(); 
-         reg_it != fi_regs->end(); ++reg_it) {
-      Value *fi_reg = *reg_it;
-      Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
-      
-      // function declaration
-      Constant* profilingfunc = getLLFILibProfilingFunc(M);
+    Value *fi_reg = *(fi_regs->begin());
+    Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
+    
+    // function declaration
+    Constant* profilingfunc = getLLFILibProfilingFunc(M);
 
-      // prepare for the calling argument and call the profiling function
-      std::vector<Value*> profilingarg(1);
-      const IntegerType* itype = IntegerType::get(context, 32);
-      Value* opcode = ConstantInt::get(itype, fi_inst->getOpcode());
-      profilingarg[0] = opcode; 
-      CallInst::Create(profilingfunc, profilingarg.begin(), profilingarg.end(),
-                       "", insertptr);
-    }
+    // prepare for the calling argument and call the profiling function
+    std::vector<Value*> profilingarg(1);
+    const IntegerType* itype = IntegerType::get(context, 32);
+    Value* opcode = ConstantInt::get(itype, fi_inst->getOpcode());
+    profilingarg[0] = opcode; 
+    CallInst::Create(profilingfunc, profilingarg.begin(), profilingarg.end(),
+                     "", insertptr);
   }
 
   doFinalization(M);
