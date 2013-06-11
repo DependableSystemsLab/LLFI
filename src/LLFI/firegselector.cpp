@@ -45,9 +45,7 @@ void FIRegSelector::getFIInstRegMap(
       }
     }
     
-    // TODO: now only support one injection target for each instruction
-    // need to think about a more realistic model to support multiple targets
-    if (reglist->size() == 1) {
+    if (reglist->size() != 0) {
       instregmap->insert(
           std::pair<Instruction*, std::list< Value* >* >(inst, reglist));
     } else if (err == "") {

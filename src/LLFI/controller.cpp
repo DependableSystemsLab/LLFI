@@ -18,7 +18,6 @@ namespace llfi {
 /**
  * Inject Instruction
  */
-// TODO: adding default values
 static cl::opt< FIInstSelSrc > fiinstselsrc(
     cl::desc("Choose how to specify the fault injection target instructions"),
     cl::init(insttype),
@@ -66,8 +65,7 @@ static cl::opt< FIRegLoc > fireglocation(
     cl::init(dstreg),
     cl::values(
       clEnumVal(dstreg, "Inject into destination register"),
-      // TODO: disabled the option for now
-      //clEnumVal(allsrcreg, "Inject into all source registers"),
+      clEnumVal(allsrcreg, "Inject randomly into one of all source registers"),
       clEnumVal(srcreg1, "Inject into 1st source register"),
       clEnumVal(srcreg2, "Inject into 2nd source register"),
       clEnumVal(srcreg3, "Inject into 3rd source register"),

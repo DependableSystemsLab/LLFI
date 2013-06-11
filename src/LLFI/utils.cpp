@@ -23,13 +23,11 @@ Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
   if (reg == inst) {
     // inject into destination reg, insert after inst
     if (inst->isTerminator()) {
-      // TODO: log the info to somewhere else
       errs() << "LLFI not able to inject into destination register of " <<
-            *inst << ", change isRegofInstInjectable to fix it\n";
+            *inst << ", change isRegofInstInjectable() to fix it\n";
       exit(2);
     } else {
       BasicBlock::iterator bb_it = inst;
-      // TODO: handle the case where inst is a phi node
       while (isa<PHINode>(++bb_it)) ;
       return bb_it;
     }

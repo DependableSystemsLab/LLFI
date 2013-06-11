@@ -2,43 +2,41 @@
 #include <stdlib.h>
 #include<string.h>
 #include <stdbool.h>
-
-
-static long long curr_count = 0;
-#define DEBUG
-
-
-#ifdef DEBUG
-#define debug(x) printf x; fflush(stdout);
-#else
-#define debug(x)
-#endif
-
+#include <assert.h>
+#include "utils.h"
 
 static FILE *ficonfigFile;
 static FILE *logFile;
 static FILE *activatedFile;
 
+#define OPCODE_CYCLE_ARRAY_LEN 100
+static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
+static bool is_fault_injected_in_curr_dyn_inst = false;
+
+static long long curr_count = 0;
+
 static struct {
   char faulttype[100];
-  bool usefiinstance;
-  long long fi_instance;
+  bool useficycle;
+  long long fi_cycle;
   long fi_index;
   int fi_bit;
 } config;
 
-// TODO: currently assume all instructions take same number of cycles for
-// execution, and one instruction has at most one register. If not, we need to
-// have opcode and number of targets for one instruction included.
 
-void parseLLFIConfigFile() {
+// private functions
+bool _getDecision(double probability) {
+  return random() / (RAND_MAX * 1.0) <= probability;
+}
+
+void _parseLLFIConfigFile() {
   char ficonfigfilename[80];
   strcpy(ficonfigfilename, "llfi.fi.config.txt");
 
   ficonfigFile = fopen(ficonfigfilename, "r");
   if (ficonfigFile == NULL) {
     fprintf(stderr, "Unable to open llfi config file %s\n", ficonfigfilename);
-    return;	
+    exit(1);
   }
 
   char line[1024];
@@ -55,13 +53,13 @@ void parseLLFIConfigFile() {
     debug(("option, %s, value, %s\n", option, value));
 
     if (strcmp(option, "faulttype") == 0) {
-      strcmp(config.faulttype, value);
-    } else if (strcmp(option, "fi_instance") == 0) {
-      config.usefiinstance = true;
-      config.fi_instance = atol(value);
+      strncpy(config.faulttype, value, 100);
+    } else if (strcmp(option, "fi_cycle") == 0) {
+      config.useficycle = true;
+      config.fi_cycle = atol(value);
     } else if (strcmp(option, "fi_index") == 0) {
       config.fi_index = atol(value);
-      config.usefiinstance = false;
+      config.useficycle = false;
     } else if (strcmp(option, "fi_bit") == 0) {
       config.fi_bit = atoi(value);
       debug(("option, %s, value, %d\n", option, config.fi_bit));
@@ -73,39 +71,61 @@ void parseLLFIConfigFile() {
     }
   }
 
-  debug(("collected data, %s, %lld, %ld", config.faulttype, config.fi_instance,
+  debug(("collected data, %s, %lld, %ld", config.faulttype, config.fi_cycle,
          config.fi_index));
 
   fclose(ficonfigFile);
 }
 
+// external libraries
+
 void initInjections() {
   int i =0;
   logFile = stderr;
 
-  parseLLFIConfigFile();
+  _parseLLFIConfigFile();
+
+  getOpcodeExecCycleArray(OPCODE_CYCLE_ARRAY_LEN, opcodecyclearray);
 
   char activatedfilename[80];
   strcpy(activatedfilename, "llfi.fi.activatedfaults.txt");
   activatedFile = fopen(activatedfilename, "a");
   if (activatedFile == NULL) {
     fprintf(stderr, "Unable to open activated file %s\n", activatedfilename);
-    return;
   }
 }
 
-//br and data are defined according to the static instances
-// TODO: change the parameter of size to opcode and make changes to passes
-bool preFunc(long faultindex, int size) {
-  if (config.usefiinstance) {
-    curr_count++;
-    if (curr_count == config.fi_instance) 
-      return true;
+bool preFunc(long faultindex, unsigned opcode, unsigned my_reg_index, 
+             unsigned total_reg_target_num) {
+  assert(opcodecyclearray[opcode] >= 0 && 
+          "opcode does not exist, need to update instructions.def");
+  if (my_reg_index == 0)
+    is_fault_injected_in_curr_dyn_inst = false;
+
+  bool inst_selected = false;
+  bool reg_selected = false;
+  if (config.useficycle) {
+    if (config.fi_cycle >= curr_count && 
+        config.fi_cycle < curr_count + opcodecyclearray[opcode])
+      inst_selected = true;
   } else {
+    // inject into every runtime instance of the specified instruction
     if (faultindex == config.fi_index)
-      return true;
+      inst_selected = true;
   }
-  return false;
+
+  // each register target of the instruction get equal probability of getting
+  // selected. the idea comes from equal probability of draw lots
+  if (inst_selected && (!is_fault_injected_in_curr_dyn_inst)) {
+    reg_selected = _getDecision(1.0 / (total_reg_target_num - my_reg_index));
+    if (reg_selected)
+      is_fault_injected_in_curr_dyn_inst = true;
+  }
+
+  if (my_reg_index == total_reg_target_num - 1)
+    curr_count += opcodecyclearray[opcode];
+
+  return reg_selected;
 }
 
 void injectFunc(long faultindex, int size, char *buf) {
