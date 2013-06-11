@@ -1,4 +1,4 @@
-//===- faultinjection.cpp - Fault Injection Pass -==//
+//===- faultinjectionpass.cpp - Fault Injection Pass -==//
 //
 //                     LLFI Distribution
 //
@@ -11,12 +11,18 @@
 //
 // The fault injection function is a C function which performs the fault
 // injection at runtime
-// See fi_random.c injectFunc() function for more details on the fault injection 
-// function. This function definition is linked to the instrumented 
-// bitcode file (after this pass). 
-//
-//
+// See faultinjection_lib.c injectFunc() function for more details on the 
+// fault injection function. This function definition is linked to the 
+// instrumented bitcode file (after this pass). 
 //===----------------------------------------------------------------------===//
+#include "llvm/DerivedTypes.h"
+#include "llvm/Function.h"
+#include "llvm/LLVMContext.h"
+#include "llvm/Target/TargetData.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
+
+#include <vector>
 
 #include "faultinjectionpass.h"
 #include "controller.h"

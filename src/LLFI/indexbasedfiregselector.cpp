@@ -1,4 +1,3 @@
-
 #include "indexbasedfiregselector.h"
 
 namespace llfi {

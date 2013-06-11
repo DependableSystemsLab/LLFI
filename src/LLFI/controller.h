@@ -1,11 +1,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include "llvm/Instructions.h"
 
 #include <set>
 #include <map>
 #include <list>
 #include <string>
-#include "llvm/Instructions.h"
 
 using namespace llvm;
 

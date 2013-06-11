@@ -5,7 +5,6 @@
 #include "fiinstselector.h"
 
 using namespace llvm;
-
 namespace llfi {
 
 class InstTypeFIInstSelector: public FIInstSelector {

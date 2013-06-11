@@ -1,10 +1,11 @@
 #ifndef FI_REG_SELECTOR_H
 #define FI_REG_SELECTOR_H
+#include "llvm/Instruction.h"
+#include "llvm/Value.h"
+
 #include <set>
 #include <map>
 #include <list>
-#include "llvm/Instruction.h"
-#include "llvm/Value.h"
 
 using namespace llvm;
 namespace llfi {

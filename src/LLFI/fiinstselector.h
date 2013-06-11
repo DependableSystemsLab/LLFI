@@ -1,9 +1,9 @@
 #ifndef FI_INST_SELECTOR_H
 #define FI_INST_SELECTOR_H
-#include <set>
-
 #include "llvm/Module.h"
 #include "llvm/Instruction.h"
+
+#include <set>
 
 using namespace llvm;
 

@@ -2,14 +2,11 @@
 #include "llvm/Function.h"
 #include "llvm/Module.h"
 #include "llvm/Support/InstIterator.h"
-#include "llvm/Support/InstVisitor.h"
 #include "llvm/Instruction.h"
 
 #include "utils.h"
 
-
 using namespace llvm;
-
 namespace llfi {
 class GenLLFIIndexPass: public ModulePass {
  public:

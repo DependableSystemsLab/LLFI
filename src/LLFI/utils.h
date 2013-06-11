@@ -1,15 +1,13 @@
 #ifndef LLFI_UTILS_H
 #define LLFI_UTILS_H
-
-#include <map>
-#include <string>
-
 #include "llvm/Function.h"
 #include "llvm/Instruction.h"
 #include "llvm/Value.h"
 
-using namespace llvm;
+#include <map>
+#include <string>
 
+using namespace llvm;
 namespace llfi {
 Instruction *getTermInstofFunction(Function *func); 
 Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst);

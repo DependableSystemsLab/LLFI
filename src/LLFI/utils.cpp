@@ -3,10 +3,10 @@
 #include "llvm/MetaData.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
-#include "utils.h"
 
 #include <sstream>
-#include <string>
+
+#include "utils.h"
 
 namespace llfi {
 Instruction *getTermInstofFunction(Function *func) {

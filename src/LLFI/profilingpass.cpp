@@ -1,4 +1,4 @@
-//===- profiling.cpp - Dynamic Instruction Profiling Pass -==//
+//===- profilingpass.cpp - Dynamic Instruction Profiling Pass -==//
 //
 //                     LLFI Distribution
 //
@@ -12,6 +12,16 @@
 // definition is linked to the instrumented bitcode file (after this pass). 
 //===----------------------------------------------------------------------===//
 
+#include "llvm/DerivedTypes.h"
+#include "llvm/Function.h"
+#include "llvm/Instruction.h"
+#include "llvm/Instructions.h"
+#include "llvm/LLVMContext.h"
+#include "llvm/Support/raw_ostream.h"
+
+#include <list>
+#include <map>
+#include <vector>
 
 #include "profilingpass.h"
 #include "controller.h"
