@@ -6,63 +6,82 @@
 #include <assert.h>
 #include "utils.h"
 
-static FILE *ficonfigFile;
-static FILE *logFile;
-static FILE *activatedFile;
+static FILE *injectedfaultsFile;
+static long long curr_cycle = 0;
 
 static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
-
-static long long curr_count = 0;
+static const unsigned OPTION_LENGTH = 512;
 
 static struct {
-  char faulttype[100];
-  bool useficycle;
+  char fi_type[OPTION_LENGTH];
+  bool fi_accordingto_cycle;
+  // if both fi_cycle and fi_index are specified, use fi_cycle
   long long fi_cycle;
   long fi_index;
+
+  // NOTE: the following config are randomly generated if not specified
+  // in practice, use the following two configs only when you want to duplicate
+  // a former fault injection experiment
+  int fi_reg_index;
   int fi_bit;
-} config;
+} config = {"bitflip", false, -1, -1, -1, -1}; 
+// -1 to tell the value is not specified in the config file
 
 
 // private functions
+void _initRandomSeed() {
+  unsigned int seed;
+	FILE* urandom = fopen("/dev/urandom", "r");
+	fread(&seed, sizeof(int), 1, urandom);
+	fclose(urandom);
+	srand(seed);
+}
+
 bool _getDecision(double probability) {
   return (rand() / (RAND_MAX * 1.0)) <= probability;
 }
 
 void _parseLLFIConfigFile() {
   char ficonfigfilename[80];
-  strcpy(ficonfigfilename, "llfi.fi.config.txt");
-
+  strncpy(ficonfigfilename, "llfi.config.fi.txt", 80);
+  FILE *ficonfigFile;
   ficonfigFile = fopen(ficonfigfilename, "r");
   if (ficonfigFile == NULL) {
     fprintf(stderr, "Unable to open llfi config file %s\n", ficonfigfilename);
     exit(1);
   }
 
-  char line[1024];
-  char option[100];
+  const unsigned CONFIG_LINE_LENGTH = 1024;
+  char line[CONFIG_LINE_LENGTH];
+  char option[OPTION_LENGTH];
   char *value = NULL;
-  while (fgets(line, 1024, ficonfigFile) != NULL) {
+  while (fgets(line, CONFIG_LINE_LENGTH, ficonfigFile) != NULL) {
     if (line[0] == '#')
       continue;
 
     value = strtok(line, "=");
-    strcpy(option, value);
+    strncpy(option, value, OPTION_LENGTH);
     value = strtok(NULL, "=");
+    debug(("option, %s, value, %s;", option, value));
 
-    debug(("option, %s, value, %s\n", option, value));
-
-    if (strcmp(option, "faulttype") == 0) {
-      strncpy(config.faulttype, value, 100);
+    if (strcmp(option, "fi_type") == 0) {
+      strncpy(config.fi_type, value, OPTION_LENGTH);
+      if (config.fi_type[strlen(config.fi_type) - 1] == '\n')
+        config.fi_type[strlen(config.fi_type) - 1] = '\0';
     } else if (strcmp(option, "fi_cycle") == 0) {
-      config.useficycle = true;
-      config.fi_cycle = atol(value);
+      config.fi_accordingto_cycle = true;
+      config.fi_cycle = atoll(value);
+      assert(config.fi_cycle >= 0 && "invalid fi_cycle in config file");
     } else if (strcmp(option, "fi_index") == 0) {
       config.fi_index = atol(value);
-      config.useficycle = false;
+      assert(config.fi_index >= 0 && "invalid fi_index in config file");
+    } else if (strcmp(option, "fi_reg_index") == 0) {
+      config.fi_reg_index = atoi(value);
+      assert(config.fi_reg_index >= 0 && "invalid fi_reg_index in config file");
     } else if (strcmp(option, "fi_bit") == 0) {
       config.fi_bit = atoi(value);
-      debug(("option, %s, value, %d\n", option, config.fi_bit));
+      assert(config.fi_bit >= 0 && "invalid fi_bit in config file");
     } else {
       fprintf(stderr, 
               "Unrecognized option %s for LLFI runtime fault injection\n",
@@ -70,37 +89,31 @@ void _parseLLFIConfigFile() {
       exit(1);
     }
   }
-
-  debug(("collected data, %s, %lld, %ld\n", config.faulttype, config.fi_cycle,
-         config.fi_index));
+  debug(("type, %s; cycle, %lld; index, %ld; reg_index, %d; fi_bit, %d\n", 
+         config.fi_type, config.fi_cycle, config.fi_index, 
+         config.fi_reg_index, config.fi_bit));
 
   fclose(ficonfigFile);
 }
 
+
 // external libraries
-
 void initInjections() {
-  int i =0;
-  logFile = stderr;
-  unsigned int seed;
-	FILE* urandom = fopen("/dev/urandom", "r");
-	fread(&seed, sizeof(int), 1, urandom);
-	fclose(urandom);
-	srand(seed);
-
+  _initRandomSeed();
   _parseLLFIConfigFile();
-
   getOpcodeExecCycleArray(OPCODE_CYCLE_ARRAY_LEN, opcodecyclearray);
 
-  char activatedfilename[80];
-  strcpy(activatedfilename, "llfi.fi.activatedfaults.txt");
-  activatedFile = fopen(activatedfilename, "a");
-  if (activatedFile == NULL) {
-    fprintf(stderr, "Unable to open activated file %s\n", activatedfilename);
+  char injectedfaultsfilename[80];
+  strncpy(injectedfaultsfilename, "llfi.stat.fi.injectedfaults.txt", 80);
+  injectedfaultsFile = fopen(injectedfaultsfilename, "a");
+  if (injectedfaultsFile == NULL) {
+    fprintf(stderr, "Unable to open injected faults stat file %s\n", 
+            injectedfaultsfilename);
+    exit(1);
   }
 }
 
-bool preFunc(long faultindex, unsigned opcode, unsigned my_reg_index, 
+bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index, 
              unsigned total_reg_target_num) {
   assert(opcodecyclearray[opcode] >= 0 && 
           "opcode does not exist, need to update instructions.def");
@@ -109,21 +122,25 @@ bool preFunc(long faultindex, unsigned opcode, unsigned my_reg_index,
 
   bool inst_selected = false;
   bool reg_selected = false;
-  if (config.useficycle) {
-    if (config.fi_cycle >= curr_count && 
-        config.fi_cycle < curr_count + opcodecyclearray[opcode])
+  if (config.fi_accordingto_cycle) {
+    if (config.fi_cycle >= curr_cycle && 
+        config.fi_cycle < curr_cycle + opcodecyclearray[opcode])
       inst_selected = true;
   } else {
     // inject into every runtime instance of the specified instruction
-    if (faultindex == config.fi_index)
+    if (llfi_index == config.fi_index)
       inst_selected = true;
   }
 
   // each register target of the instruction get equal probability of getting
-  // selected. the idea comes from equal probability of draw lots
+  // selected. the idea comes from equal probability of drawing lots
   if (inst_selected && (!is_fault_injected_in_curr_dyn_inst)) {
-    debug(("reg index %u\n", my_reg_index));
-    reg_selected = _getDecision(1.0 / (total_reg_target_num - my_reg_index));
+    // NOTE: if fi_reg_index specified, use it, otherwise, randomly generate
+    if (config.fi_reg_index >= 0)
+      reg_selected = (my_reg_index == config.fi_reg_index);
+    else 
+      reg_selected = _getDecision(1.0 / (total_reg_target_num - my_reg_index));
+
     if (reg_selected) {
       debug(("selected reg index %u\n", my_reg_index));
       is_fault_injected_in_curr_dyn_inst = true;
@@ -131,52 +148,51 @@ bool preFunc(long faultindex, unsigned opcode, unsigned my_reg_index,
   }
 
   if (my_reg_index == total_reg_target_num - 1)
-    curr_count += opcodecyclearray[opcode];
+    curr_cycle += opcodecyclearray[opcode];
 
   return reg_selected;
 }
 
-void injectFunc(long faultindex, int size, char *buf) {
-  unsigned char bytepos, bitpos, single_bit;
+void injectFunc(long llfi_index, unsigned size, 
+                char *buf, unsigned my_reg_index) {
+  unsigned fi_bit, fi_bytepos, fi_bitpos;
   unsigned char oldbuf;
-  int size_byte, i;
-	
-  // TODO: add other fault type other than bit flip
-  if(size == 1) {
-    single_bit = buf[0];
-    buf[0] ^= 0x1;
-#ifdef DEBUG
-    fprintf(logFile, 
-            "Inject Fault: ID=%ld\tsize=%d\told=0x%x\tnew=0x%x\tcount=%lld\n",
-            faultindex, size, single_bit, buf[0], curr_count);
-#endif
-    // TODO move the log to script after testing
-    fprintf(activatedFile, 
-            "Inject Fault: ID=%ld\tsize=%d\told=0x%x\tnew=0x%x\tcount=%lld\n", 
-            faultindex, size, single_bit, buf[0], curr_count);
-    fflush(activatedFile); 
-	} else {
-    // TODO: change the bit to be something specified by the config
-    size_byte = size / 8;
-    bytepos = rand() / (RAND_MAX * 1.0) * size_byte;
-    bitpos = rand() / (RAND_MAX * 1.0) * 8;
-    memcpy(&oldbuf, &buf[bytepos], 1);
 
-	  buf[bytepos] = buf[bytepos] ^ (0x1 << bitpos);
-#ifdef DEBUG
-	  fprintf(logFile, 
-            "Inject Fault: ID=%ld\tsize=%d\told=0x%x\tnew=0x%x\tcount=%lld\n",
-            faultindex, size,  oldbuf, buf[bytepos], curr_count);
-#endif
-    fprintf(activatedFile, 
-            "Inject Fault: ID=%ld\tsize=%d\told=0x%x\tnew=0x%x\tcount=%lld\n",
-            faultindex, size,  oldbuf , buf[bytepos], curr_count);
-	  	fflush(activatedFile); 
-	}
-  // TODO: change the log information later
+  // NOTE: if fi_bit specified, use it, otherwise, randomly generate
+  if (config.fi_bit >= 0)
+    fi_bit = config.fi_bit;
+  else
+    fi_bit = rand() / (RAND_MAX * 1.0) * size;
+  assert (fi_bit < size && "fi_bit larger than the target size");
+  fi_bytepos = fi_bit / 8;
+  fi_bitpos = fi_bit % 8;
+  
+  memcpy(&oldbuf, &buf[fi_bytepos], 1);
+
+  // TODO: add other fault type other than bit flip
+  if (strcmp(config.fi_type, "bitflip") == 0) {
+    buf[fi_bytepos] ^= 0x1 << fi_bitpos;
+  } else if (strcmp(config.fi_type, "stuck_at_0") == 0) {
+    buf[fi_bytepos] &= ~(0x1 << fi_bitpos);
+  } else if (strcmp(config.fi_type, "stuck_at_1") == 0) {
+    buf[fi_bytepos] |= 0x1 << fi_bitpos;
+  } else {
+    fprintf(stderr, "invalid fault type %s\n", config.fi_type);
+    exit(2);
+  }
+
+  debug(("FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
+         "fi_bit=%u, size=%u, old=0x%hhx, new=0x%hhx\n", config.fi_type,
+            llfi_index, config.fi_cycle, my_reg_index, fi_bit, 
+            size,  oldbuf, buf[fi_bytepos]));
+
+  fprintf(injectedfaultsFile, 
+          "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
+          "fi_bit=%u\n", config.fi_type,
+          llfi_index, config.fi_cycle, my_reg_index, fi_bit);
+	fflush(injectedfaultsFile); 
 }
 
 void postInjections() {
-	fclose(activatedFile); 
+	fclose(injectedfaultsFile); 
 }
-

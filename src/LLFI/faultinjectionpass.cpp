@@ -129,7 +129,7 @@ void FaultInjectionPass::createInjectionFuncforType(
   BranchInst::Create(fiblock, exitblock, prefuncval, entryblock);		
   BranchInst *fi2exit_branch = BranchInst::Create(exitblock, fiblock);
 
-  std::vector<Value*> fi_args(3);
+  std::vector<Value*> fi_args(4);
   fi_args[0] = args[0]; //LLFI Number
   TargetData &td = getAnalysis<TargetData>();
   int size = td.getTypeSizeInBits(fi_inst_type);
@@ -137,6 +137,7 @@ void FaultInjectionPass::createInjectionFuncforType(
   fi_args[2] = new BitCastInst(tmploc, 
                     PointerType::get(Type::getInt8Ty(context), 0),
                     "tmploc_cast", fi2exit_branch);
+  fi_args[3] = args[3];
   CallInst::Create(injectfunc, fi_args.begin(), fi_args.end(), "",
                    fi2exit_branch);
 
@@ -210,10 +211,11 @@ Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {
 
 Constant *FaultInjectionPass::getLLFILibFIFunc(Module &M) {
   LLVMContext& context = M.getContext();
-  std::vector<const Type*> fi_func_param_types(3);
+  std::vector<const Type*> fi_func_param_types(4);
   fi_func_param_types[0] = Type::getInt64Ty(context); 
   fi_func_param_types[1] = Type::getInt32Ty(context); 
   fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0);
+  fi_func_param_types[3] = Type::getInt32Ty(context); 
   FunctionType *injectfunctype = FunctionType::get(Type::getVoidTy(context),
                                                    fi_func_param_types, false);
   Constant *injectfunc = M.getOrInsertFunction("injectFunc", injectfunctype);

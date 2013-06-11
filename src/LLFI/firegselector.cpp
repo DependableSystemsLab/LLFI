@@ -39,8 +39,12 @@ void FIRegSelector::getFIInstRegMap(
         if (isRegofInstInjectable(src, inst)) {
           reglist->push_back(src);
         } else if (err == "") {
-          logFile << "LLFI cannot inject faults in source reg " << *src <<
-                " of instruction " << *inst << "\n";
+          logFile << "LLFI cannot inject faults in source reg ";
+          if (isa<BasicBlock>(src)) 
+            logFile << src->getName();
+          else
+            logFile << *src;
+          logFile << " of instruction " << *inst << "\n";
         }
       }
     }
