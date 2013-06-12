@@ -10,11 +10,20 @@ using namespace llvm;
 namespace llfi {
 class FIInstSelector {
  public:
+  FIInstSelector(): includebackwardtrace(false), includeforwardtrace(false) {}
   FIInstSelector(bool includebt, bool includeft):
       includebackwardtrace(includebt), includeforwardtrace(includeft) {}
 
  public:
   void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
+
+ public:
+  inline void setIncludeBackwardTrace(bool includebt) {
+    includebackwardtrace = includebt;
+  }
+  inline void setIncludeForwardTrace(bool includeft) {
+    includeforwardtrace = includeft;
+  }
   
  private:
   // selection from source code may need to rewrite this function

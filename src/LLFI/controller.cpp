@@ -4,6 +4,7 @@
 #include "llvm/Support/raw_ostream.h"
 
 #include "controller.h"
+#include "ficustomselectormanager.h"
 #include "utils.h"
 #include "fiinstselector.h"
 #include "insttypefiinstselector.h"
@@ -34,8 +35,8 @@ static cl::list< std::string > excludeinst("excludeinst",
     cl::ZeroOrMore);
 
 // custom function
-static cl::opt < std::string > fiinstselfunc("fiinstselfunc",
-    cl::desc("Custom function name for fault injection instruction selection"));
+static cl::opt < std::string > fiinstselname("fiinstselname",
+    cl::desc("Custom fault injection instruction selector name"));
 
 // backtrace or forwardtrace included
 static cl::opt< bool > includebackwardtrace("includebackwardtrace", 
@@ -70,8 +71,8 @@ static cl::opt< FIRegLoc > fireglocation(
       clEnumVal(srcreg4, "Inject into 4th source register"),
       clEnumValEnd));
 
-static cl::opt < std::string > firegselfunc("firegselfunc",
-    cl::desc("Custom function name for fault injection register selection"));
+static cl::opt < std::string > firegselname("firegselname",
+    cl::desc("Custom fault injection register selector name"));
 
 /**
  * Log file
@@ -130,7 +131,11 @@ void Controller::processInstSelArgs() {
                                                 includebackwardtrace,
                                                 includeforwardtrace);
   } else if (fiinstselsrc == custominst) {
-    // TODO: convert the function name to function 
+    FICustomInstSelectorManager *m = 
+        FICustomInstSelectorManager::getCustomInstSelectorManager();
+    fiinstselector = m->getCustomInstSelector(fiinstselname);
+    fiinstselector->setIncludeBackwardTrace(includebackwardtrace);
+    fiinstselector->setIncludeForwardTrace(includeforwardtrace);
   } else {
     // TODO: handle the source code case
   
@@ -142,7 +147,9 @@ void Controller::processRegSelArgs() {
   if (firegselsrc == index) {
     firegselector = new IndexBasedFIRegSelector(fireglocation);
   } else {
-    // TODO: handle the custom case
+    FICustomRegSelectorManager *m = 
+        FICustomRegSelectorManager::getCustomRegSelectorManager();
+    firegselector = m->getCustomRegSelector(firegselname);
   }
 }
 
