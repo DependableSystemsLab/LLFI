@@ -96,6 +96,8 @@ void _parseLLFIConfigFile() {
   fclose(ficonfigFile);
 }
 
+void injectFault(const char *fi_type, long llfi_index, unsigned size,
+                       unsigned fi_bit, char *buf);
 
 // external libraries
 void initInjections() {
@@ -169,17 +171,7 @@ void injectFunc(long llfi_index, unsigned size,
   
   memcpy(&oldbuf, &buf[fi_bytepos], 1);
 
-  // TODO: add other fault type other than bit flip
-  if (strcmp(config.fi_type, "bitflip") == 0) {
-    buf[fi_bytepos] ^= 0x1 << fi_bitpos;
-  } else if (strcmp(config.fi_type, "stuck_at_0") == 0) {
-    buf[fi_bytepos] &= ~(0x1 << fi_bitpos);
-  } else if (strcmp(config.fi_type, "stuck_at_1") == 0) {
-    buf[fi_bytepos] |= 0x1 << fi_bitpos;
-  } else {
-    fprintf(stderr, "invalid fault type %s\n", config.fi_type);
-    exit(2);
-  }
+  injectFault(config.fi_type, llfi_index, size, fi_bit, buf);
 
   debug(("FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
          "fi_bit=%u, size=%u, old=0x%hhx, new=0x%hhx\n", config.fi_type,

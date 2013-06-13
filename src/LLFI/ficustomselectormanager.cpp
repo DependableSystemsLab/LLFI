@@ -5,11 +5,10 @@
 #include "ficustomselectormanager.h"
 
 namespace llfi {
-static FICustomInstSelectorManager instsel_manager;
-static FICustomRegSelectorManager regsel_manager;
 
 FICustomInstSelectorManager
     *FICustomInstSelectorManager::getCustomInstSelectorManager() {
+  static FICustomInstSelectorManager instsel_manager;
   return &instsel_manager;  
 }
 
@@ -39,6 +38,7 @@ FIInstSelector *FICustomInstSelectorManager::getCustomInstSelector(
 // fault injection register selector manager
 FICustomRegSelectorManager
     *FICustomRegSelectorManager::getCustomRegSelectorManager() {
+  static FICustomRegSelectorManager regsel_manager;
   return &regsel_manager;
 }
 

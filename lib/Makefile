@@ -1,11 +1,28 @@
-SOURCES = $(wildcard *.c)
-OBJECTS = $(SOURCES:.c=.o)
-AR = ar
+C_SOURCES = $(wildcard *.c)
+CXX_SOURCES = $(wildcard *.cpp)
+C_OBJECTS = $(C_SOURCES:.c=.o)
+CXX_OBJECTS = $(CXX_SOURCES:.cpp=.o)
 
-all: libllfi.a
+OBJECTS = $(C_OBJECTS) $(CXX_OBJECTS)
+#AR = ar
 
-libllfi.a: $(OBJECTS)
-	$(AR) rcs libllfi.a $^
+BUILDFLAGS = -fPIC
+
+OS_NAME := $(shell uname -s)
+ifeq ($(OS_NAME),Linux)
+	TARGET = libllfi.so
+	BUILDFLAGS += -shared
+else
+	ifeq ($(OS_NAME), Darwin)
+		TARGET = libllfi.dylib
+		BUILDFLAGS += -dynamiclib
+	endif
+endif
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(CXX) $(BUILDFLAGS) -o $(TARGET) $^
 
 clean:
-	rm *.o *.a
+	rm *.o $(TARGET)
