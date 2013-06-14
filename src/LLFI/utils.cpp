@@ -9,6 +9,13 @@
 #include "utils.h"
 
 namespace llfi {
+
+std::string intToString(int i) {
+  std::stringstream s;
+  s << i;
+  return s.str();
+}
+
 Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
@@ -19,12 +26,12 @@ Instruction *getTermInstofFunction(Function *func) {
 
 Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
   // TODO: This insert points can be extended later
-  // TODO: different checks needed for different versions of llvm
+  // TODO: different checks may be needed for different versions of llvm
   if (reg == inst) {
     // inject into destination reg, insert after inst
     if (inst->isTerminator()) {
-      errs() << "LLFI not able to inject into destination register of " <<
-            *inst << ", change isRegofInstInjectable() to fix it\n";
+      errs() << "ERROR: LLFI not able to inject into destination register of " 
+          << *inst << ", change isRegofInstInjectable() to fix it\n";
       exit(2);
     } else {
       BasicBlock::iterator bb_it = inst;
@@ -34,35 +41,12 @@ Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
   } else {
     // Assume the reg is the src of inst, insert before inst
     if (isa<PHINode>(inst)) {
-      errs() << "LLFI not able to inject into source register of " <<
+      errs() << "ERROR: LLFI not able to inject into source register of " <<
           *inst << ", change isRegofInstInjectable to fix it\n";
       exit(2);
     }
     return inst;
   }
-}
-
-
-std::string intToString(int i) {
-  std::stringstream s;
-  s << i;
-  return s.str();
-}
-
-bool is_injectFaultFuncCall(Instruction *I) {
-  std::string injectfunc("injectFault");
-  CallInst *ci = dyn_cast<CallInst>(I);
-  if(!ci)
-    return false;
-  Function *F = ci->getCalledFunction();
-  std::string funcname;
-  if(F)
-    funcname = F->getNameStr();
-  else
-    return false;
-  if(funcname.find(injectfunc) != std::string::npos)
-    return true;
-  return false;
 }
 
 long getLLFIIndexofInst(Instruction *inst) {
@@ -71,8 +55,8 @@ long getLLFIIndexofInst(Instruction *inst) {
     ConstantInt *cns_index = dyn_cast<ConstantInt>(mdnode->getOperand(0));
     return cns_index->getSExtValue();
   } else {
-    errs() << "LLFI indices for instructions are required for the pass, " << 
-        "please run genllfiindexpass first\n";
+    errs() << "ERROR: LLFI indices for instructions are required for the pass, "
+        << "please run genllfiindexpass first\n";
     exit(3);
   }
 }

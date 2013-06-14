@@ -9,7 +9,7 @@
 #include "fiinstselector.h"
 #include "insttypefiinstselector.h"
 #include "firegselector.h"
-#include "indexbasedfiregselector.h"
+#include "reglocbasedfiregselector.h"
 
 using namespace llvm;
 
@@ -17,13 +17,14 @@ namespace llfi {
 /**
  * Inject Instruction
  */
-static cl::opt< FIInstSelSrc > fiinstselsrc(
+static cl::opt< FIInstSelMethod > fiinstselmethod(
     cl::desc("Choose how to specify the fault injection target instructions"),
     cl::init(insttype),
     cl::values(
       clEnumVal(insttype, "Specify through instruction type/opcode"),
       clEnumVal(sourcecode, "Specify through source code"),
-      clEnumVal(custominst, "Specify through custom function"),
+      clEnumVal(custominstselector, 
+                "Specify through custom instruction selector"),
       clEnumValEnd));
 
 // inst type
@@ -34,8 +35,8 @@ static cl::list< std::string > excludeinst("excludeinst",
     cl::desc("The type of instruction to be excluded for fault injection"), 
     cl::ZeroOrMore);
 
-// custom function
-static cl::opt < std::string > fiinstselname("fiinstselname",
+// custom instruction selector name
+static cl::opt < std::string > fiinstselectorname("fiinstselectorname",
     cl::desc("Custom fault injection instruction selector name"));
 
 // backtrace or forwardtrace included
@@ -51,16 +52,17 @@ static cl::opt< bool > includeforwardtrace("includeforwardtrace",
 /**
  * Inject Register
  */
-static cl::opt< FIRegSelSrc > firegselsrc(
+static cl::opt< FIRegSelMethod > firegselmethod(
     cl::desc("Choose how to specify the fault injection target registers"),
-    cl::init(index),
+    cl::init(regloc),
     cl::values(
-      clEnumVal(index, "Specify through register index, e.g. dstreg, srcreg1."),
-      clEnumVal(customreg, "Specify through custom funtion"),
+      clEnumVal(regloc, 
+                "Specify through register location, e.g. dstreg, srcreg1."),
+      clEnumVal(customregselector, "Specify through custom register selector"),
       clEnumValEnd));
 
 static cl::opt< FIRegLoc > fireglocation(
-    cl::desc("Choose fault injection location:"),
+    cl::desc("Choose fault injection register location:"),
     cl::init(dstreg),
     cl::values(
       clEnumVal(dstreg, "Inject into destination register"),
@@ -71,7 +73,7 @@ static cl::opt< FIRegLoc > fireglocation(
       clEnumVal(srcreg4, "Inject into 4th source register"),
       clEnumValEnd));
 
-static cl::opt < std::string > firegselname("firegselname",
+static cl::opt < std::string > firegselectorname("firegselectorname",
     cl::desc("Custom fault injection register selector name"));
 
 /**
@@ -103,8 +105,8 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
       if (loc != fullnameopcodemap.end()) {
         fi_opcode_set->insert(loc->second);
       } else {
-        errs() << "Invalid include instruction type: " << includeinst[i] << 
-            "\n";
+        errs() << "ERROR: Invalid include instruction type: " << includeinst[i]
+            << "\n";
         exit(1);
       }
     }
@@ -116,7 +118,8 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
     if (loc != fullnameopcodemap.end()) {
       fi_opcode_set->erase(loc->second);
     } else {
-      errs() << "Invalid exclude instruction type: " << excludeinst[i] << "\n";
+      errs() << "ERROR: Invalid exclude instruction type: " << excludeinst[i]
+          << "\n";
       exit(1);
     }
   }
@@ -124,32 +127,31 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
 
 void Controller::processInstSelArgs() {
   fiinstselector = NULL;
-  if (fiinstselsrc == insttype) {
+  if (fiinstselmethod == insttype) {
     std::set<unsigned> *fi_opcode_set = new std::set<unsigned>;
     getOpcodeListofFIInsts(fi_opcode_set);
-    fiinstselector = new InstTypeFIInstSelector(fi_opcode_set,
-                                                includebackwardtrace,
-                                                includeforwardtrace);
-  } else if (fiinstselsrc == custominst) {
+    fiinstselector = new InstTypeFIInstSelector(fi_opcode_set);
+  } else if (fiinstselmethod == custominstselector) {
     FICustomInstSelectorManager *m = 
         FICustomInstSelectorManager::getCustomInstSelectorManager();
-    fiinstselector = m->getCustomInstSelector(fiinstselname);
-    fiinstselector->setIncludeBackwardTrace(includebackwardtrace);
-    fiinstselector->setIncludeForwardTrace(includeforwardtrace);
+    fiinstselector = m->getCustomInstSelector(fiinstselectorname);
   } else {
     // TODO: handle the source code case
-  
+    errs() << "ERROR: option not implemented yet\n";
+    exit(4);
   }
+  fiinstselector->setIncludeBackwardTrace(includebackwardtrace);
+  fiinstselector->setIncludeForwardTrace(includeforwardtrace);
 }
 
 void Controller::processRegSelArgs() {
   firegselector = NULL;
-  if (firegselsrc == index) {
-    firegselector = new IndexBasedFIRegSelector(fireglocation);
+  if (firegselmethod == regloc) {
+    firegselector = new RegLocBasedFIRegSelector(fireglocation);
   } else {
     FICustomRegSelectorManager *m = 
         FICustomRegSelectorManager::getCustomRegSelectorManager();
-    firegselector = m->getCustomRegSelector(firegselname);
+    firegselector = m->getCustomRegSelector(firegselectorname);
   }
 }
 

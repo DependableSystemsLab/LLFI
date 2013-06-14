@@ -9,7 +9,7 @@ static long long opcodecount[OPCODE_CYCLE_ARRAY_LEN] = {0};
 
 void doProfiling(int opcode) {
   assert(opcodecount[opcode] >= 0 && 
-         "dynamic instruction no. too large to be handled by llfi");
+         "dynamic instruction number too large to be handled by llfi");
   opcodecount[opcode]++;
 }
 
@@ -18,7 +18,8 @@ void endProfiling() {
   char profilefilename[80] = "llfi.stat.prof.txt";
   profileFile = fopen(profilefilename, "w");
   if (profileFile == NULL) {
-    fprintf(stderr, "Unable to open profiling file %s\n", profilefilename);
+    fprintf(stderr, "ERROR: Unable to open profiling result file %s\n", 
+            profilefilename);
     exit(1);	
   }
 
@@ -37,8 +38,9 @@ void endProfiling() {
     }
   }
 
+  fprintf(profileFile, "# do not edit\n");
   fprintf(profileFile, 
-          "# cycle data considered the execution cycle of the instructions\n");
+          "# cycle considered the execution cycle of each instruction type\n");
   fprintf(profileFile, "total_cycle=%lld\n", total_cycle);
 	fclose(profileFile); 
 }

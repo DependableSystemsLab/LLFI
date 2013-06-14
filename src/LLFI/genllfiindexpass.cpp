@@ -14,7 +14,8 @@ class GenLLFIIndexPass: public ModulePass {
 	virtual bool runOnModule(Module &M);
 	static char ID;
 };
-char GenLLFIIndexPass::ID=0;
+
+char GenLLFIIndexPass::ID = 0;
 static RegisterPass<GenLLFIIndexPass> X(
     "genllfiindexpass", "Generate a unique LLFI index for each instruction",
     false, false);

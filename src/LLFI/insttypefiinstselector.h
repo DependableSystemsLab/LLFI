@@ -9,9 +9,11 @@ namespace llfi {
 
 class InstTypeFIInstSelector: public FIInstSelector {
  public:
-  InstTypeFIInstSelector(std::set<unsigned> *opcodelist, bool includebt, 
-                       bool includeft): FIInstSelector(includebt, includeft) {
+  InstTypeFIInstSelector(std::set<unsigned> *opcodelist) {
     this->opcodelist = opcodelist;
+  }
+  ~InstTypeFIInstSelector() {
+    delete opcodelist;
   }
 
  private:

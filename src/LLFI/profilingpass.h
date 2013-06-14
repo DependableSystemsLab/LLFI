@@ -16,8 +16,8 @@ class ProfilingPass: public ModulePass {
 	virtual bool runOnModule(Module &M);
 	static char ID;
 
- private: //doFinalization is not a member of modulepass in llvm 2.9
-  bool doFinalization(Module &M);
+ private: 
+  void addEndProfilingFuncCall(Module &M);
  private:
   Constant *getLLFILibProfilingFunc(Module &M);
   Constant *getLLFILibEndProfilingFunc(Module &M);

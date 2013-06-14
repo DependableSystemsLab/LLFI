@@ -11,7 +11,7 @@ using namespace llvm;
 namespace llfi {
 class FIRegSelector {
  public:
-  void getFIInstRegMap(std::set< Instruction* > *instset, 
+  void getFIInstRegMap(const std::set< Instruction* > *instset, 
                 std::map<Instruction*, std::list< Value* >* > *instregmap);
 
  private:

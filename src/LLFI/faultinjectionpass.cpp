@@ -56,8 +56,8 @@ void FaultInjectionPass::insertInjectionFuncCall(
     for (std::list<Value* >::iterator reg_it = fi_regs->begin(); 
          reg_it != fi_regs->end(); ++reg_it, ++reg_index) {
       Value *fi_reg = *reg_it;
-      const Type* returntype = fi_reg->getType();
-      LLVMContext& context = M.getContext();
+      const Type *returntype = fi_reg->getType();
+      LLVMContext &context = M.getContext();
       const Type *i64type = Type::getInt64Ty(context);
       const Type *i32type = Type::getInt32Ty(context);
 
@@ -66,9 +66,8 @@ void FaultInjectionPass::insertInjectionFuncCall(
       paramtypes[0] = i64type;	// llfi index
       paramtypes[1] = returntype;	// the instruction to be injected
       paramtypes[2] = i32type; // opcode
-      paramtypes[3] = i32type; // current reg index
+      paramtypes[3] = i32type; // current fi reg index
       paramtypes[4] = i32type; // total fi reg number
-
       FunctionType* injectfunctype = FunctionType::get(returntype, 
                                                        paramtypes, false);
       std::string funcname = getFIFuncNameforType(returntype);
@@ -76,7 +75,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
 
       // argument preparation for calling function
       // since the source register is another way of simulating fault
-      // injection into the instruction, use instruction's index instead
+      // injection into "the instruction", use instruction's index instead
       Value *indexval = ConstantInt::get(i64type, getLLFIIndexofInst(fi_inst));
       std::vector<Value*> args(5);
       args[0] = indexval;
@@ -103,22 +102,19 @@ void FaultInjectionPass::insertInjectionFuncCall(
 }
 
 void FaultInjectionPass::createInjectionFuncforType(
-    Module &M, const Type *fitype, std::string &fi_name, Constant* injectfunc,
+    Module &M, const Type *fitype, std::string &fi_name, Constant *injectfunc,
     Constant *pre_fi_func) {
-  DEBUG(errs() << "Creating fault injection function: " << fi_name << "\n");
   LLVMContext &context = M.getContext();
   Function *f = M.getFunction(fi_name);
   std::vector<Value*> args;
-  for(Function::arg_iterator ai = f->arg_begin(), ae = f->arg_end(); 
-      ai != ae; ++ai)
+  for(Function::arg_iterator ai = f->arg_begin(); ai != f->arg_end(); ++ai)
     args.push_back(&*ai);
   // args[0] llfi index, args[1] fault injection instruction
   // args[2] for opcode, args[3] for reg index, args[4] for total num of fi reg
 
   BasicBlock* entryblock = BasicBlock::Create(context, "entry", f);
   // store the value of target instruction to memory
-  const Type *fi_inst_type = args[1]->getType();
-  AllocaInst *tmploc = new AllocaInst(fi_inst_type, "tmploc", entryblock);
+  AllocaInst *tmploc = new AllocaInst(fitype, "tmploc", entryblock);
   new StoreInst(args[1], tmploc, entryblock);
 
   std::vector<Value*> pre_fi_args(4);
@@ -138,7 +134,7 @@ void FaultInjectionPass::createInjectionFuncforType(
   std::vector<Value*> fi_args(4);
   fi_args[0] = args[0]; //LLFI Number
   TargetData &td = getAnalysis<TargetData>();
-  int size = td.getTypeSizeInBits(fi_inst_type);
+  int size = td.getTypeSizeInBits(fitype);
   fi_args[1] = ConstantInt::get(Type::getInt32Ty(context), size); 
   fi_args[2] = new BitCastInst(tmploc, 
                     PointerType::get(Type::getInt8Ty(context), 0),
@@ -156,8 +152,8 @@ void FaultInjectionPass::createInjectionFunctions(Module &M) {
   Constant *injectfunc = getLLFILibFIFunc(M);
   
   for (std::map<const Type*, std::string>::const_iterator fi = 
-       fi_rettype_funcname_map.begin(),
-       fe = fi_rettype_funcname_map.end(); fi != fe; ++fi) {
+       fi_rettype_funcname_map.begin();
+       fi != fi_rettype_funcname_map.end(); ++fi) {
     const Type *fi_type = fi->first;
     std::string fi_name = fi->second;
     createInjectionFuncforType(M, fi_type, fi_name, injectfunc, pre_fi_func);
@@ -165,27 +161,27 @@ void FaultInjectionPass::createInjectionFunctions(Module &M) {
 }
 
 bool FaultInjectionPass::runOnModule(Module &M) {
-  doInitialization(M);
+  checkforMainFunc(M);
 
   std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
   Controller *ctrl = Controller::getInstance(M);
   ctrl->getFIInstRegsMap(&fi_inst_regs_map);
   insertInjectionFuncCall(fi_inst_regs_map, M);
 
-  doFinalization(M);
+  finalize(M);
   return true;
 }
 
-bool FaultInjectionPass::doInitialization(Module &M) {
+void FaultInjectionPass::checkforMainFunc(Module &M) {
   Function* mainfunc = M.getFunction("main");
   if (mainfunc == NULL) {
-    errs() << "Function main does not exist, which is required by LLFI\n";
+    errs() << "ERROR: Function main does not exist, " <<
+        "which is required by LLFI\n";
     exit(1);
   }
-  return false;
 }
 
-bool FaultInjectionPass::doFinalization(Module &M) {
+void FaultInjectionPass::finalize(Module &M) {
   Function *mainfunc = M.getFunction("main");
   BasicBlock *entryblock = &mainfunc->front();
 
@@ -199,18 +195,17 @@ bool FaultInjectionPass::doFinalization(Module &M) {
   CallInst::Create(postfifunc, "", exitblock->getTerminator());
 
 	createInjectionFunctions(M);
-  return true;
 }
 
 Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {
   std::vector<const Type*> pre_fi_func_param_types(4);
   LLVMContext& context = M.getContext();
-  pre_fi_func_param_types[0] = Type::getInt64Ty(context);
-  pre_fi_func_param_types[1] = Type::getInt32Ty(context);
-  pre_fi_func_param_types[2] = Type::getInt32Ty(context);
-  pre_fi_func_param_types[3] = Type::getInt32Ty(context);
-  FunctionType *pre_fi_func_type = FunctionType::get(Type::getInt1Ty(context),
-                                                pre_fi_func_param_types, false);
+  pre_fi_func_param_types[0] = Type::getInt64Ty(context);// index
+  pre_fi_func_param_types[1] = Type::getInt32Ty(context);// opcode
+  pre_fi_func_param_types[2] = Type::getInt32Ty(context);// my reg index
+  pre_fi_func_param_types[3] = Type::getInt32Ty(context);// total reg index num
+  FunctionType *pre_fi_func_type = FunctionType::get(
+      Type::getInt1Ty(context), pre_fi_func_param_types, false);
   Constant *pre_fi_func = M.getOrInsertFunction("preFunc", pre_fi_func_type);
   return pre_fi_func;
 }
@@ -218,12 +213,12 @@ Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {
 Constant *FaultInjectionPass::getLLFILibFIFunc(Module &M) {
   LLVMContext& context = M.getContext();
   std::vector<const Type*> fi_func_param_types(4);
-  fi_func_param_types[0] = Type::getInt64Ty(context); 
-  fi_func_param_types[1] = Type::getInt32Ty(context); 
-  fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0);
-  fi_func_param_types[3] = Type::getInt32Ty(context); 
-  FunctionType *injectfunctype = FunctionType::get(Type::getVoidTy(context),
-                                                   fi_func_param_types, false);
+  fi_func_param_types[0] = Type::getInt64Ty(context); // index
+  fi_func_param_types[1] = Type::getInt32Ty(context); // size
+  fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0); //inst
+  fi_func_param_types[3] = Type::getInt32Ty(context); // my reg index
+  FunctionType *injectfunctype = FunctionType::get(
+      Type::getVoidTy(context), fi_func_param_types, false);
   Constant *injectfunc = M.getOrInsertFunction("injectFunc", injectfunctype);
   return injectfunc;
 } 

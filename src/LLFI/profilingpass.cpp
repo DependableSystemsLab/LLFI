@@ -58,12 +58,12 @@ bool ProfilingPass::runOnModule(Module &M) {
                      "", insertptr);
   }
 
-  doFinalization(M);
+  addEndProfilingFuncCall(M);
   return true;
 }
 
 
-bool ProfilingPass::doFinalization(Module &M) {
+void ProfilingPass::addEndProfilingFuncCall(Module &M) {
   Function* mainfunc = M.getFunction("main");
   if (mainfunc != NULL) {
     Constant *endprofilefunc = getLLFILibEndProfilingFunc(M);
@@ -72,10 +72,10 @@ bool ProfilingPass::doFinalization(Module &M) {
     Instruction *term = getTermInstofFunction(mainfunc);
     CallInst::Create(endprofilefunc, "", term);
   } else {
-    errs() << "Function main does not exist, which is required by LLFI\n";
+    errs() << "ERROR: Function main does not exist, " << 
+        "which is required by LLFI\n";
     exit(1);
   }
-  return true; 
 }
 
 Constant *ProfilingPass::getLLFILibProfilingFunc(Module &M) {

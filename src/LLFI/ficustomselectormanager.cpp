@@ -6,6 +6,7 @@
 
 namespace llfi {
 
+// fault injection instruction selector manager
 FICustomInstSelectorManager
     *FICustomInstSelectorManager::getCustomInstSelectorManager() {
   static FICustomInstSelectorManager instsel_manager;
@@ -17,8 +18,8 @@ void FICustomInstSelectorManager::addCustomInstSelector(
   if (optionname_instselector.find(name) == optionname_instselector.end()) {
     optionname_instselector[name] = instselector;
   } else {
-    errs() << "Duplicate custom fault injection instruction selector: " <<
-        name << "\n";
+    errs() << "ERROR: Duplicate custom fault injection instruction selector: "
+        << name << "\n";
     exit(1);
   }
 }
@@ -28,8 +29,8 @@ FIInstSelector *FICustomInstSelectorManager::getCustomInstSelector(
   if (optionname_instselector.find(name) != optionname_instselector.end()) {
     return optionname_instselector[name];
   } else {
-    errs() << "Invalid custom fault injection instruction selector: " <<
-        name << "\n";
+    errs() << "ERROR: Unknown custom fault injection instruction selector: "
+        << name << "\n";
     exit(1);
   }
 }
@@ -47,8 +48,8 @@ void FICustomRegSelectorManager::addCustomRegSelector(
   if (optionname_regselector.find(name) == optionname_regselector.end()) {
     optionname_regselector[name] = regselector;
   } else {
-    errs() << "Duplicate custom fault injection register selector: " <<
-        name << "\n";
+    errs() << "ERROR: Duplicate custom fault injection register selector: "
+        << name << "\n";
     exit(1);
   }
 }
@@ -58,7 +59,7 @@ FIRegSelector *FICustomRegSelectorManager::getCustomRegSelector(
   if (optionname_regselector.find(name) != optionname_regselector.end()) {
     return optionname_regselector[name];
   } else {
-    errs() << "Invalid custom fault injection register selector: " <<
+    errs() << "ERROR: Unknown custom fault injection register selector: " <<
         name << "\n";
     exit(1);
   }

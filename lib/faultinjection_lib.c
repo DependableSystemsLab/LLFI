@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
 #include <stdbool.h>
 #include <time.h>
 #include <assert.h>
 #include "utils.h"
 
-static FILE *injectedfaultsFile;
 static long long curr_cycle = 0;
+
+static FILE *injectedfaultsFile;
+static const unsigned OPTION_LENGTH = 512;
 
 static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
-static const unsigned OPTION_LENGTH = 512;
 
 static struct {
   char fi_type[OPTION_LENGTH];
@@ -21,15 +22,20 @@ static struct {
   long fi_index;
 
   // NOTE: the following config are randomly generated if not specified
-  // in practice, use the following two configs only when you want to duplicate
-  // a former fault injection experiment
+  // in practice, use the following two configs only when you want to reproduce
+  // a previous fault injection experiment
   int fi_reg_index;
   int fi_bit;
 } config = {"bitflip", false, -1, -1, -1, -1}; 
 // -1 to tell the value is not specified in the config file
 
+// declaration of the real implementation of the fault injection function
+void injectFaultImpl(const char *fi_type, long llfi_index, unsigned size,
+                       unsigned fi_bit, char *buf);
 
-// private functions
+/**
+ * private functions
+ */
 void _initRandomSeed() {
   unsigned int seed;
 	FILE* urandom = fopen("/dev/urandom", "r");
@@ -38,6 +44,8 @@ void _initRandomSeed() {
 	srand(seed);
 }
 
+// get whether to make decision based on probability
+// return true at the probability of the param: probability
 bool _getDecision(double probability) {
   return (rand() / (RAND_MAX * 1.0)) <= probability;
 }
@@ -48,7 +56,8 @@ void _parseLLFIConfigFile() {
   FILE *ficonfigFile;
   ficonfigFile = fopen(ficonfigfilename, "r");
   if (ficonfigFile == NULL) {
-    fprintf(stderr, "Unable to open llfi config file %s\n", ficonfigfilename);
+    fprintf(stderr, "ERROR: Unable to open llfi config file %s\n",
+            ficonfigfilename);
     exit(1);
   }
 
@@ -84,7 +93,7 @@ void _parseLLFIConfigFile() {
       assert(config.fi_bit >= 0 && "invalid fi_bit in config file");
     } else {
       fprintf(stderr, 
-              "Unrecognized option %s for LLFI runtime fault injection\n",
+              "ERROR: Unknown option %s for LLFI runtime fault injection\n",
               option);
       exit(1);
     }
@@ -96,10 +105,9 @@ void _parseLLFIConfigFile() {
   fclose(ficonfigFile);
 }
 
-void injectFault(const char *fi_type, long llfi_index, unsigned size,
-                       unsigned fi_bit, char *buf);
-
-// external libraries
+/**
+ * external libraries
+ */
 void initInjections() {
   _initRandomSeed();
   _parseLLFIConfigFile();
@@ -109,7 +117,7 @@ void initInjections() {
   strncpy(injectedfaultsfilename, "llfi.stat.fi.injectedfaults.txt", 80);
   injectedfaultsFile = fopen(injectedfaultsfilename, "a");
   if (injectedfaultsFile == NULL) {
-    fprintf(stderr, "Unable to open injected faults stat file %s\n", 
+    fprintf(stderr, "ERROR: Unable to open injected faults stat file %s\n",
             injectedfaultsfilename);
     exit(1);
   }
@@ -171,7 +179,7 @@ void injectFunc(long llfi_index, unsigned size,
   
   memcpy(&oldbuf, &buf[fi_bytepos], 1);
 
-  injectFault(config.fi_type, llfi_index, size, fi_bit, buf);
+  injectFaultImpl(config.fi_type, llfi_index, size, fi_bit, buf);
 
   debug(("FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
          "fi_bit=%u, size=%u, old=0x%hhx, new=0x%hhx\n", config.fi_type,

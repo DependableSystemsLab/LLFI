@@ -9,16 +9,18 @@
 
 using namespace llvm;
 namespace llfi {
-Instruction *getTermInstofFunction(Function *func); 
-Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst);
-
 std::string intToString(int i);
 
-bool is_injectFaultFuncCall(Instruction *I);
+// return the terminate instruction of the function
+Instruction *getTermInstofFunction(Function *func);
+// return instumentation code insertion point for fi in reg of inst
+Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst);
 
+// get or set the LLFI index of the specified instruction. use metadata
 long getLLFIIndexofInst(Instruction *inst);
 void setLLFIIndexofInst(Instruction *inst);
 
+// get the map of opcode name and their opcode
 void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 }
 

@@ -1,6 +1,5 @@
 #include "llvm/Instructions.h"
 #include "llvm/Type.h"
-
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
@@ -14,7 +13,7 @@ namespace llfi {
 extern cl::opt< std::string > llfilogfile;
 
 void FIRegSelector::getFIInstRegMap(
-    std::set< Instruction* > *instset, 
+    const std::set< Instruction* > *instset, 
     std::map<Instruction*, std::list< Value* >* > *instregmap) {
   std::string err;
   raw_fd_ostream logFile(llfilogfile.c_str(), err, raw_fd_ostream::F_Append);
@@ -54,8 +53,8 @@ void FIRegSelector::getFIInstRegMap(
       instregmap->insert(
           std::pair<Instruction*, std::list< Value* >* >(inst, reglist));
     } else if (err == "") {
-      logFile << "The instruction is not valid for fault injection" 
-            << *inst << "\n";
+      logFile << "The selected instruction " << *inst << 
+          "does not have any valid registers for fault injection\n";
     }
   }
   logFile.close();

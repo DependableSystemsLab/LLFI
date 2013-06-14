@@ -15,12 +15,12 @@ class FIInstSelector;
 class FIRegSelector;
 
 
-enum FIInstSelSrc {
-  insttype, sourcecode, custominst
+enum FIInstSelMethod {
+  insttype, sourcecode, custominstselector
 };
 
-enum FIRegSelSrc {
-  index, customreg
+enum FIRegSelMethod {
+  regloc, customregselector
 };
 
 enum FIRegLoc {
@@ -56,8 +56,8 @@ class Controller {
  private:
   // a map of target instructions and a list of inject loc
   // Assumption: changes on instructions do not have temporal relations
-  // That's why we use unordered map instead of list
-  // TODO: replace tree-based map to hashtable-based map
+  // That's why we can use unordered map instead of list
+  // TODO: replace tree-based map to hashtable-based map for performance
   std::map<Instruction*, std::list< Value* >* > fi_inst_regs_map;  
 
  private:

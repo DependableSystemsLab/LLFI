@@ -9,7 +9,6 @@ namespace llfi {
 class FIInstSelector;
 class FIRegSelector;
 
-
 class FICustomInstSelectorManager {
  public:
   FICustomInstSelectorManager() {}

@@ -11,8 +11,6 @@ namespace llfi {
 class FIInstSelector {
  public:
   FIInstSelector(): includebackwardtrace(false), includeforwardtrace(false) {}
-  FIInstSelector(bool includebt, bool includeft):
-      includebackwardtrace(includebt), includeforwardtrace(includeft) {}
 
  public:
   void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
@@ -26,11 +24,14 @@ class FIInstSelector {
   }
   
  private:
-  // selection from source code may need to rewrite this function
+  // get the initial fault injection instruction without backtrace or forward
+  // trace, selection from source code may need to rewrite this function
   virtual void getInitFIInsts(Module &M, std::set<Instruction*> *fiinsts);
+
   virtual bool isInstFITarget(Instruction* inst) = 0;
 
  protected:
+  // only get the "instructions" that are the backward/forward trace of inst
   void getBackwardTraceofInsts(const std::set<Instruction*> *fiinsts,
                           std::set<Instruction*> *bs);
   void getForwardTraceofInsts(const std::set<Instruction*> *fiinsts,

@@ -24,15 +24,15 @@ class FaultInjectionPass: public ModulePass {
     AU.addRequired<TargetData>();
   }
 
- private: // the doInitialization and doFinalization are not in ModulePass
-  bool doInitialization(Module &M);
-  bool doFinalization(Module& M);
- private:
+ private: 
+  void checkforMainFunc(Module &M);
+  void finalize(Module& M);
+
   void insertInjectionFuncCall(
       std::map<Instruction*, std::list< Value* >* > *inst_regs_map, Module &M);
-  void createInjectionFuncforType(Module &M, const Type* functype, 
-                                  std::string &funcname, Constant* fi_func, 
-                                  Constant* pre_func);
+  void createInjectionFuncforType(Module &M, const Type *functype, 
+                                  std::string &funcname, Constant *fi_func, 
+                                  Constant *pre_func);
 	void createInjectionFunctions(Module &M);
 
  private:
