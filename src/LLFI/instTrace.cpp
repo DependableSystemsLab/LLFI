@@ -67,11 +67,13 @@ virtual bool runOnFunction(Function &F) {
 				!llfi::isLLFIInst(inst) && 
 				inst != block->getTerminator()) {
 
+				//Find instrumentation point for current instruction
 				Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
+				//Allocate stack memory to store/pass instruction value
 				AllocaInst* ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
 
 				//Create the decleration of the printInstProfile Function with proper arg/return types
-				//ID, Opcode, Num Ops, Instruction Value = 4 arguments
+				//ID, Opcode, inst Value Size, ptr to inst Value = 4 arguments
 				std::vector<const Type*> parameterVector(4);
 				parameterVector[0] = Type::getInt32Ty(context);
 				parameterVector[1] = Type::getInt32Ty(context);
@@ -104,7 +106,7 @@ virtual bool runOnFunction(Function &F) {
 
 	return true; //Tell LLVM that the Function was modified
 }//RunOnFunction
-}; //struct InstTrace
+};//struct InstTrace
 
 //Register the pass with the llvm
 char instTrace::ID = 0;
