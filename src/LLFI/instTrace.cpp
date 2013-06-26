@@ -63,17 +63,23 @@ virtual bool runOnFunction(Function &F) {
 				   	   << "   Opcode: " << inst->getOpcode() << "\n"
 				       << "   Parent Function Name: " << inst->getParent()->getParent()->getNameStr() << "\n";
 			}
-			if (inst->getType() != Type::getVoidTy(context) && !llfi::isLLFIInst(inst)) {
+			if (inst->getType() != Type::getVoidTy(context) && 
+				!llfi::isLLFIInst(inst) && 
+				inst != block->getTerminator()) {
+
+				Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
+				AllocaInst* ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
+
 				//Create the decleration of the printInstProfile Function with proper arg/return types
 				//ID, Opcode, Num Ops, Instruction Value = 4 arguments
 				std::vector<const Type*> parameterVector(4);
 				parameterVector[0] = Type::getInt32Ty(context);
 				parameterVector[1] = Type::getInt32Ty(context);
-				parameterVector[2] = Type::getInt32Ty(context);
-				parameterVector[3] = inst->getType();
+				parameterVector[2] = Type::getInt64Ty(context);
+				parameterVector[3] = ptrInst->getType();
+				
 				FunctionType* ppFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
 				Constant *ppFunc = M->getOrInsertFunction("printInstTracer", ppFuncType); 
-
 
 				//Insert the tracing function, passing it the proper arguments
 				std::vector<Value*> ppArgs;
@@ -81,21 +87,17 @@ virtual bool runOnFunction(Function &F) {
 				ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context,32), fetchLLFIInstructionID(inst));
 				//Fetch the OPcode:
 				ConstantInt* OPConstInt = ConstantInt::get(IntegerType::get(context,32), inst->getOpcode());
-				//Fetch the number of operands passed to the instruction:
-				unsigned numInstOperands = inst->getNumOperands();
-				ConstantInt* NumOpsConstInt = ConstantInt::get(IntegerType::get(context,32), numInstOperands);
+				//Fetch size of instruction value
+				Constant* instValSize = ConstantExpr::getSizeOf(inst->getType());
+				
 				//Load All Arguments
 				ppArgs.push_back(IDConstInt);
 				ppArgs.push_back(OPConstInt);
-				ppArgs.push_back(NumOpsConstInt);
-				ppArgs.push_back(inst);
+				ppArgs.push_back(instValSize);
+				ppArgs.push_back(ptrInst);
 
 				//Create the Function
-				if (inst != block->getTerminator()) { //Make sure that the instruction is not a terminator
-					//ie, that there is a next instruction to insert before
-					Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-					CallInst::Create(ppFunc, ppArgs.begin(),ppArgs.end(), "", insertPoint);
-				}
+				CallInst::Create(ppFunc, ppArgs.begin(),ppArgs.end(), "", insertPoint);
 			}
 		}//Instruction Iteration
 	}//BasicBlock Iteration
