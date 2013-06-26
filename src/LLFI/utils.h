@@ -3,9 +3,15 @@
 #include "llvm/Function.h"
 #include "llvm/Instruction.h"
 #include "llvm/Value.h"
+#include "llvm/BasicBlock.h"
+#include "llvm/Instructions.h"
+#include "llvm/Metadata.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
 
 #include <map>
 #include <string>
+#include <sstream>
 
 using namespace llvm;
 namespace llfi {
