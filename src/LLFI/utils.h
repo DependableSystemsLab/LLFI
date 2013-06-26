@@ -28,6 +28,9 @@ void setLLFIIndexofInst(Instruction *inst);
 
 // get the map of opcode name and their opcode
 void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
+
+//Check metadata to see if instruction was generated/inserted by LLFI
+bool isLLFIInst(Instruction *inst);
 }
 
 #endif

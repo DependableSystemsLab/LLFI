@@ -73,4 +73,10 @@ void genFullNameOpcodeMap(
 #include "llvm/Instruction.def"
 }
 
+bool isLLFIInst(Instruction *inst) {
+  //TODO: We should make this more reliable, I dont think LLFI should be incompatible with
+  //      other LLVM passes that modify/add metadata. -Sam
+  return !inst->hasMetadata();
+}
+
 }
