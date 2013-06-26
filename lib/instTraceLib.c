@@ -6,7 +6,7 @@ void printInstTracer(long instID, int opcode, int size, char* ptr) {
 	int i;
 	printf("ID: %d\tOPCode: %d\tNumBytes: %d\t Value: ", instID, opcode, size);
 	for (i=0;i<size;i++) {
-		printf("%04hhx", ptr[i]);
+		printf("%02hhx", ptr[i]);
 	}
 	printf("\n");
 }
