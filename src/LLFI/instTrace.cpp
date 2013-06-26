@@ -11,7 +11,6 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 
-//#TODO: Merge with Jiesheng's instruction assignment
 #include "utils.h"
 
 using namespace llvm;
