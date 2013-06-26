@@ -68,8 +68,10 @@ virtual bool runOnFunction(Function &F) {
 
 				//Find instrumentation point for current instruction
 				Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-				//Allocate stack memory to store/pass instruction value
+				//insert an instruction Allocate stack memory to store/pass instruction value
 				AllocaInst* ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
+				//Insert an instruction to Store the instruction Value!
+				new StoreInst(inst, ptrInst, insertPoint);
 
 				//Create the decleration of the printInstProfile Function with proper arg/return types
 				//ID, Opcode, inst Value Size, ptr to inst Value = 4 arguments
