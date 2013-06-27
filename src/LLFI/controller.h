@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include "llvm/Instructions.h"
+#include "llvm/Module.h"
 
 #include <set>
 #include <map>
@@ -10,7 +11,6 @@
 using namespace llvm;
 
 namespace llfi {
-class llvm::Module;
 class FIInstSelector;
 class FIRegSelector;
 
