@@ -33,20 +33,19 @@ FILE* OutputFile(const char *name) {
 	return ofile;
 }
 
-void printInstTracer(long instID, int opcode, int size, char* ptr) {
+void printInstTracer(long instID, int opcode, int size, char* ptr, char* fname) {
 	int i;
-	const char *TEST = "TEST";
-	fprintf(OutputFile(TEST), "ID: %d\tOPCode: %d\tNumBytes: %d\t Value: ", instID, opcode, size);
+	fprintf(OutputFile(fname), "ID: %d\tOPCode: %d\tValue: ", instID, opcode);
 	if (littleEndian()) {
 		for (i=size-1; i>=0; i--) {
-			fprintf(OutputFile(TEST), "%02hhx", ptr[i]);
+			fprintf(OutputFile(fname), "%02hhx", ptr[i]);
 		}
 	} else {
 		for (i=0; i<size; i++) {
-			fprintf(OutputFile(TEST), "%02hhx", ptr[i]);
+			fprintf(OutputFile(fname), "%02hhx", ptr[i]);
 		}
 	}
-	fprintf(OutputFile(TEST), "\n");
-	fflush(OutputFile(TEST)); //Program may crash before exit from main, must flush
+	fprintf(OutputFile(fname), "\n");
+	fflush(OutputFile(fname)); //Program may crash before exit from main, must flush
 							  //to ensure trace is outputted!
 }

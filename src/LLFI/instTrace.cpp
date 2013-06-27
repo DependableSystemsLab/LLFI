@@ -16,7 +16,10 @@
 
 using namespace llvm;
 
-cl::opt<std::string> OutputFilename("o", cl::desc("Specify output filename"), cl::value_desc("filename"));
+cl::opt<std::string> OutputFilename("out", 
+									cl::desc("Specify output filename"), 
+									cl::value_desc("filename"),
+									cl::Required);
 
 namespace llfi {
 
@@ -31,7 +34,7 @@ int oFilenameLength;
 instTrace() : FunctionPass(ID) {}
 
 virtual bool doInitialization(Module &M) {
-	oFilenameLength = OutputFilename.size() + 1
+	oFilenameLength = OutputFilename.size() + 1;
 	oFilename = new char[oFilenameLength];
 	std::copy(OutputFilename.begin(), OutputFilename.end(), oFilename);
 	oFilename[OutputFilename.size()] = '\0'; // don't forget the terminating 0
@@ -86,13 +89,19 @@ virtual bool runOnFunction(Function &F) {
 				AllocaInst* ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
 				//Insert an instruction to Store the instruction Value!
 				new StoreInst(inst, ptrInst, insertPoint);
+				
+				//Insert instructions to allocate stack memory for output filename
+				llvm::Value* oFileValue = llvm::ConstantArray::get(context, oFilename);
+				AllocaInst* ofileptrInst = new AllocaInst(oFileValue->getType(), NULL, "", insertPoint);
+				new StoreInst(oFileValue, ofileptrInst, insertPoint);
 
 				//Create the decleration of the printInstTracer Function
-				std::vector<const Type*> parameterVector(4);
+				std::vector<const Type*> parameterVector(5);
 				parameterVector[0] = Type::getInt32Ty(context); //ID
 				parameterVector[1] = Type::getInt32Ty(context); //OpCode
 				parameterVector[2] = Type::getInt64Ty(context); //Size of Inst Value
 				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
+				parameterVector[4] = ofileptrInst->getType();	//Ptr to name of ofile
 				
 				FunctionType* ppFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
 				Constant *ppFunc = M->getOrInsertFunction("printInstTracer", ppFuncType); 
@@ -111,6 +120,7 @@ virtual bool runOnFunction(Function &F) {
 				ppArgs.push_back(OPConstInt);
 				ppArgs.push_back(instValSize);
 				ppArgs.push_back(ptrInst);
+				ppArgs.push_back(ofileptrInst);
 
 				//Create the Function
 				CallInst::Create(ppFunc, ppArgs.begin(),ppArgs.end(), "", insertPoint);
