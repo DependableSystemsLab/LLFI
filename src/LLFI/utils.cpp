@@ -73,10 +73,14 @@ void genFullNameOpcodeMap(
 #include "llvm/Instruction.def"
 }
 
-bool isLLFIInst(Instruction *inst) {
-  //TODO: We should make this more reliable, I dont think LLFI should be incompatible with
-  //      other LLVM passes that modify/add metadata. -Sam
-  return !inst->hasMetadata();
+//Returns true if the function is indexed by llfi 
+//(and therefore we should perform trace/fault injects on it)
+bool isLLFIIndexedInst(Instruction *inst) {
+  MDNode *mdnode = inst->getMetadata("llfi_index");
+  if (mdnode) {
+    return true;
+  }
+  return false;
 }
 
 }

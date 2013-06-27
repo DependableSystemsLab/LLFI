@@ -30,7 +30,7 @@ void setLLFIIndexofInst(Instruction *inst);
 void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 
 //Check metadata to see if instruction was generated/inserted by LLFI
-bool isLLFIInst(Instruction *inst);
+bool isLLFIIndexedInst(Instruction *inst);
 }
 
 #endif
