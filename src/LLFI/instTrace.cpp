@@ -87,7 +87,7 @@ virtual bool runOnFunction(Function &F) {
 				//Insert an instruction to Store the instruction Value!
 				new StoreInst(inst, ptrInst, insertPoint);
 
-				//Create the decleration of the printInstProfile Function
+				//Create the decleration of the printInstTracer Function
 				std::vector<const Type*> parameterVector(4);
 				parameterVector[0] = Type::getInt32Ty(context); //ID
 				parameterVector[1] = Type::getInt32Ty(context); //OpCode
