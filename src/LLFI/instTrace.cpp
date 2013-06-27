@@ -120,8 +120,6 @@ virtual bool runOnFunction(Function &F) {
 				std::vector<Value*> ppArgs;
 				//Fetch the LLFI Instruction ID:
 				ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context,32), fetchLLFIInstructionID(inst));
-				//Fetch the OPcode:
-				ConstantInt* OPConstInt = ConstantInt::get(IntegerType::get(context,32), inst->getOpcode());
 				//Fetch size of instruction value
 				Constant* instValSize = ConstantExpr::getSizeOf(inst->getType());
 				
