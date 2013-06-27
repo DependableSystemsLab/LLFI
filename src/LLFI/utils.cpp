@@ -79,8 +79,9 @@ bool isLLFIIndexedInst(Instruction *inst) {
   MDNode *mdnode = inst->getMetadata("llfi_index");
   if (mdnode) {
     return true;
-  }
-  return false;
+  } else {
+   return false;
+ }
 }
 
 }

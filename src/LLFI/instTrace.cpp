@@ -18,8 +18,7 @@ using namespace llvm;
 
 cl::opt<std::string> OutputFilename("out", 
 									cl::desc("Specify output filename"), 
-									cl::value_desc("filename"),
-									cl::Required);
+									cl::value_desc("filename"));
 
 namespace llfi {
 
@@ -71,7 +70,7 @@ virtual bool runOnFunction(Function &F) {
 			//Print some Debug Info as the pass is being run
 			Instruction *inst = instIterator;
 
-			errs() << "instTrace: Found Instruction\n";
+			errs() << llfi::isLLFIIndexedInst(inst) << " instTrace: Found Instruction\n";
 			if (!llfi::isLLFIIndexedInst(inst)) {
 				errs() << "   Instruction was not indexed\n";
 			} else {
@@ -95,10 +94,15 @@ virtual bool runOnFunction(Function &F) {
 				AllocaInst* ofileptrInst = new AllocaInst(oFileValue->getType(), NULL, "", insertPoint);
 				new StoreInst(oFileValue, ofileptrInst, insertPoint);
 
+				//Insert instructions to allocate stack memory for opcode name
+				llvm::Value* OPCodeName = llvm::ConstantArray::get(context, inst->getOpcodeName());
+				AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(), NULL, "", insertPoint);
+				new StoreInst(OPCodeName, OPCodePtr, insertPoint);
+
 				//Create the decleration of the printInstTracer Function
 				std::vector<const Type*> parameterVector(5);
 				parameterVector[0] = Type::getInt32Ty(context); //ID
-				parameterVector[1] = Type::getInt32Ty(context); //OpCode
+				parameterVector[1] = OPCodePtr->getType(); //Type::getInt32Ty(context); //OpCode
 				parameterVector[2] = Type::getInt64Ty(context); //Size of Inst Value
 				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
 				parameterVector[4] = ofileptrInst->getType();	//Ptr to name of ofile
@@ -117,7 +121,7 @@ virtual bool runOnFunction(Function &F) {
 				
 				//Load All Arguments
 				ppArgs.push_back(IDConstInt);
-				ppArgs.push_back(OPConstInt);
+				ppArgs.push_back(OPCodePtr);//ppArgs.push_back(OPConstInt);
 				ppArgs.push_back(instValSize);
 				ppArgs.push_back(ptrInst);
 				ppArgs.push_back(ofileptrInst);
