@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 static int littleEndianness = -1;
-
 int littleEndian() {
 	int data;
 	char *ptr;
@@ -25,17 +24,28 @@ int littleEndian() {
 	return littleEndianness;
 }
 
+//Open a file for writing. This file is not explicitly closed, must flush often!
+static FILE* ofile = 0;
+FILE* OutputFile(const char *name) {
+	if (ofile == 0) {
+		ofile = fopen(name, "w");
+	}
+	return ofile;
+}
+
 void printInstTracer(long instID, int opcode, int size, char* ptr) {
 	int i;
-	printf("ID: %d\tOPCode: %d\tNumBytes: %d\t Value: ", instID, opcode, size);
+	const char *TEST = "TEST";
+	fprintf(OutputFile(TEST), "ID: %d\tOPCode: %d\tNumBytes: %d\t Value: ", instID, opcode, size);
 	if (littleEndian()) {
 		for (i=size-1; i>=0; i--) {
-			printf("%02hhx", ptr[i]);
+			fprintf(OutputFile(TEST), "%02hhx", ptr[i]);
 		}
 	} else {
 		for (i=0; i<size; i++) {
-			printf("%02hhx", ptr[i]);
+			fprintf(OutputFile(TEST), "%02hhx", ptr[i]);
 		}
 	}
-	printf("\n");
+	fprintf(OutputFile(TEST), "\n");
+	fflush(OutputFile(TEST));
 }
