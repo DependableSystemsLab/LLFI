@@ -18,7 +18,8 @@ using namespace llvm;
 
 cl::opt<std::string> OutputFilename("out", 
 									cl::desc("Specify output filename"), 
-									cl::value_desc("filename"));
+									cl::value_desc("filename"),
+									cl::init("traceOutput.txt"));
 
 namespace llfi {
 
