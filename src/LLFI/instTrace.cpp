@@ -16,10 +16,10 @@
 
 using namespace llvm;
 
-cl::opt<std::string> OutputFilename("out", 
+cl::opt<std::string> OutputFilename("tout", 
 									cl::desc("Specify output filename"), 
 									cl::value_desc("filename"),
-									cl::init("traceOutput.txt"));
+									cl::init("traceOutput"));
 cl::opt<bool> verboseTrace( "verboseTrace",
 							cl::desc("Output Trace insertion information"),
 							cl::init(false));
