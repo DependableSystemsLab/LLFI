@@ -20,6 +20,9 @@ cl::opt<std::string> OutputFilename("out",
 									cl::desc("Specify output filename"), 
 									cl::value_desc("filename"),
 									cl::init("traceOutput.txt"));
+cl::opt<bool> verboseTrace( "verboseTrace",
+							cl::desc("Output Trace insertion information"),
+							cl::init(false));
 
 namespace llfi {
 
@@ -71,13 +74,15 @@ virtual bool runOnFunction(Function &F) {
 			//Print some Debug Info as the pass is being run
 			Instruction *inst = instIterator;
 
-			errs() << llfi::isLLFIIndexedInst(inst) << " instTrace: Found Instruction\n";
-			if (!llfi::isLLFIIndexedInst(inst)) {
-				errs() << "   Instruction was not indexed\n";
-			} else {
-				errs() << "   Opcode Name: " << inst->getOpcodeName() << "\n"
-				   	   << "   Opcode: " << inst->getOpcode() << "\n"
-				       << "   Parent Function Name: " << inst->getParent()->getParent()->getNameStr() << "\n";
+			if (verboseTrace) {
+				errs() << llfi::isLLFIIndexedInst(inst) << " instTrace: Found Instruction\n";
+				if (!llfi::isLLFIIndexedInst(inst)) {
+					errs() << "   Instruction was not indexed\n";
+				} else {
+					errs() << "   Opcode Name: " << inst->getOpcodeName() << "\n"
+					   	   << "   Opcode: " << inst->getOpcode() << "\n"
+					       << "   Parent Function Name: " << inst->getParent()->getParent()->getNameStr() << "\n";
+				}
 			}
 			if (inst->getType() != Type::getVoidTy(context) && 
 				llfi::isLLFIIndexedInst(inst) && 
