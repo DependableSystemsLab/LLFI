@@ -47,5 +47,6 @@ void printInstTracer(long instID, int opcode, int size, char* ptr) {
 		}
 	}
 	fprintf(OutputFile(TEST), "\n");
-	fflush(OutputFile(TEST));
+	fflush(OutputFile(TEST)); //Program may crash before exit from main, must flush
+							  //to ensure trace is outputted!
 }
