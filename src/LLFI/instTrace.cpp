@@ -10,10 +10,13 @@
 #include "llvm/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
+#include "llvm/Support/CommandLine.h"
 
 #include "utils.h"
 
 using namespace llvm;
+
+cl::opt<std::string> OutputFilename("o", cl::desc("Specify output filename"), cl::value_desc("filename"));
 
 namespace llfi {
 
@@ -22,10 +25,21 @@ struct instTrace : public FunctionPass {
 static char ID;
 Function::iterator lastBlock;
 BasicBlock::iterator lastInst;
+char *oFilename;
+int oFilenameLength;
 
 instTrace() : FunctionPass(ID) {}
 
 virtual bool doInitialization(Module &M) {
+	oFilenameLength = OutputFilename.size() + 1
+	oFilename = new char[oFilenameLength];
+	std::copy(OutputFilename.begin(), OutputFilename.end(), oFilename);
+	oFilename[OutputFilename.size()] = '\0'; // don't forget the terminating 0
+	return true;
+}
+
+virtual bool doFinalization(Module &) {
+	delete[] oFilename;
 	return true;
 }
 
@@ -73,13 +87,12 @@ virtual bool runOnFunction(Function &F) {
 				//Insert an instruction to Store the instruction Value!
 				new StoreInst(inst, ptrInst, insertPoint);
 
-				//Create the decleration of the printInstProfile Function with proper arg/return types
-				//ID, Opcode, inst Value Size, ptr to inst Value = 4 arguments
+				//Create the decleration of the printInstProfile Function
 				std::vector<const Type*> parameterVector(4);
-				parameterVector[0] = Type::getInt32Ty(context);
-				parameterVector[1] = Type::getInt32Ty(context);
-				parameterVector[2] = Type::getInt64Ty(context);
-				parameterVector[3] = ptrInst->getType();
+				parameterVector[0] = Type::getInt32Ty(context); //ID
+				parameterVector[1] = Type::getInt32Ty(context); //OpCode
+				parameterVector[2] = Type::getInt64Ty(context); //Size of Inst Value
+				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
 				
 				FunctionType* ppFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
 				Constant *ppFunc = M->getOrInsertFunction("printInstTracer", ppFuncType); 
