@@ -33,9 +33,11 @@ FILE* OutputFile(const char *name) {
 	return ofile;
 }
 
-void printInstTracer(long instID, int opcode, int size, char* ptr, char* fname) {
+static long instCount = 0;
+void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname) {
 	int i;
-	fprintf(OutputFile(fname), "ID: %d\tOPCode: %d\tValue: ", instID, opcode);
+	fprintf(OutputFile(fname), "#: %d\tID: %d\tOPCode: %s\tValue: ", instCount, instID, opcode);
+	instCount++;
 	if (littleEndian()) {
 		for (i=size-1; i>=0; i--) {
 			fprintf(OutputFile(fname), "%02hhx", ptr[i]);
