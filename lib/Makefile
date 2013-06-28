@@ -5,6 +5,11 @@ CXX_OBJECTS = $(CXX_SOURCES:.cpp=.o)
 
 OBJECTS = $(C_OBJECTS) $(CXX_OBJECTS)
 #AR = ar
+CFLAGS = -fPIC 
+CXXFLAGS = -fPIC 
+
+#CC = llvm-gcc
+#CXX = llvm-g++
 
 BUILDFLAGS = -fPIC
 

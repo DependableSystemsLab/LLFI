@@ -15,7 +15,7 @@ static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
 
 static struct {
-  char fi_type[OPTION_LENGTH];
+  char fi_type[512];
   bool fi_accordingto_cycle;
   // if both fi_cycle and fi_index are specified, use fi_cycle
   long long fi_cycle;

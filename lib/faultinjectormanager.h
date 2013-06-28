@@ -5,6 +5,9 @@
 #include <map>
 #include <string>
 
+#include <stdio.h>
+#include <cstdlib>
+
 #include "utils.h"
 
 class FaultInjector;
