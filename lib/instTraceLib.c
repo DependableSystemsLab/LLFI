@@ -8,12 +8,6 @@ int littleEndian() {
 	if (littleEndianness == -1) {
 		data = 0x10000000;
 		ptr = (char*)&data;
-		/*int i;
-		printf("Testing Endianness: ");
-		for (i = 0; i<4; i++) {
-			printf("%02hhx", ptr[i]);
-		}
-		printf("\n");*/
 		if (*ptr == 0x10) {
 			littleEndianness = 0;
 		}
