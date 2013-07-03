@@ -36,7 +36,7 @@ FILE* OutputFile(const char *name) {
 static long instCount = 0;
 void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname) {
 	int i;
-	fprintf(OutputFile(fname), "#: %d\tID: %d\tOPCode: %s\tValue: ", instCount, instID, opcode);
+	fprintf(OutputFile(fname), "ID: %d\tOPCode: %s\tValue: ", instID, opcode);
 	instCount++;
 	if (littleEndian()) {
 		for (i=size-1; i>=0; i--) {
