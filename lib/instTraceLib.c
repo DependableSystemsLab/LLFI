@@ -1,11 +1,19 @@
+/************
+/instTraceLib.c
+/Author: Sam Coulter
+/	This library is part of the greater LLFI framework
+/	This library should be linked against programs that have had the LLFI instTrace LLVM
+/	pass performed on them
+*************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
 static int littleEndianness = -1;
 int littleEndian() {
-	int data;
-	char *ptr;
 	if (littleEndianness == -1) {
+		int data;
+		char *ptr;
 		data = 0x10000000;
 		ptr = (char*)&data;
 		if (*ptr == 0x10) {
