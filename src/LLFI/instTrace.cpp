@@ -1,3 +1,15 @@
+/***************
+instTrace.cpp
+Author: Sam Coulter
+	This llvm pass is part of the greater LLFI framework
+	
+	Run the pass with the opt -instTrace option after loading LLFI.so
+	
+	This pass injects a function call before every non-void-returning, 
+	non-phi-node instruction that prints trace information about the executed
+	instruction to a file specified during the pass.
+***************/
+
 #include <vector>
 
 #include "llvm/Constants.h"
@@ -142,7 +154,7 @@ virtual bool runOnFunction(Function &F) {
 
 //Register the pass with the llvm
 char instTrace::ID = 0;
-static RegisterPass<instTrace> X("instTrace", "Traces instruction execution through program", false, false);
+static RegisterPass<instTrace> X("instTrace", "Traces instruction execution through program: -tout <filename> (-verboseTrace)", false, false);
 
 }//namespace llfi
 
