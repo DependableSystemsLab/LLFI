@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils.h"
+
 static int littleEndianness = -1;
 int littleEndian() {
 	if (littleEndianness == -1) {
