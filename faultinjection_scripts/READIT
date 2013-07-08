@@ -1,0 +1,4 @@
+To run faultinjectNEW.py, you must install the pyYAML package locally
+Then change the import path in faultinjectNEW.py to match 
+
+input.yaml must be in the same directory also

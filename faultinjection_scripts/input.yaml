@@ -1,0 +1,35 @@
+setUp:
+    targetDirectoryName: Daxpy
+
+compileOption:
+    instSelMethod: custominstselector
+    include: 
+        - br
+        - sub
+        - switch
+    exclude:
+        - ret
+        - mul
+    customInstSelector: onlymain
+    
+    regSelMethod: customregselector
+    regloc: dstreg
+    customRegSelector: onlyconstint
+    trace: 
+        - forward
+        - backward
+    
+runOption:
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+        fi_cycle: 10
+        fi_reg_index: 3
+        fi_bit: 32
+
+    - run:
+        numOfRuns: 1
+        fi_type: stuck_at_0
+        fi_cycle: 12
+        fi_index: 23
+        fi_reg_index: 2
