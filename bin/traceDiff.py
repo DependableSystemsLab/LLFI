@@ -44,6 +44,10 @@ class diffBlock:
 
 	def printSummary(self):
 		status = 0
+		lastOrigLine = self.origLines[len(self.origLines)-1]
+		lastNewLine = self.newLines[len(self.newLines)-1]
+		firstOrigLine = self.origLines[0]
+		firstNewLine = self.newLines[0]
 		if (self.origLength != self.newLength):
 			status = "Control Difference"
 		else:
@@ -53,18 +57,23 @@ class diffBlock:
 				elif (oline.ID != nline.ID) or (oline.OPCode != nline.OPCode):
 					status = "Control Difference"
 					break
-		print "Trace Difference detected at:" 
-		print "    Golden Inst Number:", self.origStart, "ID:", self.origLines[0].ID, \
-				"OPCode:", self.origLines[0].OPCode, "Value:", self.origLines[0].Value
-		print "    Faulty Inst Number:", self.newStart, "ID:", self.newLines[0].ID, \
-				"OPCode:", self.newLines[0].OPCode, "Value:", self.newLines[0].Value
-		print "    Trace Difference is a", status
+		assert (status != 0), "Control/Data Difference evaluation Error"
+		print status, "detected at:" 
+		print "    Golden Inst Number:", self.origStart, "ID:", firstOrigLine.ID, \
+				"OPCode:", firstOrigLine.OPCode, "Value:", firstOrigLine.Value
+		print "    Faulty Inst Number:", self.newStart, "ID:", firstNewLine.ID, \
+				"OPCode:", firstNewLine.OPCode, "Value:", firstNewLine.Value
 		if (self.origLength != self.newLength) or (self.origLength > 1):
-			print "    Trace re-aligns after:" 
-			print "      Golden Inst Number", self.origEnd, \
-					"--- ID:", self.origLines[len(self.origLines)-1].ID
-			print "      Faulty Inst Number", self.newEnd, \
-					"--- ID:", self.newLines[len(self.newLines)-1].ID
+			print "    Trace re-aligns after:   (", \
+			self.origLength-1, "/", self.newLength-1, " instructions later)"
+			print "      Golden Inst Number:", self.origEnd, \
+					"ID:", lastOrigLine.ID, \
+					"OPCode:", lastOrigLine.OPCode, \
+					"Value:", lastOrigLine.Value
+			print "      Faulty Inst Number:", self.newEnd, \
+					"ID:", lastNewLine.ID, \
+					"OPCode:", lastNewLine.OPCode, \
+					"Value:", lastNewLine.Value
 		else:
 			print "    Trace re-aligns immediately"
 
