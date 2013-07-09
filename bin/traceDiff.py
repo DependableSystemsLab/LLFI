@@ -142,7 +142,7 @@ def traceDiff(argv, output = 0):
 	for i in range(0, len(lines)-1):
 		if (len(lines[i]) != 0) and (lines[i][0] not in ['<','>','-']):
 			#print "found a block header"
-			print lines[i]
+			#print lines[i]
 			block = diffBlock(lines[i])
 			i = i + 1
 			while ((len(lines[i]) != 0) and (lines[i][0] in ['<','>','-'])):
