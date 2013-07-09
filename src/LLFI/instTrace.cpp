@@ -125,25 +125,25 @@ virtual bool runOnFunction(Function &F) {
 				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
 				parameterVector[4] = ofileptrInst->getType();	//Ptr to name of ofile
 				
-				FunctionType* ppFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
-				Constant *ppFunc = M->getOrInsertFunction("printInstTracer", ppFuncType); 
+				FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
+				Constant *traceFunc = M->getOrInsertFunction("printInstTracer", traceFuncType); 
 
 				//Insert the tracing function, passing it the proper arguments
-				std::vector<Value*> ppArgs;
+				std::vector<Value*> traceArgs;
 				//Fetch the LLFI Instruction ID:
 				ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context,32), fetchLLFIInstructionID(inst));
 				//Fetch size of instruction value
 				Constant* instValSize = ConstantExpr::getSizeOf(inst->getType());
 				
 				//Load All Arguments
-				ppArgs.push_back(IDConstInt);
-				ppArgs.push_back(OPCodePtr);
-				ppArgs.push_back(instValSize);
-				ppArgs.push_back(ptrInst);
-				ppArgs.push_back(ofileptrInst);
+				traceArgs.push_back(IDConstInt);
+				traceArgs.push_back(OPCodePtr);
+				traceArgs.push_back(instValSize);
+				traceArgs.push_back(ptrInst);
+				traceArgs.push_back(ofileptrInst);
 
 				//Create the Function
-				CallInst::Create(ppFunc, ppArgs.begin(),ppArgs.end(), "", insertPoint);
+				CallInst::Create(traceFunc, traceArgs.begin(),traceArgs.end(), "", insertPoint);
 			}
 		}//Instruction Iteration
 	}//BasicBlock Iteration
