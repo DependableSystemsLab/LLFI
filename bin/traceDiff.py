@@ -12,10 +12,11 @@
 
 import sys
 import subprocess
+import glob
 
 class diffBlock:
 	def __init__(self, header):
-		origHeader, newHeader = header.split('c')
+		origHeader, newHeader = header.replace('a','c').replace('d','c').split('c')
 		origsplit = origHeader.split(',')
 		newsplit = newHeader.split(',')
 		self.origStart = origsplit[0]
@@ -43,44 +44,74 @@ class diffBlock:
 			line.printself()
 
 	def printSummary(self):
-		status = 0
-		lastOrigLine = self.origLines[len(self.origLines)-1]
-		lastNewLine = self.newLines[len(self.newLines)-1]
-		firstOrigLine = self.origLines[0]
-		firstNewLine = self.newLines[0]
-		if (self.origLength != self.newLength):
-			status = "Control Difference"
-		else:
-			for oline, nline in zip(self.origLines, self.newLines):
-				if (oline.ID == nline.ID) and (oline.OPCode == nline.OPCode):
-					status = "Data Difference"
-				elif (oline.ID != nline.ID) or (oline.OPCode != nline.OPCode):
-					status = "Control Difference"
-					break
-		assert (status != 0), "Control/Data Difference evaluation Error"
-		print status, "detected at:" 
-		print "    Golden Inst Number:", self.origStart, "ID:", firstOrigLine.ID, \
-				"OPCode:", firstOrigLine.OPCode, "Value:", firstOrigLine.Value
-		print "    Faulty Inst Number:", self.newStart, "ID:", firstNewLine.ID, \
-				"OPCode:", firstNewLine.OPCode, "Value:", firstNewLine.Value
-		if (self.origLength != self.newLength) or (self.origLength > 1):
-			print "    Trace re-aligns after:   (", \
-			self.origLength-1, "/", self.newLength-1, " instructions later)"
-			print "      Golden Inst Number:", self.origEnd, \
-					"ID:", lastOrigLine.ID, \
-					"OPCode:", lastOrigLine.OPCode, \
-					"Value:", lastOrigLine.Value
-			print "      Faulty Inst Number:", self.newEnd, \
-					"ID:", lastNewLine.ID, \
-					"OPCode:", lastNewLine.OPCode, \
-					"Value:", lastNewLine.Value
-		else:
-			print "    Trace re-aligns immediately"
+		status = "Control Difference"
+		
+		if self.newLines and self.origLines:
+			firstNewLine = self.newLines[0]
+			lastNewLine =  self.newLines[len(self.newLines)-1]
+			firstOrigLine = self.origLines[0]
+			lastOrigLine = self.origLines[len(self.origLines)-1]
+			
+			if (self.origLength != self.newLength):
+				status = "Control Difference"
+			else:
+				for oline, nline in zip(self.origLines, self.newLines):
+					if (oline.ID == nline.ID) and (oline.OPCode == nline.OPCode):
+						status = "Data Difference"
+					elif (oline.ID != nline.ID) or (oline.OPCode != nline.OPCode):
+						status = "Control Difference"
+						break
+			assert (status != 0), "Control/Data Difference evaluation Error"
+			print status, "detected at:" 
+			print "    Golden Inst Number:", self.origStart, "ID:", firstOrigLine.ID, \
+					"OPCode:", firstOrigLine.OPCode, "Value:", firstOrigLine.Value
+			print "    Faulty Inst Number:", self.newStart, "ID:", firstNewLine.ID, \
+					"OPCode:", firstNewLine.OPCode, "Value:", firstNewLine.Value
+			if (self.origLength != self.newLength) or (self.origLength > 1):
+				print "    Trace re-aligns after:   (", \
+				self.origLength-1, "/", self.newLength-1, " instructions later)"
+				print "      Golden Inst Number:", self.origEnd, \
+						"ID:", lastOrigLine.ID, \
+						"OPCode:", lastOrigLine.OPCode, \
+						"Value:", lastOrigLine.Value
+				print "      Faulty Inst Number:", self.newEnd, \
+						"ID:", lastNewLine.ID, \
+						"OPCode:", lastNewLine.OPCode, \
+						"Value:", lastNewLine.Value
+			else:
+				print "    Trace re-aligns immediately"
 
+		elif self.newLines:
+			firstNewLine = self.newLines[0]
+			lastNewLine =  self.newLines[len(self.newLines)-1]
+			print "Control Difference detected at:"
+			print "    New Instructions after Golden Inst Number:", self.origStart
+			print "    Faulty Inst Number:", self.newStart, "ID:", firstNewLine.ID, \
+					"OPCode:", firstNewLine.OPCode, "Value:", firstNewLine.Value
+			print "    Trace re-aligns after:   (", \
+				self.origLength-1, "/", self.newLength-1, " instructions later)"
+			print "      Faulty Inst Number:", self.newEnd, \
+						"ID:", lastNewLine.ID, \
+						"OPCode:", lastNewLine.OPCode, \
+						"Value:", lastNewLine.Value
+
+		elif self.origLines:
+			firstOrigLine = self.origLines[0]
+			lastOrigLine = self.origLines[len(self.origLines)-1]
+			print "Control Difference detected at:"
+			print "    Instructions missing after Faulty Inst Number:", self.newStart
+			print "    Golden Inst Number:", self.origStart, "ID:", firstOrigLine.ID, \
+					"OPCode:", firstOrigLine.OPCode, "Value:", firstOrigLine.Value
+			print "    Trace re-aligns after:   (", \
+				self.origLength-1, "/", self.newLength-1, " instructions later)"
+			print "      Golden Inst Number:", self.origEnd, \
+						"ID:", lastOrigLine.ID, \
+						"OPCode:", lastOrigLine.OPCode, \
+						"Value:", lastOrigLine.Value
 
 class diffLine:
 	def __init__(self, rawLine):
-		elements = rawLine.split()
+		elements = str(rawLine).split()
 		assert (len(elements) == 7), "DiffLine constructor called incorrectly"
 		self.ID = int(elements[2])
 		self.OPCode = str(elements[4])
@@ -89,12 +120,15 @@ class diffLine:
 	def printself(self):
 		print self.ID, self.OPCode, self.Value
 
-def traceDiff(argv):
+def traceDiff(argv, output = 0):
+	if output != 0:
+		sys.stdout = open(output, "w")
 	if (len(argv) != 3):
 		print "Uh Oh, something broke! argv!=3"
 		exit(1)
 	diffProcess = subprocess.Popen(["diff",argv[1],argv[2]], stdout=subprocess.PIPE)
 	(diffOutput,diffErr) = diffProcess.communicate()
+	diffProcess.wait()
 	if (diffErr):
 		print "diff encountered an error, exiting traceDiff"
 		print diffErr
@@ -108,7 +142,7 @@ def traceDiff(argv):
 	for i in range(0, len(lines)-1):
 		if (len(lines[i]) != 0) and (lines[i][0] not in ['<','>','-']):
 			#print "found a block header"
-			#print lines[i]
+			print lines[i]
 			block = diffBlock(lines[i])
 			i = i + 1
 			while ((len(lines[i]) != 0) and (lines[i][0] in ['<','>','-'])):
