@@ -118,7 +118,7 @@ class diffBlock:
 class diffLine:
 	def __init__(self, rawLine):
 		elements = str(rawLine).split()
-		assert (elements[1] == "ID" && elements[3] == "OPCode:" &&  \
+		assert (elements[1] == "ID:" and elements[3] == "OPCode:" and  \
 			elements[5] == "Value:"), "DiffLine constructor called incorrectly"
 		self.ID = int(elements[2])
 		self.OPCode = str(elements[4])
