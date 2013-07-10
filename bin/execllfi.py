@@ -187,6 +187,7 @@ def readCompileOption():
 				print ("\n\nERROR in input.yaml. Invalid value for trace. (forward/backward allowed)\n")
 				exit(1)
 
+	###Set maxTraceCount for instTrace pass/lib
 	if "maxTraceCount" in cOpt:
 		maxTraceCount = int(cOpt["maxTraceCount"])
 
@@ -228,12 +229,14 @@ def compileProg():
 	execlist = [optbin, '-load', llfilib, '-S', '-genllfiindexpass', '-o',mem2reg2file, mem2regfile]
 	execCompilation(execlist)
 	
+	#Compile profiling/Golden Trace Pass
 	execlist = [optbin, '-load', llfilib, '-profilingpass','-instTrace', '-tout', 'goldTraceOutput', '-S']
 	execlist2 = ['-o', proffile, mem2reg2file]
 	execlist.extend(compileOptions)
 	execlist.extend(execlist2)
 	execCompilation(execlist)
 
+	#Compile fault injected/Faulty Trace pass
 	execlist = [optbin, '-load', llfilib, "-faultinjectionpass",'-instTrace', \
 	'-tout', 'faultyTraceOutput', '-S']
 	if (maxTraceCount > -1):
