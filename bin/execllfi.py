@@ -36,7 +36,7 @@ timeout = 500
 with open('input.yaml','r') as f:
 	doc = yaml.load(f)
 
-maxTraceCount = 0
+maxTraceCount = -1
 
 #config is now executed after main
 ################################################################################
@@ -76,6 +76,7 @@ def execute( execlist):
 	#print "Begin"
 	#inputFile = open(inputfile, "r")
   global outputfile
+  global maxTraceCount
   print ' '.join(execlist)
   #get state of directory
   dirSnapshot()
@@ -112,7 +113,7 @@ def execCompilation( execlist):
 ################################################################################
 
 def readCompileOption():
-	global compileOptions
+	global compileOptions, maxTraceCount
 	cOpt = doc["compileOption"]
 	###Instruction selection method
 	if "instSelMethod" not in cOpt:	
@@ -186,11 +187,14 @@ def readCompileOption():
 				print ("\n\nERROR in input.yaml. Invalid value for trace. (forward/backward allowed)\n")
 				exit(1)
 
+	if "maxTraceCount" in cOpt:
+		maxTraceCount = int(cOpt["maxTraceCount"])
+
 
 ################################################################################
 
 def compileProg():
-	global proffile, fifile, mem2regfile,progbin,compileOptions
+	global proffile, fifile, mem2regfile,progbin,compileOptions,maxTraceCount
 	inputllfile = progbin + ".ll"
 	mem2regfile = progbin + "-mem2reg.ll"
 	mem2reg2file = progbin + "-mem2reg2.ll"
@@ -232,7 +236,7 @@ def compileProg():
 
 	execlist = [optbin, '-load', llfilib, "-faultinjectionpass",'-instTrace', \
 	'-tout', 'faultyTraceOutput', '-S']
-	if (maxTraceCount > 0):
+	if (maxTraceCount > -1):
 		execlist3 = ['-maxTrace', str(maxTraceCount)]
 		execlist.extend(execlist3)
 	execlist2 = ['-o', fifile, mem2reg2file]
