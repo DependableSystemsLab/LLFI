@@ -35,6 +35,9 @@ cl::opt<std::string> OutputFilename("tout",
 cl::opt<bool> verboseTrace( "verboseTrace",
 							cl::desc("Output Trace insertion information"),
 							cl::init(false));
+cl::opt<int> maxTrace( "maxTrace",
+						cl::desc("Maximum number of instructions that will be traced after fault"),
+						cl::init(-1));
 
 namespace llfi {
 
@@ -118,12 +121,13 @@ virtual bool runOnFunction(Function &F) {
 				new StoreInst(OPCodeName, OPCodePtr, insertPoint);
 
 				//Create the decleration of the printInstTracer Function
-				std::vector<const Type*> parameterVector(5);
+				std::vector<const Type*> parameterVector(6);
 				parameterVector[0] = Type::getInt32Ty(context); //ID
 				parameterVector[1] = OPCodePtr->getType(); 		//Ptr to OpCode
 				parameterVector[2] = Type::getInt64Ty(context); //Size of Inst Value
 				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
 				parameterVector[4] = ofileptrInst->getType();	//Ptr to name of ofile
+				parameterVector[5] = Type::getInt32Ty(context); //Int of max traces
 				
 				FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), parameterVector, 0 );
 				Constant *traceFunc = M->getOrInsertFunction("printInstTracer", traceFuncType); 
@@ -134,6 +138,8 @@ virtual bool runOnFunction(Function &F) {
 				ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context,32), fetchLLFIInstructionID(inst));
 				//Fetch size of instruction value
 				Constant* instValSize = ConstantExpr::getSizeOf(inst->getType());
+				//Fetch maxTrace number:
+				ConstantInt* maxTraceConstInt = ConstantInt::get(IntegerType::get(context,32), maxTrace);
 				
 				//Load All Arguments
 				traceArgs.push_back(IDConstInt);
@@ -141,6 +147,7 @@ virtual bool runOnFunction(Function &F) {
 				traceArgs.push_back(instValSize);
 				traceArgs.push_back(ptrInst);
 				traceArgs.push_back(ofileptrInst);
+				traceArgs.push_back(maxTraceConstInt);
 
 				//Create the Function
 				CallInst::Create(traceFunc, traceArgs.begin(),traceArgs.end(), "", insertPoint);

@@ -15,18 +15,18 @@ import subprocess
 import glob
 
 class diffBlock:
-	def __init__(self, header):
+	def __init__(self, header, start):
 		origHeader, newHeader = header.replace('a','c').replace('d','c').split('c')
 		origsplit = origHeader.split(',')
 		newsplit = newHeader.split(',')
-		self.origStart = origsplit[0]
+		self.origStart = int(origsplit[0]) + start
 		if (len(origsplit) > 1):
-			self.origEnd =  origsplit[1]
+			self.origEnd =  int(origsplit[1]) + start
 		else:
 			self.origEnd = self.origStart
-		self.newStart = newsplit[0]
+		self.newStart = int(newsplit[0]) + start
 		if (len(newsplit) > 1):
-			self.newEnd = newsplit[1]
+			self.newEnd = int(newsplit[1]) + start
 		else:
 			self.newEnd = self.newStart
 		self.origLength = int(self.origEnd) - int(self.origStart) + 1
@@ -34,6 +34,8 @@ class diffBlock:
 
 		self.origLines = []
 		self.newLines = []
+
+		self.start = start
 
 	def printdebug(self):
 		print self.origStart, "to", self.origEnd, "length", self.origLength
@@ -126,7 +128,36 @@ def traceDiff(argv, output = 0):
 	if (len(argv) != 3):
 		print "Uh Oh, something broke! argv!=3"
 		exit(1)
-	diffProcess = subprocess.Popen(["diff",argv[1],argv[2]], stdout=subprocess.PIPE)
+
+	origFile = open(argv[1], 'r')
+	origTrace = origFile.read()
+	origFile.close()
+
+	newFile = open(argv[2], 'r')
+	newTrace = newFile.read()
+	newFile.close()
+
+	origTraceLines = origTrace.split("\n")
+	newTraceLines =  newTrace.split("\n")
+
+	newTraceStartPoint = int(newTraceLines[0][39:])
+	newTraceLines.pop(0)
+	for i in range (0,newTraceStartPoint-1):
+		origTraceLines.pop(0)
+
+	origFile = open("TempOrigFile", 'w')
+	for line in origTraceLines:
+		origFile.write(line)
+		origFile.write("\n")
+	origFile.close();
+
+	newFile = open("TempNewFile", 'w')
+	for line in newTraceLines:
+		newFile.write(line)
+		newFile.write("\n")
+	newFile.close()
+
+	diffProcess = subprocess.Popen(["diff","TempOrigFile","TempNewFile"], stdout=subprocess.PIPE)
 	(diffOutput,diffErr) = diffProcess.communicate()
 	diffProcess.wait()
 	if (diffErr):
@@ -135,17 +166,21 @@ def traceDiff(argv, output = 0):
 		exit(1)
 	else:
 		print "diff Succesful on", argv[1],argv[2]
-		#print diffOutput
+
+
+	p = subprocess.Popen(["rm", "TempOrigFile", "TempNewFile"])
+	diffProcess.wait()
+
 
 	lines = diffOutput.split("\n")
 
 	for i in range(0, len(lines)-1):
-		if (len(lines[i]) != 0) and (lines[i][0] not in ['<','>','-']):
+		if (len(lines[i]) != 0) and (lines[i][0] not in ['<','>','-','#']):
 			#print "found a block header"
 			#print lines[i]
-			block = diffBlock(lines[i])
+			block = diffBlock(lines[i], newTraceStartPoint)
 			i = i + 1
-			while ((len(lines[i]) != 0) and (lines[i][0] in ['<','>','-'])):
+			while ((len(lines[i]) != 0) and (lines[i][0] in ['<','>','-','#'])):
 				if (lines[i][0] == '-'):
 					i = i + 1
 					continue

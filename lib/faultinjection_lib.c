@@ -6,6 +6,8 @@
 #include <assert.h>
 #include "utils.h"
 
+//int faultInjectedFlag = 0;
+
 static long long curr_cycle = 0;
 
 static FILE *injectedfaultsFile;
@@ -121,6 +123,8 @@ void initInjections() {
             injectedfaultsfilename);
     exit(1);
   }
+
+  faultInjectedFlag = 0;
 }
 
 bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index, 
@@ -165,6 +169,10 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 
 void injectFunc(long llfi_index, unsigned size, 
                 char *buf, unsigned my_reg_index) {
+
+  faultInjectedFlag = 2;
+  printf("injectFunc EXEC!\n");
+
   unsigned fi_bit, fi_bytepos, fi_bitpos;
   unsigned char oldbuf;
 

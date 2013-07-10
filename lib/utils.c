@@ -3,6 +3,8 @@
 
 #include "utils.h"
 
+int faultInjectedFlag = -1;
+
 void getOpcodeExecCycleArray(const unsigned len, int *arr) {
   int i = 0;
   for (i = 0; i < len; ++i)

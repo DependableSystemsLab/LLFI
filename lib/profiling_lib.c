@@ -43,4 +43,5 @@ void endProfiling() {
           "# cycle considered the execution cycle of each instruction type\n");
   fprintf(profileFile, "total_cycle=%lld\n", total_cycle);
 	fclose(profileFile); 
+
 }

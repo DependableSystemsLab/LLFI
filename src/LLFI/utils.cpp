@@ -4,8 +4,6 @@
 
 namespace llfi {
 
-static int faultInjectedFlag = -1;
-
 std::string intToString(int i) {
   std::stringstream s;
   s << i;

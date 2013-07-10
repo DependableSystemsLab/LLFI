@@ -38,20 +38,37 @@ FILE* OutputFile(const char *name) {
 }
 
 static long instCount = 0;
-void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname) {
+static int cutOff = 0;
+void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname, int maxPrints) {
+	//faultInjectedFlag
 	int i;
-	fprintf(OutputFile(fname), "ID: %d\tOPCode: %s\tValue: ", instID, opcode);
 	instCount++;
-	if (littleEndian()) {
-		for (i=size-1; i>=0; i--) {
-			fprintf(OutputFile(fname), "%02hhx", ptr[i]);
-		}
-	} else {
-		for (i=0; i<size; i++) {
-			fprintf(OutputFile(fname), "%02hhx", ptr[i]);
-		}
+
+	if (maxPrints == -1) {
+		maxPrints = 1000;
 	}
-	fprintf(OutputFile(fname), "\n");
-	fflush(OutputFile(fname)); //Program may crash before exit from main, must flush
-							  //to ensure trace is outputted!
+	
+	if (faultInjectedFlag == 2) {
+		faultInjectedFlag = 1;
+		cutOff = instCount + maxPrints;
+		fprintf(OutputFile(fname), "#Beginning Fault Trace at instruction: %d\n", instCount);
+	}
+	
+	if ((faultInjectedFlag == -1) || ((faultInjectedFlag == 1) && ((instCount <= cutOff) || (instCount == -1)))) {
+		fprintf(OutputFile(fname), "ID: %d\tOPCode: %s\tValue: ", instID, opcode);
+		if (littleEndian()) {
+			for (i=size-1; i>=0; i--) {
+				fprintf(OutputFile(fname), "%02hhx", ptr[i]);
+			}
+		} else {
+			for (i=0; i<size; i++) {
+				fprintf(OutputFile(fname), "%02hhx", ptr[i]);
+			}
+		}
+		fprintf(OutputFile(fname), "\n");
+		
+		fflush(OutputFile(fname)); //Program may crash before exit from main, must flush
+								  //to ensure trace is outputted!	
+	}
+
 }
