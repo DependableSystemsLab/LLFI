@@ -174,7 +174,7 @@ def traceDiff(argv, output = 0):
 
 
 	p = subprocess.Popen(["rm", "TempOrigFile", "TempNewFile"])
-	diffProcess.wait()
+	p.wait()
 
 
 	lines = diffOutput.split("\n")
