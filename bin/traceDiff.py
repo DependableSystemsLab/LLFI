@@ -16,6 +16,8 @@ import glob
 
 class diffBlock:
 	def __init__(self, header, start):
+		#Split the block (diff) header into parts and store
+		#eg 10,15c13,18
 		origHeader, newHeader = header.replace('a','c').replace('d','c').split('c')
 		origsplit = origHeader.split(',')
 		newsplit = newHeader.split(',')
@@ -37,6 +39,7 @@ class diffBlock:
 
 		self.start = start
 
+	#print some info for debugging
 	def printdebug(self):
 		print self.origStart, "to", self.origEnd, "length", self.origLength
 		for line in self.origLines:
@@ -45,6 +48,7 @@ class diffBlock:
 		for line in self.newLines:
 			line.printself()
 
+	#print the block analysis summary
 	def printSummary(self):
 		status = "Control Difference"
 		
@@ -114,7 +118,8 @@ class diffBlock:
 class diffLine:
 	def __init__(self, rawLine):
 		elements = str(rawLine).split()
-		assert (len(elements) == 7), "DiffLine constructor called incorrectly"
+		assert (elements[1] == "ID" && elements[3] == "OPCode:" &&  \
+			elements[5] == "Value:"), "DiffLine constructor called incorrectly"
 		self.ID = int(elements[2])
 		self.OPCode = str(elements[4])
 		self.Value = str(elements[6])
