@@ -230,7 +230,7 @@ def compileProg():
 	fifile = progbin + "-fi.ll"
 
 	#Loop through directory for all c, cc, cpp files
-	srcFiles = [ each for each in os.listdir('.') if each.endswith('.c') or each.endswith('.cc') or each.endswith('.cpp')] 
+	srcFiles = [ each for each in os.listdir('.') if each.lower().endswith('.c') or each.lower().endswith('.cc') or each.lower().endswith('.cpp')] 
 	
 	print "======Compile======"
 
