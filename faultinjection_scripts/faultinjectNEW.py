@@ -334,23 +334,29 @@ def autoCompile(): #returns boolean:true if program needs to be compiled, or
 		metaFile = open("scriptMeta.yaml","r")
 	except:
 		print "Autocompiler: Need to compile - first run.\n"
-		return 1
+		return True
 	
+	if not os.path.isfile(progbin+"-prof.ll.exe"):
+			#case for compile errors where no .exe files are generated yet
+			print "Autocompiler: Need to compile until there is a successful compilation.\n"
+			return True
+
 	try:
 		meta = yaml.load(metaFile)
 		metaFile.close()
-		if(str(meta["lastModified"])==str(os.path.getmtime("input.yaml"))):
+		
+		if(	str(meta["lastModified"])==str(os.path.getmtime("input.yaml"))):
 			print "Autocompiler: Don't need to recompile - no changes made to input.yaml.\n"
-			return 0
+			return False
 		else:
 			for key in  cOpt:
 				if cOpt[key]!=meta[key]:
 					#compile options updated
 					print "Autocompiler: Need to recompile - compile option in input.yaml has been edited.\n"
-					return 1
+					return True
 			#input.yaml updated, but not compile options
 			print "Autocompiler: Don't need to recompile - no changes made to compile options in input.yaml.\n"
-			return 0
+			return False
 	except:
 		#shouldn't come here unless user has manually changed scriptMeta.yaml
 		print "ERROR in scriptMeta.yaml. Please delete the file and run this script again.\n"
