@@ -30,7 +30,7 @@ optionlist = []
 timeout = 500
 compileOverride = False
 runOverride = False
-
+compileOnly = False
 #Check for input.yaml's presence
 try:
 	f = open('input.yaml','r')
@@ -53,6 +53,8 @@ try:
 			if opt=="forceCompile":
 				compileOverride = True
 				print "Kernel: Forcing compile\n"
+			if opt=="compileOnly":
+				compileOnly = True
 except:
 	print "Error. input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
 	exit(1)
@@ -412,6 +414,9 @@ def main():
 	if(compileOverride or autoCompile()): 
 		readCompileOption()
 		compileProg()
+
+	if(compileOnly):
+		exit(1)
 
 	storeInputFiles()
 	# baseline
