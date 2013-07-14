@@ -28,9 +28,40 @@ llfilib = "/data/llvm-2.9/Release/lib/LLFI.so"
 llfilinklib = "/data/LLFI-experimental-master/lib"
 optionlist = []
 timeout = 500
+compileOverride = False
+runOverride = False
 
-with open('input.yaml','r') as f:
+#Check for input.yaml's presence
+try:
+	f = open('input.yaml','r')
+except:
+	print "ERROR. No input.yaml file in the current directory."
+	exit(1)
+
+#Just a little tweak to make the output look less clustered
+print "\n"	
+
+#Check for input.yaml's correct formmating
+try:
 	doc = yaml.load(f)
+	f.close()
+	if "kernelOption" in doc:
+		for opt in doc["kernelOption"]:	
+			if opt=="forceRun":
+				runOverride = True
+				print "Kernel: Forcing run"
+			if opt=="forceCompile":
+				compileOverride = True
+				print "Kernel: Forcing compile\n"
+except:
+	print "Error. input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
+	exit(1)
+
+try:
+	cOpt = doc["compileOption"]
+except:
+	print "ERROR in input.yaml. Please include compileOptions."
+	exit(1)
 
 #config is now executed after main
 ################################################################################
@@ -53,8 +84,7 @@ def config():
 	basedir = currdir + "/baseline"
 	errordir = currdir + "/error_output"
 
-	if not os.path.isdir(inputdir):
-		os.mkdir(inputdir)
+	
 	if not os.path.isdir(currdir):
 		os.mkdir(currdir)
 	if not os.path.isdir(outputdir):
@@ -63,6 +93,8 @@ def config():
 		os.mkdir(basedir)
 	if not os.path.isdir(errordir):
 		os.mkdir(errordir)
+	if not os.path.isdir(inputdir):
+		os.mkdir(inputdir)
 		
 ################################################################################
 def execute( execlist):
@@ -81,7 +113,7 @@ def execute( execlist):
     if p.poll() is not None:
       moveOutput()
       print "\t program finish", p.returncode
-      print "\t time taken", elapsetime
+      print "\t time taken", elapsetime,"\n"
       outputFile = open(outputfile, "w")
       outputFile.write(p.communicate()[0])
       outputFile.close()
@@ -105,7 +137,7 @@ def execCompilation( execlist):
 
 def readCompileOption():
 	global compileOptions
-	cOpt = doc["compileOption"]
+	
 	###Instruction selection method
 	if "instSelMethod" not in cOpt:	
 		print ("\n\nERROR in input.yaml. Please include an 'instSelMethod' key value pair under compileOption.\n")
@@ -178,6 +210,15 @@ def readCompileOption():
 				print ("\n\nERROR in input.yaml. Invalid value for trace. (forward/backward allowed)\n")
 				exit(1)
 
+	#write to scriptMeta.yaml, used for auto-Compiling
+	#write the input.yaml's last modification time 
+	metaFile = open("scriptMeta.yaml","w")
+	metaFile.write("lastModified: ")
+	metaFile.write(str(os.path.getmtime("input.yaml")))
+	metaFile.write("\n")
+	metaFile.write(yaml.dump(cOpt))
+	metaFile.close()
+
 ################################################################################
 
 def compileProg():
@@ -190,16 +231,20 @@ def compileProg():
 
 	#Loop through directory for all c, cc, cpp files
 	srcFiles = [ each for each in os.listdir('.') if each.endswith('.c') or each.endswith('.cc') or each.endswith('.cpp')] 
+	
+	print "======Compile======"
 
   #TODO -S needs to be an option
 	if len(srcFiles) ==1:
-		execlist = [llvmgcc,'-emit-llvm','-S', '-o', inputllfile, srcFiles[0]]
+		execlist = [llvmgcc,'-I.','-emit-llvm','-S', '-o', inputllfile, srcFiles[0]]
 		execCompilation(execlist)
 	elif len(srcFiles) >1:
+		#llvmgcc for each .c file
 		for  ii, src in enumerate(srcFiles):
-			execlist = [llvmgcc,'-emit-llvm','-S', '-o', progbin +str(ii)+".ll", src]
+			execlist = [llvmgcc,'-I.','-emit-llvm','-S', '-o', progbin +str(ii)+".ll", src]
 			execCompilation(execlist)
 		execlist = [llvmlink, '-S','-o',inputllfile]
+		#building llvmlink command
 		for ii, src in enumerate(srcFiles):
 			execlist.append(progbin+str(ii)+".ll")
 		execCompilation(execlist)
@@ -236,16 +281,19 @@ def compileProg():
 	execCompilation(execlist)
 	execlist = [llvmgcc, '-o', fifile + '.exe', fifile + '.o', '-L'+llfilinklib , '-lllfi']
 	execCompilation(execlist)
+
+	print "\n"
 ################################################################################
 def readCycles():
 	global totalcycles
-	profinput= open("llfi.stat.prof.txt")
+	profinput= open("llfi.stat.prof.txt","r")
 	while 1:
 		line = profinput.readline()
 		if line.strip():
 			if line[0] == 't':
 				label, totalcycles = line.split("=")
 				break
+	profinput.close()
 ################################################################################
 def storeInputFiles():
 	global inputList
@@ -256,11 +304,13 @@ def storeInputFiles():
 			inputList.append(opt)
 
 ################################################################################
-def replenishInput():
+def replenishInput():#TODO make condition to skip this if input is present
 	for each in inputList:
 		if not os.path.isfile(each):#copy deleted inputfiles back to basedir
-			shutil.copy2(inputdir+'/'+each,each)################################################################################
+			shutil.copy2(inputdir+'/'+each,each)
+################################################################################
 def moveOutput():
+	#move all newly created files that are not "llfi.stat.prof.txt" < -- since this is a product of profiling
 	for each in[file for file in os.listdir(".")]:
 		if each not in dirBefore and each !="llfi.stat.prof.txt":
 			flds = each.split(".")
@@ -269,50 +319,143 @@ def moveOutput():
 			os.rename(each,outputdir+'/'+newName)
 ################################################################################
 def dirSnapshot():
+	#snapshot of directory before each execute() is performed
 	global dirBefore
 	dirBefore=[]
 	for each in[file for file in os.listdir(".")]:
 		dirBefore.append(each)
 
 ################################################################################
+def autoCompile(): #returns boolean:true if program needs to be compiled, or 
+				 #recompiled due to an editted input.yaml, false otherwise
+	try:
+		#scriptMeta stores the modification date of the input.yaml that this script used previously 
+		#to compile fi and prof.exe in this directory
+		metaFile = open("scriptMeta.yaml","r")
+	except:
+		print "Autocompiler: Need to compile - first run.\n"
+		return 1
+	
+	try:
+		meta = yaml.load(metaFile)
+		metaFile.close()
+		if(str(meta["lastModified"])==str(os.path.getmtime("input.yaml"))):
+			print "Autocompiler: Don't need to recompile - no changes made to input.yaml.\n"
+			return 0
+		else:
+			for key in  cOpt:
+				if cOpt[key]!=meta[key]:
+					#compile options updated
+					print "Autocompiler: Need to recompile - compile option in input.yaml has been edited.\n"
+					return 1
+			#input.yaml updated, but not compile options
+			print "Autocompiler: Don't need to recompile - no changes made to compile options in input.yaml.\n"
+			return 0
+	except:
+		#shouldn't come here unless user has manually changed scriptMeta.yaml
+		print "ERROR in scriptMeta.yaml. Please delete the file and run this script again.\n"
+		metaFile.close()
+		exit(1)
+	
+################################################################################
+def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
+	#preliminary input checking for fi options
+	#also checks for fi_bit usage by non-kernel users
+	#optional var# are used for fi_bit's case only
+	if key =='run_number':
+		assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+		assert int(val)>0, key+" must be greater than 0 in input.yaml"
+
+	elif key == 'fi_type':
+		pass
+
+	elif key == 'fi_cycle':
+		assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+		assert int(val)>0, key+" must be greater than 0 in input.yaml"
+		assert int(val) <= int(totalcycles), key +" must be less than or equal to "+totalcycles.strip()+" in input.yaml"
+
+	elif key == 'fi_index':
+		assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+		assert int(val)>0, key+" must be greater than 0 in input.yaml"
+
+	elif key == 'fi_reg_index':
+		assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+		assert int(val)>0, key+" must be greater than 0 in input.yaml"
+
+	elif key == 'fi_bit':
+		assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+		assert int(val)>0, key+" must be greater than 0 in input.yaml"
+
+		if runOverride:
+			pass
+		elif var1 > 1 and var2 and var3 and var4:
+			user_input = raw_input("\nWARNING. Injecting into the same bit multiple times "+
+									"is redundant as it would yield the same result."+
+									"\nTo turn off this warning, please see Readme "+
+									"for kernel mode.\nDo you wish to continue anyway? (Y/N)\n ")
+			if user_input.upper() =="Y":
+				pass
+			else:
+				exit(1)
+################################################################################
 def main():
+	global optionlist, outputfile, proffile, fifile, totalcycles,inputList,run_id	
+	
 	config()
-  #clear previous output
-	global optionlist, outputfile, proffile, fifile, totalcycles,inputList,run_id
-	readCompileOption()
-	compileProg()
+	
+	if(compileOverride or autoCompile()): 
+		readCompileOption()
+		compileProg()
+
 	storeInputFiles()
 	# baseline
 	outputfile = basedir + "/golden_output"
 	execlist = [ progbin + "-prof.ll" + '.exe']#TODO change back to proffile 
 	execlist.extend(optionlist)
 	run_id=''#execute requires run_id to be defined
+	print "======Profiling======"
 	execute(execlist)
 
 	# get total num of cycles
 	readCycles()
 
-	#Setup each config file and it's corresponding run_number
-	rOpt = doc["runOption"]
+	#Set up each config file and its corresponding run_number
+	try:
+		rOpt = doc["runOption"]
+	except:
+		print "ERROR ininput.yaml. Please include runOption."
+		exit(1)
+
+	print "======Fault Injection======"
 	for ii, run in enumerate(rOpt):
+		print "---FI Config #"+str(ii)+"---"
+
 		if "numOfRuns" not in run["run"]:
 			print ("ERROR in input.yaml. Must include a run number per fi config.")
 			exit(1)
 		else:
 			run_number=run["run"]["numOfRuns"]
+			checkValues("run_number",run_number)
+
 			#write new fi config file according to input.yaml
 			fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
 			if "fi_type" in run["run"]:
 				fi_type=run["run"]["fi_type"]
+				checkValues("fi_type",fi_type)
 			if "fi_cycle" in run["run"]:
 				fi_cycle=run["run"]["fi_cycle"]
+				checkValues("fi_cycle",fi_cycle)
 			if "fi_index" in run["run"]:
-				fi_index=run["run"]["fi_index"]			
+				fi_index=run["run"]["fi_index"]	
+				checkValues("fi_index",fi_index)
 			if "fi_reg_index" in run["run"]:
-				fi_reg_index=run["run"]["fi_reg_index"]		
+				fi_reg_index=run["run"]["fi_reg_index"]	
+				checkValues("fi_reg_index",fi_reg_index)	
 			if "fi_bit" in run["run"]:
 				fi_bit=run["run"]["fi_bit"]
+				checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
 
+	
 			# fault injection
 			for index in range(0, run_number):
 				run_id = str(ii)+"-"+str(index)
@@ -320,23 +463,24 @@ def main():
 				errorfile = errordir + "/errorfile-" + "run-"+run_id
 				execlist = [progbin + "-fi.ll" + '.exe']#TODO change back to fifile
 	
-				ficonfig_File = open("llfi.config.fi.txt", 'w')
-				
-				if fi_type:
-					ficonfig_File.write("fi_type="+fi_type+'\n')
 				if fi_cycle:
-					pass#Do nothing, fi_cycle is already storing user input specific cycle
+					#Do nothing, fi_cycle is already storing user input specific cycle
+					pass
 				else:
+					#Create a new random fi_cycle in llfi.config.fi.txt for each run
 					fi_cycle=random.randint(1, int(totalcycles))#randomly choose cycle if it isnt specified
-				ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
-				if fi_index:
-					ficonfig_File.write("fi_index="+str(fi_index)+'\n')
-				if fi_reg_index:				
-					ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
-				if fi_bit:				
-					ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
-
-				ficonfig_File.close()
+					ficonfig_File = open("llfi.config.fi.txt", 'w')
+					ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
+					if fi_type:
+						ficonfig_File.write("fi_type="+fi_type+'\n')
+					if fi_index:
+						ficonfig_File.write("fi_index="+str(fi_index)+'\n')
+					if fi_reg_index:				
+						ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
+					if fi_bit:				
+						ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
+					fi_cycle='' 
+					ficonfig_File.close()
 			
 				execlist.extend(optionlist)
 				ret = execute(execlist)
@@ -357,8 +501,15 @@ def main():
 
 if __name__=="__main__":
   global inputProg
-  inputProg = doc["setUp"]["targetDirectoryName"]#the name of input program
+
+  try:
+    inputProg = doc["setUp"]["targetDirectoryName"]#the name of input program
+  except:
+    print "ERROR, Please include a targetDirectoryName field in input.yaml. See ReadMe for directions."
+    exit(1)
+
   for ii,arg in enumerate(sys.argv):
     if ii: #add all commandline arguments to optionlist except the first one which is the this script's name
       optionlist.append(arg)
+
   main()
