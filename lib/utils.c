@@ -3,7 +3,7 @@
 
 #include "utils.h"
 
-int faultInjectedFlag = -1; //for instTraceLib: initialized to Golden Run setting
+int faultInjectedFlag = FIF_GOLDEN_RUN; //for instTraceLib: initialized to Golden Run setting
 
 void getOpcodeExecCycleArray(const unsigned len, int *arr) {
   int i = 0;

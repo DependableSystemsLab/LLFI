@@ -1,6 +1,9 @@
 #ifndef LLFI_LIB_UTILS_H
 #define LLFI_LIB_UTILS_H
 
+#define FIF_GOLDEN_RUN -1
+#define FIF_FAULT_INSERTED 2
+#define FIF_FAULT_INSERTED_AND_INIT 1
 extern int faultInjectedFlag;
 
 // assume the max opcode in instruction.def (LLVM) is smaller than 100
