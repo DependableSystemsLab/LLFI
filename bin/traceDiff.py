@@ -11,6 +11,7 @@
 
 
 import sys
+import os
 import subprocess
 import glob
 
@@ -58,17 +59,20 @@ class diffBlock:
 			firstOrigLine = self.origLines[0]
 			lastOrigLine = self.origLines[len(self.origLines)-1]
 			
-			if (self.origLength != self.newLength):
-				status = "Control Difference"
-			else:
-				for oline, nline in zip(self.origLines, self.newLines):
-					if (oline.ID == nline.ID) and (oline.OPCode == nline.OPCode):
-						status = "Data Difference"
-					elif (oline.ID != nline.ID) or (oline.OPCode != nline.OPCode):
-						status = "Control Difference"
-						break
-			assert (status != 0), "Control/Data Difference evaluation Error"
-			print status, "detected at:" 
+			coline, cnline = None, None
+
+			for oline, nline in zip(self.origLines, self.newLines):
+				if (oline.ID == nline.ID) and (oline.OPCode == nline.OPCode):
+					print "Data Diff: ID:", oline.ID, \
+					"OPCODE:", oline.OPCode, " Value:", oline.Value, \
+					"/", nline.Value
+					coline, cnline = oline, nline
+				elif (oline.ID != nline.ID) or (oline.OPCode != nline.OPCode):
+					print "Ctrl Diff: ID:",coline.ID,"->",oline.ID,"/",nline.ID,\
+					"OPcode:",coline.OPCode,"->",oline.OPCode,"/",nline.OPCode,"\n    Value:", \
+					coline.Value,"->",oline.Value,"/",cnline.Value,"->",nline.Value
+					break
+			print "Summary:"
 			print "    Golden Inst Number:", self.origStart, "ID:", firstOrigLine.ID, \
 					"OPCode:", firstOrigLine.OPCode, "Value:", firstOrigLine.Value
 			print "    Faulty Inst Number:", self.newStart, "ID:", firstNewLine.ID, \
@@ -145,10 +149,16 @@ def traceDiff(argv, output = 0):
 	origTraceLines = origTrace.split("\n")
 	newTraceLines =  newTrace.split("\n")
 
-	newTraceStartPoint = int(newTraceLines[0][39:])
-	newTraceLines.pop(0)
-	for i in range (0,newTraceStartPoint-1):
-		origTraceLines.pop(0)
+	#Examine Header of Trace File
+	header = newTraceLines[0].split(' ')
+	for i in range(0, len(header) - 1):
+		keyword = header[i]
+		if keyword == "#TraceStartInstNumber:":
+		#Remove traces from golden trace that happened before fault injection point
+			newTraceStartPoint = int(header[i+1])
+			newTraceLines.pop(0)
+			for i in range (0,newTraceStartPoint-1):
+				origTraceLines.pop(0)
 
 	origFile = open("TempOrigFile", 'w')
 	for line in origTraceLines:
@@ -172,10 +182,8 @@ def traceDiff(argv, output = 0):
 	else:
 		print "diff Succesful on", argv[1],argv[2]
 
-
-	p = subprocess.Popen(["rm", "TempOrigFile", "TempNewFile"])
-	p.wait()
-
+	os.remove("TempOrigFile")
+	os.remove("TempNewFile")
 
 	lines = diffOutput.split("\n")
 

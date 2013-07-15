@@ -32,7 +32,7 @@ cl::opt<std::string> OutputFilename("tout",
 									cl::desc("Specify output filename"), 
 									cl::value_desc("filename"),
 									cl::init("traceOutput"));
-cl::opt<bool> verboseTrace( "verboseTrace",
+cl::opt<bool> debugTrace( "debugTrace",
 							cl::desc("Output Trace insertion information"),
 							cl::init(false));
 cl::opt<int> maxTrace( "maxTrace",
@@ -89,7 +89,7 @@ virtual bool runOnFunction(Function &F) {
 			//Print some Debug Info as the pass is being run
 			Instruction *inst = instIterator;
 
-			if (verboseTrace) {
+			if (debugTrace) {
 				errs() << llfi::isLLFIIndexedInst(inst) << " instTrace: Found Instruction\n";
 				if (!llfi::isLLFIIndexedInst(inst)) {
 					errs() << "   Instruction was not indexed\n";
@@ -161,7 +161,7 @@ virtual bool runOnFunction(Function &F) {
 
 //Register the pass with the llvm
 char instTrace::ID = 0;
-static RegisterPass<instTrace> X("instTrace", "Traces instruction execution through program: -tout <filename> (-verboseTrace)", false, false);
+static RegisterPass<instTrace> X("instTrace", "Traces instruction execution through program: -tout <filename> (-debugTrace)", false, false);
 
 }//namespace llfi
 

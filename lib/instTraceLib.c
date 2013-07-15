@@ -56,7 +56,7 @@ void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname
 		faultInjectedFlag = 1;
 		cutOff = instCount + maxPrints;
 		//Print faulty trace header (for analysis by traceDiff script)
-		fprintf(OutputFile(fname), "#Beginning Fault Trace at instruction: %d\n", instCount);
+		fprintf(OutputFile(fname), "#TraceStartInstNumber: %d\n", instCount);
 	}
 	
 	//These flags are set by faultinjection_lib.c (Faulty Run) or left initialized
