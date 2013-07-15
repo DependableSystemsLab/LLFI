@@ -380,22 +380,18 @@ def main():
 
 	#Post LLFI Runs;
 	#print glob.glob("./main/prog_output/.[0-9]-[0-9].faultyTraceOutput")
-	for faultyOutput in glob.glob("./main/prog_output/.[0-9]-[0-9].faultyTraceOutput"):
-		index = faultyOutput[20:23]
-		#print faultyOutput
-		#print index
-		
+	for faultyOutput in glob.glob("./main/prog_output/.*.faultyTraceOutput"):
+		index = "0-0"
+		faultyOutputSplit = faultyOutput.split('.')
+		for i in range(0,len(faultyOutputSplit)):
+			if faultyOutputSplit[i] == "faultyTraceOutput":
+				index = str(faultyOutputSplit[i-1])
+
 		origFile = './main/prog_output/..goldTraceOutput'
 		newFile = faultyOutput
 		outPutFile = './main/prog_output/.'+index+'.traceDiffReport'
 		args = ["null", origFile, newFile]
 		traceDiff(args, outPutFile)
-
-		#execlist = [llfiTDbin, './main/prog_output/..goldTraceOutput', faultyOutput,
-		#						'>', './main/prog_output/.'+index+'.traceDiffReport']
-		#
-		#print execlist 
-		#execCompilation(execlist)
 
 ################################################################################
 
