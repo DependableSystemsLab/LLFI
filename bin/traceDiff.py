@@ -132,6 +132,9 @@ class diffLine:
 		print self.ID, self.OPCode, self.Value
 
 def traceDiff(argv, output = 0):
+	#save stdout so we can redirect it without mangling other python scripts
+	oldSTDOut = sys.stdout
+	
 	if output != 0:
 		sys.stdout = open(output, "w")
 	if (len(argv) != 3):
@@ -203,6 +206,8 @@ def traceDiff(argv, output = 0):
 					block.newLines.append(diffLine(lines[i]))
 				i = i + 1
 			block.printSummary()
+	#restore stdout
+	sys.stdout = oldSTDOut
 
 if (__name__ == "__main__"):
 	traceDiff(sys.argv)
