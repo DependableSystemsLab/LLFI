@@ -28,9 +28,12 @@ llfilib = "/data/llvm-2.9/Release/lib/LLFI.so"
 llfilinklib = "/data/LLFI-experimental-master/lib"
 optionlist = []
 timeout = 500
+
+profileOverride = False
 compileOverride = False
 runOverride = False
 compileOnly = False
+
 #Check for input.yaml's presence
 try:
 	f = open('input.yaml','r')
@@ -55,6 +58,8 @@ try:
 				print "Kernel: Forcing compile\n"
 			if opt=="compileOnly":
 				compileOnly = True
+			if opt=="forceProfile":
+				profileOverride = True
 except:
 	print "Error. input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
 	exit(1)
@@ -230,20 +235,29 @@ def compileProg():
 	mem2reg2file = progbin + "-mem2reg2.ll"
 	proffile = progbin + "-prof.ll"
 	fifile = progbin + "-fi.ll"
-
-	#Loop through directory for all c, cc, cpp files
-	srcFiles = [ each for each in os.listdir('.') if each.lower().endswith('.c') or each.lower().endswith('.cc') or each.lower().endswith('.cpp')] 
 	
+	#Loop through directory for all c, cc, cpp files
+	srcFiles = []
+	for path, subdirs, files in os.walk('.'):
+		if inputProg in subdirs:
+			subdirs.remove(inputProg)
+		for each in files:
+			if each.lower().endswith('.c') or each.lower().endswith('.cc') or each.lower().endswith('.cpp'):
+				srcFiles.append(os.path.join(path,each)) 
+	print srcFiles
 	print "======Compile======"
 
   #TODO -S needs to be an option
 	if len(srcFiles) ==1:
-		execlist = [llvmgcc,'-I.','-emit-llvm','-S', '-o', inputllfile, srcFiles[0]]
+		execlist = [llvmgcc,'-w','-I.','-emit-llvm','-S', '-o', inputllfile, srcFiles[0]]
 		execCompilation(execlist)
 	elif len(srcFiles) >1:
 		#llvmgcc for each .c file
 		for  ii, src in enumerate(srcFiles):
-			execlist = [llvmgcc,'-I.','-emit-llvm','-S', '-o', progbin +str(ii)+".ll", src]
+			execlist = [llvmgcc,'-w','-I.','-Iinclude']
+			srcDir = src.split('/')[-2]#-1 is the src file itself
+			execlist.append('-I'+srcDir)
+			execlist.extend(['-emit-llvm','-S', '-o', progbin +str(ii)+".ll", src])
 			execCompilation(execlist)
 		execlist = [llvmlink, '-S','-o',inputllfile]
 		#building llvmlink command
@@ -408,12 +422,13 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
 ################################################################################
 def main():
 	global optionlist, outputfile, proffile, fifile, totalcycles,inputList,run_id	
-	
+	justCompiled = False	
+
 	config()
-	
 	if(compileOverride or autoCompile()): 
 		readCompileOption()
 		compileProg()
+		justCompiled =True
 
 	if(compileOnly):
 		exit(1)
@@ -424,8 +439,12 @@ def main():
 	execlist = [ progbin + "-prof.ll" + '.exe']#TODO change back to proffile 
 	execlist.extend(optionlist)
 	run_id=''#execute requires run_id to be defined
-	print "======Profiling======"
-	execute(execlist)
+	
+	if justCompiled or profileOverride:
+		print "======Profiling======"
+		execute(execlist)
+	else:
+		print "No need to profile again\n"
 
 	# get total num of cycles
 	readCycles()
@@ -450,21 +469,28 @@ def main():
 
 			#write new fi config file according to input.yaml
 			fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
+			ficonfig_File = open("llfi.config.fi.txt", 'w')
 			if "fi_type" in run["run"]:
 				fi_type=run["run"]["fi_type"]
 				checkValues("fi_type",fi_type)
+				ficonfig_File.write("fi_type="+str(fi_type)+'\n')
 			if "fi_cycle" in run["run"]:
 				fi_cycle=run["run"]["fi_cycle"]
 				checkValues("fi_cycle",fi_cycle)
+				ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
 			if "fi_index" in run["run"]:
 				fi_index=run["run"]["fi_index"]	
 				checkValues("fi_index",fi_index)
+				ficonfig_File.write("fi_index="+str(fi_index)+'\n')
 			if "fi_reg_index" in run["run"]:
 				fi_reg_index=run["run"]["fi_reg_index"]	
-				checkValues("fi_reg_index",fi_reg_index)	
+				checkValues("fi_reg_index",fi_reg_index)
+				ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')	
 			if "fi_bit" in run["run"]:
 				fi_bit=run["run"]["fi_bit"]
 				checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
+				ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
+			ficonfig_File.close()
 
 	
 			# fault injection

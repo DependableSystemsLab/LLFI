@@ -1,7 +1,9 @@
 kernelOption:
     - forceRun
     - forceCompile
+    - forceProfile
     - compileOnly
+
 setUp:
     targetDirectoryName: Daxpy
 
