@@ -1,6 +1,7 @@
 #ifndef LLFI_LIB_UTILS_H
 #define LLFI_LIB_UTILS_H
 
+//FIF= Fault Injected Flag
 #define FIF_GOLDEN_RUN -1
 #define FIF_FAULT_INSERTED 2
 #define FIF_FAULT_INSERTED_AND_INIT 1
