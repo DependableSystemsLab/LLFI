@@ -11,6 +11,7 @@ Author: Sam Coulter
 ***************/
 
 #include <vector>
+#include <cmath>
 
 #include "llvm/Constants.h"
 #include "llvm/DerivedTypes.h"
@@ -20,9 +21,11 @@ Author: Sam Coulter
 #include "llvm/Module.h"
 #include "llvm/Instruction.h"
 #include "llvm/Instructions.h"
+#include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Target/TargetData.h"
 
 #include "utils.h"
 
@@ -50,6 +53,11 @@ char *oFilename;
 int oFilenameLength;
 
 instTrace() : FunctionPass(ID) {}
+
+//Add AnalysisUsage Pass as prerequisite for instTrace Pass
+virtual void getAnalysisUsage(AnalysisUsage &AU) const {
+    AU.addRequired<TargetData>();
+ }
 
 virtual bool doInitialization(Module &M) {
 	oFilenameLength = OutputFilename.size() + 1;
@@ -124,7 +132,7 @@ virtual bool runOnFunction(Function &F) {
 				std::vector<const Type*> parameterVector(6);
 				parameterVector[0] = Type::getInt32Ty(context); //ID
 				parameterVector[1] = OPCodePtr->getType(); 		//Ptr to OpCode
-				parameterVector[2] = Type::getInt64Ty(context); //Size of Inst Value
+				parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value
 				parameterVector[3] = ptrInst->getType();		//Ptr to Inst Value
 				parameterVector[4] = ofileptrInst->getType();	//Ptr to name of ofile
 				parameterVector[5] = Type::getInt32Ty(context); //Int of max traces
@@ -136,8 +144,15 @@ virtual bool runOnFunction(Function &F) {
 				std::vector<Value*> traceArgs;
 				//Fetch the LLFI Instruction ID:
 				ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context,32), fetchLLFIInstructionID(inst));
-				//Fetch size of instruction value
-				Constant* instValSize = ConstantExpr::getSizeOf(inst->getType());
+				
+				//Fetch size of instruction value				
+				TargetData &td = getAnalysis<TargetData>();
+				//The size must be rounded up before conversion to bytes because some data in llvm
+				//can be like 6 bits if it only needs 6 bits out of an 8bit/1byte data type
+  				float bitSize = (float)td.getTypeSizeInBits(inst->getType());
+  				int byteSize = (int)ceil(bitSize/8.0);
+  				ConstantInt* instValSize = ConstantInt::get(IntegerType::get(context,32), byteSize);
+				
 				//Fetch maxTrace number:
 				ConstantInt* maxTraceConstInt = ConstantInt::get(IntegerType::get(context,32), maxTrace);
 				
