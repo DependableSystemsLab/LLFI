@@ -49,7 +49,8 @@ struct instTrace : public FunctionPass {
 static char ID;
 Function::iterator lastBlock;
 BasicBlock::iterator lastInst;
-char *oFilename;
+
+char *oFilename; //For output filename
 int oFilenameLength;
 
 instTrace() : FunctionPass(ID) {}
@@ -60,6 +61,7 @@ virtual void getAnalysisUsage(AnalysisUsage &AU) const {
  }
 
 virtual bool doInitialization(Module &M) {
+	//Outpout filename remains constant across pass, allocate it and store it now
 	oFilenameLength = OutputFilename.size() + 1;
 	oFilename = new char[oFilenameLength];
 	std::copy(OutputFilename.begin(), OutputFilename.end(), oFilename);
@@ -68,6 +70,7 @@ virtual bool doInitialization(Module &M) {
 }
 
 virtual bool doFinalization(Module &) {
+	//Dont forget to delete the output filename string!
 	delete[] oFilename;
 	return true;
 }

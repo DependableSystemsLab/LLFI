@@ -14,6 +14,7 @@ import sys
 import os
 import subprocess
 import glob
+import difflib
 
 class diffBlock:
 	def __init__(self, header, start):
@@ -184,6 +185,10 @@ def traceDiff(argv, output = 0):
 		exit(1)
 	else:
 		print "diff Succesful on", argv[1],argv[2]
+
+	diff = difflib.unified_diff(origTraceLines, newTraceLines)
+	print '\n'.join(list(diff))
+	print "*****\n\n"
 
 	os.remove("TempOrigFile")
 	os.remove("TempNewFile")
