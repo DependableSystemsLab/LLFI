@@ -31,6 +31,7 @@ llfilib = "/ubc/ece/home/kp/ugrads/a7q7/llvm/Release/lib/LLFI.so"
 llfilinklib = "/ubc/ece/home/kp/ugrads/a7q7/llfi/lib"
 llfiTDbin = "python /ubc/ece/home/kp/ugrads/a7q7/llfi/bin/traceDiff.py"
 optionlist = []
+traceDiffArgs = []
 timeout = 500
 
 with open('input.yaml','r') as f:
@@ -297,7 +298,7 @@ def dirSnapshot():
 		dirBefore.append(each)
 
 ################################################################################
-def main():
+def main(scriptArgs = []):
 	config()
   #clear previous output
 	global optionlist, outputfile, proffile, fifile, totalcycles,inputList,run_id
@@ -391,14 +392,20 @@ def main():
 		newFile = faultyOutput
 		outPutFile = './main/prog_output/.'+index+'.traceDiffReport'
 		args = ["null", origFile, newFile]
-		traceDiff(args, outPutFile)
+		traceDiff(args, outPutFile, scriptArgs)
 
 ################################################################################
 
 if __name__=="__main__":
   global inputProg
+  for arg in sys.argv:
+  	if "-td-" in arg:
+  		cmd = str(arg)
+  		sys.argv.remove(arg)
+  		cmd = cmd[3:]
+  		traceDiffArgs.append(cmd)
   inputProg = doc["setUp"]["targetDirectoryName"]#the name of input program
   for ii,arg in enumerate(sys.argv):
     if ii: #add all commandline arguments to optionlist except the first one which is the this script's name
       optionlist.append(arg)
-  main()
+  main(traceDiffArgs)
