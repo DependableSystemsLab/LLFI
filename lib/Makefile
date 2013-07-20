@@ -8,9 +8,6 @@ OBJECTS = $(C_OBJECTS) $(CXX_OBJECTS)
 CFLAGS = -fPIC 
 CXXFLAGS = -fPIC 
 
-#CC = llvm-gcc
-#CXX = llvm-g++
-
 BUILDFLAGS = -fPIC
 
 OS_NAME := $(shell uname -s)

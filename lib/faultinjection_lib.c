@@ -15,7 +15,7 @@ static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
 
 static struct {
-  char fi_type[512];
+  char fi_type[OPTION_LENGTH];
   bool fi_accordingto_cycle;
   // if both fi_cycle and fi_index are specified, use fi_cycle
   long long fi_cycle;
@@ -122,7 +122,7 @@ void initInjections() {
     exit(1);
   }
 
-  faultInjectedFlag = 0; //Tell instTraceLib that we are going to inject faults
+  start_tracing_flag = TRACING_FI_RUN_INIT; //Tell instTraceLib that we are going to inject faults
 }
 
 bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index, 
@@ -168,8 +168,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 void injectFunc(long llfi_index, unsigned size, 
                 char *buf, unsigned my_reg_index) {
 
-  faultInjectedFlag = 2; //Tell instTraceLib that we have injected a fault
-  printf("injectFunc EXEC!\n");
+  start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
 
   unsigned fi_bit, fi_bytepos, fi_bitpos;
   unsigned char oldbuf;
