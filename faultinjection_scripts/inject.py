@@ -70,7 +70,7 @@ print "\n"
 
 ################################################################################
 def config():
-	global inputProg,progbin,inputdir,outputdir,basedir,errordir
+	global inputProg,progbin,inputdir,outputdir,basedir,errordir,stddir
 	# config
 	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
@@ -80,6 +80,7 @@ def config():
 	outputdir = currdir + "/prog_output"
 	basedir = currdir + "/baseline"
 	errordir = currdir + "/error_output"
+	stddir = currdir + "/std_output"
 
 	if not os.path.isdir(currdir):
 		os.mkdir(currdir)
@@ -91,6 +92,9 @@ def config():
 		os.mkdir(errordir)
 	if not os.path.isdir(inputdir):
 		os.mkdir(inputdir)
+	if not os.path.isdir(stddir):
+		os.mkdir(stddir)
+
 
 ################################################################################
 def execute( execlist):
@@ -272,7 +276,7 @@ def main():
 				# fault injection
 				for index in range(0, run_number):
 					run_id = str(ii)+"-"+str(index)
-					outputfile = outputdir + "/outputfile-" + "run-"+run_id
+					outputfile = stddir + "/outputfile-" + "run-"+run_id
 					errorfile = errordir + "/errorfile-" + "run-"+run_id
 					execlist = [progbin + "-fi.ll" + '.exe']#TODO change back to fifile
 	
