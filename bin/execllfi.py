@@ -8,8 +8,7 @@
 # sys.path.append() a path that points to your local yaml library
 
 import sys
-sys.path.append('/ubc/ece/home/ugrads/a/a7q7/.local/lib/python2.6')
-sys.path.append('/ubc/ece/home/ugrads/a/a7q7/extra/llfi/bin')
+sys.path.append('/home/kzvr/ubc/llfi/llvm2/llfi/bin')
 from traceDiff import *
 import glob
 import yaml
@@ -23,13 +22,13 @@ import subprocess
 import shutil
 import random
 
-optbin = "/ubc/ece/home/kp/ugrads/a7q7/llvm/Release/bin/opt"
-llcbin = "/ubc/ece/home/kp/ugrads/a7q7/llvm/Release/bin/llc"
-llvmlink = "/ubc/ece/home/kp/ugrads/a7q7/llvm/Release/bin/llvm-link"
-llvmgcc = "/ubc/ece/home/kp/ugrads/a7q7/llvmgcc/bin/llvm-gcc"
-llfilib = "/ubc/ece/home/kp/ugrads/a7q7/llvm/Release/lib/LLFI.so"
-llfilinklib = "/ubc/ece/home/kp/ugrads/a7q7/llfi/lib"
-llfiTDbin = "python /ubc/ece/home/kp/ugrads/a7q7/llfi/bin/traceDiff.py"
+optbin = "/home/kzvr/ubc/llfi/llvm2/llvm/Release/bin/opt"
+llcbin = "/home/kzvr/ubc/llfi/llvm2/llvm/Release/bin/llc"
+llvmlink = "/home/kzvr/ubc/llfi/llvm2/llvm/Release/bin/llvm-link"
+llvmgcc = "/home/kzvr/ubc/llfi/llvm2/llvmgcc/bin/llvm-gcc"
+llfilib = "/home/kzvr/ubc/llfi/llvm2/llvm/Release/lib/LLFI.so"
+llfilinklib = "/home/kzvr/ubc/llfi/llvm2/llfi/lib"
+llfiTDbin = "python /home/kzvr/ubc/llfi/llvm2/llfi/bin/traceDiff.py"
 optionlist = []
 traceDiffArgs = []
 timeout = 500
@@ -43,7 +42,6 @@ maxTraceCount = -1
 ################################################################################
 def config():
 	global inputProg,progbin,inputdir,outputdir,basedir,errordir
-	#basedir = "/home/jshwei/Desktop/splash_time_automated"
 	# config
 	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
