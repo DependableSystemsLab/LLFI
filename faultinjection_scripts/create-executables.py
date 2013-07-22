@@ -160,12 +160,15 @@ def compileProg():
 	mem2reg2file = progbin + "-mem2reg2.ll"
 	proffile = progbin + "-prof.ll"
 	fifile = progbin + "-fi.ll"
+	inputllfile = progbin+ ".ll"
 	
-	if not os.path.isfile(mem2regfile):
-		print "Error. Cannot find the file - "+mem2regfile
+	if not os.path.isfile(inputllfile):
+		print "Error. Cannot find the file - "+inputllfile
 		print "Please try running compile-IR.py. Or build the IR file yourself.\n"
 		exit(1)
 
+	execlist = [optbin, "-mem2reg", '-S', '-o', mem2regfile, inputllfile]
+	execCompilation(execlist)
 
 	execlist = [optbin, '-load', llfilib, '-genllfiindexpass', '-o',mem2reg2file, mem2regfile]
 	execCompilation(execlist)

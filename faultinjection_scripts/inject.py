@@ -70,7 +70,7 @@ print "\n"
 
 ################################################################################
 def config():
-	global inputProg,progbin,inputdir,outputdir,basedir,errordir,stddir
+	global inputProg,progbin,inputdir,outputdir,basedir,errordir,stddir,currdir
 	# config
 	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
@@ -218,8 +218,15 @@ def main():
 	global optionlist, outputfile, totalcycles,run_id	
 
 	config()
-	fifile = progbin + "-fi.ll"+'.exe'
+	inputllfile = currdir +"/"+llfile
+	#fifile is the faultinject executable that has the same name as inputllfile
+	fifile = currdir+"/"+llfile[:-3]+"-fi.ll.exe" 
 
+	if not os.path.isfile(inputllfile):
+		print "Error. Cannot find the IR file - "+inputllfile
+		print "Please try running compile-IR.py. Or build the IR file yourself.\n"
+		exit(1)
+	
 	# get total num of cycles
 	readCycles()
 
@@ -317,8 +324,8 @@ def main():
 ################################################################################
 
 if __name__=="__main__":
-  global inputProg, initTime
-
+  global inputProg, initTime,llfile
+  assert len(sys.argv) > 1, 'Error. Must provide an argument to specify the IR file to inject into. (ie. python inject.py daxpy.ll'
   initTime= time.time()
   try:
     inputProg = doc["setUp"]["targetDirectoryName"]#the name of input program
@@ -327,7 +334,9 @@ if __name__=="__main__":
     exit(1)
   
   for ii,arg in enumerate(sys.argv):
-    if ii: #add all commandline arguments to optionlist except the first one which is the this script's name
+    if ii==1:
+      llfile = arg
+    if ii>1: #add all commandline arguments to optionlist except the first two which are the this script's name, and the IR file name
       optionlist.append(arg)
 
   main()

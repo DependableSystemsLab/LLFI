@@ -71,9 +71,8 @@ def execCompilation( execlist):
 
 ################################################################################
 def compileProg():
-	global  mem2regfile,progbin,compileOptions
+	global  mem2regfile,progbin,compileOptions, inputllfile
 	inputllfile = progbin + ".ll"
-	mem2regfile = progbin + "-mem2reg.ll"
 
 
 	#Loop through directory for all c, cc, cpp files
@@ -106,20 +105,17 @@ def compileProg():
 			execlist.append(progbin+str(ii)+".ll")
 		execCompilation(execlist)
 
-	execlist = [optbin, "-mem2reg", '-S', '-o', mem2regfile, inputllfile]
-	execCompilation(execlist)
-
 ################################################################################
 def checkSuccess():
 	print "\n"
-	if not os.path.isfile(mem2regfile):
+	if not os.path.isfile(inputllfile):
 		print "There's an error with compiling the IR file. Please refer to the ReadMe or compile the IR file on your own."
 	else:
-		IR_lastModified = str(os.path.getmtime(mem2regfile))
+		IR_lastModified = str(os.path.getmtime(inputllfile))
 		if IR_lastModified<initTime:
 			print "There's an error with compiling the IR file. Please refer to the ReadMe or compile the IR file on your own."
 		else:
-			print "IR file successfully generated"
+			print "IR file " + inputllfile +" is successfully generated"
 	print "\n"
 
 ################################################################################
