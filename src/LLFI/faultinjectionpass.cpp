@@ -28,7 +28,7 @@
 #include "controller.h"
 #include "utils.h"
 
-namespace llfi{
+namespace llfi {
 
 std::string FaultInjectionPass::getFIFuncNameforType(const Type *type) {
   std::string funcname;

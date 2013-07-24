@@ -1,10 +1,4 @@
-#include "llvm/BasicBlock.h"
-#include "llvm/Instructions.h"
-#include "llvm/MetaData.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/Support/raw_ostream.h"
 
-#include <sstream>
 
 #include "utils.h"
 
@@ -77,6 +71,17 @@ void genFullNameOpcodeMap(
 #define HANDLE_INST(N, OPC, CLASS) \
   opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
 #include "llvm/Instruction.def"
+}
+
+//Returns true if the function is indexed by llfi 
+//(and therefore we should perform trace/fault injects on it)
+bool isLLFIIndexedInst(Instruction *inst) {
+  MDNode *mdnode = inst->getMetadata("llfi_index");
+  if (mdnode) {
+    return true;
+  } else {
+   return false;
+ }
 }
 
 }

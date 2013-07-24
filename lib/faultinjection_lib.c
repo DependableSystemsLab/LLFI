@@ -122,6 +122,8 @@ void initInjections() {
             injectedfaultsfilename);
     exit(1);
   }
+
+  start_tracing_flag = TRACING_FI_RUN_INIT; //Tell instTraceLib that we are going to inject faults
 }
 
 bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index, 
@@ -166,6 +168,9 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 
 void injectFunc(long llfi_index, unsigned size, 
                 char *buf, unsigned my_reg_index) {
+
+  start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
+
   unsigned fi_bit, fi_bytepos, fi_bitpos;
   unsigned char oldbuf;
 
