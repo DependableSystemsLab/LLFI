@@ -1,9 +1,0 @@
-lastModified: 1373775129.97
-customInstSelector: onlymain
-customRegSelector: onlyconstint
-exclude: [ret, mul]
-include: [br, sub, switch, all]
-instSelMethod: custominstselector
-regSelMethod: customregselector
-regloc: dstreg
-trace: [forward, backward]
