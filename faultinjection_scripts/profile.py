@@ -157,7 +157,7 @@ def main():
 	config()
 	inputllfile = currdir +"/"+llfile
 	#proffile is the profiling executable that has the same name as inputllfile
-	proffile = currdir+"/"+llfile[:-3]+"-prof.ll.exe" 
+	proffile = currdir+"/"+llfile[:-3]+"-prof.ll.exe" # -3 to omit the .ll
 
 
 	if not os.path.isfile(inputllfile):

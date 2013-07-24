@@ -124,6 +124,10 @@ def main():
 	config()
 	compileProg()
 	checkSuccess()
+	print "================================="
+	print "Executing create-executables.py."
+	print "================================="
+	os.system('create-executables.py')#since this is successful, go ahead and do the next step
 	
 ################################################################################
 
