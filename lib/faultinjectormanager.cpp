@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <cstdlib>
 #include "faultinjector.h"
 #include "faultinjectormanager.h"
 
@@ -10,7 +10,7 @@ FaultInjectorManager *FaultInjectorManager::getFaultInjectorManager() {
 
 void FaultInjectorManager::addFaultInjector(const std::string &name,
                                             FaultInjector *fi) {
-  debug(("enter add fault injector\n"));
+  //debug(("enter add fault injector\n"));
   if (type_injector.find(name) == type_injector.end()) {
     type_injector.insert(
         std::pair<const std::string, FaultInjector*>(name, fi));

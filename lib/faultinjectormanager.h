@@ -24,11 +24,11 @@ class FaultInjectorManager {
 
 struct RegisterFaultInjector {
   RegisterFaultInjector(const std::string &name, FaultInjector *fi) {
-    debug(( "init\n"));
+    //debug(( "init\n"));
     FaultInjectorManager *m = FaultInjectorManager::getFaultInjectorManager();
-    debug(("get manager\n"));
+    //debug(("get manager\n"));
     m->addFaultInjector(name, fi);
-    debug(("finish\n"));
+    //debug(("finish\n"));
   }
 };
 

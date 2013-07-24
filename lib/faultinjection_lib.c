@@ -5,11 +5,12 @@
 #include <time.h>
 #include <assert.h>
 #include "utils.h"
+#define OPTION_LENGTH 512
 
 static long long curr_cycle = 0;
 
 static FILE *injectedfaultsFile;
-static const unsigned OPTION_LENGTH = 512;
+
 
 static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
