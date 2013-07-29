@@ -2,13 +2,12 @@
 
 #This script takes an IR file and creates prof.ll.exe and fi.ll.exe from it
 
-#The IR file needs to be contained in a directory specified by targetDirectoryName
-#in input.yaml. That directory needs to be in the directory of this script.
+#The IR file needs to be  executed in the src directory 
 
 #Everytime the contents of compileOption is changed in input.yaml
 #this script should be run to create new fi.exe and prof.exe
 
-#basedir is actually the directory with the script and c file(s)
+#basedir is actually the srcdirectory with c file(s)
 #curdir is where the compilation files and executables will be stored
 
 #To run this, please change optbin,llcbin,llvmgcc,llfilib, and llfilinklib to match your system, 
@@ -33,10 +32,10 @@ llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
 llfilib = "/data/llvm-2.9/Release/lib/LLFI.so"
 llfilinklib = "/data/LLFI-experimental-master/lib"
 
-
+basedir = os.getcwd()
 #Check for input.yaml's presence
 try:
-	f = open('input.yaml','r')
+	f = open(basedir+'/input.yaml','r')
 except:
 	print "ERROR. No input.yaml file in the current directory."
 	exit(1)
@@ -64,7 +63,6 @@ print "\n"
 def config():
 	global inputProg,progbin
 	# config
-	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
 	progbin = currdir + "/"+inputProg
 

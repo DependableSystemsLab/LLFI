@@ -2,13 +2,12 @@
 
 #This script injects faults the program and produces output
 
-#The fi.ll.exe needs to be contained in a directory specified by targetDirectoryName
-#in input.yaml. That directory needs to be in the directory of this script.
+#The fi.ll.exe needs to be executed in the src directory 
 
 #This should be run right after create-executables.py is run to provide
 #up-to-date llfi.stat.prof.txt 
 
-#basedir is actually the directory with the script and c file(s)
+#basedir is actually the src directory with  c file(s)
 #curdir is where the compilation files and executables will be stored
 
 #To run this, please change optbin,llcbin,llvmgcc,llfilib, and llfilinklib to match your system, 
@@ -37,9 +36,10 @@ runOverride = False
 optionlist = []
 timeout = 500
 
+basedir = os.getcwd()
 #Check for input.yaml's presence
 try:
-	f = open('input.yaml','r')
+	f = open(basedir+'/input.yaml','r')
 except:
 	print "ERROR. No input.yaml file in the current directory."
 	exit(1)
@@ -72,7 +72,6 @@ print "\n"
 def config():
 	global inputProg,progbin,inputdir,outputdir,basedir,errordir,stddir,currdir
 	# config
-	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
 	progbin = currdir + "/"+inputProg
 
@@ -147,10 +146,16 @@ def moveOutput():
 	#move all newly created files
 	for each in[file for file in os.listdir(".")]:
 		if each not in dirBefore:
-			flds = each.split(".")
-			newName = '.'.join(flds[0:-1])
-			newName+='.'+run_id+'.'+flds[-1]
-			os.rename(each,outputdir+'/'+newName)
+			fileSize = os.stat(each).st_size
+			if fileSize == 0 and each.startswith("llfi"):
+				#empty library output, can delete
+				print each+ " is going to be deleted for having size of " + str(fileSize)
+				os.remove(each)
+			else:
+				flds = each.split(".")
+				newName = '.'.join(flds[0:-1])
+				newName+='.'+run_id+'.'+flds[-1]
+				os.rename(each,outputdir+'/'+newName)
 
 ################################################################################
 def dirSnapshot():

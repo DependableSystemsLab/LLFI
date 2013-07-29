@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
-#The c file(s) needs to be in the same directory as the script, or
-#be in directories under the current one. 
+#The script needs to be executed in the same directory as the src c files, or
+#be the directory of multiple other src directories.
 
 #If the source files are stored in multiple directories and uses a 
 #common directory for .h library files. Put name that library folder
 #"include" for this script to work
 
-#basedir is actually the directory with the script and c file(s)
+#basedir is actually the src directory with the c file(s)
 #curdir is where the compilation files and executables will be stored
 
 #To run this, please change optbin,llcbin,llvmgcc,llfilink to match your system, 
@@ -31,9 +31,11 @@ llcbin = "/data/llvm-2.9/Debug+Asserts/bin/llc"
 llvmlink = "/data/llvm-2.9/Debug+Asserts/bin/llvm-link"
 llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
 
+
+basedir = os.getcwd()
 #Check for input.yaml's presence
 try:
-	f = open('input.yaml','r')
+	f = open(basedir+'/input.yaml','r')
 except:
 	print "ERROR. No input.yaml file in the current directory."
 	exit(1)
@@ -56,7 +58,6 @@ print "\n"
 def config():
 	global inputProg,progbin
 	# config
-	basedir = os.path.dirname(os.path.abspath(__file__)) #path of directory where script is running on
 	currdir = basedir + "/"+inputProg
 	progbin = currdir + "/"+inputProg
 	
