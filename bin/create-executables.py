@@ -142,9 +142,9 @@ def readCompileOption():
 			print ("\n\nERROR in input.yaml. Unknown Register selection method.\n")
 			exit(1)
 
-	###Trace selection 
-	if "trace" in cOpt:
-		for trace in cOpt["trace"]:
+	###Injection Trace selection 
+	if "includeInjectionTrace" in cOpt:
+		for trace in cOpt["includeInjectionTrace"]:
 			if trace == 'forward':
 				compileOptions.append('-includeforwardtrace')
 			elif trace == 'backward':
@@ -152,6 +152,23 @@ def readCompileOption():
 			else:
 				print ("\n\nERROR in input.yaml. Invalid value for trace. (forward/backward allowed)\n")
 				exit(1)
+	
+	###Tracing Proppass
+	if "tracingPropagation" in cOpt:
+		if "outputFileName" in cOpt["tracingPropagation"]:
+			compileOptions.append('-instTrace')
+			compileOptions.append('-tout')
+			compileOptions.append(cOpt["tracingPropagation"]["outputFileName"])
+			if "debugTrace" in cOpt["tracingPropagation"]:
+				if(str(cOpt["tracingPropagation"]["debugTrace"]).lower()=="true"):
+					compileOptions.append('-debugtrace')
+			if "maxTrace" in cOpt["tracingPropagation"]:
+				assert isinstance(cOpt["tracingPropagation"]["maxTrace"], int)==True, "maxTrace must be an integer in input.yaml"
+				assert int(cOpt["tracingPropagation"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
+				compileOptions.append('-maxTrace')
+				compileOptions.append(str(cOpt["tracingPropagation"]["maxTrace"]))
+		else:
+			print ("\n\nERROR in input.yaml. Must supply an outputFileName field if tracingPropagation is to be done.")
 
 ################################################################################
 def compileProg():
@@ -206,9 +223,14 @@ def checkSuccess():
 		print "There's an error with building the Profiling executable. Please refer to the ReadMe."
 
 	else:
-		FI_lastModified = str(os.path.getmtime(fifile+'.exe'))
-		PF_lastModified = str(os.path.getmtime(proffile+'.exe'))
-		if FI_lastModified<initTime or PF_lastModified<initTime:
+		FI_lastModified = os.path.getmtime(fifile+'.exe')
+		PF_lastModified = os.path.getmtime(proffile+'.exe')
+
+		#use the below ll files to check for success also as stale .ll files can be used to generate new .exe files
+		FI_LL_lastModified = os.path.getmtime(fifile)
+		PF_LL_lastModified = os.path.getmtime(proffile)
+	
+		if (FI_lastModified<initTime or PF_lastModified<initTime or FI_LL_lastModified<initTime or PF_LL_lastModified<initTime):
 			print "There's an error with creating the executables. Please refer to the ReadMe or compile the IR file on your own."
 		else:
 			print "Profiling and FaultInjection executables successfully generated"

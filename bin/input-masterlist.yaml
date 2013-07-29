@@ -18,10 +18,16 @@ compileOption:
     regSelMethod: customregselector/regloc
     regloc: dstreg      ###(dstreg/allsrcreg/srcreg1..4)
     customRegSelector: onlyconstint
-    trace: 
+
+    includeInjectionTrace: 
         - forward
         - backward
-    
+
+    tracingPropagation:
+        outputFileName: tracingOutput.txt
+        maxTrace: 250
+        debugTrace: True/False
+
 runOption:
     - run:
         numOfRuns: 3
