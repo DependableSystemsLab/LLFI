@@ -176,7 +176,6 @@ virtual bool runOnFunction(Function &F) {
 				BasicBlock* succ = exitInst->getSuccessor(s);
 				for (unsigned int d = 0; d < blocks.size(); d++) {
 					if (blocks.at(d).raw == succ) {
-						outfs << "#Found matching successor\n";
 						std::string from = block.instNodes.back().name;
 						std::string to = blocks.at(d).instNodes.front().name;
 						outfs << from << " -> "	<< to << ";\n";
