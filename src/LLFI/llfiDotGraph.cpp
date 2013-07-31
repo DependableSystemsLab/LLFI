@@ -172,11 +172,9 @@ virtual bool runOnFunction(Function &F) {
 		bBlockGraph block = blocks.at(i);
 		block.writeToStream(outfs);
 		if (block.exitInst->getOpcode() == Instruction::Br) {
-			outfs << "#Found BR inst\n";
 			BranchInst* exitInst = (BranchInst*)block.exitInst;
 			for (unsigned int s = 0; s < exitInst->getNumSuccessors(); s++) {
 				BasicBlock* succ = exitInst->getSuccessor(s);
-				outfs << "#" << exitInst->getNumSuccessors() << "\n";
 				for (unsigned int d = 0; d < blocks.size(); d++) {
 					if (blocks.at(d).raw == succ) {
 						outfs << "#Found matching successor\n";
