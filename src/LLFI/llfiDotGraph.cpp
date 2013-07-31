@@ -23,19 +23,49 @@ using namespace llvm;
 
 namespace llfi {
 
-struct bBlock {
+struct instNode {
+	std::string name, label, shape;
+	Instruction *raw;
+	std::string dotNode();
+	instNode(Instruction *target);
+};
+
+instNode::instNode(Instruction *target) {
+	raw = target;
+
+	int llfiID = llfi::getLLFIIndexofInst(target);
+	std::stringstream nodeName;
+	std::string bbname = target->getParent()->getName().str();
+	std::string funcName = target->getParent()->getParent()->getNameStr();
+	nodeName << funcName << "_" << bbname << "_" << target->getOpcodeName() << "_";
+	nodeName <<	"llfiID_" << llfiID;
+	name = nodeName.str();
+
+	std::stringstream labelStream;
+	labelStream << " [shape=record,label=\"" << llfiID << "\"]";
+	label = labelStream.str();
+}
+
+std::string instNode::dotNode() {
+	std::stringstream dotnode;
+	dotnode << name << label;
+	return dotnode.str();
+}
+
+struct bBlockGraph {
 	BasicBlock* raw;
 	std::string name;
 	std::string funcName;
-	std::vector<std::string> instStrings;
+	std::vector<instNode> instNodes;
 	Instruction* entryInst;
 	Instruction* exitInst;
 	int nonLLFIinstCount;
-	bBlock(BasicBlock *target);
+	bBlockGraph(BasicBlock *target);
 	bool addInstruction(Instruction* inst);
 	bool writeToStream(std::ofstream &target);
 };
-bBlock::bBlock(BasicBlock *BB) {
+
+bBlockGraph::bBlockGraph(BasicBlock *BB) {
 	raw = BB;
 	nonLLFIinstCount = 0;
 	name = BB->getName().str();
@@ -53,26 +83,20 @@ bBlock::bBlock(BasicBlock *BB) {
 	entryInst = &(BB->front());
 	exitInst = &(BB->back());
 }
-bool bBlock::addInstruction(Instruction* inst) {
-	std::stringstream Node;
-	Node << funcName << "_" << name << "_" << inst->getOpcodeName() << "_";			
-	if (llfi::isLLFIIndexedInst(inst)) {
-		Node << "llfiID_" << llfi::getLLFIIndexofInst(inst);
-	} else {
-		Node << "bBlockID_" << nonLLFIinstCount;
-		nonLLFIinstCount++;
-	}
-	instStrings.push_back(Node.str());
+bool bBlockGraph::addInstruction(Instruction* inst) {
+	instNodes.push_back(instNode(inst));
 
 	return true;	
 }
 
-bool bBlock::writeToStream(std::ofstream &target) {
-	for (unsigned int i = 0; i < instStrings.size(); i++) {
-		target << instStrings.at(i) << " [shape=record];\n";
+bool bBlockGraph::writeToStream(std::ofstream &target) {
+	target << "subgraph cluster_" << funcName << "_" << name << "{\n";
+	for (unsigned int i = 0; i < instNodes.size(); i++) {
+		target << instNodes.at(i).dotNode() << ";\n";
 	}
-	for (unsigned int i = 1; i < instStrings.size(); i++) {
-		target << instStrings.at(i-1) << " -> " << instStrings.at(i) << ";\n";
+	target << "}\n";
+	for (unsigned int i = 1; i < instNodes.size(); i++) {
+		target << instNodes.at(i-1).name << " -> " << instNodes.at(i).name << ";\n";
 	}
 	return true;
 }
@@ -106,7 +130,7 @@ virtual bool runOnFunction(Function &F) {
 	LLVMContext& context = F.getContext();
 	Module *M = F.getParent();
 
-	std::vector<bBlock> blocks;			
+	std::vector<bBlockGraph> blocks;			
 
 	//iterate through each basicblock of the function
 	for (Function::iterator blockIterator = F.begin(), lastBlock = F.end();
@@ -114,13 +138,38 @@ virtual bool runOnFunction(Function &F) {
 
 		BasicBlock* block = blockIterator;
 
-		bBlock b(block);
+		bBlockGraph b(block);
 		blocks.push_back(b);
 
 	}
+	for (unsigned int i = 0; i < blocks.size(); i++) {
+		bBlockGraph currBlock = blocks.at(i);
+		for (unsigned int i = 0; i < currBlock.instNodes.size(); i++) {
+			Instruction *inst = currBlock.instNodes.at(i).raw;
+			std::string nodeName = currBlock.instNodes.at(i).name;
+			instNode node = currBlock.instNodes.at(i);
+			if (!inst->use_empty()) {
+				for (value_use_iterator<User> useIter = inst->use_begin();
+				     useIter != inst->use_end(); useIter++) {
+					Value* userValue = *useIter;
+					for (unsigned int f = 0; f < blocks.size(); f++) {
+						bBlockGraph searchBlock = blocks.at(f);
+						for (unsigned int d = 0; d < searchBlock.instNodes.size(); d++) {
+							Instruction* targetInst = searchBlock.instNodes.at(d).raw;
+							if (userValue == targetInst) {
+								instNode targetNode = searchBlock.instNodes.at(d);
+								outfs << nodeName << " -> " << targetNode.name;
+								outfs << " [color=\"red\"];\n";
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 
 	for (unsigned int i = 0; i < blocks.size(); i++) {
-		bBlock block = blocks.at(i);
+		bBlockGraph block = blocks.at(i);
 		block.writeToStream(outfs);
 		if (block.exitInst->getOpcode() == Instruction::Br) {
 			outfs << "#Found BR inst\n";
@@ -131,8 +180,8 @@ virtual bool runOnFunction(Function &F) {
 				for (unsigned int d = 0; d < blocks.size(); d++) {
 					if (blocks.at(d).raw == succ) {
 						outfs << "#Found matching successor\n";
-						std::string from = block.instStrings.back();
-						std::string to = blocks.at(d).instStrings.front();
+						std::string from = block.instNodes.back().name;
+						std::string to = blocks.at(d).instNodes.front().name;
 						outfs << from << " -> "	<< to << ";\n";
 					}
 				}

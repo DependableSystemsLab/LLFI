@@ -19,8 +19,8 @@ static int littleEndianness = -1;
 int littleEndian() {
 	if (littleEndianness == -1) {
 		int data;
-		char *ptr;
-		data = 0x10000000;
+		char *ptr;                                                                                
+		data = 0x10000000;                                                                         
 		ptr = (char*)&data; // Points to 0x[10]000000 or 0x[00]000010 in memory
 		if (*ptr == 0x10) {
 			littleEndianness = 0; //is big Endian
@@ -52,7 +52,8 @@ void printInstTracer(long instID, char *opcode, int size, char* ptr, char* fname
 		maxPrints = DEFAULT_MAX_TRACES;
 	}
 	
-	//Faulty runs will begin with flag = FIF_FAULT_INSERTED, when the fault is detected it will set cutoff
+	//Faulty runs will begin with flag = FIF_FAULT_INSERTED, 
+	//when the fault is detected it will set cutoff
 	//instruction to current instruction + maxPrints
 	if (faultInjectedFlag == FIF_FAULT_INSERTED) {
 		faultInjectedFlag = FIF_FAULT_INSERTED_AND_INIT;
