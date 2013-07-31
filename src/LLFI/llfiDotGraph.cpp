@@ -115,7 +115,6 @@ virtual bool doInitialization(Module &M) {
 	outfs.open("LLFIDOTGRAPHOUTPUT.dot", std::ios::trunc);
 	outfs << "digraph \"TestGraph\" {\n";
 	nonllfiInstIndex = 0;
-	errs() << nonllfiInstIndex << " ";
 	return false;
 }
 
