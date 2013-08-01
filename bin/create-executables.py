@@ -168,16 +168,17 @@ def readCompileOption():
 	###Tracing Proppass
 	if "tracingPropagation" in cOpt:
 		if "outputFileName" in cOpt["tracingPropagation"]:
-			compileOptions.append('-instTrace')
-			compileOptions.append('-tout')
-			compileOptions.append(cOpt["tracingPropagation"]["outputFileName"])
+			compileOptions.append('-insttracepass')
+			if  "outputFileName" in cOpt["tracingPropagation"]:
+				compileOptions.append('-tout')
+				compileOptions.append(cOpt["tracingPropagation"]["outputFileName"])
 			if "debugTrace" in cOpt["tracingPropagation"]:
 				if(str(cOpt["tracingPropagation"]["debugTrace"]).lower()=="true"):
 					compileOptions.append('-debugtrace')
 			if "maxTrace" in cOpt["tracingPropagation"]:
 				assert isinstance(cOpt["tracingPropagation"]["maxTrace"], int)==True, "maxTrace must be an integer in input.yaml"
 				assert int(cOpt["tracingPropagation"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
-				compileOptions.append('-maxTrace')
+				compileOptions.append('-maxtrace')
 				compileOptions.append(str(cOpt["tracingPropagation"]["maxTrace"]))
 		else:
 			print ("\n\nERROR in input.yaml. Must supply an outputFileName field if tracingPropagation is to be done.")
