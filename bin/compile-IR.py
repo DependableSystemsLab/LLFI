@@ -26,10 +26,14 @@ import subprocess
 import shutil
 import random
 
-optbin = "/data/llvm-2.9/Debug+Asserts/bin/opt"
-llcbin = "/data/llvm-2.9/Debug+Asserts/bin/llc"
-llvmlink = "/data/llvm-2.9/Debug+Asserts/bin/llvm-link"
-llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
+script_path = os.path.realpath(os.path.dirname(__file__))
+sys.path.append(os.path.join(script_path, '../config'))
+import llvm_paths
+
+optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
+llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
+llvmlink = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llvm-link")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
 
 
 basedir = os.getcwd()

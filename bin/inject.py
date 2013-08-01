@@ -26,12 +26,6 @@ import subprocess
 import shutil
 import random
 
-optbin = "/data/llvm-2.9/Debug+Asserts/bin/opt"
-llcbin = "/data/llvm-2.9/Debug+Asserts/bin/llc"
-llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
-llfilib = "/data/llvm-2.9/Release/lib/LLFI.so"
-llfilinklib = "/data/LLFI-experimental-master/lib"
-
 runOverride = False
 optionlist = []
 timeout = 500

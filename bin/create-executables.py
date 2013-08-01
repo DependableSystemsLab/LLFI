@@ -26,11 +26,25 @@ import subprocess
 import shutil
 import random
 
-optbin = "/data/llvm-2.9/Debug+Asserts/bin/opt"
-llcbin = "/data/llvm-2.9/Debug+Asserts/bin/llc"
-llvmgcc = "/data/llvm-gcc/bin/llvm-gcc"
-llfilib = "/data/llvm-2.9/Release/lib/LLFI.so"
-llfilinklib = "/data/LLFI-experimental-master/lib"
+script_path = os.path.realpath(os.path.dirname(__file__))
+sys.path.append(os.path.join(script_path, '../config'))
+import llvm_paths
+
+
+optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
+llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
+
+if sys.platform == "linux" or sys.platform == "linux2":
+  llfilib = os.path.join(script_path, "../llvm_passes/llfi-passes.so")
+elif sys.platform == "darwin":
+  llfilib = os.path.join(script_path, "../llvm_passes/llfi-passes.dylib")
+else:
+	print "ERROR: LLFI does not support platform " + sys.platform + "."
+	exit(1)
+
+
+llfilinklib = os.path.join(script_path, "../runtime_lib")
 
 basedir = os.getcwd()
 #Check for input.yaml's presence
@@ -207,9 +221,9 @@ def compileProg():
 	execlist = [llcbin, '-filetype=obj', '-o', fifile + '.o', fifile]
 	execCompilation(execlist)
 
-	execlist = [llvmgcc, '-o', proffile + '.exe', proffile + '.o', '-L'+llfilinklib , '-lllfi']
+	execlist = [llvmgcc, '-o', proffile + '.exe', proffile + '.o', '-L'+llfilinklib , '-lllfi-rt']
 	execCompilation(execlist)
-	execlist = [llvmgcc, '-o', fifile + '.exe', fifile + '.o', '-L'+llfilinklib , '-lllfi']
+	execlist = [llvmgcc, '-o', fifile + '.exe', fifile + '.o', '-L'+llfilinklib , '-lllfi-rt']
 	execCompilation(execlist)
 
 ################################################################################
