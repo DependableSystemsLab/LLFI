@@ -73,7 +73,8 @@ void _parseLLFIConfigFile() {
     value = strtok(line, "=");
     strncpy(option, value, OPTION_LENGTH);
     value = strtok(NULL, "=");
-    debug(("option, %s, value, %s;", option, value));
+
+    //debug(("option, %s, value, %s;", option, value));
 
     if (strcmp(option, "fi_type") == 0) {
       strncpy(config.fi_type, value, OPTION_LENGTH);
@@ -99,10 +100,11 @@ void _parseLLFIConfigFile() {
       exit(1);
     }
   }
+  /*
   debug(("type, %s; cycle, %lld; index, %ld; reg_index, %d; fi_bit, %d\n", 
          config.fi_type, config.fi_cycle, config.fi_index, 
          config.fi_reg_index, config.fi_bit));
-
+  */
   fclose(ficonfigFile);
 }
 
