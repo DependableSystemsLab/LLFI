@@ -24,7 +24,7 @@ using namespace llvm;
 namespace llfi {
 
 struct instNode {
-	std::string name, label, shape;
+	std::string name, label;
 	Instruction *raw;
 	std::string dotNode();
 	instNode(Instruction *target);
@@ -37,12 +37,12 @@ instNode::instNode(Instruction *target) {
 	std::stringstream nodeName;
 	std::string bbname = target->getParent()->getName().str();
 	std::string funcName = target->getParent()->getParent()->getNameStr();
-	nodeName << funcName << "_" << bbname << "_" << target->getOpcodeName() << "_";
+	//nodeName << funcName << "_" << bbname << "_" << target->getOpcodeName() << "_";
 	nodeName <<	"llfiID_" << llfiID;
 	name = nodeName.str();
 
 	std::stringstream labelStream;
-	labelStream << " [shape=record,label=\"" << llfiID << "\"]";
+	labelStream << " [shape=record,label=\"" << llfiID << "\\n" << target->getOpcodeName() << "\"]"; 
 	label = labelStream.str();
 }
 
@@ -90,7 +90,8 @@ bool bBlockGraph::addInstruction(Instruction* inst) {
 }
 
 bool bBlockGraph::writeToStream(std::ofstream &target) {
-	target << "subgraph cluster_" << funcName << "_" << name << "{\n";
+	target << "subgraph cluster_" << funcName << "_" << name << " {\n";
+	target << "label = \"" << funcName << "_" << name << "\";\n";
 	for (unsigned int i = 0; i < instNodes.size(); i++) {
 		target << instNodes.at(i).dotNode() << ";\n";
 	}
