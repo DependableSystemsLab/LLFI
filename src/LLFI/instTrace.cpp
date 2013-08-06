@@ -110,16 +110,28 @@ virtual bool runOnFunction(Function &F) {
 					       << "   Parent Function Name: " << inst->getParent()->getParent()->getNameStr() << "\n";
 				}
 			}
-			if (inst->getType() != Type::getVoidTy(context) && 
-				llfi::isLLFIIndexedInst(inst) && 
-				inst != block->getTerminator()) {
+			if (llfi::isLLFIIndexedInst(inst)) {
 
 				//Find instrumentation point for current instruction
-				Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-				//insert an instruction Allocate stack memory to store/pass instruction value
-				AllocaInst* ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
-				//Insert an instruction to Store the instruction Value!
-				new StoreInst(inst, ptrInst, insertPoint);
+				Instruction *insertPoint;
+				if (inst != block->getTerminator()) {
+					insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
+				} 
+				else {
+					insertPoint = inst;
+				}
+				AllocaInst* ptrInst;
+				if (inst->getType() != Type::getVoidTy(context)) {
+					//insert an instruction Allocate stack memory to store/pass instruction value
+					ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
+					//Insert an instruction to Store the instruction Value!
+					new StoreInst(inst, ptrInst, insertPoint);
+				}
+				else {
+					ptrInst = new AllocaInst(Type::getInt32Ty(context), NULL, "", insertPoint);
+					new StoreInst(ConstantInt::get(IntegerType::get(context,32), 0), 
+						ptrInst, insertPoint);
+				}
 				
 				//Insert instructions to allocate stack memory for output filename
 				llvm::Value* oFileValue = llvm::ConstantArray::get(context, oFilename);
