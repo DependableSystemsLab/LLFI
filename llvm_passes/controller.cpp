@@ -184,8 +184,6 @@ void Controller::init(Module &M) {
 }
 
 Controller::~Controller() {
-  delete fiinstselector;
-  delete firegselector;
   delete ctrl;
   ctrl = NULL;
 }

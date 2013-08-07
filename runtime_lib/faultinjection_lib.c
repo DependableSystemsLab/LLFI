@@ -157,7 +157,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
       reg_selected = _getDecision(1.0 / (total_reg_target_num - my_reg_index));
 
     if (reg_selected) {
-      debug(("selected reg index %u\n", my_reg_index));
+      //debug(("selected reg index %u\n", my_reg_index));
       is_fault_injected_in_curr_dyn_inst = true;
     }
   }
@@ -189,11 +189,12 @@ void injectFunc(long llfi_index, unsigned size,
 
   injectFaultImpl(config.fi_type, llfi_index, size, fi_bit, buf);
 
+  /*
   debug(("FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
          "fi_bit=%u, size=%u, old=0x%hhx, new=0x%hhx\n", config.fi_type,
             llfi_index, config.fi_cycle, my_reg_index, fi_bit, 
             size,  oldbuf, buf[fi_bytepos]));
-
+*/
   fprintf(injectedfaultsFile, 
           "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
           "fi_bit=%u\n", config.fi_type,
