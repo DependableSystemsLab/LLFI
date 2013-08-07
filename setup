@@ -121,7 +121,7 @@ def checkEnviroment():
   try:
     import yaml
   except:
-    print >> sys.stderr, ("ERROR: You need to install Python yaml module "
+    print >> sys.stderr, ("ERROR: You need to install Python Yaml module "
                           "before building LLFI.\n")
     has_error = True
 

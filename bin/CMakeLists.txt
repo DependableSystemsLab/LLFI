@@ -4,8 +4,8 @@ include(../config/copy_utils.cmake)
 
 project(bin)
 
-copy(create-executables.py create-executables)
-copy(inject.py inject)
+copy(instrument.py instrument)
+copy(injectfault.py injectfault)
 copy(profile.py profile)
 
 genCopy()

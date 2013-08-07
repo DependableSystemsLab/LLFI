@@ -3,13 +3,15 @@
 
 """
 
+%(prog)s takes source files(s) as input and generate a single IR file
+
 Usage: %(prog)s [OPTIONS] <source files>
 
 List of options:
 
--o <output file>:       Output intermediate representation (IR) file
+-o <output file>:       Intermediate representation (IR) output file
 -I <include directory>: Include directory for header files
--S:                     Only run preprocess and compilation steps
+--readable:             Generate human-readable output file
 --verbose:              Show verbose information
 --help(-h):             Show help information
 """
@@ -30,7 +32,7 @@ options = {
   "o": "a.out",
   "sources": [],
   "I": [],
-  "S": False,
+  "readable": False,
   "verbose": False,
 }
 
@@ -62,8 +64,8 @@ def parseArgs(args):
       elif arg == "-I":
         argid += 1
         options["I"].append(os.path.join(basedir, args[argid]))
-      elif arg == "-S":
-        options["S"] = True
+      elif arg == "--readable":
+        options["readable"] = True
       elif arg == "--verbose":
         options["verbose"] = True
       elif arg == "--help" or arg == "-h":
@@ -97,7 +99,7 @@ def compileToIR(outputfile, inputfile):
   for header_dir in options["I"]:
     execlist.extend(['-I', header_dir])
   
-  if options['S']:
+  if options['readable']:
     execlist.append('-S')
   else:
     execlist.append('-c')
@@ -107,7 +109,7 @@ def compileToIR(outputfile, inputfile):
 def linkFiles(outputfile, inputlist):
   execlist = [llvmlink, '-o', outputfile]
 
-  if options['S']:
+  if options['readable']:
     execlist.append('-S')
   
   execlist.extend(inputlist) 

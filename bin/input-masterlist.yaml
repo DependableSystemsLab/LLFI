@@ -1,8 +1,7 @@
 kernelOption:
     - forceRun
 
-setUp:
-    targetDirectoryName: Daxpy
+timeOut: 1000
 
 compileOption:
     instSelMethod: custominstselector/insttype
