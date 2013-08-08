@@ -31,10 +31,6 @@ Author: Sam Coulter
 
 using namespace llvm;
 
-cl::opt<std::string> outputfilename("tout", 
-                  cl::desc("Specify output filename"), 
-                  cl::value_desc("filename"),
-                  cl::init("traceOutput"));
 cl::opt<bool> debugtrace( "debugtrace",
               cl::desc("Output Trace insertion information"),
               cl::init(false));
@@ -50,9 +46,6 @@ struct InstTrace : public FunctionPass {
   Function::iterator lastBlock;
   BasicBlock::iterator lastInst;
   
-  char *oFilename; //For output filename
-  int oFilenameLength;
-  
   InstTrace() : FunctionPass(ID) {}
   
   //Add AnalysisUsage Pass as prerequisite for InstTrace Pass
@@ -61,12 +54,7 @@ struct InstTrace : public FunctionPass {
   }
   
   virtual bool doInitialization(Module &M) {
-    //Outpout filename remains constant across pass
-    oFilenameLength = outputfilename.size() + 1;
-    oFilename = new char[oFilenameLength];
-    std::copy(outputfilename.begin(), outputfilename.end(), oFilename);
-    oFilename[outputfilename.size()] = '\0'; // don't forget the terminating 0
-    return true;
+    return false;
   }
   
   virtual bool doFinalization(Module &M) {
@@ -87,7 +75,6 @@ struct InstTrace : public FunctionPass {
     BasicBlock *exitblock = &mainfunc->back();
     CallInst::Create(postracingfunc, "", exitblock->getTerminator());
 
-    delete[] oFilename;
     return true;
   }
   
@@ -127,25 +114,18 @@ struct InstTrace : public FunctionPass {
         //Insert an instruction to Store the instruction Value!
         new StoreInst(inst, ptrInst, insertPoint);
         
-        //Insert instructions to allocate stack memory for output filename
-        // TODO: the filename should be made global
-        llvm::Value* oFileValue = llvm::ConstantArray::get(context, oFilename);
-        AllocaInst* ofileptrInst = new AllocaInst(oFileValue->getType(), "", insertPoint);
-        new StoreInst(oFileValue, ofileptrInst, insertPoint);
-  
         //Insert instructions to allocate stack memory for opcode name
         llvm::Value* OPCodeName = llvm::ConstantArray::get(context, inst->getOpcodeName());
         AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(), "", insertPoint);
         new StoreInst(OPCodeName, OPCodePtr, insertPoint);
   
         //Create the decleration of the printInstTracer Function
-        std::vector<const Type*> parameterVector(6);
+        std::vector<const Type*> parameterVector(5);
         parameterVector[0] = Type::getInt32Ty(context); //ID
         parameterVector[1] = OPCodePtr->getType();     //Ptr to OpCode
         parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value
         parameterVector[3] = ptrInst->getType();    //Ptr to Inst Value
-        parameterVector[4] = ofileptrInst->getType();  //Ptr to name of ofile
-        parameterVector[5] = Type::getInt32Ty(context); //Int of max traces
+        parameterVector[4] = Type::getInt32Ty(context); //Int of max traces
         
         FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), 
                                                         parameterVector, false);
@@ -175,7 +155,6 @@ struct InstTrace : public FunctionPass {
         traceArgs.push_back(OPCodePtr);
         traceArgs.push_back(instValSize);
         traceArgs.push_back(ptrInst);
-        traceArgs.push_back(ofileptrInst);
         traceArgs.push_back(maxTraceConstInt);
   
         //Create the Function

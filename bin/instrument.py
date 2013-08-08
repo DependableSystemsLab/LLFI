@@ -136,6 +136,7 @@ def checkInputYaml():
     f = open(os.path.join(srcpath, 'input.yaml'), 'r')
   except:
     print "ERROR: No input.yaml file in the %s directory." % srcpath
+    os.rmdir(options["dir"])
     exit(1)
   
   #Check for input.yaml's correct formmating
@@ -144,12 +145,14 @@ def checkInputYaml():
     f.close()
   except:
     print "Error: input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
+    os.rmdir(options["dir"])
     exit(1)
   
   #Check for compileOption in input.yaml
   try:
     cOpt = doc["compileOption"]
   except:
+    os.rmdir(options["dir"])
     print "ERROR: Please include compileOptions in input.yaml."
     exit(1)
 
@@ -239,21 +242,16 @@ def readCompileOption():
   
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
-    if "outputFileName" in cOpt["tracingPropagation"]:
-      compileOptions.append('-insttracepass')
-      if  "outputFileName" in cOpt["tracingPropagation"]:
-        compileOptions.append('-tout')
-        compileOptions.append(cOpt["tracingPropagation"]["outputFileName"])
-      if "debugTrace" in cOpt["tracingPropagation"]:
-        if(str(cOpt["tracingPropagation"]["debugTrace"]).lower() == "true"):
+    compileOptions.append('-insttracepass')
+    if 'tracingPropagationOption' in cOpt:
+      if "debugTrace" in cOpt["tracingPropagationOption"]:
+        if(str(cOpt["tracingPropagationOption"]["debugTrace"]).lower() == "true"):
           compileOptions.append('-debugtrace')
-      if "maxTrace" in cOpt["tracingPropagation"]:
-        assert isinstance(cOpt["tracingPropagation"]["maxTrace"], int)==True, "maxTrace must be an integer in input.yaml"
-        assert int(cOpt["tracingPropagation"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
+      if "maxTrace" in cOpt["tracingPropagationOption"]:
+        assert isinstance(cOpt["tracingPropagationOption"]["maxTrace"], int)==True, "maxTrace must be an integer in input.yaml"
+        assert int(cOpt["tracingPropagationOption"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
         compileOptions.append('-maxtrace')
-        compileOptions.append(str(cOpt["tracingPropagation"]["maxTrace"]))
-    else:
-      print ("\n\nERROR: Must supply an outputFileName field if tracingPropagation is to be done in input.yaml.")
+        compileOptions.append(str(cOpt["tracingPropagationOption"]["maxTrace"]))
 
 ################################################################################
 def _suffixOfIR():
