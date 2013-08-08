@@ -266,75 +266,76 @@ def main(args):
       if "numOfRuns" not in run["run"]:
         print ("ERROR: Must include a run number per fi config in input.yaml.")
         exit(1)
-      else:
-        run_number=run["run"]["numOfRuns"]
-        checkValues("run_number", run_number)
 
-        #write new fi config file according to input.yaml
-        fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
+      run_number=run["run"]["numOfRuns"]
+      checkValues("run_number", run_number)
+
+      #write new fi config file according to input.yaml
+      fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
+      if "fi_type" in run["run"]:
+        fi_type=run["run"]["fi_type"]
+        checkValues("fi_type",fi_type)
+      if "fi_cycle" in run["run"]:
+        fi_cycle=run["run"]["fi_cycle"]
+        checkValues("fi_cycle",fi_cycle)
+      if "fi_index" in run["run"]:
+        fi_index=run["run"]["fi_index"]
+        checkValues("fi_index",fi_index)
+      if "fi_reg_index" in run["run"]:
+        fi_reg_index=run["run"]["fi_reg_index"]
+        checkValues("fi_reg_index",fi_reg_index)
+      if "fi_bit" in run["run"]:
+        fi_bit=run["run"]["fi_bit"]
+        checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
+
+      if (not fi_cycle) and fi_index:
+        print ("\nINFO: You choose to inject faults based on LLFI index, "
+               "this will inject into every runtime instruction whose LLFI "
+               "index is %d\n" % fi_index)
+
+      need_to_calc_fi_cycle = True
+      if fi_cycle or fi_index:
+        need_to_calc_fi_cycle = False
+
+
+      # fault injection
+      for index in range(0, run_number):
+        run_id = str(ii)+"-"+str(index)
+        outputfile = stddir + "/std_outputfile-" + "run-"+run_id
+        errorfile = errordir + "/errorfile-" + "run-"+run_id
+        execlist = [fi_exe]
+
+        if need_to_calc_fi_cycle:
+          fi_cycle=random.randint(0, int(totalcycles) - 1)
+
         ficonfig_File = open("llfi.config.fi.txt", 'w')
-        if "fi_type" in run["run"]:
-          fi_type=run["run"]["fi_type"]
-          checkValues("fi_type",fi_type)
-          ficonfig_File.write("fi_type="+str(fi_type)+'\n')
-        if "fi_cycle" in run["run"]:
-          fi_cycle=run["run"]["fi_cycle"]
-          checkValues("fi_cycle",fi_cycle)
+        if fi_cycle:
           ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
-        if "fi_index" in run["run"]:
-          fi_index=run["run"]["fi_index"]
-          checkValues("fi_index",fi_index)
+        elif fi_index:
           ficonfig_File.write("fi_index="+str(fi_index)+'\n')
-        if "fi_reg_index" in run["run"]:
-          fi_reg_index=run["run"]["fi_reg_index"]
-          checkValues("fi_reg_index",fi_reg_index)
+
+        if fi_type:
+          ficonfig_File.write("fi_type="+fi_type+'\n')
+        if fi_reg_index:
           ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
-        if "fi_bit" in run["run"]:
-          fi_bit=run["run"]["fi_bit"]
-          checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
+        if fi_bit:
           ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
         ficonfig_File.close()
 
-        # fault injection
-        for index in range(0, run_number):
-          run_id = str(ii)+"-"+str(index)
-          outputfile = stddir + "/std_outputfile-" + "run-"+run_id
-          errorfile = errordir + "/errorfile-" + "run-"+run_id
-          execlist = [fi_exe]
-
-          if fi_cycle:
-            #Do nothing, fi_cycle is already storing user input specific cycle
-            pass
-          else:
-            #Create a new random fi_cycle in llfi.config.fi.txt for each run
-            fi_cycle=random.randint(0, int(totalcycles) - 1)#randomly choose cycle if it isnt specified
-            ficonfig_File = open("llfi.config.fi.txt", 'w')
-            ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
-            if fi_type:
-              ficonfig_File.write("fi_type="+fi_type+'\n')
-            if fi_index:
-              ficonfig_File.write("fi_index="+str(fi_index)+'\n')
-            if fi_reg_index:
-              ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
-            if fi_bit:
-              ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
-            fi_cycle=''
-            ficonfig_File.close()
-
-          execlist.extend(optionlist)
-          ret = execute(execlist)
-          if ret == "timed-out":
-            error_File = open(errorfile, 'w')
-            error_File.write("Program hang\n")
-            error_File.close()
-          elif int(ret) < 0:
-            error_File = open(errorfile, 'w')
-            error_File.write("Program crashed, terminated by the system, return code " + ret + '\n')
-            error_File.close()
-          elif int(ret) > 0:
-            error_File = open(errorfile, 'w')
-            error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
-            error_File.close()
+        execlist.extend(optionlist)
+        ret = execute(execlist)
+        if ret == "timed-out":
+          error_File = open(errorfile, 'w')
+          error_File.write("Program hang\n")
+          error_File.close()
+        elif int(ret) < 0:
+          error_File = open(errorfile, 'w')
+          error_File.write("Program crashed, terminated by the system, return code " + ret + '\n')
+          error_File.close()
+        elif int(ret) > 0:
+          error_File = open(errorfile, 'w')
+          error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
+          error_File.close()
 
 ################################################################################
 

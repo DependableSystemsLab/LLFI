@@ -197,7 +197,9 @@ def readCompileOption():
         exit(1)
       else:
         compileOptions.append('-fiinstselectorname='+cOpt["customInstSelector"])
-
+        if "customInstSelectorOption" in cOpt:
+          for opt in cOpt["customInstSelectorOption"]:
+            compileOptions.append(opt)
     else:
       print ("\n\nERROR: Unknown Instruction selection method in input.yaml.\n")
       exit(1)
@@ -224,6 +226,9 @@ def readCompileOption():
         exit(1)
       else:
           compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
+          if "customRegSelectorOption" in cOpt:
+            for opt in cOpt["customRegSelectorOption"]:
+              compileOptions.append(opt)
 
     else:
       print ("\n\nERROR: Unknown Register selection method in input.yaml.\n")
