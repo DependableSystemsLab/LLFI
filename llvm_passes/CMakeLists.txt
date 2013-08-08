@@ -15,4 +15,5 @@ add_llvm_loadable_module(llfi-passes
   reglocbasedfiregselector.cpp
   samplefiinstselector.cpp
   samplefiregselector.cpp
+  LLFIIndexFIInstSelector.cpp
 )
