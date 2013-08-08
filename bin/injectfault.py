@@ -93,13 +93,14 @@ def checkInputYaml():
 
 ################################################################################
 def config():
-  global inputdir, outputdir, errordir, stddir
+  global inputdir, outputdir, errordir, stddir, llfi_stat_dir
   # config
   llfi_dir = os.path.dirname(fi_exe)
   inputdir = os.path.join(llfi_dir, "prog_input")
   outputdir = os.path.join(llfi_dir, "prog_output")
   errordir = os.path.join(llfi_dir, "error_output")
   stddir = os.path.join(llfi_dir, "std_output")
+  llfi_stat_dir = os.path.join(llfi_dir, "llfi_stat_output")
 
   if not os.path.isdir(outputdir):
     os.mkdir(outputdir)
@@ -109,6 +110,8 @@ def config():
     os.mkdir(inputdir)
   if not os.path.isdir(stddir):
     os.mkdir(stddir)
+  if not os.path.isdir(llfi_stat_dir):
+    os.mkdir(llfi_stat_dir)
 
 
 ################################################################################
@@ -168,7 +171,10 @@ def moveOutput():
         flds = each.split(".")
         newName = '.'.join(flds[0:-1])
         newName+='.'+run_id+'.'+flds[-1]
-        os.rename(each, os.path.join(outputdir, newName))
+        if newName.startswith("llfi"):
+          os.rename(each, os.path.join(llfi_stat_dir, newName))
+        else:
+          os.rename(each, os.path.join(outputdir, newName))
 
 ################################################################################
 def dirSnapshot():
@@ -220,7 +226,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
     if runOverride:
       pass
     elif var1 > 1 and (var2 or var3) and var4:
-      user_input = raw_input("\nWARNING. Injecting into the same cycle(index), bit multiple times "+
+      user_input = raw_input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
                   "is redundant as it would yield the same result."+
                   "\nTo turn off this warning, please see Readme "+
                   "for kernel mode.\nDo you wish to continue anyway? (Y/N)\n ")

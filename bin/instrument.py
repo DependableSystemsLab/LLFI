@@ -242,6 +242,10 @@ def readCompileOption():
   
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
+    print ("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
+           "The generate executables will be able to output dynamic values for instructions. "
+           "However, the executables take longer time to execute. If you don't want the trace, "
+           "please disable the option and re-run %s." %prog)
     compileOptions.append('-insttracepass')
     if 'tracingPropagationOption' in cOpt:
       if "debugTrace" in cOpt["tracingPropagationOption"]:
