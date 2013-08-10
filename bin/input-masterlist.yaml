@@ -6,7 +6,7 @@ timeOut: 1000
 compileOption:
     instSelMethod: custominstselector/insttype
     include: 
-        - br         ###(see all posible names in instructions.def)
+        - br         ###(see all posible names in instructions.def). For include, you can also specify 'all'
         - sub
         - switch
     exclude:
@@ -19,12 +19,13 @@ compileOption:
     customRegSelector: onlyconstint
 
     includeInjectionTrace: 
-        - forward
-        - backward
+        - forward # include forward trace of the selected instructions into fault injection targets
+        - backward # include forward trace of the selected instructions into fault injection targets
 
-    tracingPropagation:
-        outputFileName: tracingOutput.txt
-        maxTrace: 250
+    tracingPropagation: True # trace dynamic instruction values.
+
+    tracingPropagationOption:
+        maxTrace: 250 # max number of instructions to trace during fault injection run
         debugTrace: True/False
 
 runOption:

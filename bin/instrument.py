@@ -35,7 +35,7 @@ import llvm_paths
 optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
 llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
 llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
 prog = os.path.basename(sys.argv[0])
 basedir = os.getcwd()
@@ -325,6 +325,8 @@ def compileProg():
       liblist.extend(["-L", lib_dir])
     for lib in options["l"]:
       liblist.append("-l" + lib)
+    liblist.append("-Wl,-rpath")
+    liblist.append(llfilinklib)
 
     if retcode == 0:
       execlist = [llvmgcc, '-o', proffile + '.exe', proffile + '.o', '-L'+llfilinklib , '-lllfi-rt']
