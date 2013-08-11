@@ -92,7 +92,7 @@ def checkEnviroment():
   if not (os.path.exists(required_configs['LLVM_DST_ROOT']) and
           os.path.exists(required_configs['LLVM_SRC_ROOT']) and
           os.path.exists(os.path.join(required_configs['LLVM_DST_ROOT'], "bin"))):
-    print >> sys.stderr, "ERROR: The specified -LLVM_DST_ROOT or -LLVM_SRC_ROOT is invalid\n"
+    print >> sys.stderr, "ERROR: The specified -LLVM_DST_ROOT or -LLVM_SRC_ROOT is invalid. Make sure -LLVM_DST_ROOT is built with CMake. See how to build LLVM with CMake on http://llvm.org\n"
     has_error = True
 
   if os.path.exists(required_configs['LLFI_BUILD_ROOT']):
