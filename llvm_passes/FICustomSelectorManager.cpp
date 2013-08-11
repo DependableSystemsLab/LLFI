@@ -1,8 +1,8 @@
 #include "llvm/Support/raw_ostream.h"
 
-#include "fiinstselector.h"
-#include "firegselector.h"
-#include "ficustomselectormanager.h"
+#include "FIInstSelector.h"
+#include "FIRegSelector.h"
+#include "FICustomSelectorManager.h"
 
 namespace llfi {
 

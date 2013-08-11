@@ -2,7 +2,7 @@
 #define INST_TYPE_FI_INST_SELECTOR_H
 #include <set>
 
-#include "fiinstselector.h"
+#include "FIInstSelector.h"
 
 using namespace llvm;
 namespace llfi {

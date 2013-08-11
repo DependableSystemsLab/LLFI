@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
-#include "faultinjector.h"
-#include "faultinjectormanager.h"
+#include "FaultInjector.h"
+#include "FaultInjectorManager.h"
 
 FaultInjectorManager *FaultInjectorManager::getFaultInjectorManager() {
   static FaultInjectorManager fi_manager;

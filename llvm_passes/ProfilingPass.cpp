@@ -23,9 +23,9 @@
 #include <map>
 #include <vector>
 
-#include "profilingpass.h"
-#include "controller.h"
-#include "utils.h"
+#include "ProfilingPass.h"
+#include "Controller.h"
+#include "Utils.h"
 
 using namespace llvm;
 

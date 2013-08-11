@@ -4,7 +4,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "firegselector.h"
+#include "FIRegSelector.h"
 
 using namespace llvm;
 

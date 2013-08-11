@@ -1,4 +1,4 @@
-#include "reglocbasedfiregselector.h"
+#include "RegLocBasedFIRegSelector.h"
 
 namespace llfi {
 

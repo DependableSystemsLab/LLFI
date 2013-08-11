@@ -24,9 +24,9 @@
 
 #include <vector>
 
-#include "faultinjectionpass.h"
-#include "controller.h"
-#include "utils.h"
+#include "FaultInjectionPass.h"
+#include "Controller.h"
+#include "Utils.h"
 
 namespace llfi {
 

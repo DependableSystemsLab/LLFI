@@ -27,7 +27,7 @@ Author: Sam Coulter
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Target/TargetData.h"
 
-#include "utils.h"
+#include "Utils.h"
 
 using namespace llvm;
 

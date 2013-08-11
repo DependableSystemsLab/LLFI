@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils.h"
+#include "Utils.h"
 
 //Open a file (once) for writing. This file is not explicitly closed, must flush often!
 static FILE* ofile = NULL;

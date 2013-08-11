@@ -1,7 +1,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 
-#include "fiinstselector.h"
+#include "FIInstSelector.h"
 
 namespace llfi {
 void FIInstSelector::getFIInsts(Module &M, std::set<Instruction*> *fiinsts) {

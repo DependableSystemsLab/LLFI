@@ -4,7 +4,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Instruction.h"
 
-#include "utils.h"
+#include "Utils.h"
 
 using namespace llvm;
 namespace llfi {

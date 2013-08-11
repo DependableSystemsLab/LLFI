@@ -1,8 +1,8 @@
 #ifndef REGLOC_BASED_FI_REG_SELECTOR_H
 #define REGLOC_BASED_FI_REG_SELECTOR_H
 
-#include "controller.h"
-#include "firegselector.h"
+#include "Controller.h"
+#include "FIRegSelector.h"
 namespace llfi {
 class RegLocBasedFIRegSelector: public FIRegSelector {
  public:

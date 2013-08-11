@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "utils.h"
+#include "Utils.h"
 
 int start_tracing_flag = TRACING_GOLDEN_RUN; //for instTraceLib: initialized to Golden Run setting
 
@@ -13,7 +13,7 @@ void getOpcodeExecCycleArray(const unsigned len, int *arr) {
 #define HANDLE_INST(N, OPC, CLASS, CYCLE) \
   assert (N < len && "opcode execution cycle array too small");\
   arr[N] = CYCLE;
-#include "instruction.def"
+#include "Instruction.def"
 }
 
 

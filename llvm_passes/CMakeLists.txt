@@ -2,18 +2,18 @@ include(../config/llvm_passes.cmake)
 
 
 add_llvm_loadable_module(llfi-passes
-  faultinjectionpass.cpp
-  instTrace.cpp
-  utils.cpp
-  controller.cpp
-  ficustomselectormanager.cpp
-  fiinstselector.cpp
-  firegselector.cpp
-  genllfiindexpass.cpp
-  profilingpass.cpp
-  insttypefiinstselector.cpp
-  reglocbasedfiregselector.cpp
-  samplefiinstselector.cpp
-  samplefiregselector.cpp
+  FaultInjectionPass.cpp
+  InstTrace.cpp
+  Utils.cpp
+  Controller.cpp
+  FICustomSelectorManager.cpp
+  FIInstSelector.cpp
+  FIRegSelector.cpp
+  GenLLFIIndexPass.cpp
+  ProfilingPass.cpp
+  InstTypeFIInstSelector.cpp
+  RegLocBasedFIRegSelector.cpp
+  SampleFIInstSelector.cpp
+  SampleFIRegSelector.cpp
   LLFIIndexFIInstSelector.cpp
 )

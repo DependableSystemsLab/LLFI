@@ -1,7 +1,7 @@
 #include "llvm/Instructions.h"
 
-#include "fiinstselector.h"
-#include "ficustomselectormanager.h"
+#include "FIInstSelector.h"
+#include "FICustomSelectorManager.h"
 
 using namespace llvm;
 

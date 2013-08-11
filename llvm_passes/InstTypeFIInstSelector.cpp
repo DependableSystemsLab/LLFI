@@ -1,6 +1,6 @@
 #include "llvm/Instructions.h"
 
-#include "insttypefiinstselector.h"
+#include "InstTypeFIInstSelector.h"
 
 
 namespace llfi {

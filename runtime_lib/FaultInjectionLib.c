@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include <assert.h>
-#include "utils.h"
+
+#include "Utils.h"
 #define OPTION_LENGTH 512
 
 static long long curr_cycle = 0;

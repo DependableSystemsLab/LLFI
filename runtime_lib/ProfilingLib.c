@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "utils.h"
+#include "Utils.h"
 
 static long long opcodecount[OPCODE_CYCLE_ARRAY_LEN] = {0};
 

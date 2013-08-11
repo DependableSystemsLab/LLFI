@@ -3,13 +3,13 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include "controller.h"
-#include "ficustomselectormanager.h"
-#include "utils.h"
-#include "fiinstselector.h"
-#include "insttypefiinstselector.h"
-#include "firegselector.h"
-#include "reglocbasedfiregselector.h"
+#include "Controller.h"
+#include "FICustomSelectorManager.h"
+#include "Utils.h"
+#include "FIInstSelector.h"
+#include "InstTypeFIInstSelector.h"
+#include "FIRegSelector.h"
+#include "RegLocBasedFIRegSelector.h"
 
 using namespace llvm;
 

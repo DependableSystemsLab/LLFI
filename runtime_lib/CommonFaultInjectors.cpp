@@ -1,5 +1,5 @@
-#include "faultinjector.h"
-#include "faultinjectormanager.h"
+#include "FaultInjector.h"
+#include "FaultInjectorManager.h"
 
 class BitFlipFI: public FaultInjector {
  public:

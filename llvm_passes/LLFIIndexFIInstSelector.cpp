@@ -1,9 +1,9 @@
 #include "llvm/Instructions.h"
 #include "llvm/Support/CommandLine.h"
 
-#include "fiinstselector.h"
-#include "ficustomselectormanager.h"
-#include "utils.h"
+#include "FIInstSelector.h"
+#include "FICustomSelectorManager.h"
+#include "Utils.h"
 
 using namespace llvm;
 

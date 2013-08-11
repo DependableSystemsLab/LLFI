@@ -2,8 +2,8 @@
 #include "llvm/Instruction.h"
 #include "llvm/Constants.h"
 
-#include "firegselector.h"
-#include "ficustomselectormanager.h"
+#include "FIRegSelector.h"
+#include "FICustomSelectorManager.h"
 
 namespace llfi {
 
