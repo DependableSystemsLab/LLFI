@@ -3,7 +3,7 @@ include(../config/llvm_passes.cmake)
 
 add_llvm_loadable_module(llfi-passes
   FaultInjectionPass.cpp
-  InstTrace.cpp
+  InstTracePass.cpp
   Utils.cpp
   Controller.cpp
   FICustomSelectorManager.cpp
