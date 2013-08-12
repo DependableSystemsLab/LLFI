@@ -19,6 +19,8 @@
 
 #include "utils.h"
 
+#define DATADEPCOLOUR "blue"
+
 using namespace llvm;
 
 namespace llfi {
@@ -37,12 +39,16 @@ instNode::instNode(Instruction *target) {
 	std::stringstream nodeName;
 	std::string bbname = target->getParent()->getName().str();
 	std::string funcName = target->getParent()->getParent()->getNameStr();
-	//nodeName << funcName << "_" << bbname << "_" << target->getOpcodeName() << "_";
 	nodeName <<	"llfiID_" << llfiID;
 	name = nodeName.str();
 
 	std::stringstream labelStream;
-	labelStream << " [shape=record,label=\"" << llfiID << "\\n" << target->getOpcodeName() << "\"]"; 
+	labelStream << " [shape=record,label=\"" << llfiID;
+	labelStream	<< "\\n" << target->getOpcodeName() << "\\n";
+	if (target->getDebugLoc().getLine()) {
+		labelStream	<< "line#: " << target->getDebugLoc().getLine();
+	}
+	labelStream	<< "\"]"; 
 	label = labelStream.str();
 }
 
@@ -159,7 +165,7 @@ virtual bool runOnFunction(Function &F) {
 							if (userValue == targetInst) {
 								instNode targetNode = searchBlock.instNodes.at(d);
 								outfs << nodeName << " -> " << targetNode.name;
-								outfs << " [color=\"red\"];\n";
+								outfs << " [color=\"" << DATADEPCOLOUR << "\"];\n";
 							}
 						}
 					}
