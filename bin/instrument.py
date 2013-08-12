@@ -333,6 +333,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
+        print "...Error compiling with " + os.path.basename(llvmgcc) + ", trying with " + os.path.basename(llvmgxx) + "." 
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
     if retcode == 0:
@@ -340,6 +341,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
+        print "...Error compiling with " + os.path.basename(llvmgcc) + ", trying " + os.path.basename(llvmgxx) + "." 
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
 
@@ -354,6 +356,8 @@ def compileProg():
                            "Please take %s and %s and generate the executables manually (linking llfi-rt "\
                            "in directory %s)." %(proffile + _suffixOfIR(), fifile + _suffixOfIR(), llfilinklib)
       sys.exit(retcode)
+    else:
+      print >> sys.stderr, "\nSucess"
 
 
 ################################################################################
