@@ -1,0 +1,179 @@
+#!/usr/bin/python
+"""
+
+Usage: %(prog)s OPTIONS
+List of options:
+-LLVM_DST_ROOT <LLVM CMake build root dir>:
+    Make sure you build LLVM with CMake and pass build root directory here
+-LLVM_SRC_ROOT <LLVM source root dir>
+-LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
+    You don't need to set it if it is in system path
+-LLFI_BUILD_ROOT <path where you want to build LLFI>
+
+
+--help(-h): show help information
+"""
+
+import sys
+import os
+import re
+import getopt
+import distutils.core
+import signal
+import subprocess
+import shutil
+import platform
+
+prog = os.path.basename(sys.argv[0])
+required_configs = {
+  "LLVM_DST_ROOT": "",
+  "LLVM_SRC_ROOT": "",
+  "LLFI_BUILD_ROOT": ""
+}
+optional_configs = {
+  "LLVM_GXX_BIN_DIR": "",
+}
+
+
+def usage(msg = None):
+  retval = 0
+  if msg is not None:
+    retval = 1
+    msg = "ERROR: " + msg
+    print >> sys.stderr, msg
+  print >> sys.stderr, __doc__ % globals()
+  sys.exit(retval)
+
+def cmd_exists(cmd):
+    return subprocess.call("type " + cmd, shell=True, 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
+def parseArgs(args):
+  global required_configs, optional_configs
+  
+  argid = 0
+  while argid < len(args):
+    arg = args[argid]
+    if arg.startswith("-"):
+      if arg[1:] in required_configs:
+        argid += 1
+        required_configs[arg[1:]] = args[argid]
+      elif arg[1:] in optional_configs:
+        argid += 1
+        optional_configs[arg[1:]] = args[argid]
+      elif arg == "--help" or arg == "-h":
+        usage()
+      else:
+        usage("Invalid argument: " + arg)
+    else:
+      usage("Invalid argument: " + arg)
+    argid += 1
+  
+  missing_required_configs = []
+  for config in required_configs:
+    if required_configs[config] == "":
+      missing_required_configs.append("-" + config)
+  if len(missing_required_configs) != 0:
+    errmsg = "The following arguments are required for building LLFI: \n"
+    for arg in missing_required_configs:
+      errmsg += "\t" + arg + "\n"
+    errmsg = errmsg.rstrip()
+    usage(errmsg)
+
+
+def checkEnviroment():
+# system
+  if sys.platform != "linux" and sys.platform != "linux2" and sys.platform != "darwin":
+    print >> sys.stderr, "ERROR: LLFI does not support your platform " + sys.platform + "\n"
+    sys.exit(1)
+
+# prerequisites
+  has_error = False
+  if not (os.path.exists(required_configs['LLVM_DST_ROOT']) and
+          os.path.exists(required_configs['LLVM_SRC_ROOT']) and
+          os.path.exists(os.path.join(required_configs['LLVM_DST_ROOT'], "bin"))):
+    print >> sys.stderr, "ERROR: The specified -LLVM_DST_ROOT or -LLVM_SRC_ROOT is invalid. Make sure -LLVM_DST_ROOT is built with CMake. See how to build LLVM with CMake on http://llvm.org\n"
+    has_error = True
+
+  if os.path.exists(required_configs['LLFI_BUILD_ROOT']):
+    print >> sys.stderr, "ERROR: LLFI build directory already exists!\n"
+    has_error = True
+
+  llvmgcc = "llvm-gcc"
+  if optional_configs['LLVM_GXX_BIN_DIR'] != "":
+    llvmgcc = os.path.join(optional_configs['LLVM_GXX_BIN_DIR'], llvmgcc)
+  if not cmd_exists(llvmgcc):
+    print >> sys.stderr, ("ERROR: Cannot find llvm-gcc. Make sure you have installed "
+                          "it, and make it available to LLFI by either adding it to "
+                          "system path or passing its directory to -LLVM_GXX_BIN_DIR\n")
+    has_error = True
+
+  if not cmd_exists("cmake"):
+    print >> sys.stderr, "ERROR: You need to install CMake before build LLFI.\n"
+    has_error = True
+  elif not os.path.exists(os.path.join(required_configs['LLVM_DST_ROOT'], 
+                                       "share/llvm/cmake")):
+    print >> sys.stderr, ("ERROR: You need to pass LLVM CMake build root "
+                          "directory to -LLVM_DST_ROOT. See how to build LLVM "
+                          "with CMake on http://llvm.org\n")
+    has_error = True
+
+  try:
+    import yaml
+  except:
+    print >> sys.stderr, ("ERROR: You need to install Python Yaml module "
+                          "before building LLFI.\n")
+    has_error = True
+
+  if has_error:
+    print >> sys.stderr, "Please fix the above error(s) before building LLFI."
+    sys.exit(1)
+
+
+
+def build():
+# create config files
+  script_path = os.path.realpath(os.path.dirname(__file__))
+  llvm_paths_cmake = os.path.join(script_path, "config/llvm_paths.cmake")
+  llvm_paths_py = os.path.join(script_path, "config/llvm_paths.py")
+  
+  cmake_File = open(llvm_paths_cmake, "w")
+  LLVM_DST_ROOT = os.path.realpath(required_configs['LLVM_DST_ROOT'])
+  LLVM_SRC_ROOT = os.path.realpath(required_configs['LLVM_SRC_ROOT'])
+  if optional_configs['LLVM_GXX_BIN_DIR'] != "":
+    LLVM_GXX_BIN_DIR = os.path.realpath(optional_configs['LLVM_GXX_BIN_DIR'])
+  else:
+    LLVM_GXX_BIN_DIR = ""
+
+  cmake_File.write("set(LLVM_DST_ROOT " + LLVM_DST_ROOT + ")\n")
+  cmake_File.write("set(LLVM_SRC_ROOT " + LLVM_SRC_ROOT + ")\n")
+  cmake_File.close()
+
+  py_File = open(llvm_paths_py, "w")
+  py_File.write("LLVM_DST_ROOT = " + '"' + LLVM_DST_ROOT + '"\n')
+  py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
+  py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
+  py_File.close()
+
+
+# build
+  LLFI_BUILD_DIR = os.path.realpath(required_configs['LLFI_BUILD_ROOT'])
+  os.makedirs(LLFI_BUILD_DIR)
+  os.chdir(LLFI_BUILD_DIR)
+  p = subprocess.call(["cmake", script_path])
+  if p != 0:
+    sys.exit(p)
+
+  p = subprocess.call("make")
+  if p != 0:
+    sys.exit(p)
+
+
+def main(args):
+  parseArgs(args)
+  checkEnviroment()
+  build()
+
+	
+if __name__=="__main__":
+  main(sys.argv[1:])

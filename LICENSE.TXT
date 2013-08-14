@@ -4,7 +4,7 @@ LLFI Release License
 University of Illinois/NCSA
 Open Source License
 
-Copyright (c) 2012-2020 University of British Columbia.
+Copyright (c) 2012-2013 University of British Columbia.
 All rights reserved.
 
 Developed by:
@@ -29,8 +29,8 @@ so, subject to the following conditions:
       this list of conditions and the following disclaimers in the
       documentation and/or other materials provided with the distribution.
 
-    * Neither the names of the LLVM Team, University of Illinois at
-      Urbana-Champaign, nor the names of its contributors may be used to
+    * Neither the names of the LLFI Team, The University of British Columbia, 
+      nor the names of its contributors may be used to
       endorse or promote products derived from this Software without specific
       prior written permission.
 

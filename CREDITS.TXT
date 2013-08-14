@@ -15,3 +15,11 @@ D: Provider of initial code and ideas
 N: Qining Lu
 D: Documented README file and examples, add argument-wise injection feature. 
  
+N: Jiesheng Wei
+D: Focused on the restructured LLFI. Coded for the passes and modified the scripts.
+
+N: Kevin Cho
+D: Coded for the scripts
+
+N: Sam Coulter
+D: Coded for the fault propagation tracing functionality
