@@ -25,18 +25,14 @@ def traceUnion(argv, output=0):
   i = 0
   x = 1
   length = len(reps)
-  print "length ", len(reps)
   while i < length:
     while x < length:
       if reps[i].faultID == reps[x].faultID:
         reps[i].union(reps[x])
         reps.pop(x)
         length = len(reps)
-        print "length ", len(reps)
       x += 1
     i += 1
-
-
 
   for rep in reps:
     print rep.report()
