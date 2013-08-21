@@ -1,5 +1,13 @@
 #!/usr/bin/python
 
+#traceOntoGraph.py
+#Author: Sam Coulter
+#This script will take 1 trace Union file as input, and 1 llfi program dot graph
+#it will apply the tracing information to the graph so that fault injected instructions
+#are bordered in red, and fault affected instructions have a yellow fill
+#Usage:
+#     ./traceOntoGraph.py myTraceReportFile myProgramGraph.dot > myNewGraph.dot
+
 import sys
 import os
 import glob
