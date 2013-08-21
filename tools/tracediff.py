@@ -12,7 +12,6 @@
 
 import sys
 import os
-import subprocess
 import glob
 
 class diffLine:
@@ -71,8 +70,9 @@ def traceDiff(argv, output = 0):
   goldInjectedLine = diffLine(goldTraceLines[0])
   faultInjectedLine = diffLine(faultyTraceLines[0])
   diffID = goldInjectedLine.ID
-  print "#Fault at instruction number: ", faultyTraceStartPoint
-  print "#", goldInjectedLine.raw, "/", faultInjectedLine.Value
+  print "#FaultReport"
+  print "1 @", faultyTraceStartPoint
+  print goldInjectedLine.raw, "/", faultInjectedLine.Value
 
   #remove the fault injected lines
   goldTraceLines.pop(0)
@@ -101,21 +101,13 @@ def traceDiff(argv, output = 0):
     if lenFT-i < 0 or lenGT-i < 0:
       break
 
-  if lenFT-i > 0:
-    faultyFlow = "Fault Flow: "
-    for line in faultyTraceLines:
-      faultyFlow += " " + str(diffLine(line).ID)
-    if postDiffID >= 0:
-      faultyFlow += " ->" + str(postDiffID)
-    print faultyFlow
-
-  if lenGT-i > 0:
-    goldFlow = "Gold Flow: "
-    for line in goldTraceLines:
-        goldFlow += " " + str(diffLine(line).ID)
-    if postDiffID >= 0:
-        goldFlow = " ->" + str(postDiffID)
-    print goldFlow
+  faultyFlow = "Fault Flow:"
+  faultyFlow += " " + str(diffID)
+  for line in faultyTraceLines:
+    faultyFlow += " " + str(diffLine(line).ID)
+  if postDiffID >= 0:
+    faultyFlow += " ->" + str(postDiffID)
+  print faultyFlow
 
   #restore stdout
   sys.stdout = oldSTDOut
