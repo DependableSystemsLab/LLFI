@@ -106,7 +106,7 @@ def traceDiff(argv, output = 0):
   for line in faultyTraceLines:
     faultyFlow += " " + str(diffLine(line).ID)
   if postDiffID >= 0:
-    faultyFlow += " ->" + str(postDiffID)
+    faultyFlow += " " + str(postDiffID)
   print faultyFlow
 
   #restore stdout

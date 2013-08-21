@@ -35,7 +35,7 @@ class faultReport:
 			print "ERROR: Not a properly formed faultReport"
 
 	def union(self, other):
-		if self.instNumber == other.instNumber:
+		if self.faultID == other.faultID:
 			self.faultCount += other.faultCount
 			self.faultFlows.extend(other.faultFlows)
 			self.faultValues.extend(other.faultValues)
@@ -53,13 +53,24 @@ class faultReport:
 		lines.extend(self.faultFlows)
 		return '\n'.join(lines)
 
+	def getAffectedSet(self):
+		affectedInsts = set()
+		for flow in self.faultFlows:
+			flow = flow[11:] #Remove "Fault Flow: " from start of line
+			flow = flow.split()
+			for inst in flow:
+				affectedInsts.add(int(inst))
+		if (int(self.faultID) in affectedInsts):
+			affectedInsts.remove(int(self.faultID))
+		return affectedInsts
+
 
 def parseFaultReportsfromFile(target):
 	reports = []
 	reportFile = open(target, 'r')
 	fileLines = reportFile.readlines()
 
-	#Remove blank lines from file
+	#Remove blank lines from list
 	i = 0
 	length = len(fileLines)
 	while i < length:
@@ -71,12 +82,13 @@ def parseFaultReportsfromFile(target):
 	#Parse the faultReports
 	i = 0
 	fileLineCount = len(fileLines)
+	
 	while (i < fileLineCount):
-		temp = []
 		if "#FaultReport" in fileLines[i]:
+			temp = []
 			temp.append(fileLines[i])
 			i += 1
-			while (fileLines[i] != "#FaultReport"):
+			while ("#FaultReport" not in fileLines[i]):
 				temp.append(fileLines[i])
 				i += 1
 				if i >= fileLineCount:
