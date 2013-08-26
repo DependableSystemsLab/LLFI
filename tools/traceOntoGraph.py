@@ -13,6 +13,9 @@ import os
 import glob
 from traceTools import *
 
+AFFECTED_FILL_COLOR = "yellow"
+FAULT_INJECTED_BORDER_COLOR = "red"
+
 def traceOntoGraph(traceFile, graphFile, output=0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
@@ -30,11 +33,12 @@ def traceOntoGraph(traceFile, graphFile, output=0):
     for i in range(len(graphLines)):
       if ("llfiID_" + str(rep.faultID) + " [shape") in graphLines[i]:
         graphLines[i] = graphLines[i][:-3]
-        graphLines[i] = graphLines[i] + ", color=\"red\"];\n"
+        graphLines[i] = graphLines[i] + ", color=\""+FAULT_INJECTED_BORDER_COLOR+"\"];\n"
       for x in affectedInsts:
         if ("llfiID_" + str(x) + " [shape") in graphLines[i]:
           graphLines[i] = graphLines[i][:-3]
-          graphLines[i] = graphLines[i] + ", style=\"filled\", fillcolor=\"yellow\"];\n"
+          graphLines[i] = graphLines[i] + ", style=\"filled\", fillcolor=\""+AFFECTED_FILL_COLOR+\
+          "\"];\n"
 
   print ''.join(graphLines)
 

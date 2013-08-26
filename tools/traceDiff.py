@@ -13,23 +13,8 @@
 import sys
 import os
 import glob
-
-class diffLine:
-  def __init__(self, rawLine):
-    self.raw = rawLine
-    elements = str(rawLine).split()
-    #ID: 14\tOPCode: sub\tValue: 1336d337
-    assert (elements[0] in ["ID:"] and elements[2] == "OPCode:" and  \
-      elements[4] == "Value:"), "DiffLine constructor called incorrectly"
-    self.ID = int(elements[1])
-    self.OPCode = str(elements[3])
-    self.Value = str(elements[5])
-
-  def _print(self):
-    print "ID:",self.ID, "OPCode", self.OPCode, "Value:", self.Value
-
-  def __str__(self):
-    return self.raw
+import difflib
+from traceTools import *
 
 def traceDiff(argv, output = 0):
   #save stdout so we can redirect it without mangling other python scripts
@@ -64,15 +49,14 @@ def traceDiff(argv, output = 0):
       for i in range (0,faultyTraceStartPoint-1):
         goldTraceLines.pop(0)
 
-  #goldTraceLines vs faultyTraceLines
-
   #record and report the fault injected line
   goldInjectedLine = diffLine(goldTraceLines[0])
   faultInjectedLine = diffLine(faultyTraceLines[0])
   diffID = goldInjectedLine.ID
-  print "#FaultReport"
-  print "1 @", faultyTraceStartPoint
+  print "#FaultReport\n"
+  print "1 @", faultyTraceStartPoint, '\n'
   print goldInjectedLine.raw, "/", faultInjectedLine.Value
+
 
   #remove the fault injected lines
   goldTraceLines.pop(0)
@@ -101,13 +85,27 @@ def traceDiff(argv, output = 0):
     if lenFT-i < 0 or lenGT-i < 0:
       break
 
+  diff = list(difflib.unified_diff(goldTraceLines, faultyTraceLines, lineterm=''))
+
+  if (diff):
+    diff.pop(0) #Remove File Context lines from diff
+    diff.pop(0)
+
+    report = diffReport(diff, faultyTraceStartPoint)
+    report.printSummary()
+
+  
+
+
+  '''
   faultyFlow = "Fault Flow:"
   faultyFlow += " " + str(diffID)
   for line in faultyTraceLines:
-    faultyFlow += " " + str(diffLine(line).ID)
+  faultyFlow += " " + str(diffLine(line).ID)
   if postDiffID >= 0:
-    faultyFlow += " " + str(postDiffID)
+   faultyFlow += " " + str(postDiffID)
   print faultyFlow
+  '''
 
   #restore stdout
   sys.stdout = oldSTDOut
