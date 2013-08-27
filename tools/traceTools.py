@@ -172,6 +172,7 @@ class faultReport:
         if "Data" in diff:
           affectedInsts.add(int(split[3]))
         if "Ctrl" in diff:
+          if split[5] != "None"
           affectedInsts.add(int(split[5]))
     if (int(self.faultID) in affectedInsts):
       affectedInsts.remove(int(self.faultID))
