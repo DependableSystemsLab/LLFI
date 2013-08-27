@@ -184,8 +184,15 @@ class faultReport:
 
   def getAffectedEdgesSet(self):
     affectedEdges = set()
-    
 
+    i = 0
+    while i+1 < len(self.diffs):
+      csplit = self.diffs[i+1].split()
+      if "Data Diff" in self.diffs[i] and "Ctrl Diff" in self.diffs[i+1] and csplit[5] != "None":
+        dsplit = self.diffs[i].split()        
+        affectedEdges.add([int(dsplit[3]),int(csplit[5])])
+
+    return affectedEdges
 
 def parseFaultReportsfromFile(target):
   reports = []

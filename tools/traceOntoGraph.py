@@ -30,6 +30,7 @@ def traceOntoGraph(traceFile, graphFile, output=0):
 
   for rep in faultReports:
     affectedInsts = rep.getAffectedSet()
+    affectedEdges = rep.getAffectedEdgesSet()
     for i in range(len(graphLines)):
       if ("llfiID_" + str(rep.faultID) + " [shape") in graphLines[i]:
         graphLines[i] = graphLines[i][:-3]
@@ -39,6 +40,11 @@ def traceOntoGraph(traceFile, graphFile, output=0):
           graphLines[i] = graphLines[i][:-3]
           graphLines[i] = graphLines[i] + ", style=\"filled\", fillcolor=\""+AFFECTED_FILL_COLOR+\
           "\"];\n"
+      for e in  affectedEdges:
+        if ("llfiID_" + str(e[0]) + " -> " + "llfiID_" + str(e[1])) in graphLines[i]:
+        graphLines[i] = "llfiID_" + str(e[0]) + " -> " + "llfiID_" + str(e[1])+ " [color=\"red\"" \
+        + ", style=\"dashed\"];\n"
+
 
   print ''.join(graphLines)
 
