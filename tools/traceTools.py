@@ -182,6 +182,10 @@ class faultReport:
       affectedInsts.remove(int(self.faultID))
     return affectedInsts
 
+  def getAffectedEdgesSet(self):
+    affectedEdges = set()
+    
+
 
 def parseFaultReportsfromFile(target):
   reports = []

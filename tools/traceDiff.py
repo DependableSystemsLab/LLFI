@@ -84,11 +84,14 @@ def traceDiff(argv, output = 0):
     if lenFT-i < 0 or lenGT-i < 0:
       break
 
-  diff = list(difflib.unified_diff(goldTraceLines, faultyTraceLines, lineterm=''))
+  diff = list(difflib.unified_diff(goldTraceLines, faultyTraceLines, n=0, lineterm=''))
+
 
   if (diff):
     diff.pop(0) #Remove File Context lines from diff
     diff.pop(0)
+
+    #print '\n'.join(diff) #For debugging
 
     report = diffReport(diff, faultyTraceStartPoint)
     report.printSummary()
