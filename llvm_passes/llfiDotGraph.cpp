@@ -126,6 +126,35 @@ virtual bool doInitialization(Module &M) {
 }
 
 virtual bool doFinalization(Module &M) {
+	outfs << "{ rank = sink;"
+    "Legend [shape=none, margin=0, label=<"
+     "<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">"
+     " <TR>"
+     "  <TD COLSPAN=\"2\"><B>Legend</B></TD>"
+     " </TR>"
+     " <TR>"
+     "  <TD>Normal Control Flow</TD>"
+     "  <TD><FONT COLOR=\"black\"> solid arrow </FONT></TD>"
+     " </TR>"
+     " <TR>"
+     "  <TD>Data Dependancy</TD>"
+     "  <TD><FONT COLOR=\"blue\"> solid arrow </FONT></TD>"
+     " </TR>"
+     " <TR>"
+     "  <TD>Control Flow Error</TD>"
+     "  <TD><FONT COLOR=\"red\">dashed arrow </FONT></TD>"
+     " </TR>"
+     " <TR>"
+     "  <TD>Fault Affected Instruction</TD>"
+     "  <TD BGCOLOR=\"YELLOW\"></TD>"
+     " </TR>"
+     " <TR>"
+     "  <TD>Fault Injected Instruction</TD>"
+     "  <TD><FONT COLOR=\"red\"> red border </FONT></TD>"
+     " </TR>"
+     "</TABLE>"
+   ">];"
+   "}";
 	outfs << "}\n";
 	outfs.close();
 	return false;
