@@ -158,6 +158,7 @@ class faultReport:
     faultline += " Value: " + str(self.goldValue) + " / "
     for val in self.faultValues:
       faultline += " " + str(val)
+    faultline += '\n'
     lines.append(faultline)
     lines.extend(self.diffs)
     return ''.join(lines)
@@ -172,8 +173,8 @@ class faultReport:
         if "Data" in diff:
           affectedInsts.add(int(split[3]))
         if "Ctrl" in diff:
-          if split[5] != "None"
-          affectedInsts.add(int(split[5]))
+          if split[5] != "None":
+            affectedInsts.add(int(split[5]))
     if (int(self.faultID) in affectedInsts):
       affectedInsts.remove(int(self.faultID))
     return affectedInsts
