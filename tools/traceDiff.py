@@ -53,8 +53,8 @@ def traceDiff(argv, output = 0):
   goldInjectedLine = diffLine(goldTraceLines[0])
   faultInjectedLine = diffLine(faultyTraceLines[0])
   diffID = goldInjectedLine.ID
-  print "#FaultReport\n"
-  print "1 @", faultyTraceStartPoint, '\n'
+  print "#FaultReport"
+  print "1 @", faultyTraceStartPoint
   print goldInjectedLine.raw, "/", faultInjectedLine.Value
 
 
