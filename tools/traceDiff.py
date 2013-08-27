@@ -57,7 +57,6 @@ def traceDiff(argv, output = 0):
   print "1 @", faultyTraceStartPoint
   print goldInjectedLine.raw, "/", faultInjectedLine.Value
 
-
   #remove the fault injected lines
   goldTraceLines.pop(0)
   faultyTraceLines.pop(0)
@@ -93,19 +92,6 @@ def traceDiff(argv, output = 0):
 
     report = diffReport(diff, faultyTraceStartPoint)
     report.printSummary()
-
-  
-
-
-  '''
-  faultyFlow = "Fault Flow:"
-  faultyFlow += " " + str(diffID)
-  for line in faultyTraceLines:
-  faultyFlow += " " + str(diffLine(line).ID)
-  if postDiffID >= 0:
-   faultyFlow += " " + str(postDiffID)
-  print faultyFlow
-  '''
 
   #restore stdout
   sys.stdout = oldSTDOut
