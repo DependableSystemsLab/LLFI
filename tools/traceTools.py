@@ -86,7 +86,7 @@ class diffReport:
       origStart = block.origStart + self.startPoint
       newStart = block.newStart + self.startPoint
 
-      print "Diff@ inst # " + str(origStart) + "\\" + str(newStart) \
+      print "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
       + " -> inst # " + str(origStart + block.origLength) \
       + "\\" + str(newStart + block.newLength)
       block.printSummary()
@@ -137,7 +137,10 @@ class faultReport:
         if "Diff" not in lines[i]:
           break
         else:
-          self.diffs.append(lines[i])
+          string = str(lines[i])
+          if "@" in lines[i]:
+            string = "\n" + string
+          self.diffs.append(string)
         i += 1
 
     else:
