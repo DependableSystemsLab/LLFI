@@ -45,18 +45,44 @@ class diffBlock:
     print '\n'.join(self.newLines)
 
   #print the block analysis summary
-  def printSummary(self):
+  def printSummary(self, adj=0):
+    origStart = self.origStart + adj
+    newStart = self.newStart + adj
+    DataDiffs = []
+    CtrlDiffs = []
+
     for g, f in itertools.izip_longest(self.origLines, self.newLines):
+      lastdiff = "Ctrl"
       if g and f:
         if g.ID == f.ID:
-          print "Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
-          " Value: " + str(g.Value) + " \\ " + str(f.Value)
+          DataDiffs.append("Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
+          " Value: " + str(g.Value) + " \\ " + str(f.Value))
         else:
-          print "Ctrl Diff: ID: " + str(g.ID) + " \\ " + str(f.ID)
+          CtrlDiffs.append("Ctrl Diff: ID: " + str(g.ID) + " \\ " + str(f.ID))
       if g and not f:
-        print "Ctrl Diff: ID: " + str(g.ID) + " \\ None"
+        CtrlDiffs.append("Ctrl Diff: ID: " + str(g.ID) + " \\ None")
       if f and not g:
-        print "Ctrl Diff: ID: " + "None \\ " + str(f.ID)
+        CtrlDiffs.append("Ctrl Diff: ID: " + "None \\ " + str(f.ID))
+
+    DataHeader = "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
+    + " -> inst # " + str(origStart + len(DataDiffs)) \
+    + "\\" + str(newStart + len(DataDiffs))
+
+    print DataHeader
+    print '\n'.join(DataDiffs)
+
+    if len(CtrlDiffs) > 0:
+      goldCtrlStart = origStart + len(DataDiffs) 
+      faultyCtrlStart = newStart + len(DataDiffs) 
+      goldCtrlEnd = origStart + self.origLength
+      faultyCtrlEnd = newStart + self.newLength
+      CtrlHeader = "\nDiff@ inst # " + str(goldCtrlStart) + "\\" +\
+      str(faultyCtrlStart) \
+      + " -> inst # " + str(goldCtrlEnd) \
+      + "\\" + str(faultyCtrlEnd)
+
+      print CtrlHeader
+      print '\n'.join(CtrlDiffs)
 
 
 class diffReport:
@@ -83,13 +109,7 @@ class diffReport:
 
   def printSummary(self):
     for block in self.blocks:
-      origStart = block.origStart + self.startPoint
-      newStart = block.newStart + self.startPoint
-
-      print "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
-      + " -> inst # " + str(origStart + block.origLength) \
-      + "\\" + str(newStart + block.newLength)
-      block.printSummary()
+      block.printSummary(self.startPoint)
 
     
 
@@ -188,9 +208,10 @@ class faultReport:
     i = 0
     while i+1 < len(self.diffs):
       csplit = self.diffs[i+1].split()
-      if "Data Diff" in self.diffs[i] and "Ctrl Diff" in self.diffs[i+1] and csplit[5] != "None":
-        dsplit = self.diffs[i].split()        
-        affectedEdges.add([int(dsplit[3]),int(csplit[5])])
+      if "Diff@" in self.diffs[i] and "Ctrl Diff" in self.diffs[i+1] and csplit[5] != "None":
+        dsplit = self.diffs[i].split()    
+        affectedEdges.add(int(csplit[5]))
+      i += 1
 
     return affectedEdges
 

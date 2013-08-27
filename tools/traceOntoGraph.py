@@ -41,9 +41,10 @@ def traceOntoGraph(traceFile, graphFile, output=0):
           graphLines[i] = graphLines[i] + ", style=\"filled\", fillcolor=\""+AFFECTED_FILL_COLOR+\
           "\"];\n"
       for e in  affectedEdges:
-        if ("llfiID_" + str(e[0]) + " -> " + "llfiID_" + str(e[1])) in graphLines[i]:
-        graphLines[i] = "llfiID_" + str(e[0]) + " -> " + "llfiID_" + str(e[1])+ " [color=\"red\"" \
-        + ", style=\"dashed\"];\n"
+        if (" -> " + "llfiID_" + str(e)+";") in graphLines[i]:
+          graphLines[i] = graphLines[i][:-2]
+          graphLines[i] = graphLines[i] + " [color=\"red\"" \
+          + ", style=\"dashed\"];\n"
 
 
   print ''.join(graphLines)
