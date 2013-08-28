@@ -249,8 +249,6 @@ def readCompileOption():
   ###Dot Graph Generation selection
   if "generateDotGraph" in cOpt:
     options["genDotGraph"] = True
-
-
   
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
