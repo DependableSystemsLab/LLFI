@@ -120,7 +120,7 @@ llfiDotGraph() : FunctionPass(ID) {}
 
 virtual bool doInitialization(Module &M) {
 	outfs.open("llfi.stat.graph.dot", std::ios::trunc);
-	outfs << "digraph \"TestGraph\" {\n";
+	outfs << "digraph \"LLFI Program Graph\" {\n";
 	nonllfiInstIndex = 0;
 	return false;
 }
