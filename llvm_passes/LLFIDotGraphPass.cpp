@@ -119,7 +119,7 @@ int nonllfiInstIndex;
 llfiDotGraph() : FunctionPass(ID) {}
 
 virtual bool doInitialization(Module &M) {
-	outfs.open("LLFIDOTGRAPHOUTPUT.dot", std::ios::trunc);
+	outfs.open("llfi.stat.graph.dot", std::ios::trunc);
 	outfs << "digraph \"TestGraph\" {\n";
 	nonllfiInstIndex = 0;
 	return false;
