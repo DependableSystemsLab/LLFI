@@ -117,12 +117,12 @@ struct InstTrace : public FunctionPass {
         AllocaInst* ptrInst;
 	if (inst->getType() != Type::getVoidTy(context)) {
 		//insert an instruction Allocate stack memory to store/pass instruction value
-		ptrInst = new AllocaInst(inst->getType(), NULL, "", insertPoint);
+		ptrInst = new AllocaInst(inst->getType(), "", insertPoint);
 		//Insert an instruction to Store the instruction Value!
 		new StoreInst(inst, ptrInst, insertPoint);
 	}
 	else {
-		ptrInst = new AllocaInst(Type::getInt32Ty(context), NULL, "", insertPoint);
+		ptrInst = new AllocaInst(Type::getInt32Ty(context), "", insertPoint);
 		new StoreInst(ConstantInt::get(IntegerType::get(context,32), 0), 
 		ptrInst, insertPoint);
 	}
