@@ -228,7 +228,7 @@ virtual bool runOnFunction(Function &F) {
 
 //Register the pass with the llvm
 char llfiDotGraph::ID = 0;
-static RegisterPass<llfiDotGraph> X("llfiDotGraph", 
+static RegisterPass<llfiDotGraph> X("dotgraphpass", 
 	"Outputs a dot graph of instruction execution at runtime", false, false);
 
 }
