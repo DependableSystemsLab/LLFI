@@ -108,7 +108,7 @@ struct InstTrace : public FunctionPass {
   
         //Find instrumentation point for current instruction
 	Instruction *insertPoint;
-	if (inst != block->getTerminator()) {
+	if (!inst.isTerminator()) {
 		insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
 	} 
 	else {
