@@ -4,10 +4,10 @@ include(../config/copy_utils.cmake)
 
 project(tools)
 
-copy(traceDiff.py traceDiff)
-copy(traceOntoGraph.py traceOntoGraph)
-copy(traceTools.py traceTools)
-copy(traceUnion.py traceUnion)
+copy(tracediff.py tracediff)
+copy(traceontograph.py traceontograph)
+copy(tracetools.py tracetools)
+copy(traceunion.py traceunion)
 copy(compiletoIR.py compiletoIR)
 
 genCopy()
