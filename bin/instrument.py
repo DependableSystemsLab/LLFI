@@ -57,6 +57,7 @@ options = {
   "readable": False,
   "verbose": False,
   "IRonly": False,
+  "genDotGraph": False,
 }
 
 
@@ -244,6 +245,12 @@ def readCompileOption():
       else:
         print ("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n")
         exit(1)
+
+  ###Dot Graph Generation selection
+  if "generateDotGraph" in cOpt:
+    options["genDotGraph"] = True
+
+
   
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
@@ -279,10 +286,12 @@ def compileProg():
   fifile = progbin + "-faultinjection"
   tmpfiles = []
 
-  execlist = [optbin, '-load', llfilib, '-genllfiindexpass', '-o', 
+  execlist = [optbin, '-load', llfilib, '-genllfiindexpass','-o', 
               llfi_indexed_file + _suffixOfIR(), options['source']]
   if options["readable"]:
     execlist.append('-S')
+  if options["genDotGraph"]:
+    execlist.append('-dotgraphpass')
   retcode = execCompilation(execlist)
   
   if retcode == 0:
