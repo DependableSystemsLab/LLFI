@@ -139,6 +139,10 @@ def execute( execlist):
   #inputFile.close()
   print "\tParent : Child timed out. Cleaning up ... "
   p.kill()
+
+  moveOutput()
+  replenishInput()
+
   return "timed-out"
 
 ################################################################################
