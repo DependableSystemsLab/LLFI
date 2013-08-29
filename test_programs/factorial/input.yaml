@@ -12,6 +12,13 @@ compileOption:
         - forward
         - backward
 
+    tracingPropagation: True # trace dynamic instruction values.
+
+    tracingPropagationOption:
+        maxTrace: 250 # max number of instructions to trace during fault injection run
+        debugTrace: True/False
+
+    generateDotGraph: True
 
 runOption:
     - run:

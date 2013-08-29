@@ -114,12 +114,12 @@ struct InstTrace : public FunctionPass {
 	else {
 		insertPoint = inst;
 	}
-        AllocaInst* ptrInst;
-	if (inst->getType() != Type::getVoidTy(context)) {
-		//insert an instruction Allocate stack memory to store/pass instruction value
-		ptrInst = new AllocaInst(inst->getType(), "", insertPoint);
-		//Insert an instruction to Store the instruction Value!
-		new StoreInst(inst, ptrInst, insertPoint);
+  AllocaInst* ptrInst;
+  if (inst->getType() != Type::getVoidTy(context)) {
+    //insert an instruction Allocate stack memory to store/pass instruction value
+    ptrInst = new AllocaInst(inst->getType(), "", insertPoint);
+    //Insert an instruction to Store the instruction Value!
+    new StoreInst(inst, ptrInst, insertPoint);
 	}
 	else {
 		ptrInst = new AllocaInst(Type::getInt32Ty(context), "", insertPoint);
@@ -154,7 +154,13 @@ struct InstTrace : public FunctionPass {
         TargetData &td = getAnalysis<TargetData>();
         //The size must be rounded up before conversion to bytes because some data in llvm
         //can be like 6 bits if it only needs 6 bits out of an 8bit/1byte data type
-        float bitSize = (float)td.getTypeSizeInBits(inst->getType());
+        float bitSize;
+        if (inst->getType() != Type::getVoidTy(context)) {
+          bitSize = (float)td.getTypeSizeInBits(inst->getType());
+        }
+        else {
+          bitSize = 8;
+        }
         int byteSize = (int)ceil(bitSize / 8.0);
         ConstantInt* instValSize = ConstantInt::get(
                                       IntegerType::get(context, 32), byteSize);
