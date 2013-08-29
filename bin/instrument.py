@@ -246,10 +246,6 @@ def readCompileOption():
         print ("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n")
         exit(1)
 
-  ###Dot Graph Generation selection
-  if "generateDotGraph" in cOpt:
-    options["genDotGraph"] = True
-  
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
     print ("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
@@ -266,6 +262,11 @@ def readCompileOption():
         assert int(cOpt["tracingPropagationOption"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
         compileOptions.append('-maxtrace')
         compileOptions.append(str(cOpt["tracingPropagationOption"]["maxTrace"]))
+
+      ###Dot Graph Generation selection
+      if "generateCDFG" in cOpt["tracingPropagationOption"]:
+        options["genDotGraph"] = True
+  
 
 ################################################################################
 def _suffixOfIR():

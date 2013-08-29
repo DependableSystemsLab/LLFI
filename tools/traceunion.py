@@ -8,7 +8,7 @@
 #Example Usage:
 #     ./traceUnion.py file1 file2 file3 ... fileN > finalFile
 
-from traceTools import *
+from tracetools import *
 
 def traceUnion(argv, output=0):
   #save stdout so we can redirect it without mangling other python scripts
