@@ -274,8 +274,19 @@ def main(args):
       run_number=run["run"]["numOfRuns"]
       checkValues("run_number", run_number)
 
+      # reset all configurations
+      if 'fi_type' in locals():
+        del fi_type
+      if 'fi_cycle' in locals():
+        del fi_cycle
+      if 'fi_index' in locals():
+        del fi_index
+      if 'fi_reg_index' in locals():
+        del fi_reg_index
+      if 'fi_bit' in locals():
+        del fi_bit
+
       #write new fi config file according to input.yaml
-      fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
         checkValues("fi_type",fi_type)
@@ -300,7 +311,6 @@ def main(args):
       need_to_calc_fi_cycle = True
       if ('fi_cycle' in locals()) or 'fi_index' in locals():
         need_to_calc_fi_cycle = False
-
 
       # fault injection
       for index in range(0, run_number):
