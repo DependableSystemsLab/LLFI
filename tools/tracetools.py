@@ -64,12 +64,13 @@ class diffBlock:
       if f and not g:
         CtrlDiffs.append("Ctrl Diff: ID: " + "None \\ " + str(f.ID))
 
-    DataHeader = "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
-    + " -> inst # " + str(origStart + len(DataDiffs)) \
-    + "\\" + str(newStart + len(DataDiffs))
+    if len(DataDiffs) > 0:
+      DataHeader = "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
+      + " -> inst # " + str(origStart + len(DataDiffs)) \
+      + "\\" + str(newStart + len(DataDiffs))
 
-    print DataHeader
-    print '\n'.join(DataDiffs)
+      print DataHeader
+      print '\n'.join(DataDiffs)
 
     if len(CtrlDiffs) > 0:
       goldCtrlStart = origStart + len(DataDiffs) 
