@@ -51,39 +51,68 @@ class diffBlock:
     DataDiffs = []
     CtrlDiffs = []
 
-    for g, f in itertools.izip_longest(self.origLines, self.newLines):
-      lastdiff = "Ctrl"
+    izip = itertools.izip_longest(self.origLines, self.newLines)
+    
+    instance = diffInstance(0,0,0,0)
+    for i, (g, f) in enumerate(izip):      
       if g and f:
         if g.ID == f.ID:
-          DataDiffs.append("Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
-          " Value: " + str(g.Value) + " \\ " + str(f.Value))
+          if instance.type != 1:
+            instance.summary()
+            instance = diffInstance(1, origStart, newStart, i)
+          instance.add("Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
+           " Value: " + str(g.Value) + " \\ " + str(f.Value))
+          instance.incOrigLength()
+          instance.incNewLength()
         else:
-          CtrlDiffs.append("Ctrl Diff: ID: " + str(g.ID) + " \\ " + str(f.ID))
+          if instance.type != 2:
+            instance.summary()
+            instance = diffInstance(2, origStart, newStart, i)
+          instance.add("Ctrl Diff: ID: " + str(g.ID) + " \\ " + str(f.ID))
+          instance.incOrigLength()
+          instance.incNewLength()
       if g and not f:
-        CtrlDiffs.append("Ctrl Diff: ID: " + str(g.ID) + " \\ None")
+        if instance.type != 2:
+            instance.summary()
+            instance = diffInstance(2, origStart, newStart, i)
+        instance.add("Ctrl Diff: ID: " + str(g.ID) + " \\ None")
+        instance.incOrigLength()
       if f and not g:
-        CtrlDiffs.append("Ctrl Diff: ID: " + "None \\ " + str(f.ID))
+        if instance.type != 2:
+            instance.summary()
+            instance = diffInstance(2, origStart, newStart, i)
+        instance.add("Ctrl Diff: ID: " + "None \\ " + str(f.ID))
+        instance.incNewLength()
+    instance.summary()
 
-    if len(DataDiffs) > 0:
-      DataHeader = "\nDiff@ inst # " + str(origStart) + "\\" + str(newStart) \
-      + " -> inst # " + str(origStart + len(DataDiffs)) \
-      + "\\" + str(newStart + len(DataDiffs))
+class diffInstance:
+  def __init__(self, insttype, origstart, newstart, adj):
+    self.origStart = origstart + adj
+    self.origLength = 0
+    self.origEnd = 0
+    self.newStart = newstart + adj
+    self.newLength = 0
+    self.newEnd = 0
+    self.type = insttype
+    self.lines = []
 
-      print DataHeader
-      print '\n'.join(DataDiffs)
+  def add(self, line):
+    self.lines.append(line)
 
-    if len(CtrlDiffs) > 0:
-      goldCtrlStart = origStart + len(DataDiffs) 
-      faultyCtrlStart = newStart + len(DataDiffs) 
-      goldCtrlEnd = origStart + self.origLength
-      faultyCtrlEnd = newStart + self.newLength
-      CtrlHeader = "\nDiff@ inst # " + str(goldCtrlStart) + "\\" +\
-      str(faultyCtrlStart) \
-      + " -> inst # " + str(goldCtrlEnd) \
-      + "\\" + str(faultyCtrlEnd)
+  def summary(self):
+    if len(self.lines) > 0:
+      self.origEnd = self.origStart + self.origLength
+      self.newEnd = self.newStart + self.newLength
+      print "\nDiff@ inst # " + str(self.origStart) + "\\" + str(self.newStart) \
+      + " -> inst # " + str(self.origEnd) + "\\" + str(self.newEnd)
+      print '\n'.join(self.lines)
 
-      print CtrlHeader
-      print '\n'.join(CtrlDiffs)
+  def incOrigLength(self):
+    self.origLength += 1
+
+  def incNewLength(self):
+    self.newLength += 1
+
 
 
 class diffReport:
