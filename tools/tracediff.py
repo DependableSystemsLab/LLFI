@@ -74,7 +74,8 @@ def traceDiff(argv, output = 0):
   
   i = 0
 
-  postDiffID = -1
+  if (lenGT < 0 and lenFT < 0):
+    return 0
 
   while (faultyTraceLines[lenFT-i] == goldTraceLines[lenGT-i]):
     postDiffID = diffLine(goldTraceLines[lenGT-i]).ID
@@ -85,7 +86,6 @@ def traceDiff(argv, output = 0):
       break
 
   diff = list(difflib.unified_diff(goldTraceLines, faultyTraceLines, n=0, lineterm=''))
-
 
   if (diff):
     diff.pop(0) #Remove File Context lines from diff
