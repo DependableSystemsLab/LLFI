@@ -274,8 +274,19 @@ def main(args):
       run_number=run["run"]["numOfRuns"]
       checkValues("run_number", run_number)
 
+      # reset all configurations
+      if 'fi_type' in locals():
+        del fi_type
+      if 'fi_cycle' in locals():
+        del fi_cycle
+      if 'fi_index' in locals():
+        del fi_index
+      if 'fi_reg_index' in locals():
+        del fi_reg_index
+      if 'fi_bit' in locals():
+        del fi_bit
+
       #write new fi config file according to input.yaml
-      fi_type=fi_cycle=fi_index=fi_reg_index=fi_bit=''
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
         checkValues("fi_type",fi_type)
@@ -292,15 +303,14 @@ def main(args):
         fi_bit=run["run"]["fi_bit"]
         checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
 
-      if (not fi_cycle) and fi_index:
+      if ('fi_cycle' not in locals()) and 'fi_index' in locals():
         print ("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
                "index is %d\n" % fi_index)
 
       need_to_calc_fi_cycle = True
-      if fi_cycle or fi_index:
+      if ('fi_cycle' in locals()) or 'fi_index' in locals():
         need_to_calc_fi_cycle = False
-
 
       # fault injection
       for index in range(0, run_number):
@@ -310,19 +320,19 @@ def main(args):
         execlist = [fi_exe]
 
         if need_to_calc_fi_cycle:
-          fi_cycle=random.randint(0, int(totalcycles) - 1)
+          fi_cycle = random.randint(0, int(totalcycles) - 1)
 
         ficonfig_File = open("llfi.config.fi.txt", 'w')
-        if fi_cycle:
+        if 'fi_cycle' in locals():
           ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
-        elif fi_index:
+        elif 'fi_index' in locals():
           ficonfig_File.write("fi_index="+str(fi_index)+'\n')
 
-        if fi_type:
+        if 'fi_type' in locals():
           ficonfig_File.write("fi_type="+fi_type+'\n')
-        if fi_reg_index:
+        if 'fi_reg_index' in locals():
           ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
-        if fi_bit:
+        if 'fi_bit' in locals():
           ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
         ficonfig_File.close()
 
