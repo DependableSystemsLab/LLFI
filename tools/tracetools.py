@@ -225,9 +225,9 @@ class faultReport:
         split = diff.split()
         if "Data" in diff:
           affectedInsts.add(int(split[3]))
-        if "Ctrl" in diff:
-          if split[5] != "None":
-            affectedInsts.add(int(split[5]))
+#        if "Ctrl" in diff:                   #Commenting out to remove ctrl diff
+#          if split[5] != "None":             #affected instructions from being 
+#            affectedInsts.add(int(split[5])) #coloured on the graph
     if (int(self.faultID) in affectedInsts):
       affectedInsts.remove(int(self.faultID))
     return affectedInsts
