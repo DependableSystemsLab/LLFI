@@ -14,7 +14,7 @@ import sys
 import os
 import glob
 import difflib
-from traceTools import *
+from tracetools import *
 
 def traceDiff(argv, output = 0):
   #save stdout so we can redirect it without mangling other python scripts
