@@ -11,7 +11,7 @@
 import sys
 import os
 import glob
-from traceTools import *
+from tracetools import *
 
 AFFECTED_FILL_COLOR = "yellow"
 FAULT_INJECTED_BORDER_COLOR = "red"
