@@ -7,9 +7,11 @@ import sys
 import os
 import glob
 import itertools
+import difflib
 
 class diffBlock:
   def __init__(self, lines):
+
     origHeader, newHeader = lines[0].replace('@',' ').replace('+',' ').replace('-',' ').split()
     origsplit = origHeader.split(',')
     newsplit = newHeader.split(',')
@@ -23,17 +25,17 @@ class diffBlock:
     #These lines affect the starting point of the diff header, and so their count must be added
     #to the diff start point
     for line in lines[1:]:
-      if "+ID:" not in line and "-ID" not in line:
+      if "+" not in line and "-" not in line:
         self.origStart += 1
         self.newStart += 1
       else:
         break
 
     for line in lines[1:]:
-      if "-ID: " in line:
-        self.origLines.append(diffLine(line))
-      if "+ID: " in line:
-        self.newLines.append(diffLine(line))
+      if "-" in line:
+        self.origLines.append(line)
+      if "+" in line:
+        self.newLines.append(line)
 
     self.origLength = len(self.origLines)
     self.newLength = len(self.newLines)
@@ -45,45 +47,86 @@ class diffBlock:
     print '\n'.join(self.newLines)
 
   #print the block analysis summary
-  def printSummary(self, adj=0):
+  def getSummary(self, adj=0):
     origStart = self.origStart + adj
     newStart = self.newStart + adj
     DataDiffs = []
     CtrlDiffs = []
+    instanceList = []
 
     izip = itertools.izip_longest(self.origLines, self.newLines)
     
     instance = diffInstance(0,0,0,0)
-    for i, (g, f) in enumerate(izip):      
+    for i, (g, f) in enumerate(izip): 
+      g = diffLine(g)
+      f = diffLine(f)     
       if g and f:
         if g.ID == f.ID:
           if instance.type != 1:
-            instance.summary()
+            if (instance.summary != None):
+              instanceList.append(instance.summary())
             instance = diffInstance(1, origStart, newStart, i)
           instance.add("Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
            " Value: " + str(g.Value) + " \\ " + str(f.Value))
           instance.incOrigLength()
           instance.incNewLength()
-        else:
-          if instance.type != 2:
-            instance.summary()
-            instance = diffInstance(2, origStart, newStart, i)
-          instance.add("Ctrl Diff: ID: " + str(g.ID) + " \\ " + str(f.ID))
-          instance.incOrigLength()
-          instance.incNewLength()
+    if (instance.summary != None):
+      instanceList.append(instance.summary())
+    return instanceList[1]
+
+class ctrlDiffBlock(diffBlock):
+  def getRange(self):
+    return self.origStart, self.origLength, \
+    self.newStart, self.newLength
+
+  def getSummary(self, adj=0):
+    origStart = self.origStart + adj
+    newStart = self.newStart + adj
+    DataDiffs = []
+    CtrlDiffs = []
+    instanceList = []
+
+    izip = itertools.izip_longest(self.origLines, self.newLines)
+
+    instance = diffInstance(0,0,0,0)
+    for i, (g, f) in enumerate(izip):    
+      if g and f:
+        if instance.type != 2:
+          if (instance.summary != None):
+            instanceList.append(instance.summary())
+          instance = diffInstance(2, origStart, newStart, i)
+        instance.add("Ctrl Diff: ID: " + str(g[1:]) + " \\ " + str(f[1:]))
+        instance.incOrigLength()
+        instance.incNewLength()
       if g and not f:
         if instance.type != 2:
-            instance.summary()
+            if (instance.summary != None):
+              instanceList.append(instance.summary())
             instance = diffInstance(2, origStart, newStart, i)
-        instance.add("Ctrl Diff: ID: " + str(g.ID) + " \\ None")
+        instance.add("Ctrl Diff: ID: " + str(g[1:]) + " \\ None")
         instance.incOrigLength()
       if f and not g:
         if instance.type != 2:
-            instance.summary()
+            if (instance.summary != None):
+              instanceList.append(instance.summary())
             instance = diffInstance(2, origStart, newStart, i)
-        instance.add("Ctrl Diff: ID: " + "None \\ " + str(f.ID))
+        instance.add("Ctrl Diff: ID: " + "None \\ " + str(f[1:]))
         instance.incNewLength()
-    instance.summary()
+    if (instance.summary != None):
+      instanceList.append(instance.summary())
+    return instanceList[1]
+
+def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLength)):
+  i = 0
+  nodiffLine = "ID: 0 OPCode: 0 Value: 00"
+  while (i < gLength):
+    goldenLines.pop(gStart)
+    i += 1
+  i = 0
+  while (i < fLength):
+    faultyLines.pop(fStart)
+    i += 1
+  return goldenLines, faultyLines
 
 class diffInstance:
   def __init__(self, insttype, origstart, newstart, adj):
@@ -103,9 +146,11 @@ class diffInstance:
     if len(self.lines) > 0:
       self.origEnd = self.origStart + self.origLength
       self.newEnd = self.newStart + self.newLength
-      print "\nDiff@ inst # " + str(self.origStart) + "\\" + str(self.newStart) \
-      + " -> inst # " + str(self.origEnd) + "\\" + str(self.newEnd)
-      print '\n'.join(self.lines)
+      header = "\nDiff@ inst # " + str(self.origStart) + "\\" + str(self.newStart) \
+      + " -> inst # " + str(self.origEnd) + "\\" + str(self.newEnd) + "\n"
+      return header + '\n'.join(self.lines)
+    else:
+      return None
 
   def incOrigLength(self):
     self.origLength += 1
@@ -114,20 +159,33 @@ class diffInstance:
     self.newLength += 1
 
 
-
 class diffReport:
-  def __init__(self, lines, startPoint):
+  def __init__(self, goldenLines, faultyLines, startPoint):
     self.startPoint = startPoint
     self.blocks = []
+
+    #perform ctrl diff analysis
+    goldenIDs = goldenLines[:]
+    faultyIDs = faultyLines[:]
+    goldenIDs = trimLinesToCtrlIDs(goldenIDs)
+    faultyIDs = trimLinesToCtrlIDs(faultyIDs)
+
+    ctrldiff = list(difflib.unified_diff(goldenIDs, faultyIDs, n=0, lineterm=''))
+
+    ctrldiff.pop(0)
+    ctrldiff.pop(0)
 
     i = 0
     length = 1
     start = None
     
-    while (i < len(lines)):
-      if "@@ " in lines[i]:
+    while (i < len(ctrldiff)):
+      if "@@ " in ctrldiff[i]:
         if start != None:
-          self.blocks.append(diffBlock(lines[start:start+length]))
+          cblock = ctrlDiffBlock(ctrldiff[start:start+length])
+          self.blocks.append(cblock)
+          goldenLines, faultyLines = removeRangeFromLines(goldenLines, faultyLines, \
+            cblock.getRange())
           length = 1        
         start = i
       else:
@@ -135,11 +193,47 @@ class diffReport:
       i += 1 
     #Dont forget the last block in the diff!
     if start != None:
-      self.blocks.append(diffBlock(lines[start:start+length]))
+      cblock = ctrlDiffBlock(ctrldiff[start:start+length])
+      goldenLines, faultyLines = removeRangeFromLines(goldenLines, faultyLines, \
+        cblock.getRange())
+      self.blocks.append(cblock)
+
+    datadiff = list(difflib.unified_diff(goldenLines, faultyLines, n=0, lineterm=''))
+
+    datadiff.pop(0)
+    datadiff.pop(0)
+
+    #perform data diff analysis
+    i = 0
+    length = 1
+    start = None
+    
+    while (i < len(datadiff)):
+      if "@@ " in datadiff[i]:
+        if start != None:
+          self.blocks.append(diffBlock(datadiff[start:start+length]))
+          length = 1        
+        start = i
+      else:
+        length += 1
+      i += 1 
+    #Dont forget the last block in the diff!
+    if start != None:
+      self.blocks.append(diffBlock(datadiff[start:start+length]))
+
 
   def printSummary(self):
     for block in self.blocks:
-      block.printSummary(self.startPoint)
+      print block.getSummary(self.startPoint)
+      #block.printSummary(self.startPoint)
+
+def trimLinesToCtrlIDs(lines):
+  i = 0
+  while (i < len(lines)):
+    words = lines[i].split()
+    lines[i] = words[1]
+    i += 1
+  return lines
 
     
 
