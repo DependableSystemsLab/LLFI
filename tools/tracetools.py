@@ -31,8 +31,19 @@ class diffBlock:
     self.origStart = int(origsplit[0])
     self.newStart = int(newsplit[0])
 
+    self.preDiff = None
+    self.postDiff = None
+
     self.origLines = []
     self.newLines = []
+
+    if "+" not in lines[1] and "-" not in lines[1]:
+      self.preDiff = lines.pop(1)
+      self.origStart += 1
+      self.newStart += 1
+
+    if "+" not in lines[-1] and "-" not in lines[-1]:
+      self.postDiff = lines.pop(len(lines)-1)
 
     for line in lines[1:]:
       if "-" in line:
@@ -107,7 +118,7 @@ class ctrlDiffBlock(diffBlock):
       if g and f:
         if instance.type != 2:
           if (instance.summary != None):
-            instanceList.append(instance.summary())
+            instanceList.append(instance.summary(self.preDiff, self.postDiff))
           instance = diffInstance(2, origStart, newStart, i)
         instance.add("Ctrl Diff: ID: " + str(g[1:]) + " \\ " + str(f[1:]))
         instance.incOrigLength()
@@ -115,19 +126,19 @@ class ctrlDiffBlock(diffBlock):
       if g and not f:
         if instance.type != 2:
             if (instance.summary != None):
-              instanceList.append(instance.summary())
+              instanceList.append(instance.summary(self.preDiff, self.postDiff))
             instance = diffInstance(2, origStart, newStart, i)
         instance.add("Ctrl Diff: ID: " + str(g[1:]) + " \\ None")
         instance.incOrigLength()
       if f and not g:
         if instance.type != 2:
             if (instance.summary != None):
-              instanceList.append(instance.summary())
+              instanceList.append(instance.summary(self.preDiff, self.postDiff))
             instance = diffInstance(2, origStart, newStart, i)
         instance.add("Ctrl Diff: ID: " + "None \\ " + str(f[1:]))
         instance.incNewLength()
     if (instance.summary != None):
-      instanceList.append(instance.summary())
+      instanceList.append(instance.summary(self.preDiff, self.postDiff))
     return instanceList[1]
 
 def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLength)):
@@ -187,13 +198,19 @@ class diffInstance:
   def add(self, line):
     self.lines.append(line)
 
-  def summary(self):
+  def summary(self, preDiff=None, postDiff=None):
     if len(self.lines) > 0:
       self.origEnd = self.origStart + self.origLength
       self.newEnd = self.newStart + self.newLength
       header = "\nDiff@ inst # " + str(self.origStart) + "\\" + str(self.newStart) \
       + " -> inst # " + str(self.origEnd) + "\\" + str(self.newEnd) + "\n"
-      return header + '\n'.join(self.lines)
+      if preDiff != None:
+        header += "Pre  Diff: ID: "  + str(preDiff) + "\n"
+      if postDiff != None:
+        final = header + '\n'.join(self.lines) + "\nPost Diff: ID:" + postDiff
+      else:
+        final = header + '\n'.join(self.lines)
+      return final
     else:
       return None
 
@@ -205,7 +222,8 @@ class diffInstance:
 
 
 class diffReport:
-  def __init__(self, goldenLines, faultyLines, startPoint):
+  def __init__(self, goldenLines, faultyLines, startPoint, injectedID):
+    self.injectedID = injectedID
     debug("Starting a diffReport, startpoint = " + str(startPoint))
     self.startPoint = startPoint
     self.blocks = []
@@ -216,7 +234,7 @@ class diffReport:
     goldenIDs = trimLinesToCtrlIDs(goldenIDs)
     faultyIDs = trimLinesToCtrlIDs(faultyIDs)
 
-    ctrldiff = list(difflib.unified_diff(goldenIDs[:], faultyIDs[:], n=0, lineterm=''))
+    ctrldiff = list(difflib.unified_diff(goldenIDs[:], faultyIDs[:], n=1, lineterm=''))
 
     ctrldiff.pop(0)
     ctrldiff.pop(0)
@@ -290,6 +308,8 @@ class diffReport:
     self.blocks.sort(key = lambda x: (x.getSummary(self.startPoint)).split("\n")[1].replace('\\',' ').split()[3])
 
     for block in self.blocks:
+      if block.preDiff == None:
+        block.preDiff = self.injectedID
       print block.getSummary(self.startPoint)
 
 def trimLinesToCtrlIDs(lines):
@@ -307,6 +327,7 @@ class diffLine:
     self.raw = rawLine
     elements = str(rawLine).split()
     #ID: 14\tOPCode: sub\tValue: 1336d337
+    debug("RAWLINE: " + str(rawLine), 3)
     assert (elements[0] in ["ID:","-ID:","+ID:"] and elements[2] == "OPCode:" and  \
       elements[4] == "Value:"), "DiffLine constructor called incorrectly"
     self.ID = int(elements[1])
@@ -396,10 +417,14 @@ class faultReport:
 
     i = 0
     while i+1 < len(self.diffs):
-      csplit = self.diffs[i+1].split()
-      if "Diff@" in self.diffs[i] and "Ctrl Diff" in self.diffs[i+1] and csplit[5] != "None":
-        dsplit = self.diffs[i].split()    
-        affectedEdges.add(int(csplit[5]))
+      csplit = self.diffs[i+2].split()
+      if "Diff@" in self.diffs[i] and "pre  Diff" in self.diffs[i+1]:
+        edgeStart = int(self.diffs[i+1].split()[3])
+        if csplit[5] != "None": 
+          edgeEnd = int(csplit[5])
+        elif "Post Diff" in self.diffs[-1]:
+          edgeEnd = int(self.diffs[-1].split()[3])
+        affectedEdges.add((edgeStart, edgeEnd))
       i += 1
 
     return affectedEdges
