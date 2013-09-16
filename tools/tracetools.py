@@ -9,8 +9,21 @@ import glob
 import itertools
 import difflib
 
+
+debugFlag = 0
+
+def debug(text, level=5):
+  global debugFlag
+  if debugFlag == level:
+    print text
+
+goldenRemovedCount = []
+faultyRemovedCount = []
+
 class diffBlock:
   def __init__(self, lines):
+
+    debug("\n\tCreating a diffBlock")
 
     origHeader, newHeader = lines[0].replace('@',' ').replace('+',' ').replace('-',' ').split()
     origsplit = origHeader.split(',')
@@ -21,24 +34,20 @@ class diffBlock:
     self.origLines = []
     self.newLines = []
 
-    #Sometimes the diff is printed with some context (up to 3 lines) before the diff lines
-    #These lines affect the starting point of the diff header, and so their count must be added
-    #to the diff start point
-    for line in lines[1:]:
-      if "+" not in line and "-" not in line:
-        self.origStart += 1
-        self.newStart += 1
-      else:
-        break
-
     for line in lines[1:]:
       if "-" in line:
         self.origLines.append(line)
       if "+" in line:
         self.newLines.append(line)
 
+    debug("\tDiffblock lines")
+    debug("\t" + "\n\t".join(lines))
+
     self.origLength = len(self.origLines)
     self.newLength = len(self.newLines)
+
+    debug("\t" + "\n\t".join(self.origLines))
+    debug("\t" + "\n\t".join(self.newLines))
 
   #print some info for debugging
   def printdebug(self):
@@ -65,7 +74,8 @@ class diffBlock:
           if instance.type != 1:
             if (instance.summary != None):
               instanceList.append(instance.summary())
-            instance = diffInstance(1, origStart, newStart, i)
+            instance = diffInstance(1, findAdjustedPosition(origStart, goldenRemovedCount), \
+              findAdjustedPosition(newStart, faultyRemovedCount), i)
           instance.add("Data Diff: ID: " + str(g.ID) + " OPCode: " + str(g.OPCode) + \
            " Value: " + str(g.Value) + " \\ " + str(f.Value))
           instance.incOrigLength()
@@ -76,6 +86,8 @@ class diffBlock:
 
 class ctrlDiffBlock(diffBlock):
   def getRange(self):
+    debug("Printing ctrlDiffBlock Range")
+    debug(str(self.origStart) + " " + str(self.origLength) + " " + str(self.newStart) + " " + str(self.newLength))
     return self.origStart, self.origLength, \
     self.newStart, self.newLength
 
@@ -85,6 +97,8 @@ class ctrlDiffBlock(diffBlock):
     DataDiffs = []
     CtrlDiffs = []
     instanceList = []
+
+    debug("ctrlDiffBlock getSummaryCall: " + str(adj))
 
     izip = itertools.izip_longest(self.origLines, self.newLines)
 
@@ -117,19 +131,50 @@ class ctrlDiffBlock(diffBlock):
     return instanceList[1]
 
 def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLength)):
+  global goldenRemovedCount
+  global faultyRemovedCount
+
+  debug("\n\nRemovingRangeFromLines()")
+  
   i = 0
-  nodiffLine = "ID: 0 OPCode: 0 Value: 00"
+  debug("GLen "+ str(gLength))
+  debug("GStart " + str(gStart))
   while (i < gLength):
-    goldenLines.pop(gStart)
+    goldenLines[gStart+i-1] = ""
     i += 1
+    debug(str(i))
+  goldenRemovedCount.append((gStart, gLength))
   i = 0
+  debug("FLen " +str(fLength))
+  debug("FStart " + str(fStart))
+  debug("FLines")
+  debug("\n".join(faultyLines))
   while (i < fLength):
-    faultyLines.pop(fStart)
+    faultyLines[fStart+i-1] = ""
     i += 1
+    debug(str(i))
+  faultyRemovedCount.append((fStart, fLength))
+  debug("\nGolden after removal::::")
+  debug('\n'.join(goldenLines))
+  debug("\nFaulty After removal::::")
+  debug('\n'.join(faultyLines))
   return goldenLines, faultyLines
+
+def findAdjustedPosition(position, remArray):
+  i = 0
+  while i < len(remArray):
+    location, count = remArray[i]
+    if position >= location:
+      position = position + count
+    else:
+      return position
+    i += 1
+  return position
+
 
 class diffInstance:
   def __init__(self, insttype, origstart, newstart, adj):
+    debug("\t\tCreating a diffInstance")
     self.origStart = origstart + adj
     self.origLength = 0
     self.origEnd = 0
@@ -161,6 +206,7 @@ class diffInstance:
 
 class diffReport:
   def __init__(self, goldenLines, faultyLines, startPoint):
+    debug("Starting a diffReport, startpoint = " + str(startPoint))
     self.startPoint = startPoint
     self.blocks = []
 
@@ -170,10 +216,13 @@ class diffReport:
     goldenIDs = trimLinesToCtrlIDs(goldenIDs)
     faultyIDs = trimLinesToCtrlIDs(faultyIDs)
 
-    ctrldiff = list(difflib.unified_diff(goldenIDs, faultyIDs, n=0, lineterm=''))
+    ctrldiff = list(difflib.unified_diff(goldenIDs[:], faultyIDs[:], n=0, lineterm=''))
 
     ctrldiff.pop(0)
     ctrldiff.pop(0)
+
+    debug("\n".join(ctrldiff))
+    debug("Length = " + str(len(ctrldiff)))
 
     i = 0
     length = 1
@@ -182,24 +231,38 @@ class diffReport:
     while (i < len(ctrldiff)):
       if "@@ " in ctrldiff[i]:
         if start != None:
+          debug("Calling ctrlDiffBlock constructor " + str(start) + " " + str(length))
+          debug("\n".join(ctrldiff[start:start+length]))
           cblock = ctrlDiffBlock(ctrldiff[start:start+length])
           self.blocks.append(cblock)
-          goldenLines, faultyLines = removeRangeFromLines(goldenLines, faultyLines, \
-            cblock.getRange())
-          length = 1        
-        start = i
+          length = 1 
+        start = i       
       else:
         length += 1
       i += 1 
     #Dont forget the last block in the diff!
     if start != None:
-      cblock = ctrlDiffBlock(ctrldiff[start:start+length])
-      goldenLines, faultyLines = removeRangeFromLines(goldenLines, faultyLines, \
-        cblock.getRange())
+      debug("Calling ctrlDiffBlock constructor " + str(start) + " " + str(length))
+      debug("\n".join(ctrldiff[start:start+length]))
+      cblock = ctrlDiffBlock(ctrldiff[start:start+length])     
       self.blocks.append(cblock)
 
-    datadiff = list(difflib.unified_diff(goldenLines, faultyLines, n=0, lineterm=''))
+    debug("Golden Lines:\n" + "\n".join(goldenLines))
+    debug("Faulty Lines:\n" + "\n".join(faultyLines))
 
+    debug("Removing ctrldiff ranges from lines")
+    for block in self.blocks:
+      goldenLines, faultyLines = removeRangeFromLines(goldenLines, faultyLines, \
+        block.getRange())
+      debug("Golden Lines:\n" + "\n".join(goldenLines))
+      debug("Faulty Lines:\n" + "\n".join(faultyLines))
+
+    goldenLines = filter(None, goldenLines)
+    faultyLines = filter(None, faultyLines)
+    
+    
+    datadiff = list(difflib.unified_diff(goldenLines, faultyLines, n=0, lineterm=''))
+    
     datadiff.pop(0)
     datadiff.pop(0)
 
@@ -220,12 +283,14 @@ class diffReport:
     #Dont forget the last block in the diff!
     if start != None:
       self.blocks.append(diffBlock(datadiff[start:start+length]))
-
+    
 
   def printSummary(self):
+    #Sort the list of blocks by their starting point (wrt the golden trace)
+    self.blocks.sort(key = lambda x: (x.getSummary(self.startPoint)).split("\n")[1].replace('\\',' ').split()[3])
+
     for block in self.blocks:
       print block.getSummary(self.startPoint)
-      #block.printSummary(self.startPoint)
 
 def trimLinesToCtrlIDs(lines):
   i = 0
