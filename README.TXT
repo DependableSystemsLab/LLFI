@@ -17,7 +17,7 @@ Installation
   B. Install llvm-2.9 and llvm-gcc 4.2.1
     1. Go to "http://llvm.org/releases/download.html#2.9" to download LLVM source code and LLVM-GCC 4.2 Front End Binaries for your system.
     2. Build llvm-gcc 4.2 for your system. Access "http://llvm.org/releases/2.9/docs/GettingStarted.html#installcf" for instructions.
-    3. Build llvm-2.9 *** WITH CMAKE ***. Access "http://llvm.org/docs/CMake.html" for instructions.
+    3. Build llvm-2.9 *** WITH CMAKE ***. Access "http://llvm.org/docs/CMake.html" for instructions. Remember to run 'make' in the llvm build directory after running 'cmake' specified in the instructions
 	
   C. Build LLFI
     1. Extract the code from LLFI archive (/LLFI)
@@ -39,7 +39,7 @@ Installation
          In file llfi/baseline/golden_std_output, you should be able to see 720
       5. Run factorial executable with fault injection functions instrumented
           <LLFI_BUILD_ROOT>/bin/injectfault llfi/factorial-faultinjection.exe 6
-         You should be able to see result files in llfi/std_output/, fault injection stats in llfi/prog_output/, failure report (crash/hang) in llfi/error_output/
+         You should be able to see result files in llfi/std_output/, fault injection stats in llfi/llfi_stat_output/, failure report (crash/hang) in llfi/error_output/
 
 ======
 Running LLFI on your target applications

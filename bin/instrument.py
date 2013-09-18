@@ -357,7 +357,7 @@ def compileProg():
                            "in directory %s)." %(proffile + _suffixOfIR(), fifile + _suffixOfIR(), llfilinklib)
       sys.exit(retcode)
     else:
-      print >> sys.stderr, "\nSucess"
+      print >> sys.stderr, "\nSuccess"
 
 
 ################################################################################
