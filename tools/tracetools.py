@@ -417,13 +417,20 @@ class faultReport:
 
     i = 0
     while i+1 < len(self.diffs):
-      csplit = self.diffs[i+2].split()
-      if "Diff@" in self.diffs[i] and "pre  Diff" in self.diffs[i+1]:
+      if "Diff@" in self.diffs[i] and "Pre  Diff" in self.diffs[i+1]:
+        csplit = self.diffs[i+2].split()
         edgeStart = int(self.diffs[i+1].split()[3])
         if csplit[5] != "None": 
           edgeEnd = int(csplit[5])
-        elif "Post Diff" in self.diffs[-1]:
-          edgeEnd = int(self.diffs[-1].split()[3])
+          if (i+3 < len(self.diffs)):
+            affectedEdges.add((edgeEnd, int(self.diffs[i+3].split()[5])))
+        else:
+          d = i
+          while d < len(self.diffs):
+            if "Post Diff" in self.diffs[d]:
+              edgeEnd = self.diffs[d].split()[3]
+              d = len(self.diffs)
+            d += 1
         affectedEdges.add((edgeStart, edgeEnd))
       i += 1
 
