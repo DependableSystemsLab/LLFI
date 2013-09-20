@@ -38,6 +38,8 @@ class diffBlock:
     self.newLines = []
 
     if "+" not in lines[1] and "-" not in lines[1]:
+      if "S" in lines[1]: #See ugly hack in the diffReport init
+        lines[1] = lines[1][2:]
       self.preDiff = lines.pop(1)
       self.origStart += 1
       self.newStart += 1
@@ -154,7 +156,7 @@ def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLe
     goldenLines[gStart+i-1] = ""
     i += 1
     debug(str(i))
-  goldenRemovedCount.append((gStart, gLength))
+  goldenRemovedCount.append((gStart + adj, gLength))
   i = 0
   debug("FLen " +str(fLength))
   debug("FStart " + str(fStart))
@@ -175,7 +177,7 @@ def findAdjustedPosition(position, remArray):
   i = 0
   while i < len(remArray):
     location, count = remArray[i]
-    if position + count <= location:
+    if position >= location:
       position = position + count
     else:
       return position
@@ -233,6 +235,16 @@ class diffReport:
     faultyIDs = faultyLines[:]
     goldenIDs = trimLinesToCtrlIDs(goldenIDs)
     faultyIDs = trimLinesToCtrlIDs(faultyIDs)
+
+    #This ugly hack forces the difflib routine to prioritize certain ctrl flow matches.
+    i = 0
+    while i < len(goldenIDs):
+      if goldenIDs[i] == faultyIDs[i]:
+        goldenIDs[i] = "S" + goldenIDs[i]
+        faultyIDs[i] = "S" + faultyIDs[i]
+      else:
+        break
+      i += 1
 
     ctrldiff = list(difflib.unified_diff(goldenIDs[:], faultyIDs[:], n=1, lineterm=''))
 
@@ -427,7 +439,8 @@ class faultReport:
           if (i+3 < len(self.diffs)):
             affectedEdges.add((edgeEnd, int(self.diffs[i+3].split()[5])))
         else:
-          d = i
+          d = i + 2 #Adjusting so we dont check the find the pre diff of the diff@ instance we
+                    #are currently on.
           while d < len(self.diffs):
             if "Post Diff" in self.diffs[d]:
               edgeEnd = self.diffs[d].split()[3]
