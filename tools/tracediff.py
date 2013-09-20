@@ -76,14 +76,16 @@ def traceDiff(argv, output = 0):
   if (lenGT < 0 and lenFT < 0):
     return 0
 
+  '''
   while (faultyTraceLines[lenFT-i] == goldTraceLines[lenGT-i]):
     postDiffID = diffLine(goldTraceLines[lenGT-i]).ID
     faultyTraceLines.pop(lenFT-i)
     goldTraceLines.pop(lenGT-i)    
     i = i + 1
     if lenFT-i < 0 or lenGT-i < 0:
-      break
-
+      break 
+  '''
+  
   report = diffReport(goldTraceLines, faultyTraceLines, faultyTraceStartPoint, diffID)
   report.printSummary()
 
