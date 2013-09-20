@@ -13,7 +13,6 @@
 import sys
 import os
 import glob
-import difflib
 from tracetools import *
 
 def traceDiff(argv, output = 0):
@@ -77,24 +76,18 @@ def traceDiff(argv, output = 0):
   if (lenGT < 0 and lenFT < 0):
     return 0
 
+  '''
   while (faultyTraceLines[lenFT-i] == goldTraceLines[lenGT-i]):
     postDiffID = diffLine(goldTraceLines[lenGT-i]).ID
     faultyTraceLines.pop(lenFT-i)
     goldTraceLines.pop(lenGT-i)    
     i = i + 1
     if lenFT-i < 0 or lenGT-i < 0:
-      break
-
-  diff = list(difflib.unified_diff(goldTraceLines, faultyTraceLines, n=0, lineterm=''))
-
-  if (diff):
-    diff.pop(0) #Remove File Context lines from diff
-    diff.pop(0)
-
-    #print '\n'.join(diff) #For debugging
-
-    report = diffReport(diff, faultyTraceStartPoint)
-    report.printSummary()
+      break 
+  '''
+  
+  report = diffReport(goldTraceLines, faultyTraceLines, faultyTraceStartPoint, diffID)
+  report.printSummary()
 
   #restore stdout
   sys.stdout = oldSTDOut
