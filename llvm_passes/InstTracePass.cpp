@@ -31,11 +31,11 @@ Author: Sam Coulter
 
 using namespace llvm;
 
-cl::opt<bool> debugtrace( "debugtrace",
-              cl::desc("Output Trace insertion information"),
+cl::opt<bool> debugtrace("debugtrace",
+              cl::desc("Print tracing instrucmented instruction information"),
               cl::init(false));
 cl::opt<int> maxtrace( "maxtrace",
-            cl::desc("Maximum number of instructions that will be traced after fault"),
+    cl::desc("Maximum number of dynamic instructions that will be traced after fault injection"),
             cl::init(1000));
 
 namespace llfi {
@@ -95,13 +95,10 @@ struct InstTrace : public FunctionPass {
       Instruction *inst = &*instIterator;
 
       if (debugtrace) {
-        errs() << llfi::isLLFIIndexedInst(inst) << " InstTrace: Found Instruction\n";
         if (!llfi::isLLFIIndexedInst(inst)) {
-          errs() << "   Instruction was not indexed\n";
+          errs() << "Instruction " << *inst << " was not indexed\n";
         } else {
-          errs() << "   Opcode Name: " << inst->getOpcodeName() << "\n"
-                  << "   Opcode: " << inst->getOpcode() << "\n"
-                 << "   Parent Function Name: " << F.getNameStr() << "\n";
+          errs() << "Instruction " << *inst << " was indexed\n";
         }
       }
       if (llfi::isLLFIIndexedInst(inst)) {
@@ -110,26 +107,38 @@ struct InstTrace : public FunctionPass {
         Instruction *insertPoint;
         if (!inst->isTerminator()) {
           insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-        }
-        else {
+        } else {
           insertPoint = inst;
         }
+
+
+
+        //Fetch size of instruction value
+        //The size must be rounded up before conversion to bytes because some data in llvm
+        //can be like 1 bit if it only needs 1 bit out of an 8bit/1byte data type
+        float bitSize;
         AllocaInst* ptrInst;
         if (inst->getType() != Type::getVoidTy(context)) {
           //insert an instruction Allocate stack memory to store/pass instruction value
-          ptrInst = new AllocaInst(inst->getType(), "", insertPoint);
+          ptrInst = new AllocaInst(inst->getType(), "llfi_trace", insertPoint);
           //Insert an instruction to Store the instruction Value!
           new StoreInst(inst, ptrInst, insertPoint);
+
+          TargetData &td = getAnalysis<TargetData>();
+          bitSize = (float)td.getTypeSizeInBits(inst->getType());
         }
         else {
-          ptrInst = new AllocaInst(Type::getInt32Ty(context), "", insertPoint);
-          new StoreInst(ConstantInt::get(IntegerType::get(context,32), 0), 
-          ptrInst, insertPoint);
+          ptrInst = new AllocaInst(Type::getInt32Ty(context), "llfi_trace", insertPoint);
+          new StoreInst(ConstantInt::get(IntegerType::get(context, 32), 0), 
+                        ptrInst, insertPoint);
+          bitSize = 32;
         }
+        int byteSize = (int)ceil(bitSize / 8.0);
 
         //Insert instructions to allocate stack memory for opcode name
         llvm::Value* OPCodeName = llvm::ConstantArray::get(context, inst->getOpcodeName());
-        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(), "", insertPoint);
+        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(),
+                                               "llfi_trace", insertPoint);
         new StoreInst(OPCodeName, OPCodePtr, insertPoint);
 
         //Create the decleration of the printInstTracer Function
@@ -150,18 +159,6 @@ struct InstTrace : public FunctionPass {
         ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context, 32), 
                                                    fetchLLFIInstructionID(inst));
 
-        //Fetch size of instruction value
-        TargetData &td = getAnalysis<TargetData>();
-        //The size must be rounded up before conversion to bytes because some data in llvm
-        //can be like 6 bits if it only needs 6 bits out of an 8bit/1byte data type
-        float bitSize;
-        if (inst->getType() != Type::getVoidTy(context)) {
-          bitSize = (float)td.getTypeSizeInBits(inst->getType());
-        }
-        else {
-          bitSize = 32;
-        }
-        int byteSize = (int)ceil(bitSize / 8.0);
         ConstantInt* instValSize = ConstantInt::get(
                                       IntegerType::get(context, 32), byteSize);
 

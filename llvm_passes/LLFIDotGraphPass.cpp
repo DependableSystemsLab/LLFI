@@ -35,27 +35,19 @@ struct instNode {
 instNode::instNode(Instruction *target) {
   raw = target;
 
-  int llfiID = llfi::getLLFIIndexofInst(target);
-  std::stringstream nodeName;
-  std::string bbname = target->getParent()->getName().str();
-  std::string funcName = target->getParent()->getParent()->getNameStr();
-  nodeName <<  "llfiID_" << llfiID;
-  name = nodeName.str();
+  long llfiID = llfi::getLLFIIndexofInst(target);
+  name = "llfiID_" + longToString(llfiID);
 
-  std::stringstream labelStream;
-  labelStream << " [shape=record,label=\"" << llfiID;
-  labelStream  << "\\n" << target->getOpcodeName() << "\\n";
+  label = std::string(" [shape=record,label=\"") + longToString(llfiID);
+  label += std::string("\\n") + target->getOpcodeName() + "\\n";
   if (target->getDebugLoc().getLine()) {
-    labelStream  << "line#: " << target->getDebugLoc().getLine();
+    label += "(Line #: " + intToString(target->getDebugLoc().getLine()) + ")";
   }
-  labelStream  << "\"]";
-  label = labelStream.str();
+  label += "\"]";
 }
 
 std::string instNode::dotNode() {
-  std::stringstream dotnode;
-  dotnode << name << label;
-  return dotnode.str();
+  return name + label;
 }
 
 struct bBlockGraph {
@@ -65,7 +57,6 @@ struct bBlockGraph {
   std::vector<instNode> instNodes;
   Instruction* entryInst;
   Instruction* exitInst;
-  int nonLLFIinstCount;
   bBlockGraph(BasicBlock *target);
   bool addInstruction(Instruction* inst);
   bool writeToStream(std::ofstream &target);
@@ -73,7 +64,6 @@ struct bBlockGraph {
 
 bBlockGraph::bBlockGraph(BasicBlock *BB) {
   raw = BB;
-  nonLLFIinstCount = 0;
   name = BB->getName().str();
   funcName = BB->getParent()->getNameStr();
   BasicBlock::iterator lastInst;
@@ -85,7 +75,6 @@ bBlockGraph::bBlockGraph(BasicBlock *BB) {
     Instruction *inst = instIterator;
 
     addInstruction(inst);
-
   }
   entryInst = &(BB->front());
   exitInst = &(BB->back());
@@ -110,18 +99,14 @@ bool bBlockGraph::writeToStream(std::ofstream &target) {
 }
 
 struct llfiDotGraph : public FunctionPass {
-
   static char ID;
-  Function::iterator lastBlock;
   std::ofstream outfs;
-  int nonllfiInstIndex;
 
   llfiDotGraph() : FunctionPass(ID) {}
 
   virtual bool doInitialization(Module &M) {
     outfs.open("llfi.stat.graph.dot", std::ios::trunc);
     outfs << "digraph \"LLFI Program Graph\" {\n";
-    nonllfiInstIndex = 0;
     return false;
   }
 
@@ -162,11 +147,11 @@ struct llfiDotGraph : public FunctionPass {
 
   virtual bool runOnFunction(Function &F) {
     //Create handles to the functions parent module and context
-    LLVMContext& context = F.getContext();
-    Module *M = F.getParent();
+    LLVMContext &context = F.getContext();
 
     std::vector<bBlockGraph> blocks;
 
+    Function::iterator lastBlock;
     //iterate through each basicblock of the function
     for (Function::iterator blockIterator = F.begin(), lastBlock = F.end();
       blockIterator != lastBlock; ++blockIterator) {
@@ -175,7 +160,6 @@ struct llfiDotGraph : public FunctionPass {
 
       bBlockGraph b(block);
       blocks.push_back(b);
-
     }
     for (unsigned int i = 0; i < blocks.size(); i++) {
       bBlockGraph currBlock = blocks.at(i);
@@ -184,6 +168,7 @@ struct llfiDotGraph : public FunctionPass {
         std::string nodeName = currBlock.instNodes.at(i).name;
         instNode node = currBlock.instNodes.at(i);
         if (!inst->use_empty()) {
+          // TODO: optimize the algorithm below later
           for (value_use_iterator<User> useIter = inst->use_begin();
                useIter != inst->use_end(); useIter++) {
             Value* userValue = *useIter;
