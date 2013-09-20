@@ -77,11 +77,11 @@ class diffBlock:
     instanceList = []
 
     izip = itertools.izip_longest(self.origLines, self.newLines)
-    
+
     instance = diffInstance(0,0,0,0)
-    for i, (g, f) in enumerate(izip): 
+    for i, (g, f) in enumerate(izip):
       g = diffLine(g)
-      f = diffLine(f)     
+      f = diffLine(f)
       if g and f:
         if g.ID == f.ID:
           if instance.type != 1:
@@ -116,7 +116,7 @@ class ctrlDiffBlock(diffBlock):
     izip = itertools.izip_longest(self.origLines, self.newLines)
 
     instance = diffInstance(0,0,0,0)
-    for i, (g, f) in enumerate(izip):    
+    for i, (g, f) in enumerate(izip):
       if g and f:
         if instance.type != 2:
           if (instance.summary != None):
@@ -148,7 +148,7 @@ def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLe
   global faultyRemovedCount
 
   debug("\n\nRemovingRangeFromLines()")
-  
+
   i = 0
   debug("GLen "+ str(gLength))
   debug("GStart " + str(gStart))
@@ -237,9 +237,13 @@ class diffReport:
     faultyIDs = trimLinesToCtrlIDs(faultyIDs)
 
     #This ugly hack forces the difflib routine to prioritize certain ctrl flow matches.
+# TODO: the fundamental problem here is unix diff is not greedy
+# so we might need to come up with a comprehensive fix
+# The hack might not always work. Jiesheng
+
     i = 0
     while i < len(goldenIDs):
-      if goldenIDs[i] == faultyIDs[i]:
+      if i < len(faultyIDs) and goldenIDs[i] == faultyIDs[i]:
         goldenIDs[i] = "S" + goldenIDs[i]
         faultyIDs[i] = "S" + faultyIDs[i]
       else:
@@ -258,7 +262,7 @@ class diffReport:
       i = 0
       length = 1
       start = None
-      
+
       while (i < len(ctrldiff)):
         if "@@ " in ctrldiff[i]:
           if start != None:
@@ -266,16 +270,16 @@ class diffReport:
             debug("\n".join(ctrldiff[start:start+length]))
             cblock = ctrlDiffBlock(ctrldiff[start:start+length])
             self.blocks.append(cblock)
-            length = 1 
-          start = i       
+            length = 1
+          start = i
         else:
           length += 1
-        i += 1 
+        i += 1
       #Dont forget the last block in the diff!
       if start != None:
         debug("Calling ctrlDiffBlock constructor " + str(start) + " " + str(length))
         debug("\n".join(ctrldiff[start:start+length]))
-        cblock = ctrlDiffBlock(ctrldiff[start:start+length])     
+        cblock = ctrlDiffBlock(ctrldiff[start:start+length])
         self.blocks.append(cblock)
 
       debug("Golden Lines:\n" + "\n".join(goldenLines))
@@ -290,10 +294,10 @@ class diffReport:
 
       goldenLines = filter(None, goldenLines)
       faultyLines = filter(None, faultyLines)
-      
-      
+
+
     datadiff = list(difflib.unified_diff(goldenLines, faultyLines, n=0, lineterm=''))
-    
+
     if datadiff:
       datadiff.pop(0)
       datadiff.pop(0)
@@ -302,20 +306,20 @@ class diffReport:
       i = 0
       length = 1
       start = None
-      
+
       while (i < len(datadiff)):
         if "@@ " in datadiff[i]:
           if start != None:
             self.blocks.append(diffBlock(datadiff[start:start+length]))
-            length = 1        
+            length = 1
           start = i
         else:
           length += 1
-        i += 1 
+        i += 1
       #Dont forget the last block in the diff!
       if start != None:
         self.blocks.append(diffBlock(datadiff[start:start+length]))
-    
+
 
   def printSummary(self):
     #Sort the list of blocks by their starting point (wrt the golden trace)
@@ -334,7 +338,7 @@ def trimLinesToCtrlIDs(lines):
     i += 1
   return lines
 
-    
+
 
 class diffLine:
   def __init__(self, rawLine):
@@ -412,7 +416,7 @@ class faultReport:
 
   def getAffectedSet(self):
     affectedInsts = set()
-    for diff in self.diffs:      
+    for diff in self.diffs:
       if "@" in diff:
         continue
       else:
@@ -434,7 +438,7 @@ class faultReport:
       if "Diff@" in self.diffs[i] and "Pre  Diff" in self.diffs[i+1]:
         csplit = self.diffs[i+2].split()
         edgeStart = int(self.diffs[i+1].split()[3])
-        if csplit[5] != "None": 
+        if csplit[5] != "None":
           edgeEnd = int(csplit[5])
           if (i+3 < len(self.diffs)):
             affectedEdges.add((edgeEnd, int(self.diffs[i+3].split()[5])))
@@ -471,7 +475,7 @@ def parseFaultReportsfromFile(target):
   #Parse the faultReports
   i = 0
   fileLineCount = len(fileLines)
-  
+
   while (i < fileLineCount):
     if "#FaultReport" in fileLines[i]:
       temp = []

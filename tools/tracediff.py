@@ -18,7 +18,8 @@ from tracetools import *
 def traceDiff(argv, output = 0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
-  
+
+  # TODO: rewrite the command line argument of the script
   if output != 0:
     sys.stdout = open(output, "w")
   if (len(argv) != 3):
@@ -33,7 +34,6 @@ def traceDiff(argv, output = 0):
   faultyTrace = faultyFile.read()
   faultyFile.close()
 
-  goldTraceLines = goldTrace.split("\n")
   goldTraceLines = goldTrace.split("\n")
   faultyTraceLines =  faultyTrace.split("\n")
 
@@ -70,7 +70,7 @@ def traceDiff(argv, output = 0):
 
   lenGT = len(goldTraceLines) - 1
   lenFT = len(faultyTraceLines) - 1
-  
+
   i = 0
 
   if (lenGT < 0 and lenFT < 0):
@@ -80,12 +80,12 @@ def traceDiff(argv, output = 0):
   while (faultyTraceLines[lenFT-i] == goldTraceLines[lenGT-i]):
     postDiffID = diffLine(goldTraceLines[lenGT-i]).ID
     faultyTraceLines.pop(lenFT-i)
-    goldTraceLines.pop(lenGT-i)    
+    goldTraceLines.pop(lenGT-i)
     i = i + 1
     if lenFT-i < 0 or lenGT-i < 0:
-      break 
+      break
   '''
-  
+
   report = diffReport(goldTraceLines, faultyTraceLines, faultyTraceStartPoint, diffID)
   report.printSummary()
 
