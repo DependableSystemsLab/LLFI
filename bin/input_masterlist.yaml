@@ -27,8 +27,7 @@ compileOption:
     tracingPropagationOption:
         maxTrace: 250 # max number of instructions to trace during fault injection run
         debugTrace: True/False
-
-    generateDotGraph: True # Generate a dot graph of the program instruction structure
+        generateCDFG: True # Generate a dot graph of the program instruction structure
 
 runOption:
     - run:
