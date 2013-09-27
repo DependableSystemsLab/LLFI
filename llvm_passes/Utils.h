@@ -16,6 +16,7 @@
 using namespace llvm;
 namespace llfi {
 std::string intToString(int i);
+std::string longToString(long i);
 
 // return the terminate instruction of the function
 Instruction *getTermInstofFunction(Function *func);

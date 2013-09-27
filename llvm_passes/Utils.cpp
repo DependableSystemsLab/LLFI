@@ -9,6 +9,12 @@ std::string intToString(int i) {
   return s.str();
 }
 
+std::string longToString(long i) {
+  std::stringstream s;
+  s << i;
+  return s.str();
+}
+
 Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
