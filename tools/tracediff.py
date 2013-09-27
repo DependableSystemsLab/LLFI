@@ -15,6 +15,8 @@ import os
 import glob
 from tracetools import *
 
+prog = os.path.basename(sys.argv[0])
+
 def traceDiff(argv, output = 0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
@@ -23,7 +25,7 @@ def traceDiff(argv, output = 0):
   if output != 0:
     sys.stdout = open(output, "w")
   if (len(argv) != 3):
-    print "ERROR: running option: traceDiff <golden output> <faulty output>"
+    print >> sys.stderr, "ERROR: running option: %(prog)s <golden output> <faulty output>" % {'prog': prog}
     exit(1)
 
   goldFile = open(argv[1], 'r')
@@ -93,4 +95,8 @@ def traceDiff(argv, output = 0):
   sys.stdout = oldSTDOut
 
 if (__name__ == "__main__"):
-  traceDiff(sys.argv)
+  if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+    print >> sys.stderr, ("%(prog)s compares the golden program trace and fault injection program trace and summarizes the differences\n\n"
+    "running option: %(prog)s <golden output> <faulty output>" %{"prog": prog})
+  else:
+    traceDiff(sys.argv)

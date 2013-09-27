@@ -16,6 +16,8 @@ from tracetools import *
 AFFECTED_FILL_COLOR = "yellow"
 FAULT_INJECTED_BORDER_COLOR = "red"
 
+prog = os.path.basename(sys.argv[0])
+
 def traceOntoGraph(traceFile, graphFile, output=0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
@@ -55,4 +57,12 @@ def traceOntoGraph(traceFile, graphFile, output=0):
   sys.stdout = oldSTDOut
 
 if __name__ == "__main__":
-  traceOntoGraph(sys.argv[1], sys.argv[2])
+  if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+    print >> sys.stderr, ("%(prog)s applies the program trace difference summary to program static control-data-flow graph to visualize it\n\n"
+    "running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog})
+  elif len(sys.argv) >= 3:
+    traceOntoGraph(sys.argv[1], sys.argv[2])
+  else:
+    print >> sys.stderr, "Error: running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}
+    exit(1)
+

@@ -10,6 +10,8 @@
 
 from tracetools import *
 
+prog = os.path.basename(sys.argv[0])
+
 def traceUnion(argv, output=0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
@@ -42,4 +44,11 @@ def traceUnion(argv, output=0):
   sys.stdout = oldSTDOut
 
 if __name__ == "__main__":
+  if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+    print >> sys.stderr, ("%(prog)s takes more than one input program trace difference summary file and combines them to one report\n\n"
+    "running option: %(prog)s file1 file2 ..." %{"prog": prog})
+  elif len(sys.argv) >= 3:
     traceUnion(sys.argv[1:])
+  else:
+    print >> sys.stderr, "Error: running option: %(prog)s file1 file2 ..." %{"prog": prog}
+    exit(1)
