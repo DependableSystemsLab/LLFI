@@ -1,6 +1,7 @@
 #ifndef LLFI_UTILS_H
 #define LLFI_UTILS_H
 #include "llvm/Function.h"
+#include "llvm/Module.h"
 #include "llvm/Instruction.h"
 #include "llvm/Value.h"
 #include "llvm/BasicBlock.h"
@@ -8,8 +9,10 @@
 #include "llvm/Metadata.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/InstIterator.h"
 
 #include <map>
+#include <set>
 #include <string>
 #include <sstream>
 
@@ -22,6 +25,8 @@ std::string longToString(long i);
 Instruction *getTermInstofFunction(Function *func);
 // return instumentation code insertion point for fi in reg of inst
 Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst);
+
+void getProgramExitInsts(Module &M, std::set<Instruction*> &exitinsts);
 
 // get or set the LLFI index of the specified instruction. use metadata
 long getLLFIIndexofInst(Instruction *inst);

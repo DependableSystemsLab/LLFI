@@ -190,11 +190,19 @@ void FaultInjectionPass::finalize(Module &M) {
   CallInst::Create(initfunc, "", entryblock->getFirstNonPHI());
   
   // function call for postInjections
-  BasicBlock *exitblock = &mainfunc->back();
   Constant *postfifunc = getLLFILibPostInjectionFunc(M);
-  CallInst::Create(postfifunc, "", exitblock->getTerminator());
 
-	createInjectionFunctions(M);
+  std::set<Instruction*> exitinsts;
+  getProgramExitInsts(M, exitinsts);
+  assert (exitinsts.size() != 0 
+            && "Program does not have explicit exit point");
+  for (std::set<Instruction*>::iterator it = exitinsts.begin();
+         it != exitinsts.end(); ++it) {
+    Instruction *term = *it;
+    CallInst::Create(postfifunc, "", term);
+  }
+	
+  createInjectionFunctions(M);
 }
 
 Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {

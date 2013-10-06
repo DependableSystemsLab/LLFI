@@ -70,8 +70,16 @@ struct InstTrace : public FunctionPass {
     Constant *postracingfunc = M.getOrInsertFunction("postTracing",
                                              postinjectfunctype);
 
-    BasicBlock *exitblock = &mainfunc->back();
-    CallInst::Create(postracingfunc, "", exitblock->getTerminator());
+    std::set<Instruction*> exitinsts;
+    getProgramExitInsts(M, exitinsts);
+    assert (exitinsts.size() != 0 
+            && "Program does not have explicit exit point");
+
+    for (std::set<Instruction*>::iterator it = exitinsts.begin();
+         it != exitinsts.end(); ++it) {
+      Instruction *term = *it;
+      CallInst::Create(postracingfunc, "", term);
+    }
 
     return true;
   }

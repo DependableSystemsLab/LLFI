@@ -19,8 +19,31 @@ Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
 
-  assert(isa<ReturnInst>(ret) && "Last instruction is not return instruction");
+  assert(isa<ReturnInst>(ret) || isa<CallInst>(ret) && 
+         "Last instruction is not return or exit() instruction");
   return ret;
+}
+
+void getProgramExitInsts(Module &M, std::set<Instruction*> &exitinsts) {
+  for (Module::iterator m_it = M.begin(); m_it != M.end(); ++m_it) {
+    if (!m_it->isDeclaration()) {
+      //m_it is a function  
+      for (inst_iterator f_it = inst_begin(m_it); f_it != inst_end(m_it);
+           ++f_it) {
+        Instruction *inst = &(*f_it);
+        if (CallInst *ci = dyn_cast<CallInst>(inst)) {
+          Function *calledFunc = ci->getCalledFunction();
+          if (calledFunc && calledFunc->hasName() && 
+              calledFunc->getName().str() == "exit") {
+            exitinsts.insert(inst);
+          }
+        }
+      }
+    }  
+  }
+
+  Function* mainfunc = M.getFunction("main");
+  exitinsts.insert(getTermInstofFunction(mainfunc));
 }
 
 Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
