@@ -19,7 +19,7 @@ Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
 
-  assert(isa<ReturnInst>(ret) || isa<CallInst>(ret) && 
+  assert(isa<ReturnInst>(ret) || isa<UnreachableInst>(ret) && 
          "Last instruction is not return or exit() instruction");
   return ret;
 }
