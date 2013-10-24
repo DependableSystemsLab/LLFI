@@ -1,0 +1,22 @@
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: onlyAPICalls
+
+
+    regSelMethod: customregselector
+    customRegSelector: onlyOpenMode
+
+
+    includeInjectionTrace: 
+        - forward
+        - backward
+
+
+runOption:
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+
+    - run:
+        numOfRuns: 1
+        fi_type: stuck_at_0

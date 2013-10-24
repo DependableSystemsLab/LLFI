@@ -95,10 +95,6 @@ def checkEnviroment():
     print >> sys.stderr, "ERROR: The specified -LLVM_DST_ROOT or -LLVM_SRC_ROOT is invalid. Make sure -LLVM_DST_ROOT is built with CMake. See how to build LLVM with CMake on http://llvm.org\n"
     has_error = True
 
-  if not os.path.exists(os.path.join(required_configs['LLVM_DST_ROOT'], "bin/opt")):
-    print >> sys.stderr, "ERROR: The specified -LLVM_DST_ROOT is invalid. Make sure -LLVM_DST_ROOT is built with CMake, and make sure you run 'make' after 'cmake' when building llvm."
-    has_error = True
-
   if os.path.exists(required_configs['LLFI_BUILD_ROOT']):
     print >> sys.stderr, "ERROR: LLFI build directory already exists!\n"
     has_error = True

@@ -57,7 +57,6 @@ options = {
   "readable": False,
   "verbose": False,
   "IRonly": False,
-  "genDotGraph": False,
 }
 
 
@@ -245,7 +244,7 @@ def readCompileOption():
       else:
         print ("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n")
         exit(1)
-
+  
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
     print ("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
@@ -262,11 +261,6 @@ def readCompileOption():
         assert int(cOpt["tracingPropagationOption"]["maxTrace"])>0, "maxTrace must be greater than 0 in input.yaml"
         compileOptions.append('-maxtrace')
         compileOptions.append(str(cOpt["tracingPropagationOption"]["maxTrace"]))
-
-      ###Dot Graph Generation selection
-      if "generateCDFG" in cOpt["tracingPropagationOption"]:
-        options["genDotGraph"] = True
-  
 
 ################################################################################
 def _suffixOfIR():
@@ -285,12 +279,10 @@ def compileProg():
   fifile = progbin + "-faultinjection"
   tmpfiles = []
 
-  execlist = [optbin, '-load', llfilib, '-genllfiindexpass','-o', 
+  execlist = [optbin, '-load', llfilib, '-genllfiindexpass', '-o', 
               llfi_indexed_file + _suffixOfIR(), options['source']]
   if options["readable"]:
     execlist.append('-S')
-  if options["genDotGraph"]:
-    execlist.append('-dotgraphpass')
   retcode = execCompilation(execlist)
   
   if retcode == 0:
@@ -365,7 +357,7 @@ def compileProg():
                            "in directory %s)." %(proffile + _suffixOfIR(), fifile + _suffixOfIR(), llfilinklib)
       sys.exit(retcode)
     else:
-      print >> sys.stderr, "\nSuccess"
+      print >> sys.stderr, "\nSucess"
 
 
 ################################################################################

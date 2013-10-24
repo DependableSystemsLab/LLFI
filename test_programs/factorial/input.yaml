@@ -1,10 +1,10 @@
 compileOption:
-    instSelMethod: insttype
-    include: 
-        - all
-    exclude:
-        - ret
-
+    instSelMethod: custominstselector
+customInstSelector: llfiindex
+customInstSelectorOption:
+--injecttoindex=18
+[--injecttoindex=18]
+    
     regSelMethod: regloc
     regloc: dstreg
 
@@ -12,12 +12,6 @@ compileOption:
         - forward
         - backward
 
-    tracingPropagation: True # trace dynamic instruction values.
-
-    tracingPropagationOption:
-        maxTrace: 250 # max number of instructions to trace during fault injection run
-        debugTrace: True/False
-        generateCDFG: True
 
 runOption:
     - run:
