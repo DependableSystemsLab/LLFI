@@ -3,7 +3,7 @@
 #include "llvm/Module.h"
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Instruction.h"
-
+#include <cstdio>
 #include "Utils.h"
 
 using namespace llvm;
