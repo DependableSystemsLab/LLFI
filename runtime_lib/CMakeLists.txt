@@ -10,5 +10,9 @@ add_library(llfi-rt SHARED
     ProfilingLib.c
     Utils.c
 IncreasedValue.cpp
+DecreasedValue.cpp
 noOpen_API.cpp
+RevMode.cpp
+newMode-config.txt
+diff-config.txt
 )

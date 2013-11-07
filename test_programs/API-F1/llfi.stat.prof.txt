@@ -1,0 +1,3 @@
+# do not edit
+# cycle considered the execution cycle of each instruction type
+total_cycle=1

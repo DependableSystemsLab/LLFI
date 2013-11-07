@@ -1,0 +1,56 @@
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   store %struct.FILE* %1, %struct.FILE** %fp, align 8, !llfi_index !7does not have any valid registers for fault injection

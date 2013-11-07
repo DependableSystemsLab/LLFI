@@ -8,6 +8,7 @@ class BitFlipFI: public FaultInjector {
     unsigned fi_bytepos = fi_bit / 8;
     unsigned fi_bitpos = fi_bit % 8;
     buf[fi_bytepos] ^= 0x1 << fi_bitpos;
+    std::cout<<"bit flip injected"<<"\n" ;
   }
 };
 
