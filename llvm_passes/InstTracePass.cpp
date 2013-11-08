@@ -31,11 +31,11 @@ Author: Sam Coulter
 
 using namespace llvm;
 
-cl::opt<bool> debugtrace( "debugtrace",
-              cl::desc("Output Trace insertion information"),
+cl::opt<bool> debugtrace("debugtrace",
+              cl::desc("Print tracing instrucmented instruction information"),
               cl::init(false));
 cl::opt<int> maxtrace( "maxtrace",
-            cl::desc("Maximum number of instructions that will be traced after fault"),
+    cl::desc("Maximum number of dynamic instructions that will be traced after fault injection"),
             cl::init(1000));
 
 namespace llfi {
@@ -43,20 +43,18 @@ namespace llfi {
 struct InstTrace : public FunctionPass {
 
   static char ID;
-  Function::iterator lastBlock;
-  BasicBlock::iterator lastInst;
-  
+
   InstTrace() : FunctionPass(ID) {}
-  
+
   //Add AnalysisUsage Pass as prerequisite for InstTrace Pass
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
     AU.addRequired<TargetData>();
   }
-  
+
   virtual bool doInitialization(Module &M) {
     return false;
   }
-  
+
   virtual bool doFinalization(Module &M) {
     //Dont forget to delete the output filename string!
     Function* mainfunc = M.getFunction("main");
@@ -72,12 +70,20 @@ struct InstTrace : public FunctionPass {
     Constant *postracingfunc = M.getOrInsertFunction("postTracing",
                                              postinjectfunctype);
 
-    BasicBlock *exitblock = &mainfunc->back();
-    CallInst::Create(postracingfunc, "", exitblock->getTerminator());
+    std::set<Instruction*> exitinsts;
+    getProgramExitInsts(M, exitinsts);
+    assert (exitinsts.size() != 0 
+            && "Program does not have explicit exit point");
+
+    for (std::set<Instruction*>::iterator it = exitinsts.begin();
+         it != exitinsts.end(); ++it) {
+      Instruction *term = *it;
+      CallInst::Create(postracingfunc, "", term);
+    }
 
     return true;
   }
-  
+
   long fetchLLFIInstructionID(Instruction *targetInst) {
     return llfi::getLLFIIndexofInst(targetInst);
   }
@@ -86,39 +92,63 @@ struct InstTrace : public FunctionPass {
     //Create handles to the functions parent module and context
     LLVMContext& context = F.getContext();
     Module *M = F.getParent();
-  
+
     //iterate through each basicblock of the function
-    for (inst_iterator instIterator = inst_begin(F), lastInst = inst_end(F);
+    inst_iterator lastInst;
+    for (inst_iterator instIterator = inst_begin(F), 
+         lastInst = inst_end(F);
          instIterator != lastInst; ++instIterator) {
-  
+
         //Print some Debug Info as the pass is being run
       Instruction *inst = &*instIterator;
-  
+
       if (debugtrace) {
-        errs() << llfi::isLLFIIndexedInst(inst) << " InstTrace: Found Instruction\n";
         if (!llfi::isLLFIIndexedInst(inst)) {
-          errs() << "   Instruction was not indexed\n";
+          errs() << "Instruction " << *inst << " was not indexed\n";
         } else {
-          errs() << "   Opcode Name: " << inst->getOpcodeName() << "\n"
-                  << "   Opcode: " << inst->getOpcode() << "\n"
-                 << "   Parent Function Name: " << F.getNameStr() << "\n";
+          errs() << "Instruction " << *inst << " was indexed\n";
         }
       }
-      if (inst->getType() != Type::getVoidTy(context) && 
-        llfi::isLLFIIndexedInst(inst) && (!inst->isTerminator())) {
-  
+      if (llfi::isLLFIIndexedInst(inst)) {
+
         //Find instrumentation point for current instruction
-        Instruction *insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-        //insert an instruction Allocate stack memory to store/pass instruction value
-        AllocaInst* ptrInst = new AllocaInst(inst->getType(), "", insertPoint);
-        //Insert an instruction to Store the instruction Value!
-        new StoreInst(inst, ptrInst, insertPoint);
-        
+        Instruction *insertPoint;
+        if (!inst->isTerminator()) {
+          insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
+        } else {
+          insertPoint = inst;
+        }
+
+
+
+        //Fetch size of instruction value
+        //The size must be rounded up before conversion to bytes because some data in llvm
+        //can be like 1 bit if it only needs 1 bit out of an 8bit/1byte data type
+        float bitSize;
+        AllocaInst* ptrInst;
+        if (inst->getType() != Type::getVoidTy(context)) {
+          //insert an instruction Allocate stack memory to store/pass instruction value
+          ptrInst = new AllocaInst(inst->getType(), "llfi_trace", insertPoint);
+          //Insert an instruction to Store the instruction Value!
+          new StoreInst(inst, ptrInst, insertPoint);
+
+          TargetData &td = getAnalysis<TargetData>();
+          bitSize = (float)td.getTypeSizeInBits(inst->getType());
+        }
+        else {
+          ptrInst = new AllocaInst(Type::getInt32Ty(context), "llfi_trace", insertPoint);
+          new StoreInst(ConstantInt::get(IntegerType::get(context, 32), 0), 
+                        ptrInst, insertPoint);
+          bitSize = 32;
+        }
+        int byteSize = (int)ceil(bitSize / 8.0);
+
         //Insert instructions to allocate stack memory for opcode name
         llvm::Value* OPCodeName = llvm::ConstantArray::get(context, inst->getOpcodeName());
-        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(), "", insertPoint);
+        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(),
+                                               "llfi_trace", insertPoint);
         new StoreInst(OPCodeName, OPCodePtr, insertPoint);
-  
+
         //Create the decleration of the printInstTracer Function
         std::vector<const Type*> parameterVector(5);
         parameterVector[0] = Type::getInt32Ty(context); //ID
@@ -126,42 +156,36 @@ struct InstTrace : public FunctionPass {
         parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value
         parameterVector[3] = ptrInst->getType();    //Ptr to Inst Value
         parameterVector[4] = Type::getInt32Ty(context); //Int of max traces
-        
+
         FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), 
                                                         parameterVector, false);
         Constant *traceFunc = M->getOrInsertFunction("printInstTracer", traceFuncType); 
-  
+
         //Insert the tracing function, passing it the proper arguments
         std::vector<Value*> traceArgs;
         //Fetch the LLFI Instruction ID:
         ConstantInt* IDConstInt = ConstantInt::get(IntegerType::get(context, 32), 
                                                    fetchLLFIInstructionID(inst));
-        
-        //Fetch size of instruction value        
-        TargetData &td = getAnalysis<TargetData>();
-        //The size must be rounded up before conversion to bytes because some data in llvm
-        //can be like 6 bits if it only needs 6 bits out of an 8bit/1byte data type
-        float bitSize = (float)td.getTypeSizeInBits(inst->getType());
-        int byteSize = (int)ceil(bitSize / 8.0);
+
         ConstantInt* instValSize = ConstantInt::get(
                                       IntegerType::get(context, 32), byteSize);
-        
+
         //Fetch maxtrace number:
         ConstantInt* maxTraceConstInt =
             ConstantInt::get(IntegerType::get(context, 32), maxtrace);
-        
+
         //Load All Arguments
         traceArgs.push_back(IDConstInt);
         traceArgs.push_back(OPCodePtr);
         traceArgs.push_back(instValSize);
         traceArgs.push_back(ptrInst);
         traceArgs.push_back(maxTraceConstInt);
-  
+
         //Create the Function
         CallInst::Create(traceFunc, traceArgs.begin(),traceArgs.end(), "", insertPoint);
       }
     }//Function Iteration
-  
+
     return true; //Tell LLVM that the Function was modified
   }//RunOnFunction
 };//struct InstTrace

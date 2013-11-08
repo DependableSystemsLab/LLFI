@@ -69,8 +69,16 @@ void ProfilingPass::addEndProfilingFuncCall(Module &M) {
     Constant *endprofilefunc = getLLFILibEndProfilingFunc(M);
 
     // function call
-    Instruction *term = getTermInstofFunction(mainfunc);
-    CallInst::Create(endprofilefunc, "", term);
+    std::set<Instruction*> exitinsts;
+    getProgramExitInsts(M, exitinsts);
+    assert (exitinsts.size() != 0 
+            && "Program does not have explicit exit point");
+
+    for (std::set<Instruction*>::iterator it = exitinsts.begin();
+         it != exitinsts.end(); ++it) {
+      Instruction *term = *it;
+      CallInst::Create(endprofilefunc, "", term);
+    }
   } else {
     errs() << "ERROR: Function main does not exist, " << 
         "which is required by LLFI\n";

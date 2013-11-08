@@ -4,6 +4,7 @@ include(../config/llvm_passes.cmake)
 add_llvm_loadable_module(llfi-passes
   FaultInjectionPass.cpp
   InstTracePass.cpp
+  LLFIDotGraphPass.cpp
   Utils.cpp
   Controller.cpp
   FICustomSelectorManager.cpp
@@ -16,14 +17,23 @@ add_llvm_loadable_module(llfi-passes
   SampleFIInstSelector.cpp
   SampleFIRegSelector.cpp
   LLFIIndexFIInstSelector.cpp
-  Hello.cpp
-  API-Pass.cpp
-  _APICallInstSelector.cpp
-  _API1FIRegSelector.cpp
-  _API2FIRegSelector.cpp
-  _API3FIRegSelector.cpp
-  _API4FIRegSelector.cpp
-  _API5FIRegSelector.cpp
-  _API6FIRegSelector.cpp
-  _API9FIRegSelector.cpp
+  OpenCallInstSelector.cpp
+  WriteCallInstSelector.cpp
+  ReadCallInstSelector.cpp
+  CloseCallInstSelector.cpp
+
+
+   _1stOpFIRegSelector.cpp
+   _2ndOpFIRegSelector.cpp
+   _3rdOpFIRegSelector.cpp
+   _4thOpFIRegSelector.cpp
+   _RetFIRegSelector.cpp
+  
+
+   mallocInstSelector.cpp
+   memcpyInstSelector.cpp
+   memcmpInstSelector.cpp
+   memmoveInstSelector.cpp
+   freeInstSelector.cpp
+  
 )

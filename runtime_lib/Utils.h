@@ -16,7 +16,6 @@ void getOpcodeExecCycleArray(const unsigned len, int *arr);
 
 bool isLittleEndian();
 
-
 #define DEBUG
 #ifdef DEBUG
 #define debug(x) printf x; fflush(stdout);
