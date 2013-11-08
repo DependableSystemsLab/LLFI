@@ -1,0 +1,5 @@
+br-(BRANCH)
+sub-(SUBTRACT)
+switch-(SWITCH_CASE)
+ret-(RETURN)
+mul-(MULTIPLY)
