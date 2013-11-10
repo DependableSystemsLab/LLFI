@@ -18,6 +18,8 @@
 #include "llvm/DerivedTypes.h"
 #include "llvm/Function.h"
 #include "llvm/LLVMContext.h"
+#include "llvm/Value.h"
+#include "llvm/User.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
@@ -91,8 +93,36 @@ void FaultInjectionPass::insertInjectionFuncCall(
       // redirect the data dependencies
       if (fi_reg == fi_inst) {
         // inject into destination
-        fi_inst->replaceAllUsesWith(ficall);
-        ficall->replaceUsesOfWith(ficall, fi_inst);
+        std::list<User*> inst_uses;
+        for (Value::use_iterator use_it = fi_inst->use_begin();
+             use_it != fi_inst->use_end(); ++use_it) {
+          User *user = *use_it;
+          
+          if (user != ficall) {
+            inst_uses.push_back(user);
+          }
+        }
+        
+        for (std::list<User*>::iterator use_it = inst_uses.begin();
+             use_it != inst_uses.end(); ++use_it) {
+          User *user = *use_it;
+          user->replaceUsesOfWith(fi_inst, ficall);
+          
+          // update the selected inst pool
+          if (Instruction *use_inst = dyn_cast<Instruction>(user)) {
+            if (inst_regs_map->find(use_inst) != inst_regs_map->end()) {
+              std::list<Value*> *reg_list = (*inst_regs_map)[use_inst];
+              
+              for (std::list<Value*>::iterator reg_it = reg_list->begin();
+                   reg_it != reg_list->end(); ++reg_it) {
+                if (*reg_it == fi_inst) {
+                  *reg_it = ficall;
+                }
+              }
+            }
+          }
+        }
+        
       } else {
         // inject into source
         fi_inst->replaceUsesOfWith(fi_reg, ficall);
