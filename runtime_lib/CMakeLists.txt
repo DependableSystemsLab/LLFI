@@ -9,6 +9,7 @@ add_library(llfi-rt SHARED
     InstTraceLib.c
     ProfilingLib.c
     Utils.c
+AutomatedInjection.cpp
 IncreasedValue.cpp
 DecreasedValue.cpp
 noOpen_API.cpp

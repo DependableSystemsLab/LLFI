@@ -36,4 +36,22 @@ add_llvm_loadable_module(llfi-passes
    memmoveInstSelector.cpp
    freeInstSelector.cpp
   
+  _API_NoOpenInstSelector.cpp
+  _API_NoCloseInstSelector.cpp
+  _API_WrongFileInstSelector.cpp
+  _API_BufferOverflowInstSelector.cpp
+  _API_BufferUnderflowInstSelector.cpp
+  _API_WrongModeInstSelector.cpp
+  _API_InappropriateCloseInstSelector.cpp
+  _API_WrongPointerInstSelector.cpp
+
+  _Mem_BufferOverflow1InstSelector.cpp
+  _Mem_BufferOverflow2InstSelector.cpp
+  _Mem_UnderAccumulatorInstSelector.cpp
+  _Mem_WrongSourceInstSelector.cpp
+  _Mem_WrongDestinationInstSelector.cpp
+  _Mem_MemoryLeakInstSelector.cpp
+  
+
+  _AutoRegSelector.cpp
 )

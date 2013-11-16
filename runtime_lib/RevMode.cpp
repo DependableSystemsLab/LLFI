@@ -7,16 +7,18 @@ class ReverseMode: public FaultInjector {
                       char *buf) {
 	
        FILE *fp;
-      char newMode;
-        fp=fopen("newMode-config","r");
-         newMode=fgetc(fp);
-          fclose(fp);
-     
-        *buf= newMode;
+      char *newMode;
+       fp=fopen("newMode-config","r");
+         *newMode=fgetc(fp);
+         fclose(fp);
+         // std::cin>> newMode;
       
+           *buf= *newMode; 
           
          
-  }
+          
+         
+                                }
 };
 
 
