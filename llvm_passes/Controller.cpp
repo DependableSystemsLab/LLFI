@@ -6,8 +6,10 @@
 #include "Controller.h"
 #include "FICustomSelectorManager.h"
 #include "Utils.h"
+#include "FIInstSelectorManager.h"
 #include "FIInstSelector.h"
 #include "InstTypeFIInstSelector.h"
+#include "FuncNameFIInstSelector.h"
 #include "FIRegSelector.h"
 #include "RegLocBasedFIRegSelector.h"
 
@@ -17,15 +19,16 @@ namespace llfi {
 /**
  * Inject Instruction
  */
-static cl::opt< FIInstSelMethod > fiinstselmethod(
+static cl::list< FIInstSelMethod > fiinstselmethod(
     cl::desc("Choose how to specify the fault injection target instructions"),
-    cl::init(insttype),
     cl::values(
       clEnumVal(insttype, "Specify through instruction type/opcode"),
+      clEnumVal(funcname, "Specify through function name"),
       clEnumVal(sourcecode, "Specify through source code"),
       clEnumVal(custominstselector, 
                 "Specify through custom instruction selector"),
-      clEnumValEnd));
+      clEnumValEnd),
+    cl::ZeroOrMore);
 
 // inst type
 static cl::list< std::string > includeinst("includeinst", 
@@ -33,6 +36,14 @@ static cl::list< std::string > includeinst("includeinst",
     cl::ZeroOrMore);
 static cl::list< std::string > excludeinst("excludeinst", 
     cl::desc("The type of instruction to be excluded for fault injection"), 
+    cl::ZeroOrMore);
+
+// func name
+static cl::list< std::string > includefunc("includefunc", 
+    cl::desc("The function name to be included for fault injection"), 
+    cl::ZeroOrMore);
+static cl::list< std::string > excludefunc("excludefunc", 
+    cl::desc("The function name to be excluded for fault injection"), 
     cl::ZeroOrMore);
 
 // custom instruction selector name
@@ -124,21 +135,57 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
     }
   }
 }
+void Controller::getFuncList(std::set<std::string> *fi_func_set) {
+  std::set<std::string>::iterator it;
+  for (size_t i = 0; i < includefunc.size(); ++i) {
+    if(includefunc[i] == "all") {
+      for(it = func_set.begin(); it != func_set.end(); ++it) {
+        fi_func_set->insert(*it);
+      }
+    } else {
+      fi_func_set->insert(includefunc[i]);
+    }
+  }
+
+  // exclude list
+  for(size_t i = 0; i < excludefunc.size(); ++i) {
+    it = fi_func_set->find(excludefunc[i]);
+    if(it != fi_func_set->end()) {
+      fi_func_set->erase(it);
+    } else {
+      errs() << "ERROR: Invalid exclude function name: " << excludefunc[i]
+          << "\n";
+      exit(1);
+    }
+  }
+}
 
 void Controller::processInstSelArgs() {
-  fiinstselector = NULL;
-  if (fiinstselmethod == insttype) {
-    std::set<unsigned> *fi_opcode_set = new std::set<unsigned>;
-    getOpcodeListofFIInsts(fi_opcode_set);
-    fiinstselector = new InstTypeFIInstSelector(fi_opcode_set);
-  } else if (fiinstselmethod == custominstselector) {
-    FICustomInstSelectorManager *m = 
-        FICustomInstSelectorManager::getCustomInstSelectorManager();
-    fiinstselector = m->getCustomInstSelector(fiinstselectorname);
-  } else {
-    // TODO: handle the source code case
-    errs() << "ERROR: option not implemented yet\n";
-    exit(4);
+  fiinstselector = new FIInstSelectorManager();
+  std::set<unsigned> *fi_opcode_set;
+  std::set<std::string> *fi_func_set;
+  FICustomInstSelectorManager *m;
+  for(size_t i = 0; i < fiinstselmethod.size(); ++i) {
+    switch(fiinstselmethod[i]) {
+      case insttype:
+        fi_opcode_set = new std::set<unsigned>;
+        getOpcodeListofFIInsts(fi_opcode_set);
+        fiinstselector->addSelector(new InstTypeFIInstSelector(fi_opcode_set));
+        break;
+      case funcname:
+        fi_func_set = new std::set<std::string>;
+        getFuncList(fi_func_set);
+        fiinstselector->addSelector(new FuncNameFIInstSelector(fi_func_set));
+        break;
+      case custominstselector:
+        m = FICustomInstSelectorManager::getCustomInstSelectorManager();
+        fiinstselector->addSelector(m->getCustomInstSelector(fiinstselectorname));
+        break;
+      default:
+        // TODO: handle the source code case
+        errs() << "ERROR: option not implemented yet\n";
+        exit(4);
+    }
   }
   fiinstselector->setIncludeBackwardTrace(includebackwardtrace);
   fiinstselector->setIncludeForwardTrace(includeforwardtrace);
@@ -171,8 +218,18 @@ void Controller::processCmdArgs() {
   processRegSelArgs();
 }
 
+// Create a list of functions present in M
+void Controller::getModuleFuncs(Module &M) {
+  Module::iterator it;
+  for(it = M.begin(); it != M.end(); ++it) {
+    func_set.insert(it->getName().str());
+  }
+}
 
 void Controller::init(Module &M) {
+  // generate list of functions present in M
+  getModuleFuncs(M);
+
   processCmdArgs();
   
   // select fault injection instructions

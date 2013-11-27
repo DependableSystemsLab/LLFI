@@ -11,12 +11,12 @@
 using namespace llvm;
 
 namespace llfi {
-class FIInstSelector;
+class FIInstSelectorManager;
 class FIRegSelector;
 
 
 enum FIInstSelMethod {
-  insttype, sourcecode, custominstselector
+  insttype, funcname, sourcecode, custominstselector
 };
 
 enum FIRegSelMethod {
@@ -51,6 +51,8 @@ class Controller {
   void processRegSelArgs();
 
   void getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set);
+  void getFuncList(std::set<std::string> *fi_func_set);
+  void getModuleFuncs(Module &M);
 
  // output of the controller
  private:
@@ -61,8 +63,11 @@ class Controller {
   std::map<Instruction*, std::list< Value* >* > fi_inst_regs_map;  
 
  private:
-  FIInstSelector *fiinstselector;
+  FIInstSelectorManager *fiinstselector;
   FIRegSelector *firegselector;
+
+  // set of functions present in module
+  std::set<std::string> func_set;
 
  private:
   static Controller *ctrl;

@@ -9,7 +9,9 @@ add_llvm_loadable_module(llfi-passes
   Controller.cpp
   FICustomSelectorManager.cpp
   FIInstSelector.cpp
+  FIInstSelectorManager.cpp
   FIRegSelector.cpp
+  FuncNameFIInstSelector.cpp
   GenLLFIIndexPass.cpp
   ProfilingPass.cpp
   InstTypeFIInstSelector.cpp

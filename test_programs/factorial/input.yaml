@@ -1,9 +1,10 @@
 compileOption:
-    instSelMethod: insttype
-    include: 
-        - all
-    exclude:
-        - ret
+    instSelMethod:
+      - insttype:
+          include: 
+            - all
+          exclude:
+            - ret
 
     regSelMethod: regloc
     regloc: dstreg
