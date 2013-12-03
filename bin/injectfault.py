@@ -347,7 +347,7 @@ def main(args):
 
         # print run index before executing. Comma removes newline for prettier
         # formatting
-        print(str(index) + ": "),
+        print(str(index+1) + ": "),
         execlist.extend(optionlist)
         ret = execute(execlist)
         if ret == "timed-out":
