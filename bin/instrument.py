@@ -189,7 +189,9 @@ def readCompileOption():
       if methodName != "custominstselector":
         compileOptions.append("-%s" % (str(methodName)))
       else:
-        compileOptions.append('-fiinstselectorname='+methodName)
+        compileOptions.append('-custominstselector')
+        compileOptions.append('-fiinstselectorname='+method[methodName])
+        continue # custom selectors don't have attributes
       
       # Ensure that 'include' is specified at least
       # TODO: This isn't a very extendible way of doing this.
