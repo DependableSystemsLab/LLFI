@@ -1,1 +1,0 @@
-FI stat: fi_type=stuck_at_0, fi_index=38, fi_cycle=111, fi_reg_index=0, fi_bit=2

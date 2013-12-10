@@ -13,7 +13,7 @@ class AutoInjection: public FaultInjector {
                   getline(inf, strInput);
                    //std::cout<<strInput<<"\n";
            
-        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="WrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination"))
+        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination"))
       
         {
     unsigned fi_bytepos = fi_bit / 8;
@@ -25,7 +25,7 @@ class AutoInjection: public FaultInjector {
  
        else  if ((strInput=="APIBufferOverflow")||(strInput=="MemBufOverflow2")|| (strInput=="MemUnderAccumulator") )
        {
-        int diff=2500;
+        int diff=2500000;
          int* newbuf= (int*)buf;
           *newbuf=*newbuf + diff;
             buf= (char*)newbuf;
@@ -35,11 +35,12 @@ class AutoInjection: public FaultInjector {
        else if ((strInput=="APIBufferUnderflow")||(strInput=="MemBufOverflow1"))
 
        {
-       int diff=2500;
+       int diff=10;
          int* newbuf= (int*)buf;
           *newbuf=*newbuf - diff;
             buf= (char*)newbuf;
          std::cout<<"DecValue injected"<<"\n" ;
+         std::cout<<"New size is:"<< *newbuf<<"\n" ;
        }
 
       else if (strInput=="APIInappropriateClose")

@@ -1,2 +1,0 @@
-fi_cycle=54
-fi_type=stuck_at_0

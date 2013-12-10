@@ -1,2 +1,0 @@
-fi_cycle=0
-fi_type=bitflip
