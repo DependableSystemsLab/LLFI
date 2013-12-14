@@ -137,13 +137,16 @@ void Controller::getOpcodeListofFIInsts(std::set<unsigned> *fi_opcode_set) {
 }
 void Controller::getFuncList(std::set<std::string> *fi_func_set) {
   std::set<std::string>::iterator it;
+  std::string func;
   for (size_t i = 0; i < includefunc.size(); ++i) {
     if(includefunc[i] == "all") {
       for(it = func_set.begin(); it != func_set.end(); ++it) {
-        fi_func_set->insert(*it);
+        func = demangleFuncName(*it);
+        fi_func_set->insert(func);
       }
     } else {
-      fi_func_set->insert(includefunc[i]);
+      func = demangleFuncName(includefunc[i]);
+      fi_func_set->insert(func);
     }
   }
 
@@ -218,11 +221,15 @@ void Controller::processCmdArgs() {
   processRegSelArgs();
 }
 
-// Create a list of functions present in M
+// Create a list of functions present in M. Certain care must be taken when
+// compiling C++ due to name mangling.
 void Controller::getModuleFuncs(Module &M) {
   Module::iterator it;
   for(it = M.begin(); it != M.end(); ++it) {
-    func_set.insert(it->getName().str());
+    std::string func_name = it->getNameStr();
+    std::string final_name = demangleFuncName(func_name);
+
+    func_set.insert(final_name);
   }
 }
 

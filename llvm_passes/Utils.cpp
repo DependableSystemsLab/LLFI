@@ -3,6 +3,38 @@
 
 namespace llfi {
 
+std::string demangleFuncName(std::string func) {
+  std::string ret =  func;
+  // Check for name mangling. C++ functions will always start with _Z
+  // Demangled form is processed to remove type information.
+  if(func[0] == '_' && func[1] == 'Z') {
+    int stat;
+    char *test = abi::__cxa_demangle(func.c_str(), NULL, NULL, &stat);
+    std::string demangled = test;
+    free(test);
+
+    // Select up to the first ( to only insert function name
+    size_t endpos = demangled.find("(");
+      
+    // Templated functions will have type information first, so skip to the
+    // first space.
+    size_t startpos = demangled.find(" ");
+    if(startpos < endpos) {
+      // skip until after the space
+      ++startpos;
+      // also modify endpos to the first '<' to remove template info
+      endpos = demangled.find("<") - startpos;
+    } else {
+      // regular C++ function, no template info to remove
+      startpos = 0;
+    }
+
+    ret = demangled.substr(startpos,endpos);
+  }
+
+  return ret;
+}
+
 std::string intToString(int i) {
   std::stringstream s;
   s << i;
