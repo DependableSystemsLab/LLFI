@@ -144,11 +144,12 @@ def checkInputYaml():
   try:
     doc = yaml.load(f)
     f.close()
+    verbosePrint(yaml.dump(doc), options["verbose"])
   except:
     print "Error: input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
     os.rmdir(options["dir"])
     exit(1)
-  
+
   #Check for compileOption in input.yaml
   try:
     cOpt = doc["compileOption"]
@@ -175,35 +176,41 @@ def readCompileOption():
     print ("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n")
     exit(1)
   else:
-    #Select by instruction type
-    if cOpt["instSelMethod"] == 'insttype':
-      compileOptions = ['-insttype']
-      if "include" not in cOpt:  
-        print ("\n\nERROR: An 'Include' list must be present for the insttype method in input.yaml.\n")
+    compileOptions = []
+    validMethods = ["insttype", "funcname", "custominstselector"]
+    # Generate list of instruction selection methods
+    # TODO: Generalize and document
+    instSelMethod = cOpt["instSelMethod"]
+    for method in instSelMethod:
+      methodName = method.keys()[0]
+      if methodName not in validMethods:
+        print ("\n\nERROR: Unknown instruction selection method in input.yaml.\n")
         exit(1)
+      if methodName != "custominstselector":
+        compileOptions.append("-%s" % (str(methodName)))
       else:
-        #include list
-        for inst in cOpt["include"]:
-          compileOptions.append('-includeinst='+inst)
-        #exclude list
-        if "exclude" in cOpt:
-          for inst in cOpt["exclude"]:
-            compileOptions.append('-excludeinst='+inst)
-    #Select by custom instruction 
-    elif cOpt["instSelMethod"] == 'custominstselector':
-      compileOptions = ['-custominstselector']
-    
-      if "customInstSelector" not in cOpt:
-        print ("\n\nERROR: A 'customInstSelector' key value pair must be present for the customeinstselector method in input.yaml.\n")
+        compileOptions.append('-custominstselector')
+        compileOptions.append('-fiinstselectorname='+method[methodName])
+        continue # custom selectors don't have attributes
+      
+      # Ensure that 'include' is specified at least
+      # TODO: This isn't a very extendible way of doing this.
+      if methodName != "custominstselector" and "include" not in method[methodName]:
+        print ("\n\nERROR: An 'include' list must be present for the %s method in input.yaml.\n" % (methodName))
         exit(1)
-      else:
-        compileOptions.append('-fiinstselectorname='+cOpt["customInstSelector"])
-        if "customInstSelectorOption" in cOpt:
-          for opt in cOpt["customInstSelectorOption"]:
-            compileOptions.append(opt)
-    else:
-      print ("\n\nERROR: Unknown Instruction selection method in input.yaml.\n")
-      exit(1)
+
+      # Parse all options for current method
+      for attr in method[methodName].keys():
+        prefix = "-%s" % (str(attr))
+        if methodName == "insttype":
+          prefix += "inst="
+        elif methodName == "funcname":
+          prefix += "func="
+        else: # add the ability to give custom options here?
+          pass
+        # Generate list of options for attribute
+        opts = [prefix + opt for opt in method[methodName][attr]]
+        compileOptions.extend(opts)
 
   ###Register selection method
   if "regSelMethod" not in cOpt:  
@@ -292,7 +299,7 @@ def compileProg():
   if options["genDotGraph"]:
     execlist.append('-dotgraphpass')
   retcode = execCompilation(execlist)
-  
+
   if retcode == 0:
     execlist = [optbin, '-load', llfilib, '-profilingpass']
     execlist2 = ['-o', proffile + _suffixOfIR(), llfi_indexed_file + _suffixOfIR()]

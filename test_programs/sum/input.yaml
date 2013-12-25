@@ -1,24 +1,21 @@
+timeOut: 10
+
 compileOption:
     instSelMethod:
-      - insttype
+      - funcname:
           include: 
             - all
           exclude:
-            - ret
+            - sum
+      - insttype:
+          include:
+            - load
 
     regSelMethod: regloc
     regloc: dstreg
-
-    includeInjectionTrace: 
-        - forward
-        - backward
-
 
 runOption:
     - run:
         numOfRuns: 1
         fi_type: bitflip
 
-    - run:
-        numOfRuns: 1
-        fi_type: stuck_at_0

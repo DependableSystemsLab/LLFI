@@ -11,6 +11,10 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 
+// For name demangling
+#include <cxxabi.h>
+
+
 #include <map>
 #include <set>
 #include <string>
@@ -20,6 +24,10 @@ using namespace llvm;
 namespace llfi {
 std::string intToString(int i);
 std::string longToString(long i);
+
+// Return a demangled version of a C++ function name. Removes type info from
+// templated functions
+std::string demangleFuncName(std::string func);
 
 // return the terminate instruction of the function
 Instruction *getTermInstofFunction(Function *func);
