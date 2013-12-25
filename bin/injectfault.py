@@ -117,6 +117,7 @@ def config():
 ################################################################################
 def execute( execlist):
   global outputfile
+  global return_codes
   print ' '.join(execlist)
   #get state of directory
   dirSnapshot()
@@ -134,6 +135,11 @@ def execute( execlist):
       outputFile.write(p.communicate()[0])
       outputFile.close()
       replenishInput() #for cases where program deletes input or alters them each run
+      # Keep a dict of all return codes received.
+      if p.returncode in return_codes:
+        return_codes[p.returncode] += 1
+      else:
+        return_codes[p.returncode] = 1
       #inputFile.close()
       return str(p.returncode)
   #inputFile.close()
@@ -241,7 +247,10 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
 
 ################################################################################
 def main(args):
-  global optionlist, outputfile, totalcycles,run_id
+  global optionlist, outputfile, totalcycles,run_id, return_codes
+
+  # Maintain a dict of all return codes received and print summary at end
+  return_codes = {}
 
   parseArgs(args)
   checkInputYaml()
@@ -336,6 +345,9 @@ def main(args):
           ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
         ficonfig_File.close()
 
+        # print run index before executing. Comma removes newline for prettier
+        # formatting
+        print(str(index+1) + ": "),
         execlist.extend(optionlist)
         ret = execute(execlist)
         if ret == "timed-out":
@@ -350,6 +362,12 @@ def main(args):
           error_File = open(errorfile, 'w')
           error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
           error_File.close()
+
+    # Print summary
+    print("========== SUMMARY ==========")
+    print("Return codes:")
+    for r in return_codes.keys():
+      print("  %3d: %5d" % (r, return_codes[r]))
 
 ################################################################################
 
