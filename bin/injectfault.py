@@ -32,6 +32,10 @@ basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
 fi_exe = ""
 
+options = {
+  "verbose": False,
+}
+
 def usage(msg = None):
   retval = 0
   if msg is not None:
@@ -91,6 +95,16 @@ def checkInputYaml():
     exit(1)
 
 
+def print_progressbar(idx, nruns):
+  pct = (float(idx) / float(nruns))
+  WIDTH = 50
+  bar = "=" *  int(pct * WIDTH)
+  bar += ">"
+  bar += "-" * (WIDTH - int(pct * WIDTH))
+  print("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)),
+  sys.stdout.flush()
+
+
 ################################################################################
 def config():
   global inputdir, outputdir, errordir, stddir, llfi_stat_dir
@@ -118,7 +132,6 @@ def config():
 def execute( execlist):
   global outputfile
   global return_codes
-  print ' '.join(execlist)
   #get state of directory
   dirSnapshot()
   p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
@@ -126,11 +139,8 @@ def execute( execlist):
   while (elapsetime < timeout):
     elapsetime += 1
     time.sleep(1)
-    #print p.poll()
     if p.poll() is not None:
       moveOutput()
-      print "\t program finish", p.returncode
-      print "\t time taken", elapsetime,"\n"
       outputFile = open(outputfile, "w")
       outputFile.write(p.communicate()[0])
       outputFile.close()
@@ -140,10 +150,13 @@ def execute( execlist):
         return_codes[p.returncode] += 1
       else:
         return_codes[p.returncode] = 1
-      #inputFile.close()
       return str(p.returncode)
-  #inputFile.close()
-  print "\tParent : Child timed out. Cleaning up ... "
+
+  # child timed out!
+  if "TO" in return_codes:
+    return_codes["TO"] += 1
+  else:
+    return_codes["TO"] = 1
   p.kill()
 
   moveOutput()
@@ -175,7 +188,7 @@ def moveOutput():
       fileSize = os.stat(each).st_size
       if fileSize == 0 and each.startswith("llfi"):
         #empty library output, can delete
-        print each+ " is going to be deleted for having size of " + str(fileSize)
+        #print each+ " is going to be deleted for having size of " + str(fileSize)
         os.remove(each)
       else:
         flds = each.split(".")
@@ -283,6 +296,10 @@ def main(args):
       run_number=run["run"]["numOfRuns"]
       checkValues("run_number", run_number)
 
+      # check for verbosity option, set at the FI run level
+      if "verbose" in run["run"]:
+        options["verbose"] = run["run"]["verbose"]
+
       # reset all configurations
       if 'fi_type' in locals():
         del fi_type
@@ -310,7 +327,7 @@ def main(args):
         checkValues("fi_reg_index",fi_reg_index)
       if "fi_bit" in run["run"]:
         fi_bit=run["run"]["fi_bit"]
-        checkValues("fi_bit",fi_bit)
+        checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
         print ("\nINFO: You choose to inject faults based on LLFI index, "
@@ -347,7 +364,6 @@ def main(args):
 
         # print run index before executing. Comma removes newline for prettier
         # formatting
-        print(str(index+1) + ": "),
         execlist.extend(optionlist)
         ret = execute(execlist)
         if ret == "timed-out":
@@ -363,11 +379,16 @@ def main(args):
           error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
           error_File.close()
 
+        # Print updates
+        print_progressbar(index, run_number)
+
+    print_progressbar(run_number, run_number)
     # Print summary
-    print("========== SUMMARY ==========")
-    print("Return codes:")
-    for r in return_codes.keys():
-      print("  %3d: %5d" % (r, return_codes[r]))
+    if options["verbose"]:
+      print("\n========== SUMMARY ==========")
+      print("Return codes:")
+      for r in return_codes.keys():
+        print("  %3d: %5d" % (r, return_codes[r]))
 
 ################################################################################
 
