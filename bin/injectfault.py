@@ -327,7 +327,7 @@ def main(args):
         checkValues("fi_reg_index",fi_reg_index)
       if "fi_bit" in run["run"]:
         fi_bit=run["run"]["fi_bit"]
-        checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
+        checkValues("fi_bit",fi_bit)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
         print ("\nINFO: You choose to inject faults based on LLFI index, "
