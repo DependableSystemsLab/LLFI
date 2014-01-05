@@ -388,7 +388,7 @@ def main(args):
       print("\n========== SUMMARY ==========")
       print("Return codes:")
       for r in return_codes.keys():
-        print("  %3d: %5d" % (r, return_codes[r]))
+        print("  %3s: %5d" % (str(r), return_codes[r]))
 
 ################################################################################
 
