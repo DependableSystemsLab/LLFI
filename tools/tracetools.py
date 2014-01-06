@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 #traceTools.py
 #Author: Sam Coulter
 #This file contains library functions and classes for the llfi tracing and

@@ -1,0 +1,17 @@
+GOTCHAS:
+	1. For injecting fault n times, use the same IR file (i.e. run the script once, while calling the fault injector with the same IR file n times). 
+		
+	2. The classification of the injection results depends on the comparison of fault-free execution and fault-injected execution.
+		That means non-deterministic programs may not work well in classification.
+
+	3. For different test benches, the method used to classify the results of faulty executions might be different. Please write your own specific classification 		code.
+
+		
+KNOWN PROBLEMS:
+	1. On 32 bit systems, llvm-gcc 4.2.1 might not be compatible with GCC other than version 4.4.5. 
+		Runing llvm-gcc 4.2.1 on Ubuntu 12.04 with GCC-4.6 has failed on our test computers.
+	3. On Default 64bit installations of Debian "Wheezy", running LLFI will fail on our test computers.
+
+Recommended Environment:
+	Debian 6.0.7 "Squeeze" 64bit Default Installation
+

@@ -1,0 +1,80 @@
+/**
+ * instruction.def is a copy of Instruction.def in llvm.
+ * If there is any change in the opcode of Instructions.def, please update
+ * this file accordingly
+ */
+
+
+// The format of items are 
+// HANDLE_INST(opcode, instruction name, instruction category, execution cycles)
+// update the execution cycle for your own case
+
+// Terminator Instructions
+HANDLE_INST  ( 1, Ret        , ReturnInst,            1)
+HANDLE_INST  ( 2, Br         , BranchInst,            1)
+HANDLE_INST  ( 3, Switch     , SwitchInst,            1)
+HANDLE_INST  ( 4, IndirectBr , IndirectBrInst,        1)
+HANDLE_INST  ( 5, Invoke     , InvokeInst,            1)
+HANDLE_INST  ( 6, Unwind     , UnwindInst,            1)
+HANDLE_INST  ( 7, Unreachable, UnreachableInst,       1)
+
+// Standard binary operators...
+HANDLE_INST  ( 8, Add  , BinaryOperator,              1)
+HANDLE_INST  ( 9, FAdd  , BinaryOperator,             1)
+HANDLE_INST  (10, Sub  , BinaryOperator,              1)
+HANDLE_INST  (11, FSub  , BinaryOperator,             1)
+HANDLE_INST  (12, Mul  , BinaryOperator,              1)
+HANDLE_INST  (13, FMul  , BinaryOperator,             1)
+HANDLE_INST  (14, UDiv , BinaryOperator,              1)
+HANDLE_INST  (15, SDiv , BinaryOperator,              1)
+HANDLE_INST  (16, FDiv , BinaryOperator,              1)
+HANDLE_INST  (17, URem , BinaryOperator,              1)
+HANDLE_INST  (18, SRem , BinaryOperator,              1)
+HANDLE_INST  (19, FRem , BinaryOperator,              1)
+
+// Logical operators (integer operands)
+HANDLE_INST  (20, Shl  , BinaryOperator,              1) // Shift left  (logical)
+HANDLE_INST  (21, LShr , BinaryOperator,              1) // Shift right (logical)
+HANDLE_INST  (22, AShr , BinaryOperator,              1) // Shift right (arithmetic)
+HANDLE_INST  (23, And  , BinaryOperator,              1)
+HANDLE_INST  (24, Or   , BinaryOperator,              1)
+HANDLE_INST  (25, Xor  , BinaryOperator,              1)
+
+// Memory operators...
+HANDLE_INST  (26, Alloca, AllocaInst,                 1)  // Stack management
+HANDLE_INST  (27, Load  , LoadInst,                   1)  // Memory manipulation instrs
+HANDLE_INST  (28, Store , StoreInst,                  1)
+HANDLE_INST  (29, GetElementPtr, GetElementPtrInst,   1)
+
+// Cast operators ...
+HANDLE_INST  (30, Trunc   , TruncInst,                1)  // Truncate integers
+HANDLE_INST  (31, ZExt    , ZExtInst,                 1)  // Zero extend integers
+HANDLE_INST  (32, SExt    , SExtInst,                 1)  // Sign extend integers
+HANDLE_INST  (33, FPToUI  , FPToUIInst,               1)  // floating point -> UInt
+HANDLE_INST  (34, FPToSI  , FPToSIInst,               1)  // floating point -> SInt
+HANDLE_INST  (35, UIToFP  , UIToFPInst,               1)  // UInt -> floating point
+HANDLE_INST  (36, SIToFP  , SIToFPInst,               1)  // SInt -> floating point
+HANDLE_INST  (37, FPTrunc , FPTruncInst,              1)  // Truncate floating point
+HANDLE_INST  (38, FPExt   , FPExtInst,                1)  // Extend floating point
+HANDLE_INST  (39, PtrToInt, PtrToIntInst,             1)  // Pointer -> Integer
+HANDLE_INST  (40, IntToPtr, IntToPtrInst,             1)  // Integer -> Pointer
+HANDLE_INST  (41, BitCast , BitCastInst,              1)  // Type cast
+
+// Other operators...
+HANDLE_INST  (42, ICmp   , ICmpInst,                  1)  // Integer comparison instruction
+HANDLE_INST  (43, FCmp   , FCmpInst,                  1)  // Floating point comparison instr.
+HANDLE_INST  (44, PHI    , PHINode,                   1)  // PHI node instruction
+HANDLE_INST  (45, Call   , CallInst,                  1)  // Call a function
+HANDLE_INST  (46, Select , SelectInst,                1)  // select instruction
+HANDLE_INST  (47, UserOp1, Instruction,               1)  // May be used internally in a pass
+HANDLE_INST  (48, UserOp2, Instruction,               1)  // Internal to passes only
+HANDLE_INST  (49, VAArg  , VAArgInst,                 1)  // vaarg instruction
+HANDLE_INST  (50, ExtractElement, ExtractElementInst, 1)// extract from vector
+HANDLE_INST  (51, InsertElement, InsertElementInst,   1)  // insert into vector
+HANDLE_INST  (52, ShuffleVector, ShuffleVectorInst,   1)  // shuffle two vectors.
+HANDLE_INST  (53, ExtractValue, ExtractValueInst,     1)// extract from aggregate
+HANDLE_INST  (54, InsertValue, InsertValueInst,       1)  // insert into aggregate
+
+#ifdef HANDLE_INST
+#undef HANDLE_INST
+#endif
