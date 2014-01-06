@@ -1,0 +1,34 @@
+compileOption:
+    instSelMethod: insttype
+    include: 
+        - all
+    exclude:
+        - ret
+
+    regSelMethod: regloc
+    regloc: dstreg
+
+    includeInjectionTrace: 
+        - forward
+        - backward
+
+
+    
+runOption:
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+        fi_reg_index: 3
+        fi_bit: 32
+        fi_index: 22
+
+
+    - run:
+        numOfRuns: 1
+        fi_type: stuck_at_0
+        fi_cycle: 444
+        fi_index: 23
+        fi_reg_index: 2
+
+
+

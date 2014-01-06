@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 #traceOntoGraph.py
 #Author: Sam Coulter

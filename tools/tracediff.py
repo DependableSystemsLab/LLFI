@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 #traceDiff.py
 #  Author: Sam Coulter
