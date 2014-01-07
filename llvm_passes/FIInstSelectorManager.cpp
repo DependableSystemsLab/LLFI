@@ -1,5 +1,5 @@
 
-#include "llvm/Instructions.h"
+#include "llvm/IR/Instructions.h"
 
 #include "FIInstSelectorManager.h"
 

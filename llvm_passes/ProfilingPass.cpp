@@ -12,11 +12,11 @@
 // definition is linked to the instrumented bitcode file (after this pass). 
 //===----------------------------------------------------------------------===//
 
-#include "llvm/DerivedTypes.h"
-#include "llvm/Function.h"
-#include "llvm/Instruction.h"
-#include "llvm/Instructions.h"
-#include "llvm/LLVMContext.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/raw_ostream.h"
 
 #include <list>
@@ -52,9 +52,14 @@ bool ProfilingPass::runOnModule(Module &M) {
     // prepare for the calling argument and call the profiling function
     std::vector<Value*> profilingarg(1);
     const IntegerType* itype = IntegerType::get(context, 32);
-    Value* opcode = ConstantInt::get(itype, fi_inst->getOpcode());
+
+    //LLVM 3.3 Upgrading
+    IntegerType* itype_non_const = const_cast<IntegerType*>(itype);
+    Value* opcode = ConstantInt::get(itype_non_const, fi_inst->getOpcode());
     profilingarg[0] = opcode; 
-    CallInst::Create(profilingfunc, profilingarg.begin(), profilingarg.end(),
+    ArrayRef<Value*> profilingarg_array_ref(profilingarg);
+
+    CallInst::Create(profilingfunc, profilingarg_array_ref,
                      "", insertptr);
   }
 
@@ -88,10 +93,14 @@ void ProfilingPass::addEndProfilingFuncCall(Module &M) {
 
 Constant *ProfilingPass::getLLFILibProfilingFunc(Module &M) {
 	LLVMContext& context = M.getContext();
-  std::vector<const Type*> paramtypes(1);
+  std::vector<Type*> paramtypes(1);
   paramtypes[0] = Type::getInt32Ty(context);
+
+  // LLVM 3.3 Upgrading
+  ArrayRef<Type*> paramtypes_array_ref(paramtypes);
+
   FunctionType* profilingfunctype = FunctionType::get(
-      Type::getVoidTy(context), paramtypes, false);
+      Type::getVoidTy(context), paramtypes_array_ref, false);
   Constant *profilingfunc = M.getOrInsertFunction(
       "doProfiling", profilingfunctype);
   return profilingfunc;

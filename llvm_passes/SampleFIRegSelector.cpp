@@ -1,6 +1,6 @@
-#include "llvm/Value.h"
-#include "llvm/Instruction.h"
-#include "llvm/Constants.h"
+#include "llvm/IR/Value.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Constants.h"
 
 #include "FIRegSelector.h"
 #include "FICustomSelectorManager.h"

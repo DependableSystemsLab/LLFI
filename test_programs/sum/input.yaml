@@ -6,16 +6,18 @@ compileOption:
           include: 
             - all
           exclude:
-            - sum
+            - sum2
       - insttype:
           include:
             - load
+            - add
 
     regSelMethod: regloc
     regloc: dstreg
 
 runOption:
     - run:
-        numOfRuns: 1
+        numOfRuns: 5
         fi_type: bitflip
+        verbose: True
 

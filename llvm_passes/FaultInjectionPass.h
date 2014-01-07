@@ -1,11 +1,11 @@
 #ifndef FAULTINJECTION_PASS_H
 #define FAULTINJECTION_PASS_H
 
-#include "llvm/Constants.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/Pass.h"
-#include "llvm/Module.h"
-#include "llvm/Instruction.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Instructions.h"
 
 #include <iostream>
 #include <list>
@@ -21,7 +21,7 @@ class FaultInjectionPass: public ModulePass {
   virtual bool runOnModule(Module &M);	
   static char ID;
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.addRequired<TargetData>();
+    AU.addRequired<DataLayout>();
   }
 
  private: 
@@ -30,7 +30,7 @@ class FaultInjectionPass: public ModulePass {
 
   void insertInjectionFuncCall(
       std::map<Instruction*, std::list< Value* >* > *inst_regs_map, Module &M);
-  void createInjectionFuncforType(Module &M, const Type *functype, 
+  void createInjectionFuncforType(Module &M, Type *functype, 
                                   std::string &funcname, Constant *fi_func, 
                                   Constant *pre_func);
 	void createInjectionFunctions(Module &M);

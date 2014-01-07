@@ -6,15 +6,13 @@ LLFI is an LLVM based fault injection tool, that injects faults into the LLVM IR
 Dependencies
 ------------
   1. 32/64 bit Linux or OS X
-  2. CMake
+  2. CMake (minimum v2.8)
   3. Python
   4. Python YAML library (PyYAML)
-  5. llvm-gcc 4.2.1 (front end for LLVM 2.9).
-    * [Download](http://llvm.org/releases/download.html#2.9) llvm-gcc 4.2 front end binaries for your system. **OR**
-    * Build llvm-gcc 4.2 for your system. [Instructions](http://llvm.org/releases/2.9/docs/GettingStarted.html#installcf)
-  6. LLVM version 2.9, built with CMake
-    1. Build llvm-2.9 **WITH CMAKE**. [Instructions](http://llvm.org/docs/CMake.html)
-      * Remember to run `make` in the llvm build directory after running `cmake` specified in the instructions
+  5. Clang v3.3
+  6. LLVM v3.3, built with CMake
+    * Build llvm-3.3 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
+    * Remember to run `make` in the llvm build directory after running `cmake`.
 
 Building
 --------
@@ -27,15 +25,15 @@ List of options:
   -LLVM_DST_ROOT <LLVM CMake build root dir>:
       Make sure you build LLVM with CMake and pass build root directory here
   -LLVM_SRC_ROOT <LLVM source root dir>
-  -LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
+  -LLVM_GXX_BIN_DIR <clang's parent dir> (optional):
       You don't need to set it if it is in system path
   -LLFI_BUILD_ROOT <path where you want to build LLFI>
 
 --help(-h): show help information
 ```
-Here is a sample build command if `llvm-gcc` is already in $PATH:
+Here is a sample build command if `clang` is already in $PATH:
 ```
-./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-2.9 -LLVM_DST_ROOT $BUILD/llvm-2.9
+./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.3 -LLVM_DST_ROOT $BUILD/llvm-3.3
 ```
 
 Running
@@ -52,7 +50,7 @@ Example program: `factorial`
       ```
       <LLFI_BUILD_ROOT>/tools/compiletoIR --readable -o factorial.ll factorial.c
       ```
-     Alternatively, you can build your own IR file with `llvm-gcc`.
+     Alternatively, you can build your own IR file with `clang`.
   3. Instrument factorial with calls to LLFI libraries and create executables under *llfi* directory
 
       ```

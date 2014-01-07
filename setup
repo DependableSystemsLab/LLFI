@@ -103,7 +103,7 @@ def checkEnviroment():
     print >> sys.stderr, "ERROR: LLFI build directory already exists!\n"
     has_error = True
 
-  llvmgcc = "llvm-gcc"
+  llvmgcc = "clang"
   if optional_configs['LLVM_GXX_BIN_DIR'] != "":
     llvmgcc = os.path.join(optional_configs['LLVM_GXX_BIN_DIR'], llvmgcc)
   if not cmd_exists(llvmgcc):

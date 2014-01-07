@@ -3,19 +3,19 @@
 #include <iostream>
 #include <fstream>
 
-#include "llvm/Constants.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/GlobalValue.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/GlobalValue.h"
 #include "llvm/Pass.h"
-#include "llvm/Function.h"
-#include "llvm/Module.h"
-#include "llvm/Instruction.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Support/CommandLine.h"
-#include "llvm/Target/TargetData.h"
+#include "llvm/IR/DataLayout.h"
 
 #include "Utils.h"
 
@@ -65,7 +65,7 @@ struct bBlockGraph {
 bBlockGraph::bBlockGraph(BasicBlock *BB) {
   raw = BB;
   name = BB->getName().str();
-  funcName = BB->getParent()->getNameStr();
+  funcName = BB->getParent()->getName().str();
   BasicBlock::iterator lastInst;
   for (BasicBlock::iterator instIterator = BB->begin(),
      lastInst = BB->end();

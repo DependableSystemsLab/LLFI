@@ -1,4 +1,4 @@
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
@@ -226,7 +226,7 @@ void Controller::processCmdArgs() {
 void Controller::getModuleFuncs(Module &M) {
   Module::iterator it;
   for(it = M.begin(); it != M.end(); ++it) {
-    std::string func_name = it->getNameStr();
+    std::string func_name = it->getName().str();
     std::string final_name = demangleFuncName(func_name);
 
     func_set.insert(final_name);
