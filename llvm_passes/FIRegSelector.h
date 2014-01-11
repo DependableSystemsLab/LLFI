@@ -1,7 +1,7 @@
 #ifndef FI_REG_SELECTOR_H
 #define FI_REG_SELECTOR_H
-#include "llvm/Instruction.h"
-#include "llvm/Value.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Value.h"
 
 #include <set>
 #include <map>

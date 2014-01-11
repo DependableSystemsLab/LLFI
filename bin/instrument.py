@@ -34,8 +34,8 @@ import llvm_paths
 
 optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
 llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
-llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
 prog = os.path.basename(sys.argv[0])
 basedir = os.getcwd()
@@ -299,7 +299,7 @@ def compileProg():
   if options["genDotGraph"]:
     execlist.append('-dotgraphpass')
   retcode = execCompilation(execlist)
-
+  
   if retcode == 0:
     execlist = [optbin, '-load', llfilib, '-profilingpass']
     execlist2 = ['-o', proffile + _suffixOfIR(), llfi_indexed_file + _suffixOfIR()]

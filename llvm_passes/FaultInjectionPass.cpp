@@ -15,12 +15,10 @@
 // fault injection function. This function definition is linked to the 
 // instrumented bitcode file (after this pass). 
 //===----------------------------------------------------------------------===//
-#include "llvm/DerivedTypes.h"
-#include "llvm/Function.h"
-#include "llvm/LLVMContext.h"
-#include "llvm/Value.h"
-#include "llvm/User.h"
-#include "llvm/Target/TargetData.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/DataLayout.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 
@@ -54,24 +52,27 @@ void FaultInjectionPass::insertInjectionFuncCall(
     Instruction *fi_inst = inst_reg_it->first;
     std::list<Value* > *fi_regs = inst_reg_it->second;
     unsigned reg_index = 0;
-    const unsigned total_reg_num = fi_regs->size();
+    unsigned total_reg_num = fi_regs->size();
     for (std::list<Value* >::iterator reg_it = fi_regs->begin(); 
          reg_it != fi_regs->end(); ++reg_it, ++reg_index) {
       Value *fi_reg = *reg_it;
-      const Type *returntype = fi_reg->getType();
+      Type *returntype = fi_reg->getType();
       LLVMContext &context = M.getContext();
-      const Type *i64type = Type::getInt64Ty(context);
-      const Type *i32type = Type::getInt32Ty(context);
+      Type *i64type = Type::getInt64Ty(context);
+      Type *i32type = Type::getInt32Ty(context);
 
       // function declaration
-      std::vector<const Type*> paramtypes(5);
+      std::vector<Type*> paramtypes(5);
       paramtypes[0] = i64type;	// llfi index
       paramtypes[1] = returntype;	// the instruction to be injected
       paramtypes[2] = i32type; // opcode
       paramtypes[3] = i32type; // current fi reg index
       paramtypes[4] = i32type; // total fi reg number
-      FunctionType* injectfunctype = FunctionType::get(returntype, 
-                                                       paramtypes, false);
+
+      // LLVM 3.3 Upgrade
+      ArrayRef<Type*> paramtypes_array_ref(paramtypes);
+      FunctionType* injectfunctype = FunctionType::get(returntype, paramtypes_array_ref, false);
+
       std::string funcname = getFIFuncNameforType(returntype);
       Constant *injectfunc = M.getOrInsertFunction(funcname, injectfunctype);
 
@@ -79,6 +80,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
       // since the source register is another way of simulating fault
       // injection into "the instruction", use instruction's index instead
       Value *indexval = ConstantInt::get(i64type, getLLFIIndexofInst(fi_inst));
+
       std::vector<Value*> args(5);
       args[0] = indexval;
       args[1] = fi_reg;
@@ -86,9 +88,12 @@ void FaultInjectionPass::insertInjectionFuncCall(
       args[3] = ConstantInt::get(i32type, reg_index);
       args[4] = ConstantInt::get(i32type, total_reg_num);
 
+      // LLVM 3.3 Upgrade
+      ArrayRef<Value*> args_array_ref(args);
+
       Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
       Instruction* ficall = CallInst::Create(
-          injectfunc, args.begin(), args.end(), "fi", insertptr);
+          injectfunc, args_array_ref, "fi", insertptr);
 
       // redirect the data dependencies
       if (fi_reg == fi_inst) {
@@ -132,7 +137,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
 }
 
 void FaultInjectionPass::createInjectionFuncforType(
-    Module &M, const Type *fitype, std::string &fi_name, Constant *injectfunc,
+    Module &M, Type *fitype, std::string &fi_name, Constant *injectfunc,
     Constant *pre_fi_func) {
   LLVMContext &context = M.getContext();
   Function *f = M.getFunction(fi_name);
@@ -152,8 +157,11 @@ void FaultInjectionPass::createInjectionFuncforType(
   pre_fi_args[1] = args[2];
   pre_fi_args[2] = args[3];
   pre_fi_args[3] = args[4];
-  Value *prefuncval = CallInst::Create(pre_fi_func, pre_fi_args.begin(),
-                              pre_fi_args.end(), "pre_cond", entryblock);
+
+  // LLVM 3.3 Upgrade
+  ArrayRef<Value*> pre_fi_args_array_ref(pre_fi_args);
+
+  Value *prefuncval = CallInst::Create(pre_fi_func, pre_fi_args_array_ref, "pre_cond", entryblock);
 
   BasicBlock *fiblock = BasicBlock::Create(context, "inject", f);	
   BasicBlock *exitblock = BasicBlock::Create(context,"exit", f );
@@ -163,14 +171,18 @@ void FaultInjectionPass::createInjectionFuncforType(
 
   std::vector<Value*> fi_args(4);
   fi_args[0] = args[0]; //LLFI Number
-  TargetData &td = getAnalysis<TargetData>();
+  DataLayout &td = getAnalysis<DataLayout>();
   int size = td.getTypeSizeInBits(fitype);
   fi_args[1] = ConstantInt::get(Type::getInt32Ty(context), size); 
   fi_args[2] = new BitCastInst(tmploc, 
                     PointerType::get(Type::getInt8Ty(context), 0),
                     "tmploc_cast", fi2exit_branch);
   fi_args[3] = args[3];
-  CallInst::Create(injectfunc, fi_args.begin(), fi_args.end(), "",
+
+  // LLVM 3.3 Upgrade
+  ArrayRef<Value*> fi_args_array_ref(fi_args);
+
+  CallInst::Create(injectfunc, fi_args_array_ref, "",
                    fi2exit_branch);
 
   LoadInst *updateval = new LoadInst(tmploc, "updateval", exitblock);
@@ -185,8 +197,12 @@ void FaultInjectionPass::createInjectionFunctions(Module &M) {
        fi_rettype_funcname_map.begin();
        fi != fi_rettype_funcname_map.end(); ++fi) {
     const Type *fi_type = fi->first;
+
+    // LLVM 3.3 upgrading
+    Type *fi_type_unconst = const_cast<Type*>(fi_type);
+
     std::string fi_name = fi->second;
-    createInjectionFuncforType(M, fi_type, fi_name, injectfunc, pre_fi_func);
+    createInjectionFuncforType(M, fi_type_unconst, fi_name, injectfunc, pre_fi_func);
   }
 }
 
@@ -236,27 +252,35 @@ void FaultInjectionPass::finalize(Module &M) {
 }
 
 Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {
-  std::vector<const Type*> pre_fi_func_param_types(4);
+  std::vector<Type*> pre_fi_func_param_types(4);
   LLVMContext& context = M.getContext();
   pre_fi_func_param_types[0] = Type::getInt64Ty(context);// index
   pre_fi_func_param_types[1] = Type::getInt32Ty(context);// opcode
   pre_fi_func_param_types[2] = Type::getInt32Ty(context);// my reg index
   pre_fi_func_param_types[3] = Type::getInt32Ty(context);// total reg index num
+
+  // LLVM 3.3 Upgrade
+  ArrayRef<Type*> pre_fi_func_param_types_array_ref(pre_fi_func_param_types);
+
   FunctionType *pre_fi_func_type = FunctionType::get(
-      Type::getInt1Ty(context), pre_fi_func_param_types, false);
+      Type::getInt1Ty(context), pre_fi_func_param_types_array_ref, false);
   Constant *pre_fi_func = M.getOrInsertFunction("preFunc", pre_fi_func_type);
   return pre_fi_func;
 }
 
 Constant *FaultInjectionPass::getLLFILibFIFunc(Module &M) {
   LLVMContext& context = M.getContext();
-  std::vector<const Type*> fi_func_param_types(4);
+  std::vector<Type*> fi_func_param_types(4);
   fi_func_param_types[0] = Type::getInt64Ty(context); // index
   fi_func_param_types[1] = Type::getInt32Ty(context); // size
   fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0); //inst
   fi_func_param_types[3] = Type::getInt32Ty(context); // my reg index
+
+  // LLVM 3.3 Upgrade
+  ArrayRef<Type*> fi_func_param_types_array_ref(fi_func_param_types);
+
   FunctionType *injectfunctype = FunctionType::get(
-      Type::getVoidTy(context), fi_func_param_types, false);
+      Type::getVoidTy(context), fi_func_param_types_array_ref, false);
   Constant *injectfunc = M.getOrInsertFunction("injectFunc", injectfunctype);
   return injectfunc;
 } 

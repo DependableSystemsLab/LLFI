@@ -22,8 +22,8 @@ sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
 llvmlink = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llvm-link")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
-llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 prog = os.path.basename(sys.argv[0])
 
 basedir = os.getcwd()

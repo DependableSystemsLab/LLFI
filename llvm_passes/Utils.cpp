@@ -130,7 +130,7 @@ void genFullNameOpcodeMap(
     std::map<std::string, unsigned> &opcodenamemap) {
 #define HANDLE_INST(N, OPC, CLASS) \
   opcodenamemap[std::string(Instruction::getOpcodeName(N))] = N;
-#include "llvm/Instruction.def"
+#include "llvm/IR/Instruction.def"
 }
 
 //Returns true if the function is indexed by llfi 
