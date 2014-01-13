@@ -1,19 +1,20 @@
 #ifndef LLFI_UTILS_H
 #define LLFI_UTILS_H
-#include "llvm/Function.h"
-#include "llvm/Module.h"
-#include "llvm/Instruction.h"
-#include "llvm/Value.h"
-#include "llvm/BasicBlock.h"
-#include "llvm/Instructions.h"
-#include "llvm/Metadata.h"
+
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Value.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Metadata.h"
+
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 
 // For name demangling
 #include <cxxabi.h>
-
 
 #include <map>
 #include <set>

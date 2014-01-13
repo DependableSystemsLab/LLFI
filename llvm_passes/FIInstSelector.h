@@ -1,7 +1,7 @@
 #ifndef FI_INST_SELECTOR_H
 #define FI_INST_SELECTOR_H
-#include "llvm/Module.h"
-#include "llvm/Instruction.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
 
 #include <set>
 

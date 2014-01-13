@@ -13,19 +13,19 @@ Author: Sam Coulter
 #include <vector>
 #include <cmath>
 
-#include "llvm/Constants.h"
-#include "llvm/DerivedTypes.h"
-#include "llvm/GlobalValue.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/GlobalValue.h"
 #include "llvm/Pass.h"
-#include "llvm/Function.h"
-#include "llvm/Module.h"
-#include "llvm/Instruction.h"
-#include "llvm/Instructions.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Support/CommandLine.h"
-#include "llvm/Target/TargetData.h"
+#include "llvm/IR/DataLayout.h"
 
 #include "Utils.h"
 
@@ -48,7 +48,7 @@ struct InstTrace : public FunctionPass {
 
   //Add AnalysisUsage Pass as prerequisite for InstTrace Pass
   virtual void getAnalysisUsage(AnalysisUsage &AU) const {
-    AU.addRequired<TargetData>();
+    AU.addRequired<DataLayout>();
   }
 
   virtual bool doInitialization(Module &M) {
@@ -132,7 +132,7 @@ struct InstTrace : public FunctionPass {
           //Insert an instruction to Store the instruction Value!
           new StoreInst(inst, ptrInst, insertPoint);
 
-          TargetData &td = getAnalysis<TargetData>();
+          DataLayout &td = getAnalysis<DataLayout>();
           bitSize = (float)td.getTypeSizeInBits(inst->getType());
         }
         else {
@@ -144,21 +144,33 @@ struct InstTrace : public FunctionPass {
         int byteSize = (int)ceil(bitSize / 8.0);
 
         //Insert instructions to allocate stack memory for opcode name
-        llvm::Value* OPCodeName = llvm::ConstantArray::get(context, inst->getOpcodeName());
+
+        // LLVM 3.3 Upgrading
+        /* FIXME: Jiesheng, is it safe? */
+        const char* opcodeNamePt = inst->getOpcodeName();
+        char* opcodeNamePtNonConst = const_cast<char*>(opcodeNamePt);
+        ArrayRef<uint8_t> opcode_name_array_ref((uint8_t) *opcodeNamePtNonConst);
+        //llvm::Value* OPCodeName = llvm::ConstantArray::get(context, opcode_name_array_ref);
+        llvm::Value* OPCodeName = llvm::ConstantDataArray::get(context, opcode_name_array_ref);
+        /********************************/
+
         AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(),
                                                "llfi_trace", insertPoint);
         new StoreInst(OPCodeName, OPCodePtr, insertPoint);
 
         //Create the decleration of the printInstTracer Function
-        std::vector<const Type*> parameterVector(5);
+        std::vector<Type*> parameterVector(5);
         parameterVector[0] = Type::getInt32Ty(context); //ID
         parameterVector[1] = OPCodePtr->getType();     //Ptr to OpCode
         parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value
         parameterVector[3] = ptrInst->getType();    //Ptr to Inst Value
         parameterVector[4] = Type::getInt32Ty(context); //Int of max traces
+        
+        // LLVM 3.3 Upgrade
+        ArrayRef<Type*> parameterVector_array_ref(parameterVector);
 
         FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), 
-                                                        parameterVector, false);
+                                                        parameterVector_array_ref, false);
         Constant *traceFunc = M->getOrInsertFunction("printInstTracer", traceFuncType); 
 
         //Insert the tracing function, passing it the proper arguments
@@ -181,8 +193,11 @@ struct InstTrace : public FunctionPass {
         traceArgs.push_back(ptrInst);
         traceArgs.push_back(maxTraceConstInt);
 
+        // LLVM 3.3 Upgrade
+        ArrayRef<Value*> traceArgs_array_ref(traceArgs);
+
         //Create the Function
-        CallInst::Create(traceFunc, traceArgs.begin(),traceArgs.end(), "", insertPoint);
+        CallInst::Create(traceFunc, traceArgs_array_ref, "", insertPoint);
       }
     }//Function Iteration
 

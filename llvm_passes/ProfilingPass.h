@@ -2,9 +2,9 @@
 #ifndef PROFILING_PASS_H
 #define PROFILING_PASS_H
 
-#include "llvm/Constants.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/Pass.h"
-#include "llvm/Module.h"
+#include "llvm/IR/Module.h"
 
 #include <iostream>
 
