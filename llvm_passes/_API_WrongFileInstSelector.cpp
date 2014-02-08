@@ -47,5 +47,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "WrongFile(API)", new _API_WrongFileInstSelector());
+static RegisterFIInstSelector X( "WrongFile(I/O)", new _API_WrongFileInstSelector());
 }

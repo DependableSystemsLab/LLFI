@@ -45,5 +45,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "WrongSource(MEM)", new _Mem_WrongSourceInstSelector());
+static RegisterFIInstSelector X( "WrongSource(Data)", new _Mem_WrongSourceInstSelector());
 }

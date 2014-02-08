@@ -9,7 +9,7 @@ class noOpen_API: public FaultInjector {
                 
            printf("Incomplete reading/writing operations \n");
 
-               FILE* p= (FILE*) buf ;
+               FILE* p= (FILE*) (*buf) ;
                      fclose(p);
 
               }

@@ -44,5 +44,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "BufferOverflow-memmove(MEM)", new _Mem_BufferOverflow2InstSelector());
+static RegisterFIInstSelector X( "BufferOverflow-memmove(Data)", new _Mem_BufferOverflow2InstSelector());
 }

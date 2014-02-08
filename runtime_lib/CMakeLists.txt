@@ -14,6 +14,14 @@ IncreasedValue.cpp
 DecreasedValue.cpp
 noOpen_API.cpp
 RevMode.cpp
-newMode-config.txt
-diff-config.txt
+WrongFormat.cpp
+
+StalePointer.cpp
+MemoryExhaustion.cpp
+LowMemory.cpp
+DeadLock.cpp
+ThreadKiller.cpp
+CPUHog.cpp
+BlockedOutput.cpp
+
 )

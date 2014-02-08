@@ -7,11 +7,12 @@ class DecValue: public FaultInjector {
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,
                       char *buf) {
    
-     int diff=2500;
+     int diff=45;
          int* newbuf= (int*)buf;
           *newbuf=*newbuf - diff;
             buf= (char*)newbuf;
          std::cout<<"DecValue injected"<<"\n" ;
+         std::cout<<"New value is:"<< *newbuf<<"\n" ;
 
               
   }

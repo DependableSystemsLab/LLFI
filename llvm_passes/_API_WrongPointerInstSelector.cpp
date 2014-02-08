@@ -47,5 +47,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "WrongPointer(API)", new _API_WrongPointerInstSelector());
+static RegisterFIInstSelector X( "WrongPointer(I/O)", new _API_WrongPointerInstSelector());
 }

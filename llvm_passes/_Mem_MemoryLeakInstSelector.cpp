@@ -47,5 +47,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "MemoryLeak(MEM)", new _Mem_MemoryLeakInstSelector());
+static RegisterFIInstSelector X( "MemoryLeak(Res)", new _Mem_MemoryLeakInstSelector());
 }

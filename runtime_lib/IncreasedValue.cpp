@@ -6,18 +6,12 @@ class IncValue: public FaultInjector {
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,
                       char *buf) {
 	
-       
-       int diff=2500;
- //  FILE *fp;
-      //  fp=fopen("diff-config","r");
-      //   diff=fgetc(fp);
-       //   fclose(fp);
-//std::cin>>diff;
-       
-     int* newbuf= (int*)buf;
-       *newbuf=*newbuf + diff;
+       int diff=50;
+         int* newbuf= (int*)buf;
+          *newbuf=*newbuf + diff;
             buf= (char*)newbuf;
-    
+         std::cout<<"IncValue injected"<<"\n" ;
+         std::cout<<"New value is:"<< *newbuf<<"\n" ;
   
               
          

@@ -44,5 +44,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "UnderAccumulator(MEM)", new _Mem_UnderAccumulatorInstSelector());
+static RegisterFIInstSelector X( "UnderAccumulator(Res)", new _Mem_UnderAccumulatorInstSelector());
 }
