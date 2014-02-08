@@ -1,0 +1,23 @@
+
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: CPUHog(Res)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace: 
+        - forward
+        - backward
+
+
+runOption:
+    - run:
+        numOfRuns: 1
+        fi_type: AutoInjection
+
+    
+   
+
+
+
