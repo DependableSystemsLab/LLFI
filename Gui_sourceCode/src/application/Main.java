@@ -2,6 +2,7 @@ package application;
 	
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -25,6 +26,8 @@ public class Main extends Application{
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			//primaryStage.setScene(scene);
 			Parent root = FXMLLoader.load(getClass().getResource("Sample.fxml"));
+			//primaryStage.setResizable(false);
+			//primaryStage.initStyle(StageStyle.UTILITY);
 			primaryStage.setTitle("LLFI");
 			primaryStage.setScene(new Scene(root));
 			primaryStage.show();

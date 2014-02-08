@@ -15,13 +15,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
+
+import com.sun.glass.ui.View;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -33,7 +38,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -43,6 +52,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
+import application.InstrumentController;
 import javafx.stage.Stage;
 public class Controller implements Initializable {
 
@@ -96,13 +106,30 @@ private Button profilingButton;
 @FXML
 private Button injectfaultButton;
 @FXML
+private Button runtimeButton;
+@FXML
 private TextArea errorTextArea;
 @FXML 
 private TextArea programInputText;
+@FXML 
+private Tab profilingTab;
+@FXML 
+private Tab faultStatus;
+@FXML 
+private TabPane tabBottom;
+@FXML
+private ProgressBar progressBar;
+@FXML 
+private ProgressIndicator indicator;
+@FXML
+private ProgressBar progressBar1;
+@FXML
+private ProgressIndicator progressIndicator;
 XYChart.Series<Integer, String> series = new XYChart.Series<Integer,String>();
 static public String currentProgramFolder;
 static public String llfibuildPath=null;
 static public String currentFileName;
+public boolean checkFlag = true;
 
 
 public ArrayList<String> fileNameLists = new ArrayList<>();
@@ -114,6 +141,8 @@ private ArrayList<String> resultList;
 private String indexBound;
 private String cycleBound;
 public int runCount = 0;
+public int totalRunCount = 0;
+public int currentCount = 0;
 public int flag = 0;
 public int crashedCount = 0;
 public int hangedCount = 0;
@@ -153,6 +182,9 @@ private void onClickProfiling(ActionEvent event){
 	FileReader inputFile;
 	ProcessBuilder p;
 	try{
+		tabBottom.getSelectionModel().select(profilingTab);
+		
+		
 		inputString = programInputText.getText();
 		programInputText.setEditable(false);
 		errorString = new ArrayList<>();
@@ -230,7 +262,10 @@ private void onClickProfiling(ActionEvent event){
            stage.setTitle("Profiling");
            stage.setScene(new Scene(root, 400, 100));
            stage.show();
-           injectfaultButton.setDisable(false);
+           runtimeButton.setDisable(false);
+           if(InstrumentController.selectProfileFlag == true || InstrumentController.existingInputFileFlag ==true)
+        	   injectfaultButton.setDisable(false);
+        	   
        }
 	    
         
@@ -250,6 +285,75 @@ private void onClickProfiling(ActionEvent event){
 	
 	
 }
+public void executefaultInjection()
+{
+	try{
+	ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
+    
+    p.redirectErrorStream(true);
+    Process pr = p.start();
+    
+	BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+    String line1;
+    while ((line1 = in1.readLine()) != null) {
+    	
+    	Controller.errorString.add(line1+"\n");
+    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+    		errorFlag= true;
+    	
+        
+    }
+    pr.waitFor();
+   in1.close();
+   pr.destroy();
+	}
+	catch (IOException e) {
+	     System.err.println("Problem writing to the file statsTest.txt");
+	   }catch (InterruptedException e) {
+		    	System.out.println(e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+	}
+}
+@FXML
+public void onClickActualFaultInjection(ActionEvent event)
+{
+	Parent root;
+	try{
+		 tabBottom.getSelectionModel().select(profilingTab);
+	     flag = 1;
+		 ObservableList<ResultTable> data;
+		 final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
+		 if(folder.exists())
+		 deleteFilesInFolder(folder);
+		  final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
+		  if(errorFolder.exists())
+		  deleteFilesInFolder(errorFolder);
+		  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
+          Stage stage = new Stage();                               
+
+          stage.setTitle("Fault Injection");
+          stage.setScene(new Scene(root, 440, 118));
+          stage.show();
+	}
+	catch (IOException e) {
+  
+		// TODO Auto-generated catch block
+	e.printStackTrace();
+	}
+	
+}
+public void deleteFilesInFolder(final File folder) {
+	//resultFileNameLists = new ArrayList<String>();
+    for (final File fileEntry : folder.listFiles()) {
+    	
+        if (fileEntry.isDirectory()) {
+        	deleteFilesInFolder(fileEntry);
+        } else {
+        	fileEntry.delete();
+        }
+    }
+}
 
 @FXML
 public void onClickInjectFaultOkHandler(ActionEvent event){
@@ -258,9 +362,13 @@ public void onClickInjectFaultOkHandler(ActionEvent event){
 @FXML
 public void onGeneratingResultTable(){
 	try{
+		
 		sdcCount = 0;
 		data1 =  FXCollections.observableArrayList() ;
 		resultList = new ArrayList<String>();
+		resultFileNameLists = new ArrayList<String>();
+		resultErrorFileNameLists = new ArrayList<String>();
+		resultOutputFileNameLists = new ArrayList<String>();
 		final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
 		listFilesForFolder(folder);
 		final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
@@ -271,6 +379,7 @@ public void onGeneratingResultTable(){
 		for(int i = 0; i < resultFileNameLists.size();i++)                                
 
 		   {
+			
 			if(resultFileNameLists.get(i).contains("trace"))
 			{
 				
@@ -296,7 +405,7 @@ public void onGeneratingResultTable(){
 					  }
 				      	
 				      }
-				  
+				  bufferReader.close();
 				  if(resultErrorFileNameLists.size()>0){
 					  for(int k = 0;k< resultErrorFileNameLists.size();k++)
 					  {
@@ -348,9 +457,113 @@ public void onGeneratingResultTable(){
 					  for(int k = 0;k< resultOutputFileNameLists.size();k++)
 					  {
 						  
+						  
+						  
 						  if(resultOutputFileNameLists.get(k).contains(resultFileNameLists.get(i).substring(28, 31)))
 						  {
-							  FileReader progOutputFile= new FileReader(currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
+							  
+							  
+							  ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $COMPARE");
+							    
+							    p1.redirectErrorStream(true);
+							    Process pr1 = p1.start();
+								BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+							    String line1;
+							    String comparePath = null;
+							    while ((line1 = in2.readLine()) != null) {
+							    	
+							    	Controller.errorString.add(line1+"\n");
+							    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+							    		errorFlag= true;
+							    	else
+							    		comparePath = line1;
+							    	
+							        
+							    }
+							    
+							    pr1.waitFor();
+							   in2.close();
+							   pr1.destroy();
+							   if(!comparePath.equalsIgnoreCase(null))
+							   {
+								   ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","sh "+comparePath+" "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
+										   			currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
+								    
+								    p2.redirectErrorStream(true);
+								    Process pr2 = p2.start();
+								    BufferedReader in3 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
+								    
+								    while ((line1 = in3.readLine()) != null) {
+								    	
+								    	Controller.errorString.add(line1+"\n");
+								    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+								    		errorFlag= true;
+								    	else
+								    	{
+								    		if(line1.equalsIgnoreCase("Not Identical"))
+								    		{
+								    			 sdc = "Not Occured";
+								    		}
+								    		else
+								    		{
+								    			 if(status.equalsIgnoreCase("Injected"))
+													  sdc = "Not Occured";
+												  else
+												  {
+													  sdcCount++;
+													  sdc = "Occured";
+												  }
+								    		}
+								    	}
+								    	
+								        
+								    }
+								    pr2.waitFor();
+								   in3.close();
+							   }
+							   else
+							   {
+
+								   ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","diff "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
+										   			currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
+								    
+								    p3.redirectErrorStream(true);
+								    Process pr3 = p3.start();
+								    BufferedReader in4 = new BufferedReader(new InputStreamReader(pr3.getInputStream()));
+								    
+								    while ((line1 = in4.readLine()) != null) {
+								    	
+								    	Controller.errorString.add(line1+"\n");
+								    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+								    		errorFlag= true;
+								    	else
+								    	{
+								    		if(line1.equalsIgnoreCase(""))
+								    		{
+								    			 sdc = "Not Occured";
+								    		}
+								    		else
+								    		{
+								    			 if(status.equalsIgnoreCase("Injected"))
+													  sdc = "Not Occured";
+												  else
+												  {
+													  sdcCount++;
+													  sdc = "Occured";
+												  }
+								    		}
+								    	}
+								    	
+								        
+								    }
+								    pr3.waitFor();
+								   in4.close();
+							   }
+							  
+							   
+							   
+							   
+							/*  FileReader progOutputFile= new FileReader(currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
 							  BufferedReader bufferReader2 = new BufferedReader(progOutputFile);
 							  while ((line = bufferReader2.readLine()) != null)   {
 									 
@@ -360,13 +573,21 @@ public void onGeneratingResultTable(){
 							  bufferReader2.close();
 							  if(stdValue.equalsIgnoreCase(progValue))
 							  {
+								 
+									  
 								  sdc = "Not Occured";
 							  }
 							  else
 							  {
-								  sdcCount++;
-								  sdc = "Occured";
-							  }
+								  if(status.equalsIgnoreCase("Injected"))
+									  sdc = "Not Occured";
+								  else
+								  {
+									  sdcCount++;
+									  sdc = "Occured";
+								  }
+								  
+							  }*/
 						  }
 					  }
 				  }
@@ -374,12 +595,20 @@ public void onGeneratingResultTable(){
 				  {
 					  sdc = "NA";
 				  }
-				  
+				 /* System.out.println("\nrunCount : "+runCount);
+				  System.out.println("\nresultList.get(0) : "+resultList.get(0));
+				  System.out.println("\nInteger.parseInt(resultList.get(1)) : "+Integer.parseInt(resultList.get(1)));
+				  System.out.println("\nInteger.parseInt(resultList.get(2)) : "+Integer.parseInt(resultList.get(2)));
+				  System.out.println("\nInteger.parseInt(resultList.get(3)) : "+Integer.parseInt(resultList.get(3)));
+				  System.out.println("\nInteger.parseInt(resultList.get(4)) : "+Integer.parseInt(resultList.get(4)));
+				  System.out.println("\nsdc : "+sdc);
+				  System.out.println("\nstatus : "+status);
+				  System.out.println("\result : "+result);*/
 				  data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
 	            		  Integer.parseInt(resultList.get(3)),Integer.parseInt(resultList.get(4)),sdc,
 	    				  status,result));
 				 
-				  bufferReader.close();
+				 
 			}
 			
 			
@@ -400,6 +629,10 @@ public void onGeneratingResultTable(){
 	{
 		e.printStackTrace();
 		 System.out.println(e.getMessage());
+	}catch (InterruptedException e) {
+    	System.out.println(e);
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
 	
 	
@@ -434,13 +667,13 @@ private void generateFaultSummaryGraph(){
 	
 	String[] params = {"Faults Injected","Crashed","Hanged","SDC"};                               
 
-    // Convert it to a list and add it to our ObservableList of months.
+    // Convert it to a list and add iUTILITYt to our ObservableList of months.
    // row.addAll(Arrays.asList(params));
-    
+	resultSummary.getData().clear();
    
 	//row = FXCollections.observableArrayList(parameter);
 	xAxis.setLabel("Parameters");
-	yAxis.setLabel("Total.No.Of.Fault Injections");
+	yAxis.setLabel("Total.No.Of.Fault Injections"); 
 	xAxis.setCategories(FXCollections.<String>observableArrayList(Arrays.asList(params)));
 	xAxis.setAutoRanging(false);
 	xAxis.invalidateRange(Arrays.asList(params));
@@ -462,6 +695,7 @@ private void generateFaultSummaryGraph(){
 			}
 		}
 	}
+	//System.out.println("sdcCount = "+sdcCount);
 	yAxis.setUpperBound(faultCount);
 	yAxis.setTickUnit(1);
 	
@@ -535,7 +769,7 @@ public void listFilesForFolder(final File folder) {
 private void onClickCompileToIr(ActionEvent event){
 	Parent root;
 	try{
-		
+		tabBottom.getSelectionModel().select(profilingTab);
 		String cmd = "echo $llfibuild";
 		//System.out.println(System.getenv());
 		ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
@@ -610,7 +844,7 @@ private void onClickCompileToIr(ActionEvent event){
 private void onClickInstrument(ActionEvent event) {
 	 Parent root;
      try {
-    	 
+    	 tabBottom.getSelectionModel().select(profilingTab);
          root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Instrument.fxml"));
          Stage stage = new Stage();
          stage.setTitle("Instrument");
@@ -619,6 +853,7 @@ private void onClickInstrument(ActionEvent event) {
          
          //instrumentButton.setDisable(true);
          profilingButton.setDisable(false);
+         
      } catch (IOException e) {
          e.printStackTrace();
      }
@@ -631,12 +866,39 @@ private void onClickInstrument(ActionEvent event) {
 private void onClickInjectFault(ActionEvent event) {
 	 Parent root;
      try {
+
+ 		tabBottom.getSelectionModel().select(profilingTab);
          root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Profiling.fxml"));
          Stage stage = new Stage();
          stage.setTitle("Fault Injection");
          stage.setScene(new Scene(root, 600, 500));
          stage.show();
-          flag = 1;
+          //flag = 1;
+          
+          if(errorFlag == true)
+          {
+       	   errorFlag = false;
+   			  Node  source = (Node)  event.getSource(); 
+   			   stage  = (Stage) source.getScene().getWindow();
+   			  stage.close();
+   			  
+   			  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+   		        stage = new Stage();
+   		        stage.setTitle("Error");
+   		        stage.setScene(new Scene(root, 450, 100));
+   		        stage.show();
+          }
+          else
+          {
+       	   /*errorString = new ArrayList<>();
+       	   root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Profile.fxml"));
+              Stage stage = new Stage();                               
+
+              stage.setTitle("Profiling");
+              stage.setScene(new Scene(root, 400, 100));
+              stage.show();*/
+              injectfaultButton.setDisable(false);
+          }
          } catch (IOException e) {
          e.printStackTrace();
      }
@@ -668,8 +930,46 @@ private static void configureFileChooser(
                 new FileChooser.ExtensionFilter("CPP", "*.cpp")
             );
     }
+public static void delete(File file)
+    	throws IOException{
+ 
+    	if(file.isDirectory()){
+ 
+    		//directory is empty, then delete it
+    		if(file.list().length==0){
+ 
+    		   file.delete();
+    		   
+ 
+    		}else{
+ 
+    		   //list all the directory contents
+        	   String files[] = file.list();
+ 
+        	   for (String temp : files) {
+        	      //construct the file structure
+        	      File fileDelete = new File(file, temp);
+ 
+        	      //recursive delete
+        	     delete(fileDelete);
+        	   }
+ 
+        	   //check the directory again, if empty then delete it
+        	   if(file.list().length==0){
+           	     file.delete();
+        	    
+        	   }
+    		}
+ 
+    	}else{
+    		//if file, then delete it
+    		file.delete();
+    		
+    	}
+    }
 private void openFile(File file) {
     try{
+    	boolean flag =false;
     	fileContent = new ArrayList<>();
     	Path path = file.toPath();
         
@@ -679,14 +979,39 @@ private void openFile(File file) {
         BufferedReader bufferReader = new BufferedReader(inputFile);
         
         String fileName = path.getFileName().toString();
-        fileNameLists.add(fileName);
+        for(int n =0;n<fileNameLists.size();n++)
+        {
+        	if(fileNameLists.get(n).equalsIgnoreCase(fileName))
+        	{
+        		fileNameLists.remove(n);
+        		fileNameLists.add(fileName);
+        		flag =true;
+        		break;
+        	}
+        	else
+        	{
+        		
+        	}
+        }
+        if(!flag)
+        {
+        	fileNameLists.add(fileName);
+        	flag = false;
+        }
+        
         items =FXCollections.observableArrayList (fileNameLists);
         fileList.setItems(items);
         //Variable to hold the one line data
         String line;
        
         String folderName = fileName.split("\\.")[0];
-       
+        File  theDirectory = new File(folderName);
+        if(theDirectory.exists())
+        {
+        	delete(theDirectory);
+        	
+        }
+        
         new File(folderName).mkdir();
        // programTextArea.clear();
         // Read file line by line and print on the console
@@ -716,7 +1041,7 @@ private void openFile(File file) {
         	programTextArea.clear();
         	 //System.out.println("Hello");
         	currentProgramFolder = folderName;
-        	
+        	//fileList.sgetSelectionModel().select(currentFileName);
         	currentFileName = fileName;
         	for(int i = 0 ; i < fileContent.size(); i++)
         	{
@@ -726,6 +1051,7 @@ private void openFile(File file) {
         	 compiletoIrButton.setDisable(false);
         	 instrumentButton.setDisable(true);
         	 profilingButton.setDisable(true);
+        	 runtimeButton.setDisable(true);
         	 injectfaultButton.setDisable(true);
         	
         }
@@ -748,6 +1074,7 @@ private void onFileSelection(MouseEvent event){
 	data1=FXCollections.observableArrayList();
 	resultTable.setItems(data1);
 	resultSummary.getData().clear();
+ programInputText.setEditable(true);
 	//resultSummary.setVisible(false);
 	/*series = new XYChart.Series<Integer,String>();
 	resultSummary.getData().add(series);*/
@@ -764,6 +1091,7 @@ private void onFileSelection(MouseEvent event){
 	compiletoIrButton.setDisable(false);
 	 instrumentButton.setDisable(true);
 	 profilingButton.setDisable(true);
+	 runtimeButton.setDisable(true);
 	 injectfaultButton.setDisable(true);
 	
 }
@@ -796,7 +1124,111 @@ private void onTabChange(){
 @Override
 public void initialize(URL url, ResourceBundle rb) {
 	
-	
+		//progressBar.setVisible(false);
+	File f = new File("."); // current directory
+
+    File[] files = f.listFiles();
+    int i;
+    boolean signFalg = false;
+	    /*for (final File fileEntry : files) {
+	    	fileContent = new ArrayList<>();
+	        if (fileEntry.isDirectory()) {
+	        	i = 0;
+	        	 
+	        	
+	        	
+	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
+	                BufferedReader inputFile = new BufferedReader(actualFile);
+	                while ((line = inputFile.readLine()) != null)   {
+	                    fileContent.add(line+"\n");
+	                    
+	                }
+	                
+	                inputFile.close();
+	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
+	                fileNameLists.add(fileEntry.getName()+".c");
+	                items =FXCollections.observableArrayList (fileNameLists);
+	                fileList.setItems(items);
+	                if(i == 0 && signFalg == false)
+		        	{
+	                	//fileList.getSelectionModel().select(0);
+	                	signFalg = true;
+	                	//System.out.println("inside if");
+		        		currentProgramFolder = fileEntry.getName();
+		        		currentFileName = fileEntry.getName()+".c";
+		        		programTextArea.clear();
+		        		for(int j = 0 ; j < fileContent.size(); j++)
+		        		{
+		        			
+		        			programTextArea.appendText(fileContent.get(j));
+		        		}
+		        		compiletoIrButton.setDisable(false);
+		        		 instrumentButton.setDisable(true);
+		        		 profilingButton.setDisable(true);
+		        		 runtimeButton.setDisable(true);
+		        		 injectfaultButton.setDisable(true);
+		        		
+		        	}
+		           
+	                i++;
+	        	
+	        } else {
+	           
+	            
+	        }
+	        
+	 for (final File fileEntry : files) {
+	    	fileContent = new ArrayList<>();
+	        if (fileEntry.isDirectory()) {
+	        	i = 0;
+	        	 
+	        	
+	        	
+	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
+	                BufferedReader inputFile = new BufferedReader(actualFile);
+	                while ((line = inputFile.readLine()) != null)   {
+	                    fileContent.add(line+"\n");
+	                    
+	                }
+	                
+	                inputFile.close();
+	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
+	                fileNameLists.add(fileEntry.getName()+".c");
+	                items =FXCollections.observableArrayList (fileNameLists);
+	                fileList.setItems(items);
+	                if(i == 0 && signFalg == false)
+		        	{
+	                	//fileList.getSelectionModel().select(0);
+	                	signFalg = true;
+	                	//System.out.println("inside if");
+		        		currentProgramFolder = fileEntry.getName();
+		        		currentFileName = fileEntry.getName()+".c";
+		        		programTextArea.clear();
+		        		for(int j = 0 ; j < fileContent.size(); j++)
+		        		{
+		        			
+		        			programTextArea.appendText(fileContent.get(j));
+		        		}
+		        		compiletoIrButton.setDisable(false);
+		        		 instrumentButton.setDisable(true);
+		        		 profilingButton.setDisable(true);
+		        		 runtimeButton.setDisable(true);
+		        		 injectfaultButton.setDisable(true);
+		        		
+		        	}
+		           
+	                i++;
+	        	
+	        } else {
+	           
+	            
+	        }
+	        
+	    }   }*/
+//catch(IOException e)
+//{
+	//System.out.println(e);
+//}
 	 
     // TODO
 }    

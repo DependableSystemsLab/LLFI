@@ -20,12 +20,12 @@
         <Font size="15.0" fx:id="x1" />
       </font>
     </Label>
-    <RadioButton fx:id="instTypeRadio" font="$x1" layoutX="272.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="true" text="Instruction Type">
+    <RadioButton fx:id="instTypeRadio" font="$x1" layoutX="277.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="false" text="Instruction Type">
       <toggleGroup>
         <ToggleGroup fx:id="instSelection" />
       </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="customInstTypeRadio" font="$x1" layoutX="465.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" text="Custom Instruction Selector" toggleGroup="$instSelection" />
+    <RadioButton fx:id="customInstTypeRadio" font="$x1" layoutX="465.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="true" text="Custom Instruction Selector" toggleGroup="$instSelection" />
     <Label fx:id="includeLabel" layoutX="516.0" layoutY="122.0" prefWidth="66.0" text="Include :">
       <font>
         <Font name="System Italic" size="15.0" fx:id="x2" />
@@ -54,12 +54,12 @@
     </Label>
     <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" text="Forward" AnchorPane.leftAnchor="409.0" />
     <CheckBox fx:id="backwardCheckbox" font="$x1" layoutX="409.0" layoutY="458.0" mnemonicParsing="false" selected="true" text="Backward" />
-    <RadioButton fx:id="regTypeRadio" font="$x1" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="true" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="331.0">
+    <RadioButton fx:id="regTypeRadio" font="$x1" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="false" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="331.0">
       <toggleGroup>
         <ToggleGroup fx:id="regSelection" />
       </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="customRegTypeRadio" font="$x1" layoutX="465.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" text="Custom Register Selection" toggleGroup="$regSelection" AnchorPane.topAnchor="331.0" />
+    <RadioButton fx:id="customRegTypeRadio" font="$x1" layoutX="469.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="true" text="Custom Register Selector" toggleGroup="$regSelection" AnchorPane.topAnchor="331.0" />
     <Separator layoutX="45.0" layoutY="322.0" prefWidth="664.0" />
     <Separator layoutX="43.0" layoutY="408.0" prefWidth="657.0" />
     <Button alignment="BOTTOM_CENTER" font="$x1" layoutX="342.0" layoutY="529.0" mnemonicParsing="false" onAction="#onClickGenerateYamlFile" text="Instrument" />
@@ -101,5 +101,11 @@
         </FXCollections>
       </items>
     </ComboBox>
+    <Button layoutX="408.0" layoutY="31.0" mnemonicParsing="false" onAction="#onClickSelectProfile" prefWidth="127.0" text="Select Profile...">
+      <font>
+        <Font size="13.0" fx:id="x3" />
+      </font>
+    </Button>
+    <Button fx:id="createNewProfileButton" font="$x3" layoutX="543.0" disable="true" layoutY="32.0" mnemonicParsing="false" onAction="#onClickCreateNewProfile" prefWidth="155.0" text="Create New Profile" />
   </children>
 </AnchorPane>
