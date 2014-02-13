@@ -25,7 +25,7 @@ N: Sam Coulter
 D: Coded for the fault propagation tracing functionality
 
 N: Justin Li
-D: Experiments to validate the accuracy of LLFI
+D: Experiments to validate the accuracy of LLFI. Ported LLFI to LLVM 3.3.
 
 N: Shaden Smith
-D: Added Progress Bar to injector, multiple instruction selector
+D: Added Progress Bar to injector, multiple instruction selector, unified executable
