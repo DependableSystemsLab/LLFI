@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#! /usr/bin/env python3
 
 #traceDiff.py
 #  Author: Sam Coulter
@@ -23,9 +23,9 @@ def traceDiff(argv, output = 0):
 
   # TODO: rewrite the command line argument of the script
   if output != 0:
-    sys.stdout = open(output, "w")
+    sys.stdout = open(output, "wb")
   if (len(argv) != 3):
-    print >> sys.stderr, "ERROR: running option: %(prog)s <golden output> <faulty output>" % {'prog': prog}
+    print("ERROR: running option: %(prog)s <golden output> <faulty output>" % {'prog': prog}, file=sys.stderr)
     exit(1)
 
   goldFile = open(argv[1], 'r')
@@ -54,9 +54,9 @@ def traceDiff(argv, output = 0):
   goldInjectedLine = diffLine(goldTraceLines[0])
   faultInjectedLine = diffLine(faultyTraceLines[0])
   diffID = goldInjectedLine.ID
-  print "#FaultReport"
-  print "1 @", faultyTraceStartPoint
-  print goldInjectedLine.raw, "/", faultInjectedLine.Value
+  print("#FaultReport")
+  print("1 @", faultyTraceStartPoint)
+  print(goldInjectedLine.raw, "/", faultInjectedLine.Value)
 
   #remove the fault injected lines
   goldTraceLines.pop(0)
@@ -96,7 +96,7 @@ def traceDiff(argv, output = 0):
 
 if (__name__ == "__main__"):
   if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
-    print >> sys.stderr, ("%(prog)s compares the golden program trace and fault injection program trace and summarizes the differences\n\n"
-    "running option: %(prog)s <golden output> <faulty output>" %{"prog": prog})
+    print(("%(prog)s compares the golden program trace and fault injection program trace and summarizes the differences\n\n"
+    "running option: %(prog)s <golden output> <faulty output>" %{"prog": prog}), file=sys.stderr)
   else:
     traceDiff(sys.argv)

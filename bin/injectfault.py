@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#! /usr/bin/env python3
 
 """
 
@@ -41,8 +41,8 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
@@ -84,12 +84,12 @@ def checkInputYaml():
       for opt in doc["kernelOption"]:
         if opt=="forceRun":
           runOverride = True
-          print "Kernel: Forcing run"
+          print("Kernel: Forcing run")
     if "timeOut" in doc:
       timeout = int(doc["timeOut"])
       assert timeout > 0, "The timeOut option must be greater than 0"
     else:
-      print "Run fault injection executable with default timeout " + str(timeout)
+      print("Run fault injection executable with default timeout " + str(timeout))
   except:
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
@@ -101,7 +101,7 @@ def print_progressbar(idx, nruns):
   bar = "=" *  int(pct * WIDTH)
   bar += ">"
   bar += "-" * (WIDTH - int(pct * WIDTH))
-  print("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)),
+  print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end=' ')
   sys.stdout.flush()
 
 
@@ -141,7 +141,7 @@ def execute( execlist):
     time.sleep(1)
     if p.poll() is not None:
       moveOutput()
-      outputFile = open(outputfile, "w")
+      outputFile = open(outputfile, "wb")
       outputFile.write(p.communicate()[0])
       outputFile.close()
       replenishInput() #for cases where program deletes input or alters them each run
@@ -249,7 +249,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
     if runOverride:
       pass
     elif var1 > 1 and (var2 or var3) and var4:
-      user_input = raw_input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
+      user_input = input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
                   "is redundant as it would yield the same result."+
                   "\nTo turn off this warning, please see Readme "+
                   "for kernel mode.\nDo you wish to continue anyway? (Y/N)\n ")
@@ -274,23 +274,23 @@ def main(args):
   try:
     rOpt = doc["runOption"]
   except:
-    print "ERROR: Please include runOption in input.yaml."
+    print("ERROR: Please include runOption in input.yaml.")
     exit(1)
 
   if not os.path.isfile(fi_exe):
-    print "ERROR: The executable "+ fi_exe+" does not exist."
-    print "Please build the executables with create-executables.\n"
+    print("ERROR: The executable "+ fi_exe+" does not exist.")
+    print("Please build the executables with create-executables.\n")
     exit(1)
   else:
-    print "======Fault Injection======"
+    print("======Fault Injection======")
     for ii, run in enumerate(rOpt):
       # Maintain a dict of all return codes received and print summary at end
       return_codes = {}
 
       # Put an empty line between configs
       if ii > 0:
-        print ""
-      print "---FI Config #"+str(ii)+"---"
+        print("")
+      print("---FI Config #"+str(ii)+"---")
 
       if "numOfRuns" not in run["run"]:
         print ("ERROR: Must include a run number per fi config in input.yaml.")
@@ -333,9 +333,9 @@ def main(args):
         checkValues("fi_bit",fi_bit)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
-        print ("\nINFO: You choose to inject faults based on LLFI index, "
+        print(("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
-               "index is %d\n" % fi_index)
+               "index is %d\n" % fi_index))
 
       need_to_calc_fi_cycle = True
       if ('fi_cycle' in locals()) or 'fi_index' in locals():
@@ -386,13 +386,13 @@ def main(args):
         print_progressbar(index, run_number)
 
       print_progressbar(run_number, run_number)
-      print "" # progress bar needs a newline after 100% reached
+      print("") # progress bar needs a newline after 100% reached
       # Print summary
       if options["verbose"]:
         print("========== SUMMARY ==========")
         print("Return codes:")
-        for r in return_codes.keys():
-          print("  %3s: %5d" % (str(r), return_codes[r]))
+        for r in list(return_codes.keys()):
+          print(("  %3s: %5d" % (str(r), return_codes[r])))
 
 ################################################################################
 
