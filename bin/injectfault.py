@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 """
 
@@ -32,13 +32,17 @@ basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
 fi_exe = ""
 
+options = {
+  "verbose": False,
+}
+
 def usage(msg = None):
   retval = 0
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
@@ -50,7 +54,7 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
+  if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
     usage("You need to invoke %s at the parent directory of fault injection executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
@@ -66,9 +70,8 @@ def parseArgs(args):
 def checkInputYaml():
   global timeout, doc
   #Check for input.yaml's presence
-  yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    f = open(os.path.join(yamldir, 'input.yaml'),'r')
+    f = open(os.path.join(basedir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
@@ -81,15 +84,25 @@ def checkInputYaml():
       for opt in doc["kernelOption"]:
         if opt=="forceRun":
           runOverride = True
-          print "Kernel: Forcing run"
+          print("Kernel: Forcing run")
     if "timeOut" in doc:
       timeout = int(doc["timeOut"])
       assert timeout > 0, "The timeOut option must be greater than 0"
     else:
-      print "Run fault injection executable with default timeout " + str(timeout)
+      print("Run fault injection executable with default timeout " + str(timeout))
   except:
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
+
+
+def print_progressbar(idx, nruns):
+  pct = (float(idx) / float(nruns))
+  WIDTH = 50
+  bar = "=" *  int(pct * WIDTH)
+  bar += ">"
+  bar += "-" * (WIDTH - int(pct * WIDTH))
+  print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end=' ')
+  sys.stdout.flush()
 
 
 ################################################################################
@@ -118,7 +131,7 @@ def config():
 ################################################################################
 def execute( execlist):
   global outputfile
-  print ' '.join(execlist)
+  global return_codes
   #get state of directory
   dirSnapshot()
   p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
@@ -126,19 +139,24 @@ def execute( execlist):
   while (elapsetime < timeout):
     elapsetime += 1
     time.sleep(1)
-    #print p.poll()
     if p.poll() is not None:
       moveOutput()
-      print "\t program finish", p.returncode
-      print "\t time taken", elapsetime,"\n"
-      outputFile = open(outputfile, "w")
+      outputFile = open(outputfile, "wb")
       outputFile.write(p.communicate()[0])
       outputFile.close()
       replenishInput() #for cases where program deletes input or alters them each run
-      #inputFile.close()
+      # Keep a dict of all return codes received.
+      if p.returncode in return_codes:
+        return_codes[p.returncode] += 1
+      else:
+        return_codes[p.returncode] = 1
       return str(p.returncode)
-  #inputFile.close()
-  print "\tParent : Child timed out. Cleaning up ... "
+
+  # child timed out!
+  if "TO" in return_codes:
+    return_codes["TO"] += 1
+  else:
+    return_codes["TO"] = 1
   p.kill()
 
   moveOutput()
@@ -170,7 +188,7 @@ def moveOutput():
       fileSize = os.stat(each).st_size
       if fileSize == 0 and each.startswith("llfi"):
         #empty library output, can delete
-        print each+ " is going to be deleted for having size of " + str(fileSize)
+        #print each+ " is going to be deleted for having size of " + str(fileSize)
         os.remove(each)
       else:
         flds = each.split(".")
@@ -227,15 +245,11 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == 'fi_bit':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-    
-  elif key == 'fi_random_seed':
-    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
-    assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-    
+
     if runOverride:
       pass
     elif var1 > 1 and (var2 or var3) and var4:
-      user_input = raw_input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
+      user_input = input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
                   "is redundant as it would yield the same result."+
                   "\nTo turn off this warning, please see Readme "+
                   "for kernel mode.\nDo you wish to continue anyway? (Y/N)\n ")
@@ -246,7 +260,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
 
 ################################################################################
 def main(args):
-  global optionlist, outputfile, totalcycles,run_id
+  global optionlist, outputfile, totalcycles,run_id, return_codes
 
   parseArgs(args)
   checkInputYaml()
@@ -260,17 +274,23 @@ def main(args):
   try:
     rOpt = doc["runOption"]
   except:
-    print "ERROR: Please include runOption in input.yaml."
+    print("ERROR: Please include runOption in input.yaml.")
     exit(1)
 
   if not os.path.isfile(fi_exe):
-    print "ERROR: The executable "+ fi_exe+" does not exist."
-    print "Please build the executables with create-executables.\n"
+    print("ERROR: The executable "+ fi_exe+" does not exist.")
+    print("Please build the executables with create-executables.\n")
     exit(1)
   else:
-    print "======Fault Injection======"
+    print("======Fault Injection======")
     for ii, run in enumerate(rOpt):
-      print "---FI Config #"+str(ii)+"---"
+      # Maintain a dict of all return codes received and print summary at end
+      return_codes = {}
+
+      # Put an empty line between configs
+      if ii > 0:
+        print("")
+      print("---FI Config #"+str(ii)+"---")
 
       if "numOfRuns" not in run["run"]:
         print ("ERROR: Must include a run number per fi config in input.yaml.")
@@ -278,6 +298,10 @@ def main(args):
 
       run_number=run["run"]["numOfRuns"]
       checkValues("run_number", run_number)
+
+      # check for verbosity option, set at the FI run level
+      if "verbose" in run["run"]:
+        options["verbose"] = run["run"]["verbose"]
 
       # reset all configurations
       if 'fi_type' in locals():
@@ -290,8 +314,6 @@ def main(args):
         del fi_reg_index
       if 'fi_bit' in locals():
         del fi_bit
-      if 'fi_random_seed' in locals():
-        del fi_random_seed
 
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
@@ -308,15 +330,12 @@ def main(args):
         checkValues("fi_reg_index",fi_reg_index)
       if "fi_bit" in run["run"]:
         fi_bit=run["run"]["fi_bit"]
-        checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
-      if "fi_random_seed" in run["run"]:
-        fi_random_seed=run["run"]["fi_random_seed"]
-        checkValues("fi_random_seed",fi_random_seed)
+        checkValues("fi_bit",fi_bit)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
-        print ("\nINFO: You choose to inject faults based on LLFI index, "
+        print(("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
-               "index is %d\n" % fi_index)
+               "index is %d\n" % fi_index))
 
       need_to_calc_fi_cycle = True
       if ('fi_cycle' in locals()) or 'fi_index' in locals():
@@ -328,10 +347,7 @@ def main(args):
         outputfile = stddir + "/std_outputfile-" + "run-"+run_id
         errorfile = errordir + "/errorfile-" + "run-"+run_id
         execlist = [fi_exe]
-        
-        if('fi_cycle' not in locals() and 'fi_random_seed' in locals()):
-          random.seed(fi_random_seed)
-        
+
         if need_to_calc_fi_cycle:
           fi_cycle = random.randint(0, int(totalcycles) - 1)
 
@@ -349,6 +365,8 @@ def main(args):
           ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
         ficonfig_File.close()
 
+        # print run index before executing. Comma removes newline for prettier
+        # formatting
         execlist.extend(optionlist)
         ret = execute(execlist)
         if ret == "timed-out":
@@ -363,6 +381,18 @@ def main(args):
           error_File = open(errorfile, 'w')
           error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
           error_File.close()
+
+        # Print updates
+        print_progressbar(index, run_number)
+
+      print_progressbar(run_number, run_number)
+      print("") # progress bar needs a newline after 100% reached
+      # Print summary
+      if options["verbose"]:
+        print("========== SUMMARY ==========")
+        print("Return codes:")
+        for r in list(return_codes.keys()):
+          print(("  %3s: %5d" % (str(r), return_codes[r])))
 
 ################################################################################
 

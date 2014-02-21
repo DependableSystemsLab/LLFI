@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 #traceOntoGraph.py
 #Author: Sam Coulter
@@ -22,7 +22,7 @@ def traceOntoGraph(traceFile, graphFile, output=0):
   #save stdout so we can redirect it without mangling other python scripts
   oldSTDOut = sys.stdout
   if output != 0:
-    sys.stdout = open(output, "w")
+    sys.stdout = open(output, "wb")
 
   faultReports = parseFaultReportsfromFile(traceFile)
 
@@ -51,18 +51,18 @@ def traceOntoGraph(traceFile, graphFile, output=0):
             + ", style=\"dashed\"];\n"
 
 
-  print ''.join(graphLines)
+  print(''.join(graphLines))
 
   #restore stdout
   sys.stdout = oldSTDOut
 
 if __name__ == "__main__":
   if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
-    print >> sys.stderr, ("%(prog)s applies the program trace difference summary to program static control-data-flow graph to visualize it\n\n"
-    "running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog})
+    print(("%(prog)s applies the program trace difference summary to program static control-data-flow graph to visualize it\n\n"
+    "running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}), file=sys.stderr)
   elif len(sys.argv) >= 3:
     traceOntoGraph(sys.argv[1], sys.argv[2])
   else:
-    print >> sys.stderr, "Error: running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}
+    print("Error: running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}, file=sys.stderr)
     exit(1)
 
