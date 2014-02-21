@@ -1,0 +1,1 @@
+FI stat: fi_type=AutoInjection, fi_index=60, fi_cycle=1, fi_reg_index=0, fi_bit=50
