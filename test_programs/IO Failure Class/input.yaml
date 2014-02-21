@@ -1,0 +1,19 @@
+kernelOption:
+    - forceRun
+
+timeOut: 1000
+
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: WrongRetrievedFormat(I/O)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 4
+        fi_type: AutoInjection
