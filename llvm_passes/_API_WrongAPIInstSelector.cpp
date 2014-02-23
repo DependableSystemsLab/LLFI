@@ -33,76 +33,62 @@ private:
   
   virtual bool isInstFITarget(Instruction *inst)
 
-        {
-         if(isa<CallInst>(inst))
-                                 {
-          CallInst* CI=dyn_cast<CallInst>(inst);
-              Function* called_func=CI->getCalledFunction();
-              { 
-
-
-
-
-
+    {    
+               
         std::string line;
 	string funcName[10];
 	int   ArgPosNumber[10];
-
-
 	std::ifstream inFile;
-
 	inFile.open ("API-Config.txt");
 	int i = 0;
-
-        
+    
     
 	while(getline(inFile, line))
 
 	{
                  //std::cout << line << "\n";
-     
-		std::stringstream dosString;
+     		std::stringstream dosString;
 		dosString<<line;
 		dosString>> funcName[i]>>ArgPosNumber[i];
                 i++;
-
 	}
 
-	                   
-                     for (int j = 0;  j< i; j++)
-	                 {
-		              std::cout << funcName[j] << "   " << ArgPosNumber[j] << endl;
-                                                 
-                                if (called_func->getName()==funcName[0].c_str()||called_func->getName()==funcName[1].c_str()) 
-                                
-                                
-                                 {       
+	  
+    
+         if(isa<CallInst>(inst))
+                                 {
+          CallInst* CI=dyn_cast<CallInst>(inst);
+          Function* called_func=CI->getCalledFunction();                 
+          for (int j = 0;  j< i; j++)
+	    {
+	    if (funcName[j].c_str()==called_func->getName())    
+                           {       
+                             std::cout<< "API Call was found"<<"\n";
+                                std::ofstream outf("Automation-config");
+                                   outf << "APIWrongAPI" << "\n";
+                                      outf.close();
+                                                                                                       
+                          std::cout<<"target is :"<<funcName[j]<<"\n";
+                            
+                            }
+                                                                
+           }
+            }     
 
-                                  std::cout<< "API Call was found"<<"\n";
-                                    std::ofstream outf("Automation-config");
-                                      outf << "APIWrongAPI" << "\n";
-                                          outf.close();
-                                
-             std::ifstream inf("Automation-config");
+        std::ifstream inf("Automation-config");
                  std::string strInput;
                   getline(inf, strInput);
-                                              if (strInput=="APIWrongAPI") 
-                                                {
-                                                   std::cout<<strInput<<"\n";
-                                                      inf.close();
-
-                                                }   
-                          std::cout<<"target is :"<<funcName[j]<<"\n";
-                             
-                            return true;
-                                }  
-                             else
-                               return false;
-                      }
+             if (strInput=="APIWrongAPI") 
+                {
+                  inf.close();
+                  return true;
+                }
+                   else
+                      return false;
                             
-       }  
-}
-}                                    
+                              }  
+
+                                        
          };
                     
 

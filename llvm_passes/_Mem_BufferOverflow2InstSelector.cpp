@@ -3,7 +3,7 @@
 #include <iostream>
 #include "FIInstSelector.h"
 #include "FICustomSelectorManager.h"
-#include "llvm/Intrinsics.h"
+//#include "llvm/Intrinsics.h"
  
 #include "llvm/Pass.h"
 #include "llvm/Function.h"
@@ -44,5 +44,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "BufferOverflow-memmove(Data)", new _Mem_BufferOverflow2InstSelector());
+static RegisterFIInstSelector X( "BufOverflowMemmove(Data)", new _Mem_BufferOverflow2InstSelector());
 }

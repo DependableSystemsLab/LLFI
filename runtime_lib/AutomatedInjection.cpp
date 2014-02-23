@@ -16,7 +16,7 @@ class AutoInjection: public FaultInjector {
                   getline(inf, strInput);
                    //std::cout<<strInput<<"\n";
            
-        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI"))
+        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput"))
       
         {
     unsigned fi_bytepos = fi_bit / 8;
@@ -194,13 +194,13 @@ else if ((strInput=="APINoOutput")||(strInput=="DataNoOutput"))
                 std::cout<< "NoOutput injected"<<"\n" ;
       }
 
-else if ((strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput"))
+/* else if ((strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput"))
       {
                int* newbuf= (int*)buf;
           *newbuf=*newbuf + 9876;
             buf= (char*)newbuf;
          std::cout<<"wrongoutput injected & new output is:"<<*newbuf<<"\n" ;
-      }
+      }   */
 
 
       else  

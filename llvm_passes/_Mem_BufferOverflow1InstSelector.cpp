@@ -45,5 +45,5 @@ private:
  }
                                                };
 
-static RegisterFIInstSelector X( "BufferOverflow-malloc(Data)", new _Mem_BufferOverflow1InstSelector());
+static RegisterFIInstSelector X( "BufOverflowMalloc(Data)", new _Mem_BufferOverflow1InstSelector());
 }

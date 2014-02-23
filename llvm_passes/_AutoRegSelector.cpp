@@ -20,15 +20,19 @@ class _AutoRegSelector: public FIRegSelector {
  private:
   virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) {
 
+
+
+                std::ifstream inf("Automation-config");
+                 std::string strInput;
+                  getline(inf, strInput);
+
         if(isa<CallInst>(inst))
            {
              CallInst* CI=dyn_cast<CallInst>(inst);
                Function* called_func=CI->getCalledFunction();
 
                                            
-                std::ifstream inf("Automation-config");
-                 std::string strInput;
-                  getline(inf, strInput);
+                
            if (((strInput=="APINoOpen") && (reg == CI->getArgOperand(0)))||
                 ((strInput=="APINoClose") && (reg == CI->getArgOperand(0))) ||
                  ((strInput=="APIWrongFile") && (reg == CI->getArgOperand(3)))||
@@ -71,24 +75,18 @@ class _AutoRegSelector: public FIRegSelector {
            {
           
 
-                 std::string line;
+        std::string line;
 	string funcName[10];
 	int   ArgPosNumber[10];
-
-
-	std::ifstream inFile;
-
+        std::ifstream inFile;
 	inFile.open ("API-Config.txt");
 	int i = 0;
 
-        
-    
+          
 	while(getline(inFile, line))
 
 	{
-                 
-     
-		std::stringstream dosString;
+           	std::stringstream dosString;
 		dosString<<line;
 		dosString>> funcName[i]>>ArgPosNumber[i];
                 i++;
@@ -98,13 +96,14 @@ class _AutoRegSelector: public FIRegSelector {
 	        for (int j = 0;  j< i; j++)
 	      {
 
-                if ((reg == CI->getArgOperand(ArgPosNumber[j])))    //  (called_func->getName()==funcName[j].c_str())
-             { std::cout<<"target is :"<<funcName[j]<<" "<<ArgPosNumber[j]<<"\n";
-              
-             return true;}
-              } 
-         }    
-       
+                if (called_func->getName()==funcName[j].c_str())
+               {
+                  reg = CI->getArgOperand(ArgPosNumber[j]);
+                  std::cout<<"target is :"<<funcName[j]<<" "<<ArgPosNumber[j]<<"\n";
+                  return true;
+               } 
+             }    
+       }
 /*else if (strInput=="MemThreadKiller") 
            {  
             reg=inst;
@@ -119,34 +118,47 @@ class _AutoRegSelector: public FIRegSelector {
 
 
        }
-       else if(isa<TerminatorInst>(inst))
+       else if (strInput=="CPUHogTarget") 
+              {
+ 
+                 if (isa<TerminatorInst>(inst))
                                  { 
                                    TerminatorInst* TI=dyn_cast<TerminatorInst>(inst);
                                     
                                           if(isa<ReturnInst>(TI))
                                             {
                                                 ReturnInst* RI=dyn_cast<ReturnInst>(TI);
-
-                                                  std::ifstream inf("Automation-config");
-                                                    std::string strInput;
-                                                     getline(inf, strInput);
-                                                       if ((strInput=="CPUHogTarget") && (reg==RI->getReturnValue()))
-                                                                                         
-                                                      { 
-                                                      std::cout<<"target is return value of function"<<"\n" ;                                                                                       
+                                                       reg=RI->getReturnValue();
+                                                              std::cout<<"target is return value of function"<<"\n" ;                                                                                       
                                                       return true;
-                                                      }
-                                                   
-else if (((strInput=="APINoOutput")||(strInput=="DataNoOutput")||(strInput=="DataIncorrectOutput")||(strInput=="DataIncorrectOutput")) && (reg==RI->getReturnValue())&&((RI->getParent()->getParent()->getName()!="main")));
-                                                                                         
-                                                      { 
-                                                      std::cout<<"target is return value of function"<<"\n" ;                                                                                       
-                                                      return true;
-                                                      }
-                                                    
-                                                      
                                             }
                                  }
+              }
+                  
+
+
+
+
+      else if ((strInput=="APINoOutput")||(strInput=="DataNoOutput")||(strInput=="DataIncorrectOutput")||(strInput=="APIIncorrectOutput"))
+              {
+ 
+                 if (isa<TerminatorInst>(inst))
+                                 { 
+                                   TerminatorInst* TI=dyn_cast<TerminatorInst>(inst);
+                                    
+                                          if(isa<ReturnInst>(TI))
+                                            {
+                                                ReturnInst* RI=dyn_cast<ReturnInst>(TI);
+                                                   if (RI->getParent()->getParent()->getName()!="main")
+                                                       {
+                                                       reg=RI->getReturnValue();
+                                                              std::cout<<"target is return value of function"<<"\n" ;                                                                                       
+                                                      return true;
+                                                       }
+                                            }
+                                 }
+              }                                 
+             
          return false;
                                                     
                                 
