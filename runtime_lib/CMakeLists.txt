@@ -9,19 +9,8 @@ add_library(llfi-rt SHARED
     InstTraceLib.c
     ProfilingLib.c
     Utils.c
-AutomatedInjection.cpp
-IncreasedValue.cpp
-DecreasedValue.cpp
-noOpen_API.cpp
-RevMode.cpp
-WrongFormat.cpp
 
-StalePointer.cpp
-MemoryExhaustion.cpp
-LowMemory.cpp
-DeadLock.cpp
-ThreadKiller.cpp
-CPUHog.cpp
-BlockedOutput.cpp
+    AutomatedInjection.cpp
+
 
 )
