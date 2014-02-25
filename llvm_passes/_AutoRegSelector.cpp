@@ -47,7 +47,7 @@ class _AutoRegSelector: public FIRegSelector {
                                    ((strInput=="MemBufOverflow2") && (reg == CI->getArgOperand(2)))||
                                      ((strInput=="MemDeadLock") && (reg == CI->getArgOperand(0)))||
                                        ((strInput=="MemThreadKiller") && (reg == CI->getArgOperand(0)))||
-                                        ((strInput=="APIWrongFormat") && (reg == CI->getArgOperand(1)))||   
+                                        ((strInput=="APIWrongFormat") && (reg == CI->getArgOperand(1)))||
                                          ((strInput=="MemMemoryLeak") && (reg == CI->getArgOperand(0))))
                                        
                    {
@@ -56,12 +56,77 @@ class _AutoRegSelector: public FIRegSelector {
                        
            return true;
                    }
+  else if  (strInput=="WrongSavedAddress")
+           {  
+                if (called_func->getName()=="fread")
+               {
+                  reg = CI->getArgOperand(0);
+                  std::cout<<"target is fread0"<<"\n";
+                  return true;
+               } 
+
+              else if (called_func->getName()=="fwrite")   
+               {
+                  reg = CI->getArgOperand(3);
+                  std::cout<<"target is fwrite3"<<"\n";
+                  return true;
+               } 
+                         
+             return true ; 
+           }    
+
+
+
+else if  (strInput=="WrongRetrievedAddress") 
+           {  
+                if (called_func->getName()=="fwrite")
+               {
+                  reg = CI->getArgOperand(0);
+                  std::cout<<"target is fwrite0"<<"\n";
+                  return true;
+               } 
+
+              else if (called_func->getName()=="fread")   
+               {
+                  reg = CI->getArgOperand(3);
+                  std::cout<<"target is fread3"<<"\n";
+                  return true;
+               } 
+                         
+             return true ; 
+           }    
+
+
+
+
+
+      /*  else if (strInput=="MemBufOverflow")
+           {  
+                if (called_func->getName()=="malloc")
+               {
+                  reg = CI->getArgOperand(0);
+                  std::cout<<"target is malloc size"<<"\n";
+                  return true;
+               } 
+
+              else if ((called_func->getName()=="llvm.memcpy.p0i8.p0i8.i64")   ||  
+                     (called_func->getName()=="llvm.memmove.p0i8.p0i8.i64") )
+               {
+                  reg = CI->getArgOperand(2);
+                  std::cout<<"target is memcpy/memmove size"<<"\n";
+                  return true;
+               } 
+                         
+             return true ; 
+           }     */
+
         else if (strInput=="APIInappropriateClose") 
            {  
             reg=inst;
             std::cout<<"target is file pointer:"<< reg<<"\n";
              return true ; 
            }
+
 
         else if ((strInput=="MEMStalePointer") ||(strInput=="MEMExhaustion")||(strInput=="MEMInvalidPointer")||(strInput=="LowMemory"))
            {  

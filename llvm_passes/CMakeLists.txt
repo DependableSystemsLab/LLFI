@@ -44,6 +44,8 @@ add_llvm_loadable_module(llfi-passes
   _API_WrongModeInstSelector.cpp
   _API_InappropriateCloseInstSelector.cpp
   _API_WrongPointerInstSelector.cpp
+  _IO_WrongRetrievedAddressInstSelector.cpp
+  _IO_WrongSavedAddressInstSelector.cpp
   _API_WrongRetrievedFormatInstSelector.cpp
   _API_WrongSavedFormatInstSelector.cpp
 
