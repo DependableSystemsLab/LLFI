@@ -9,7 +9,7 @@ Dependencies
 ------------
   1. 32/64 bit Linux or OS X
   2. CMake (minimum v2.8)
-  3. Python
+  3. Python 3 and above
   4. Python YAML library (PyYAML)
   5. Clang v3.3
   6. LLVM v3.3, built with CMake
