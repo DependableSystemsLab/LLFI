@@ -36,6 +36,9 @@ private:
                 std::ofstream outf("Automation-config");
                         outf << "MemBufOverflow2" << "\n";
                          outf.close();  
+  std::ofstream outf2("gui-config.txt");
+                outf2 << "Data BufferOverflow memcpy/memmove IncValue" << "\n";
+                outf2.close();    
            return true;
                  }
        else

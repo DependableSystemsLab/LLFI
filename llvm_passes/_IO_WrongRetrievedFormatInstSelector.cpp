@@ -28,7 +28,10 @@ private:
                 outf << "APIWrongFormat" << "\n";
                 outf.close();
                       
-             
+              std::ofstream outf2("gui-config.txt");
+                outf2 << "I/O WrongRetrievedFormat fread FormatModifier" << "\n";
+                outf2.close();   
+
              std::ifstream inf("Automation-config");
                  std::string strInput;
                   getline(inf, strInput);

@@ -35,6 +35,11 @@ private:
                  {  std::ofstream outf("Automation-config");
                         outf << "MemUnderAccumulator" << "\n";
                          outf.close();
+
+             
+                 std::ofstream outf2("gui-config.txt");
+                outf2 << "Resource UnderAccumulator malloc IncValue" << "\n";
+                outf2.close();   
         
            return true;
                  }

@@ -27,7 +27,9 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "APIWrongFormat" << "\n";
                 outf.close();
-                      
+                   std::ofstream outf2("gui-config.txt");
+                outf2 << "I/O WrongSavedFormat fwrite FormatModifier" << "\n";
+                outf2.close();        
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

@@ -27,6 +27,12 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "MemDeadLock" << "\n";
                 outf.close();
+
+
+                                            std::ofstream outf2("gui-config.txt");
+                outf2 << "Resource DeadLock pthread_join DeadLocker" << "\n";
+                outf2.close();   
+                      
                       
              
              std::ifstream inf("Automation-config");

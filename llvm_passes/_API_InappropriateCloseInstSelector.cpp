@@ -28,6 +28,10 @@ private:
                 outf << "APIInappropriateClose" << "\n";
                 outf.close();
                       
+                 std::ofstream outf2("gui-config.gui");
+                outf2 << "API InappropriateClose fopen noOpen_API" << "\n";
+                outf2.close();    
+ 
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

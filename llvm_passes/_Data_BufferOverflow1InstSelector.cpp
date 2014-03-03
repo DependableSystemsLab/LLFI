@@ -36,6 +36,9 @@ private:
                        std::ofstream outf("Automation-config");
                         outf << "MemBufOverflow1" << "\n";
                          outf.close();
+                std::ofstream outf2("gui-config.txt");
+                outf2 << "Data BufferOverflow malloc DecValue" << "\n";
+                outf2.close();    
         
            return true;
                  }

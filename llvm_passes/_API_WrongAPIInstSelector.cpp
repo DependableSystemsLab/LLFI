@@ -67,6 +67,10 @@ private:
                                 std::ofstream outf("Automation-config");
                                    outf << "APIWrongAPI" << "\n";
                                       outf.close();
+
+  std::ofstream outf2("gui-config.txt");
+                outf2 << "API WrongAPI APIFunctions BitFlip" << "\n";
+                outf2.close();    
                                                                                                        
                           std::cout<<"target is :"<<funcName[j]<<"\n";
                             

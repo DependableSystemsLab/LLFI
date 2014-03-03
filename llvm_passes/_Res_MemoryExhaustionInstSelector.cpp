@@ -28,6 +28,11 @@ private:
                 outf << "MEMExhaustion" << "\n";
                 outf.close();
                       
+
+                                            std::ofstream outf2("gui-config.txt");
+                outf2 << "Resource MemoryExhaustion malloc MemoryExhauster" << "\n";
+                outf2.close();   
+                      
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

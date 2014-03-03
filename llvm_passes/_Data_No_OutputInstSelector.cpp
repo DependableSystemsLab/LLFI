@@ -37,6 +37,10 @@ private:
                                             std::ofstream outf("Automation-config");
                                               outf << "DataNoOutput" << "\n";
                                                 outf.close();
+
+ std::ofstream outf2("gui-config.txt");
+                outf2 << "Data NoOutput return BlockedOutput" << "\n";
+                outf2.close();   
                       
              
                                             std::ifstream inf("Automation-config");

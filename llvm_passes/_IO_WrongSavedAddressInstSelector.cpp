@@ -28,6 +28,9 @@ private:
                 outf << "WrongSavedAddress" << "\n";
                 outf.close();
                       
+ std::ofstream outf2("gui-config.txt");
+                outf2 << "I/O WrongSavedAddress fread/fwrite BitFlip" << "\n";
+                outf2.close();   
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

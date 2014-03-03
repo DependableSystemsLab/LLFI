@@ -27,6 +27,12 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "MEMInvalidPointer" << "\n";
                 outf.close();
+
+
+                 std::ofstream outf2("gui-config.txt");
+                outf2 << "Resource InvalidPointer malloc BitFlip" << "\n";
+                outf2.close();   
+                      
                       
              
              std::ifstream inf("Automation-config");

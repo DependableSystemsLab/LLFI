@@ -98,8 +98,16 @@ class AutoInjection: public FaultInjector {
                  temp_ptr=(char*)malloc(*newbuf);
                    buf= temp_ptr;
                   
-         std::cout<< "ExhaustMem injected"<<"\n" ; 
-          std:: cout << static_cast<void *>(buf) << "\n";
+         std::cout<< "MemoryExhauster injected"<<"\n" ; 
+          //std:: cout << static_cast<void *>(buf) << "\n";
+
+
+                                       /*     std::ofstream outf2("run-info-config.txt");
+                outf2 << "Failure_Class=Resource Failure_Mode=MemoryExhaustion Function_Name=malloc Fault_Injector=MemoryExhauster" << "\n";
+                outf2.close();   */
+                      
+
+
           // std:: cout << *buf << "\n";
       }
 
@@ -122,7 +130,7 @@ class AutoInjection: public FaultInjector {
              temp_ptr=(char*)malloc(*newbuf);
            // buf= (char*)newbuf;
             buf=temp_ptr;
-         std::cout<< "LowMemory injected"<<"\n" ; 
+         std::cout<< "MemoryConsumer injected"<<"\n" ; 
        }
 
 
@@ -134,15 +142,20 @@ pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
                  pthread_t thread1= *buf;
                    pthread_join(thread1,NULL);
                     pthread_mutex_lock( &mutex1 );
-                      std::cout<< "DeadLoak was injected"<<"\n" ;
+                      std::cout<< "DeadLoaker was injected"<<"\n" ;
       }
 
 
 else if (strInput=="MemThreadKiller")
       {
-                void (*func_pointer)(void*);
+               /* void (*func_pointer)(void*);
 		func_pointer = pthread_exit;
-		buf = (char* )func_pointer;
+		buf = (char* )func_pointer; */
+                   pthread_t thid= *buf;
+                       sleep( 0.02);
+                        int ret=  pthread_cancel (thid); 
+                        if (ret!=0)
+      {   std::cout<< "it wasnot cancelled"<<ret<<"\n" ;   }
                 std::cout<< "ThreadKiller injected"<<"\n" ;
 
       }
@@ -174,7 +187,7 @@ else if (strInput=="APIWrongFormat")
         
         else   {  std::cout<<"unknown format"<<"\n" ;}
             buf= (char*)newbuf;
-         std::cout<<"WrongFormat injected"<<"\n" ;
+         std::cout<<"FormatModifier injected"<<"\n" ;
        }
 
 
@@ -182,7 +195,7 @@ else if (strInput=="APIWrongFormat")
 else if (strInput=="CPUHogTarget")
       {
                 sleep(3);
-                std::cout<< "CPUHog injected"<<"\n" ;
+                std::cout<< "CPUHogger injected"<<"\n" ;
 
       }
 
@@ -191,7 +204,7 @@ else if ((strInput=="APINoOutput")||(strInput=="DataNoOutput"))
       {
                for( ; ; )
                {  std::cout<<"This loop will run forever!!"<<"\n"; }
-                std::cout<< "NoOutput injected"<<"\n" ;
+                std::cout<< "BlockedOutput injected"<<"\n" ;
       }
 
 /* else if ((strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput"))

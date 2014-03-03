@@ -27,7 +27,11 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "APINoClose" << "\n";
                 outf.close();
-                      
+                    
+         std::ofstream outf2("gui-config.gui");
+                outf2 << "API NoClose fclose BitFlip" << "\n";
+                outf2.close();    
+   
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

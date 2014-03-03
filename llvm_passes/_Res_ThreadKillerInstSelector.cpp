@@ -21,14 +21,19 @@ private:
           CallInst* CI=dyn_cast<CallInst>(inst);
               Function* called_func=CI->getCalledFunction();
                              
-                 if((called_func->getName()=="pthread_join")||(called_func->getName()=="pthread_create"))
+                 if(called_func->getName()=="pthread_create")
                  {  std::cout<< "pthread_create was found"<<"\n";
                  
                 std::ofstream outf("Automation-config");
                 outf << "MemThreadKiller" << "\n";
                 outf.close();
                       
-             
+                
+                                            std::ofstream outf2("gui-config.txt");
+                outf2 << "Resource ThreadKiller pthread_join/pthread_create ThreadKiller" << "\n";
+                outf2.close();   
+
+
              std::ifstream inf("Automation-config");
                  std::string strInput;
                   getline(inf, strInput);

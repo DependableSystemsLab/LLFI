@@ -27,7 +27,10 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "APIWrongMode" << "\n";
                 outf.close();
-                      
+                     
+                std::ofstream outf2("gui-config.txt");
+                outf2 << "API WrongMode fopen BitFlip" << "\n";
+                outf2.close();     
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

@@ -27,6 +27,10 @@ private:
                 std::ofstream outf("Automation-config");
                 outf << "WrongRetrievedAddress" << "\n";
                 outf.close();
+
+      std::ofstream outf2("gui-config.txt");
+                outf2 << "I/O WrongRetrievedAddress fread/fwrite BitFlip" << "\n";
+                outf2.close();   
                       
              
              std::ifstream inf("Automation-config");

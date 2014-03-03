@@ -28,6 +28,10 @@ private:
                 outf << "APIBufferUnderflow" << "\n";
                 outf.close();
                       
+                 std::ofstream outf2("gui-config.txt");
+                outf2 << "API BufferUnderflow fread/fwrite DecValue" << "\n";
+                outf2.close();    
+ 
              
              std::ifstream inf("Automation-config");
                  std::string strInput;

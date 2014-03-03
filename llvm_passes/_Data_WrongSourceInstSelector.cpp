@@ -37,6 +37,10 @@ private:
                      std::ofstream outf("Automation-config");
                 outf << "MemWrongSource" << "\n";
                 outf.close();
+
+ std::ofstream outf2("gui-config.txt");
+                outf2 << "Data WrongSource memcpy/memmove/memcmp BitFlip" << "\n";
+                outf2.close();   
            return true;
                  }
        else
