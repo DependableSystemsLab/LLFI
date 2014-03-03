@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +76,12 @@ private TableView<ResultTable> resultTable;
 @FXML
 private TableColumn<ResultTable,Integer> tFiRun;
 @FXML
+private TableColumn<ResultTable,String> failureClass;
+@FXML
+private TableColumn<ResultTable,String> failureMode;
+@FXML
+private TableColumn<ResultTable,String> functionName;
+@FXML
 private TableColumn<ResultTable,String> tFiType;
 @FXML
 private TableColumn<ResultTable,Integer> tFiIndex;
@@ -109,12 +116,20 @@ private Button injectfaultButton;
 private Button runtimeButton;
 @FXML
 private TextArea errorTextArea;
+@FXML
+private TextArea consoleTextArea;
 @FXML 
 private TextArea programInputText;
 @FXML 
 private Tab profilingTab;
 @FXML 
 private Tab faultStatus;
+@FXML 
+private Tab faultSummaryTab;
+@FXML 
+private Tab errorTab;
+@FXML 
+private Tab consoleTab;
 @FXML 
 private TabPane tabBottom;
 @FXML
@@ -130,6 +145,7 @@ static public String currentProgramFolder;
 static public String llfibuildPath=null;
 static public String currentFileName;
 public boolean checkFlag = true;
+static public List<String> console;
 
 
 public ArrayList<String> fileNameLists = new ArrayList<>();
@@ -138,6 +154,8 @@ private ArrayList<String> resultFileNameLists;
 private ArrayList<String> resultErrorFileNameLists;
 private ArrayList<String> resultOutputFileNameLists;
 private ArrayList<String> resultList;
+private ArrayList<String> faultEntryList;
+private ArrayList<String> faultResultList;
 private String indexBound;
 private String cycleBound;
 public int runCount = 0;
@@ -184,6 +202,8 @@ private void onClickProfiling(ActionEvent event){
 	try{
 		tabBottom.getSelectionModel().select(profilingTab);
 		
+		console = new ArrayList<String>();
+		
 		
 		inputString = programInputText.getText();
 		programInputText.setEditable(false);
@@ -192,7 +212,7 @@ private void onClickProfiling(ActionEvent event){
 		
 			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
 		
-		
+			console.add("$ "+llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString+"\n");
 	    
 	    p.redirectErrorStream(true);
 	    Process pr = p.start();
@@ -200,6 +220,7 @@ private void onClickProfiling(ActionEvent event){
 	    String line1;
 	    while ((line1 = in1.readLine()) != null) {
 	    	//System.out.printl
+	    	console.add(line1+"\n");
 	    	errorString.add(line1+"\n");
 	    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
 	    		errorFlag= true;
@@ -329,6 +350,14 @@ public void onClickActualFaultInjection(ActionEvent event)
 		  final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
 		  if(errorFolder.exists())
 		  deleteFilesInFolder(errorFolder);
+		  
+		  //if(new File(currentProgramFolder+"/llfi/std_output").exists());
+		 // {
+			  final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
+			  if(outputFolder.exists())
+			  deleteFilesInFolder(outputFolder);
+		 // }
+		  
 		  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
           Stage stage = new Stage();                               
 
@@ -362,9 +391,14 @@ public void onClickInjectFaultOkHandler(ActionEvent event){
 @FXML
 public void onGeneratingResultTable(){
 	try{
-		
+		String runEntry;
+		String s[];
+		String s1;
 		sdcCount = 0;
+		int entryCount = 0;
 		data1 =  FXCollections.observableArrayList() ;
+		faultEntryList = new ArrayList<String>();
+		faultResultList = new ArrayList<String>();
 		resultList = new ArrayList<String>();
 		resultFileNameLists = new ArrayList<String>();
 		resultErrorFileNameLists = new ArrayList<String>();
@@ -376,9 +410,17 @@ public void onGeneratingResultTable(){
 		final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
 		listFilesForOtputFolder(outputFolder);
 		runCount = 0;
-		for(int i = 0; i < resultFileNameLists.size();i++)                                
+		/*FileReader inFile = new FileReader(currentProgramFolder+"/llfi/gui_config.txt");
+		BufferedReader bReader = new BufferedReader(inFile);
+		  while ((line = bReader.readLine()) != null)   {
+			  faultEntryList.add(line);
+		      	
+		      }
+		  bReader.close();*/
+		  for(int i = 0; i < resultFileNameLists.size();i++)                                
 
 		   {
+			 
 			
 			if(resultFileNameLists.get(i).contains("trace"))
 			{
@@ -386,6 +428,22 @@ public void onGeneratingResultTable(){
 			}
 			else
 			{
+				 faultResultList = new ArrayList<String>();
+				 faultResultList.add("");
+				 faultResultList.add("");
+				 faultResultList.add("");
+				 faultResultList.add("");
+				 /*
+				 runEntry = faultEntryList.get(entryCount);
+				 entryCount++;
+				 s = runEntry.split(",");
+				 
+				 for(int j = 0; j < s.length;j++)
+				  {
+					 
+					 faultResultList.add(s[j].split("=")[1]);
+					 
+				  }*/
 				resultList = new ArrayList<String>();
 				runCount++;
 				                              
@@ -512,6 +570,7 @@ public void onGeneratingResultTable(){
 												  {
 													  sdcCount++;
 													  sdc = "Occured";
+													  status = "Injected";
 												  }
 								    		}
 								    	}
@@ -550,6 +609,7 @@ public void onGeneratingResultTable(){
 												  {
 													  sdcCount++;
 													  sdc = "Occured";
+													  status = "Injected";
 												  }
 								    		}
 								    	}
@@ -604,9 +664,8 @@ public void onGeneratingResultTable(){
 				  System.out.println("\nsdc : "+sdc);
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
-				  data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-	            		  Integer.parseInt(resultList.get(3)),Integer.parseInt(resultList.get(4)),sdc,
-	    				  status,result));
+				  data1.add(new ResultTable(runCount,resultList.get(5),resultList.get(6),resultList.get(7),resultList.get(8),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
+	            		 Integer.parseInt(resultList.get(4)),sdc,status,result));
 				 
 				 
 			}
@@ -614,10 +673,13 @@ public void onGeneratingResultTable(){
 			
 		   }
 		tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
+		failureClass.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("failureClass"));
+		failureMode.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("failureMode"));
+		functionName.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("functionName"));
 	    tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
 	    tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
 	    tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("cycle"));
-	    tFiRegIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("regIndex"));
+	    //tFiRegIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("regIndex"));
 	    tFiBit.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("bit"));
 	    tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
 	    tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
@@ -769,6 +831,7 @@ public void listFilesForFolder(final File folder) {
 private void onClickCompileToIr(ActionEvent event){
 	Parent root;
 	try{
+		console = new ArrayList<String>();
 		tabBottom.getSelectionModel().select(profilingTab);
 		String cmd = "echo $llfibuild";
 		//System.out.println(System.getenv());
@@ -786,13 +849,13 @@ private void onClickCompileToIr(ActionEvent event){
 	    pr1.destroy();
 		in.close();
         String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll "+currentProgramFolder+"/"+currentFileName;
-        
+        console.add("$ "+command+"\n");
 		Process p = Runtime.getRuntime().exec(command);
 		BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 		errorTextArea.clear();
 		errorString = new ArrayList<>();
 	    while ((line = in1.readLine()) != null) {
-	    	
+	    	console.add(line+"\n");
 	    	errorString.add(line+"\n");
 	       
 	    }
@@ -1097,22 +1160,40 @@ private void onFileSelection(MouseEvent event){
 }
 @FXML
 private void onTabChange(){
-	
-	if(flag == 1 && errorString.size() == 0 )
+	if(faultStatus.isSelected() || faultSummaryTab.isSelected())
 	{
-		programInputText.setEditable(true);
-		onGeneratingResultTable();
-		generateFaultSummaryGraph();
-		flag = 0;
-	}
-	errorTextArea.clear();
-	if(errorString.size()>0)
-	{
-		for(int i = 0; i < errorString.size();i++){
-			//System.out.println("TAB -"+errorString.get(i));
-			errorTextArea.appendText(errorString.get(i)+"\n");
+		if(flag == 1 && errorString.size() == 0 )
+		{
+			programInputText.setEditable(true);
+			onGeneratingResultTable();
+			generateFaultSummaryGraph();
+			flag = 0;
 		}
 	}
+	else if(errorTab.isSelected())
+	{
+		errorTextArea.clear();
+		
+		if(errorString.size()>0)
+		{
+			for(int i = 0; i < errorString.size();i++){
+				//System.out.println("TAB -"+errorString.get(i));
+				errorTextArea.appendText(errorString.get(i)+"\n");
+			}
+		}
+	}
+	else if(consoleTab.isSelected())
+	{
+		consoleTextArea.clear();
+		if(console.size()>0)
+		{
+			for(int i = 0; i < console.size();i++){
+				//System.out.println("TAB -"+errorString.get(i));
+				consoleTextArea.appendText(console.get(i)+"\n");
+			}
+		}
+	}
+	
 	
 	
 		

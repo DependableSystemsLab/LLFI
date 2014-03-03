@@ -7,10 +7,13 @@ public class ResultTable {
 
 
     SimpleIntegerProperty noOfRuns;
+    SimpleStringProperty failureClass;
+    SimpleStringProperty failureMode;
+    SimpleStringProperty functionName;
     SimpleStringProperty FaultInjectionType;
     SimpleIntegerProperty index;
     SimpleIntegerProperty cycle;
-    SimpleIntegerProperty regIndex;
+    
     SimpleIntegerProperty bit;
     SimpleStringProperty sdc;
     SimpleStringProperty status;
@@ -18,13 +21,16 @@ public class ResultTable {
 
 
 
-    public ResultTable(int noOfRuns,String FaultInjectionType,int index,int cycle,int regIndex,int bit,
+    public ResultTable(int noOfRuns,String failureClass,String failureMode,String functionName,String FaultInjectionType,int index,int cycle,int bit,
     		String sdc,String status,String result) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
+        this.failureClass = new SimpleStringProperty(failureClass);
+        this.failureMode = new SimpleStringProperty(failureMode);
+        this.functionName = new SimpleStringProperty(functionName);
         this.FaultInjectionType = new SimpleStringProperty(FaultInjectionType);
         this.index = new SimpleIntegerProperty(index);
         this.cycle = new SimpleIntegerProperty(cycle);
-        this.regIndex = new SimpleIntegerProperty(regIndex);
+        
         
         this.bit = new SimpleIntegerProperty(bit);
         this.sdc = new SimpleStringProperty(sdc);
@@ -39,6 +45,28 @@ public class ResultTable {
 
 	public void setNoOfRuns(Integer v) {
 		this.noOfRuns.set(v);
+	}
+	
+	public String getFailureClass() {
+		return failureClass.get();
+	}
+
+	public void setFailureClass(String fc) {
+		this.failureClass.set(fc);
+	}
+	public String getFailureMode() {
+		return failureMode.get();
+	}
+
+	public void setFailureMode(String fm) {
+		this.failureMode.set(fm);
+	}
+	public String getFunctionName() {
+		return functionName.get();
+	}
+
+	public void setFunctionName(String fn) {
+		this.functionName.set(fn);
 	}
 
 	public String getFaultInjectionType() {
@@ -65,13 +93,7 @@ public class ResultTable {
 		this.cycle.set(c);
 	}
 
-	public Integer getRegIndex() {
-		return regIndex.get();
-	}
-
-	public void setRegIndex(Integer r) {
-		this.regIndex.set(r);;
-	}
+	
 
 	public Integer getBit() {
 		return bit.get();
