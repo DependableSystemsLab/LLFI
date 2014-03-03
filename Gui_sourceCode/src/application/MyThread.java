@@ -1,7 +1,6 @@
 package application;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -30,17 +29,15 @@ public class MyThread extends Thread
 	  
 	   Parent root;
 	   try{
-		   Controller.console = new ArrayList<String>(); 
-		   
 		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe ");
-		   Controller.console.add("$ "+Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe"+"\n");
+		    
 		    p.redirectErrorStream(true);
 		    Process pr = p.start();
 		    
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 		    String line1;
 		    while ((line1 = in1.readLine()) != null) {
-		    	 Controller.console.add(line1+"\n");
+		    	
 		    	Controller.errorString.add(line1+"\n");
 		    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
 		    		errorFlag= true;

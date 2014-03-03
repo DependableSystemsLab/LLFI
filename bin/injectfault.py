@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 
 """
 
@@ -41,8 +41,8 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
@@ -54,7 +54,7 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
+  if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
     usage("You need to invoke %s at the parent directory of fault injection executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
@@ -70,9 +70,8 @@ def parseArgs(args):
 def checkInputYaml():
   global timeout, doc
   #Check for input.yaml's presence
-  yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    f = open(os.path.join(yamldir, 'input.yaml'),'r')
+    f = open(os.path.join(basedir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
@@ -102,7 +101,7 @@ def print_progressbar(idx, nruns):
   bar = "=" *  int(pct * WIDTH)
   bar += ">"
   bar += "-" * (WIDTH - int(pct * WIDTH))
-  #print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end=' ')
+  print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end=' ')
   sys.stdout.flush()
 
 

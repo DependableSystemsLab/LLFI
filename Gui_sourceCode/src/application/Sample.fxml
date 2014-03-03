@@ -205,26 +205,11 @@
                                                       <children>
                                                         <TableView fx:id="resultTable" prefHeight="186.0" prefWidth="970.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                           <columns>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="95.0" text="Run Option" fx:id="tFiRun">
+                                                            <TableColumn prefWidth="75.0" text="Run Option" fx:id="tFiRun">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiRun" />
                                                               </cellValueFactory>
                                                             </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="104.0" text="Failure Class" fx:id="failureClass" >
-                                                            <cellValueFactory>
-                                                                <PropertyValueFactory property="failureClass" />
-                                                              </cellValueFactory>
-                                                              </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="114.0" text="Failure Mode" fx:id="failureMode">
-                                                            <cellValueFactory>
-                                                                <PropertyValueFactory property="failureMode" />
-                                                              </cellValueFactory>
-                                                              </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="113.0" text="Function Name" fx:id="functionName">
-                                                            <cellValueFactory>
-                                                                <PropertyValueFactory property="functionName" />
-                                                              </cellValueFactory>
-                                                              </TableColumn>
                                                             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="154.0" text="Fault Injection Type" fx:id="tFiType">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiType" />
@@ -240,12 +225,17 @@
                                                                 <PropertyValueFactory property="tFiCycle" />
                                                               </cellValueFactory>
                                                             </TableColumn>
+                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="110.0" text="Register Index" fx:id="tFiRegIndex">
+                                                              <cellValueFactory>
+                                                                <PropertyValueFactory property="tFiRegIndex" />
+                                                              </cellValueFactory>
+                                                            </TableColumn>
                                                             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="Bit" fx:id="tFiBit">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiBit" />
                                                               </cellValueFactory>
                                                             </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="123.0" text="SDC Occurance" fx:id="tFiSdc">
+                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="SDC Occurance" fx:id="tFiSdc">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiSdc" />
                                                               </cellValueFactory>
@@ -266,7 +256,7 @@
                                                     </AnchorPane>
                                                   </content>
                                                 </Tab>
-                                                <Tab fx:id="faultSummaryTab" onSelectionChanged="#onTabChange" text="Fault Summary">
+                                                <Tab onSelectionChanged="#onTabChange" text="Fault Summary">
                                                   <content>
                                                     <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                       <children>
@@ -286,20 +276,11 @@
                                                     </AnchorPane>
                                                   </content>
                                                 </Tab>
-                                                <Tab fx:id="errorTab" onSelectionChanged="#onTabChange" text="Error Display">
+                                                <Tab onSelectionChanged="#onTabChange" text="Error Display">
                                                   <content>
                                                     <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                       <children>
                                                         <TextArea fx:id="errorTextArea" editable="false" prefHeight="229.0" prefWidth="1037.0" wrapText="true" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                      </children>
-                                                    </AnchorPane>
-                                                  </content>
-                                                </Tab>
-                                                <Tab fx:id="consoleTab" onSelectionChanged="#onTabChange" text="Console">
-                                                  <content>
-                                                    <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                                      <children>
-                                                        <TextArea fx:id="consoleTextArea" editable="false" prefHeight="229.0" prefWidth="1037.0" wrapText="true" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                                                       </children>
                                                     </AnchorPane>
                                                   </content>
