@@ -13,7 +13,7 @@ compileOption:
         - ret
         - mul
     customInstSelector: onlymain
-
+    
     regSelMethod: customregselector/regloc
     regloc: dstreg      ###(dstreg/allsrcreg/srcreg1..4)
     customRegSelector: onlyconstint
@@ -27,7 +27,6 @@ compileOption:
     tracingPropagationOption:
         maxTrace: 250 # max number of instructions to trace during fault injection run
         debugTrace: True/False
-        generateCDFG: True # Generate a dot graph of the program instruction structure
 
 runOption:
     - run:
@@ -37,7 +36,6 @@ runOption:
         fi_reg_index: 3
         fi_bit: 32
         fi_reg: 2
-        verbose: True/False # prints return code summary at end of injection
 
     - run:
         numOfRuns: 5

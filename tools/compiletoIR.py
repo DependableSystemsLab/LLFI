@@ -1,4 +1,5 @@
-#! /usr/bin/env python3
+#!/usr/bin/python
+
 
 """
 
@@ -21,8 +22,8 @@ sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
 llvmlink = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llvm-link")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
-llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
 prog = os.path.basename(sys.argv[0])
 
 basedir = os.getcwd()
@@ -41,14 +42,14 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print(msg, file=sys.stderr)
-  print(__doc__ % globals(), file=sys.stderr)
+    print >> sys.stderr, msg
+  print >> sys.stderr, __doc__ % globals()
   sys.exit(retval)
 
 
 def verbosePrint(msg, verbose):
   if verbose:
-    print(msg)
+    print msg
 
 
 def parseArgs(args):
@@ -74,7 +75,7 @@ def parseArgs(args):
     else:
       options["sources"].append(os.path.join(basedir, arg))
     argid += 1
-
+  
   if len(options["sources"]) == 0:
     usage("No input file(s) specified.")
 
@@ -97,7 +98,7 @@ def compileToIR(outputfile, inputfile):
 
   for header_dir in options["I"]:
     execlist.extend(['-I', header_dir])
-
+  
   if options['readable']:
     execlist.append('-S')
   else:
@@ -110,8 +111,8 @@ def linkFiles(outputfile, inputlist):
 
   if options['readable']:
     execlist.append('-S')
-
-  execlist.extend(inputlist)
+  
+  execlist.extend(inputlist) 
   return execute(execlist)
 
 ################################################################################
@@ -121,7 +122,7 @@ def compileProg():
   verbosePrint("Source files to be compiled: ", options["verbose"])
   verbosePrint(", ".join(srcfiles), options["verbose"])
   verbosePrint("\n======Compile======", options["verbose"])
-
+  
   if len(srcfiles) == 1:
     retcode = compileToIR(outputfile, srcfiles[0])
   else:
@@ -144,9 +145,9 @@ def compileProg():
         pass
 
   if retcode != 0:
-    print("\nERROR: there was a compilation error, please follow"\
+    print >> sys.stderr, "\nERROR: there was a compilation error, please follow"\
                           " the provided instructions for %s or compile the "\
-                          "source file(s) to one single IR file manually." % prog, file=sys.stderr)
+                          "source file(s) to one single IR file manually." % prog
     sys.exit(retcode)
 
 

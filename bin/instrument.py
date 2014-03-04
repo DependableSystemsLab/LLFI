@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python
 
 """
 
@@ -34,8 +34,8 @@ import llvm_paths
 
 optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
 llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
-llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
 prog = os.path.basename(sys.argv[0])
 basedir = os.getcwd()
@@ -45,7 +45,7 @@ if sys.platform == "linux" or sys.platform == "linux2":
 elif sys.platform == "darwin":
   llfilib = os.path.join(script_path, "../llvm_passes/llfi-passes.dylib")
 else:
-  print("ERROR: LLFI does not support platform " + sys.platform + ".")
+  print "ERROR: LLFI does not support platform " + sys.platform + "."
   exit(1)
 
 
@@ -66,14 +66,14 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print(msg, file=sys.stderr)
-  print(__doc__ % globals(), file=sys.stderr)
+    print >> sys.stderr, msg
+  print >> sys.stderr, __doc__ % globals()
   sys.exit(retval)
 
 
 def verbosePrint(msg, verbose):
   if verbose:
-    print(msg)
+    print msg
 
 
 def parseArgs(args):
@@ -136,7 +136,7 @@ def checkInputYaml():
   try:
     f = open(os.path.join(srcpath, 'input.yaml'), 'r')
   except:
-    print("ERROR: No input.yaml file in the %s directory." % srcpath)
+    print "ERROR: No input.yaml file in the %s directory." % srcpath
     os.rmdir(options["dir"])
     exit(1)
   
@@ -144,18 +144,17 @@ def checkInputYaml():
   try:
     doc = yaml.load(f)
     f.close()
-    verbosePrint(yaml.dump(doc), options["verbose"])
   except:
-    print("Error: input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
+    print "Error: input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)"
     os.rmdir(options["dir"])
     exit(1)
-
+  
   #Check for compileOption in input.yaml
   try:
     cOpt = doc["compileOption"]
   except:
     os.rmdir(options["dir"])
-    print("ERROR: Please include compileOptions in input.yaml.")
+    print "ERROR: Please include compileOptions in input.yaml."
     exit(1)
 
 
@@ -176,41 +175,35 @@ def readCompileOption():
     print ("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n")
     exit(1)
   else:
-    compileOptions = []
-    validMethods = ["insttype", "funcname", "custominstselector"]
-    # Generate list of instruction selection methods
-    # TODO: Generalize and document
-    instSelMethod = cOpt["instSelMethod"]
-    for method in instSelMethod:
-      methodName = list(method.keys())[0]
-      if methodName not in validMethods:
-        print ("\n\nERROR: Unknown instruction selection method in input.yaml.\n")
+    #Select by instruction type
+    if cOpt["instSelMethod"] == 'insttype':
+      compileOptions = ['-insttype']
+      if "include" not in cOpt:  
+        print ("\n\nERROR: An 'Include' list must be present for the insttype method in input.yaml.\n")
         exit(1)
-      if methodName != "custominstselector":
-        compileOptions.append("-%s" % (str(methodName)))
       else:
-        compileOptions.append('-custominstselector')
-        compileOptions.append('-fiinstselectorname='+method[methodName])
-        continue # custom selectors don't have attributes
-      
-      # Ensure that 'include' is specified at least
-      # TODO: This isn't a very extendible way of doing this.
-      if methodName != "custominstselector" and "include" not in method[methodName]:
-        print(("\n\nERROR: An 'include' list must be present for the %s method in input.yaml.\n" % (methodName)))
+        #include list
+        for inst in cOpt["include"]:
+          compileOptions.append('-includeinst='+inst)
+        #exclude list
+        if "exclude" in cOpt:
+          for inst in cOpt["exclude"]:
+            compileOptions.append('-excludeinst='+inst)
+    #Select by custom instruction 
+    elif cOpt["instSelMethod"] == 'custominstselector':
+      compileOptions = ['-custominstselector']
+    
+      if "customInstSelector" not in cOpt:
+        print ("\n\nERROR: A 'customInstSelector' key value pair must be present for the customeinstselector method in input.yaml.\n")
         exit(1)
-
-      # Parse all options for current method
-      for attr in list(method[methodName].keys()):
-        prefix = "-%s" % (str(attr))
-        if methodName == "insttype":
-          prefix += "inst="
-        elif methodName == "funcname":
-          prefix += "func="
-        else: # add the ability to give custom options here?
-          pass
-        # Generate list of options for attribute
-        opts = [prefix + opt for opt in method[methodName][attr]]
-        compileOptions.extend(opts)
+      else:
+        compileOptions.append('-fiinstselectorname='+cOpt["customInstSelector"])
+        if "customInstSelectorOption" in cOpt:
+          for opt in cOpt["customInstSelectorOption"]:
+            compileOptions.append(opt)
+    else:
+      print ("\n\nERROR: Unknown Instruction selection method in input.yaml.\n")
+      exit(1)
 
   ###Register selection method
   if "regSelMethod" not in cOpt:  
@@ -255,10 +248,10 @@ def readCompileOption():
 
   ###Tracing Proppass
   if "tracingPropagation" in cOpt:
-    print(("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
+    print ("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
            "The generate executables will be able to output dynamic values for instructions. "
            "However, the executables take longer time to execute. If you don't want the trace, "
-           "please disable the option and re-run %s." %prog))
+           "please disable the option and re-run %s." %prog)
     compileOptions.append('-insttracepass')
     if 'tracingPropagationOption' in cOpt:
       if "debugTrace" in cOpt["tracingPropagationOption"]:
@@ -319,9 +312,9 @@ def compileProg():
     retcode = execCompilation(execlist)
 
   if retcode != 0:
-    print("\nERROR: there was an error during running the "\
+    print >> sys.stderr, "\nERROR: there was an error during running the "\
                          "instrumentation pass, please follow"\
-                         " the provided instructions for %s." % prog, file=sys.stderr)
+                         " the provided instructions for %s." % prog
     shutil.rmtree(options['dir'], ignore_errors = True)
     sys.exit(retcode)
 
@@ -348,7 +341,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
-        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying with " + os.path.basename(llvmgxx) + ".") 
+        print "...Error compiling with " + os.path.basename(llvmgcc) + ", trying with " + os.path.basename(llvmgxx) + "." 
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
     if retcode == 0:
@@ -356,7 +349,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
-        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying " + os.path.basename(llvmgxx) + ".") 
+        print "...Error compiling with " + os.path.basename(llvmgcc) + ", trying " + os.path.basename(llvmgxx) + "." 
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
 
@@ -367,12 +360,12 @@ def compileProg():
       except:
         pass
     if retcode != 0:
-      print("\nERROR: there was an error during linking and generating executables,"\
+      print >> sys.stderr, "\nERROR: there was an error during linking and generating executables,"\
                            "Please take %s and %s and generate the executables manually (linking llfi-rt "\
-                           "in directory %s)." %(proffile + _suffixOfIR(), fifile + _suffixOfIR(), llfilinklib), file=sys.stderr)
+                           "in directory %s)." %(proffile + _suffixOfIR(), fifile + _suffixOfIR(), llfilinklib)
       sys.exit(retcode)
     else:
-      print("\nSuccess", file=sys.stderr)
+      print >> sys.stderr, "\nSuccess"
 
 
 ################################################################################

@@ -1,5 +1,3 @@
-#!/usr/bin/env python2
-
 #traceTools.py
 #Author: Sam Coulter
 #This file contains library functions and classes for the llfi tracing and
@@ -17,7 +15,7 @@ debugFlag = 0
 def debug(text, level=5):
   global debugFlag
   if debugFlag == level:
-    print(text)
+    print text
 
 goldenRemovedCount = []
 faultyRemovedCount = []
@@ -66,9 +64,9 @@ class diffBlock:
 
   #print some info for debugging
   def printdebug(self):
-    print(self.origStart, self.newStart)
-    print('\n'.join(self.origLines))
-    print('\n'.join(self.newLines))
+    print self.origStart, self.newStart
+    print '\n'.join(self.origLines)
+    print '\n'.join(self.newLines)
 
   #print the block analysis summary
   def getSummary(self, adj=0):
@@ -78,7 +76,7 @@ class diffBlock:
     CtrlDiffs = []
     instanceList = []
 
-    izip = itertools.zip_longest(self.origLines, self.newLines)
+    izip = itertools.izip_longest(self.origLines, self.newLines)
 
     instance = diffInstance(0,0,0,0)
     for i, (g, f) in enumerate(izip):
@@ -115,7 +113,7 @@ class ctrlDiffBlock(diffBlock):
 
     debug("ctrlDiffBlock getSummaryCall: " + str(adj))
 
-    izip = itertools.zip_longest(self.origLines, self.newLines)
+    izip = itertools.izip_longest(self.origLines, self.newLines)
 
     instance = diffInstance(0,0,0,0)
     for i, (g, f) in enumerate(izip):
@@ -145,8 +143,7 @@ class ctrlDiffBlock(diffBlock):
       instanceList.append(instance.summary(self.preDiff, self.postDiff))
     return instanceList[1]
 
-def removeRangeFromLines(goldenLines, faultyLines, xxx_todo_changeme, adj = 0):
-  (gStart, gLength, fStart, fLength) = xxx_todo_changeme
+def removeRangeFromLines(goldenLines, faultyLines, (gStart, gLength, fStart, fLength), adj = 0):
   global goldenRemovedCount
   global faultyRemovedCount
 
@@ -295,8 +292,8 @@ class diffReport:
         debug("Golden Lines:\n" + "\n".join(goldenLines))
         debug("Faulty Lines:\n" + "\n".join(faultyLines))
 
-      goldenLines = [_f for _f in goldenLines if _f]
-      faultyLines = [_f for _f in faultyLines if _f]
+      goldenLines = filter(None, goldenLines)
+      faultyLines = filter(None, faultyLines)
 
 
     datadiff = list(difflib.unified_diff(goldenLines, faultyLines, n=0, lineterm=''))
@@ -331,7 +328,7 @@ class diffReport:
     for block in self.blocks:
       if block.preDiff == None:
         block.preDiff = self.injectedID
-      print(block.getSummary(self.startPoint))
+      print block.getSummary(self.startPoint)
 
 def trimLinesToCtrlIDs(lines):
   i = 0
@@ -356,7 +353,7 @@ class diffLine:
     self.Value = str(elements[5])
 
   def _print(self):
-    print("ID:",self.ID, "OPCode", self.OPCode, "Value:", self.Value)
+    print "ID:",self.ID, "OPCode", self.OPCode, "Value:", self.Value
 
   def __str__(self):
     return self.raw
@@ -395,7 +392,7 @@ class faultReport:
         i += 1
 
     else:
-      print("ERROR: Not a properly formed faultReport")
+      print "ERROR: Not a properly formed faultReport"
 
   def union(self, other):
     if self.faultID == other.faultID:
