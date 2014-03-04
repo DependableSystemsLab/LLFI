@@ -119,8 +119,29 @@ public class InstrumentController implements Initializable {
 	private void onClickGenerateYamlFile(ActionEvent event) {
 		Parent root;
 		try {
+			Controller.console = new ArrayList<String>();
 			folderName = Controller.currentProgramFolder;
 			theDirectory = new File(folderName+"/llfi");
+			String cmd1 = "rm -rf "+Controller.currentProgramFolder+"/llfi";
+			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c",cmd1);
+		    
+		    p1.redirectErrorStream(true);
+		    Process pr1 = p1.start();
+			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+		    String line1;
+		    Controller.errorString = new ArrayList<>();
+		    while ((line1 = in2.readLine()) != null) {
+		    	/*if(line1.contains("Sucess"))
+		    		Controller.errorString = new ArrayList<>();
+		    	else*/
+		    		Controller.errorString.add(line1);
+		       
+		        if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+		        	errorFlag = true;
+		        	
+		    }
+		    pr1.waitFor();
+		    in2.close();
 	        //delete(theDirectory);
 		
 		if(instTypeRadio.isSelected() ==true ){
@@ -222,16 +243,18 @@ public class InstrumentController implements Initializable {
 					        
 						 String cmd = Controller.llfibuildPath+"bin/instrument -lpthread --readable "+folderName+"/"+folderName+".ll";
 							ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",cmd);
+							Controller.console.add("$ "+cmd+"\n");
 						    
 						    p.redirectErrorStream(true);
 						    Process pr = p.start();
 							BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-						    String line1;
+						    
 						    Controller.errorString = new ArrayList<>();
 						    while ((line1 = in1.readLine()) != null) {
 						    	/*if(line1.contains("Sucess"))
 						    		Controller.errorString = new ArrayList<>();
 						    	else*/
+						    		Controller.console.add(line1+"\n");
 						    		Controller.errorString.add(line1);
 						       
 						        if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
@@ -745,6 +768,20 @@ private void resetAllOptions()
 		customRegCombo.setDisable(true);
 		
 	}
+    if(limitTraceRadio.isSelected() == true)
+    {
+    	traceCountText.setDisable(false);
+    }
+    else if(fullTraceRadio.isSelected() == true)
+    {
+    	traceCountText.setDisable(true);
+    }
+    else if(noTraceRadio.isSelected() == true)
+    {
+    	traceCountText.setDisable(true);
+    	forwardCheckbox.setDisable(true);
+    	backwardCheckbox.setDisable(true);
+    }
 	}catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
