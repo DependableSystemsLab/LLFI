@@ -28,7 +28,7 @@ private:
                 outf << "APIInappropriateClose" << "\n";
                 outf.close();
                       
-                 std::ofstream outf2("gui-config.gui");
+                 std::ofstream outf2("gui-config.txt");
                 outf2 << "API InappropriateClose fopen noOpen_API" << "\n";
                 outf2.close();    
  

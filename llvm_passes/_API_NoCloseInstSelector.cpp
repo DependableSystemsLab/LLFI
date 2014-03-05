@@ -28,7 +28,7 @@ private:
                 outf << "APINoClose" << "\n";
                 outf.close();
                     
-         std::ofstream outf2("gui-config.gui");
+         std::ofstream outf2("gui-config.txt");
                 outf2 << "API NoClose fclose BitFlip" << "\n";
                 outf2.close();    
    
