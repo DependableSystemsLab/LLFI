@@ -6,6 +6,7 @@ import os
 import imp
 
 def checkRequirements():
+  return 0;
 
 
 
