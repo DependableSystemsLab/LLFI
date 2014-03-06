@@ -139,7 +139,7 @@ else if (strInput=="MemDeadLock")
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
   
 	        pthread_mutex_lock( &mutex1 );
-                 pthread_t thread1= *buf;
+                 pthread_t thread1= pthread_t(*buf);
                    pthread_join(thread1,NULL);
                     pthread_mutex_lock( &mutex1 );
                       std::cout<< "DeadLoaker was injected"<<"\n" ;
@@ -151,7 +151,8 @@ else if (strInput=="MemThreadKiller")
                /* void (*func_pointer)(void*);
 		func_pointer = pthread_exit;
 		buf = (char* )func_pointer; */
-                   pthread_t thid= *buf;
+                     int* newbuf= (int*)buf;
+                   pthread_t thid= pthread_t (*buf);
                        sleep( 0.02);
                         int ret=  pthread_cancel (thid); 
                         if (ret!=0)
