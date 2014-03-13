@@ -1,2 +1,2 @@
-set(LLVM_DST_ROOT /ubc/ece/home/am/grads/raiyat/project/llvm_build)
-set(LLVM_SRC_ROOT /ubc/ece/home/am/grads/raiyat/project/llvm-2.9)
+set(LLVM_DST_ROOT /ubc/ece/home/kp/grads/raiyat/newproject/llvm_build)
+set(LLVM_SRC_ROOT /ubc/ece/home/kp/grads/raiyat/newproject/llvm-2.9)

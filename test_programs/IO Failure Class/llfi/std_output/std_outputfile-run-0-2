@@ -1,9 +1,0 @@
-first format is: 1
-correct format is char
-wrong format is int
-WrongFormat injected
-The content of input file is:  This is a simple fault injection experimentation!!
-
-The content of buffer is: This is a simple fault injection experimentation!!
- the content of OUTPUT file is :
-This is a simple fault injection experimentation!!
