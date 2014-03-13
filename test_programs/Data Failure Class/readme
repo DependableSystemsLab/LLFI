@@ -1,0 +1,12 @@
+Resource failure class is including 2 test programs as follows:
+a. memcpy1.c
+BufOverflowMalloc(Data)
+BufOverflowMemmove(Data)
+WrongPointer(Data)
+WrongDestination(Data)
+WrongSource(Data)
+
+b.functions.c
+This program can be used for injecting the following failure modes:
+NoOutput(Data)
+IncorrectOutput(Data)

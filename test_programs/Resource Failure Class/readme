@@ -1,0 +1,19 @@
+Resource failure class is including 3 test programs as follows:
+a. memcpy1.c
+This program can be used for injecting the following failure modes: 
+ MemoryExhaustion(Res)
+ InvalidPointer(Res)
+ LowMemory(Res)
+ MemoryLeak(Res)
+ StalePointer(Res)
+ UnderAccumulator(Res)
+
+
+b: Deadlock.c
+This program can be used for injecting the following failure modes: 
+ DeadLock(Res)
+ ThreadKiller(Res)
+
+c.functions.c
+This program can be used for injecting the following failure mode:
+ CPUHog(Res)

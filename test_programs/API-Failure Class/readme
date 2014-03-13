@@ -1,0 +1,14 @@
+Resource failure class is including 2 test programs as follows:
+a. memcpy1.c
+NoOpen(API)
+NoClose(API)
+WrongMode(API)
+WrongAPI(API)
+BufferOverflow(API)
+BufferUnderflow(API)
+InappropriateClose(API)
+
+b.functions.c
+This program can be used for injecting the following failure mode:
+ NoOutput(API)
+ IncorrectOutput(API)
