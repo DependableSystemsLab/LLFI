@@ -154,8 +154,7 @@ private ArrayList<String> resultFileNameLists;
 private ArrayList<String> resultErrorFileNameLists;
 private ArrayList<String> resultOutputFileNameLists;
 private ArrayList<String> resultList;
-private ArrayList<String> faultEntryList;
-private ArrayList<String> faultResultList;
+
 private String indexBound;
 private String cycleBound;
 public int runCount = 0;
@@ -392,13 +391,9 @@ public void onClickInjectFaultOkHandler(ActionEvent event){
 public void onGeneratingResultTable(){
 	try{
 		String runEntry;
-		String s[];
-		String s1;
 		sdcCount = 0;
 		int entryCount = 0;
 		data1 =  FXCollections.observableArrayList() ;
-		faultEntryList = new ArrayList<String>();
-		faultResultList = new ArrayList<String>();
 		resultList = new ArrayList<String>();
 		resultFileNameLists = new ArrayList<String>();
 		resultErrorFileNameLists = new ArrayList<String>();
@@ -428,11 +423,7 @@ public void onGeneratingResultTable(){
 			}
 			else
 			{
-				 faultResultList = new ArrayList<String>();
-				 faultResultList.add("");
-				 faultResultList.add("");
-				 faultResultList.add("");
-				 faultResultList.add("");
+				 
 				 /*
 				 runEntry = faultEntryList.get(entryCount);
 				 entryCount++;
@@ -468,7 +459,8 @@ public void onGeneratingResultTable(){
 					  for(int k = 0;k< resultErrorFileNameLists.size();k++)
 					  {
 						  
-						  if(resultErrorFileNameLists.get(k).contains(resultFileNameLists.get(i).substring(28, 31)))
+						  
+						  if(resultErrorFileNameLists.get(k).substring(14).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
 						  {
 							  result = "";
 							  status = "Injected";
@@ -517,7 +509,7 @@ public void onGeneratingResultTable(){
 						  
 						  
 						  
-						  if(resultOutputFileNameLists.get(k).contains(resultFileNameLists.get(i).substring(28, 31)))
+						  if(resultOutputFileNameLists.get(k).substring(19).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
 						  {
 							  
 							  
