@@ -1,6 +1,6 @@
 compileOption:
     instSelMethod:
-      - insttype
+      - insttype:
           include: 
             - all
           exclude:
