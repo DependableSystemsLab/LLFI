@@ -827,19 +827,7 @@ private void onClickCompileToIr(ActionEvent event){
 		tabBottom.getSelectionModel().select(profilingTab);
 		String cmd = "echo $llfibuild";
 		//System.out.println(System.getenv());
-		ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-	    
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-	        
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();
+		
         String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll "+currentProgramFolder+"/"+currentFileName;
         console.add("$ "+command+"\n");
 		Process p = Runtime.getRuntime().exec(command);
@@ -972,7 +960,7 @@ private void onClickOpenFile(ActionEvent event) {
                     openFile(file);
                 }
             }
-    	
+           
     
 }
 
@@ -982,7 +970,8 @@ private static void configureFileChooser(
             fileChooser.getExtensionFilters().addAll(
                
                 new FileChooser.ExtensionFilter("C", "*.c"),
-                new FileChooser.ExtensionFilter("CPP", "*.cpp")
+                new FileChooser.ExtensionFilter("CPP", "*.cpp"),
+                new FileChooser.ExtensionFilter("ll", "*.ll")
             );
     }
 public static void delete(File file)
@@ -1103,17 +1092,28 @@ private void openFile(File file) {
         		
         		programTextArea.appendText(fileContent.get(i));
         	}
+        	if(fileName.split("\\.")[1].equalsIgnoreCase("ll"))
+        	{
+        		 compiletoIrButton.setDisable(true);
+            	 instrumentButton.setDisable(false);
+            	 profilingButton.setDisable(true);
+            	 runtimeButton.setDisable(true);
+            	 injectfaultButton.setDisable(true);
+        	}
+        	else
+        	{
         	 compiletoIrButton.setDisable(false);
         	 instrumentButton.setDisable(true);
         	 profilingButton.setDisable(true);
         	 runtimeButton.setDisable(true);
         	 injectfaultButton.setDisable(true);
+        	}
         	
         }
         
         fileCount++;
         UploadLabel.setVisible(false);
-        compiletoIrButton.setDisable(false);
+       // compiletoIrButton.setDisable(false);
         bufferReader.close();
     }catch(IOException e){
         System.out.println("Error while reading file line by line:" 
@@ -1143,11 +1143,23 @@ private void onFileSelection(MouseEvent event){
 		
 		programTextArea.appendText(fileContent.get(i));
 	}
-	compiletoIrButton.setDisable(false);
-	 instrumentButton.setDisable(true);
-	 profilingButton.setDisable(true);
-	 runtimeButton.setDisable(true);
-	 injectfaultButton.setDisable(true);
+	if(currentFileName.split("\\.")[1].equalsIgnoreCase("ll"))
+	{
+		compiletoIrButton.setDisable(true);
+		 instrumentButton.setDisable(false);
+		 profilingButton.setDisable(true);
+		 runtimeButton.setDisable(true);
+		 injectfaultButton.setDisable(true);
+	}
+	else
+	{
+		compiletoIrButton.setDisable(false);
+		 instrumentButton.setDisable(true);
+		 profilingButton.setDisable(true);
+		 runtimeButton.setDisable(true);
+		 injectfaultButton.setDisable(true);
+	}
+	
 	
 }
 @FXML
@@ -1196,17 +1208,42 @@ private void onTabChange(){
 
 @Override
 public void initialize(URL url, ResourceBundle rb) {
-	
+	try{
 		//progressBar.setVisible(false);
 	File f = new File("."); // current directory
 
     File[] files = f.listFiles();
     int i;
     boolean signFalg = false;
+    ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
+    
+    p1.redirectErrorStream(true);
+    Process pr1 = p1.start();
+	BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+    String line;
+    while ((line = in.readLine()) != null) {
+        
+        llfibuildPath = line;
+    }
+    pr1.waitFor();
+    pr1.destroy();
+	in.close();
 	    /*for (final File fileEntry : files) {
 	    	fileContent = new ArrayList<>();
 	        if (fileEntry.isDirectory()) {
-	        	i = 0;
+	        	i = 0;ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
+	    
+	    p1.redirectErrorStream(true);
+	    Process pr1 = p1.start();
+		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+	    String line;
+	    while ((line = in.readLine()) != null) {
+	        
+	        llfibuildPath = line;
+	    }
+	    pr1.waitFor();
+	    pr1.destroy();
+		in.close();
 	        	 
 	        	
 	        	
@@ -1240,7 +1277,31 @@ public void initialize(URL url, ResourceBundle rb) {
 		        		 profilingButton.setDisable(true);
 		        		 runtimeButton.setDisable(true);
 		        		 injectfaultButton.setDisable(true);
-		        		
+		        		PProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
+	    
+	    p1.redirectErrorStream(true);
+	    Process pr1 = p1.start();
+		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+	    String line;
+	    while ((line = in.readLine()) != null) {
+	        
+	        llfibuildPath = line;
+	    }
+	    pr1.waitFor();
+	    pr1.destroy();
+		in.close();rocessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
+	    
+	    p1.redirectErrorStream(true);
+	    Process pr1 = p1.start();
+		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+	    String line;
+	    while ((line = in.readLine()) != null) {
+	        
+	        llfibuildPath = line;
+	    }
+	    pr1.waitFor();
+	    pr1.destroy();
+		in.close();
 		        	}
 		           
 	                i++;
@@ -1285,7 +1346,11 @@ public void initialize(URL url, ResourceBundle rb) {
 		        		compiletoIrButton.setDisable(false);
 		        		 instrumentButton.setDisable(true);
 		        		 profilingButton.setDisable(true);
-		        		 runtimeButton.setDisable(true);
+		     compiletoIrButton.setDisable(false);
+	 instrumentButton.setDisable(true);
+	 profilingButton.setDisable(true);
+	 runtimeButton.setDisable(true);
+	 injectfaultButton.setDisable(true);   		 runtimeButton.setDisable(true);
 		        		 injectfaultButton.setDisable(true);
 		        		
 		        	}
@@ -1298,10 +1363,14 @@ public void initialize(URL url, ResourceBundle rb) {
 	        }
 	        
 	    }   }*/
-//catch(IOException e)
-//{
-	//System.out.println(e);
-//}
+	}
+catch(IOException e)
+{
+	System.out.println(e);
+}catch(InterruptedException e)
+{
+	System.out.println(e);
+}
 	 
     // TODO
 }    

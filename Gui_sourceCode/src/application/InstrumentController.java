@@ -172,7 +172,7 @@ public class InstrumentController implements Initializable {
 					        w.write("kernelOption:");
 					        w.write("\n    - forceRun");
 
-					        w.write("\n\ntimeOut: 1000");
+					        //w.write("\n\ntimeOut: 1000");
 
 					        w.write("\n\ncompileOption:");
 					        w.write("\n    "+"instSelMethod: "+selectedInstSelectionMethod);
