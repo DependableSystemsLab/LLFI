@@ -45,35 +45,39 @@ HANDLE_INST  (26, Alloca, AllocaInst,                 1)  // Stack management
 HANDLE_INST  (27, Load  , LoadInst,                   1)  // Memory manipulation instrs
 HANDLE_INST  (28, Store , StoreInst,                  1)
 HANDLE_INST  (29, GetElementPtr, GetElementPtrInst,   1)
+HANDLE_INST  (30, Fence, FenceInst,   1)
+HANDLE_INST  (31, AtomicCmpXchg, AtomicCmpXchgInst,   1)
+HANDLE_INST  (32, AtomicRMW, AtomicRMWInst,   1)
 
 // Cast operators ...
-HANDLE_INST  (30, Trunc   , TruncInst,                1)  // Truncate integers
-HANDLE_INST  (31, ZExt    , ZExtInst,                 1)  // Zero extend integers
-HANDLE_INST  (32, SExt    , SExtInst,                 1)  // Sign extend integers
-HANDLE_INST  (33, FPToUI  , FPToUIInst,               1)  // floating point -> UInt
-HANDLE_INST  (34, FPToSI  , FPToSIInst,               1)  // floating point -> SInt
-HANDLE_INST  (35, UIToFP  , UIToFPInst,               1)  // UInt -> floating point
-HANDLE_INST  (36, SIToFP  , SIToFPInst,               1)  // SInt -> floating point
-HANDLE_INST  (37, FPTrunc , FPTruncInst,              1)  // Truncate floating point
-HANDLE_INST  (38, FPExt   , FPExtInst,                1)  // Extend floating point
-HANDLE_INST  (39, PtrToInt, PtrToIntInst,             1)  // Pointer -> Integer
-HANDLE_INST  (40, IntToPtr, IntToPtrInst,             1)  // Integer -> Pointer
-HANDLE_INST  (41, BitCast , BitCastInst,              1)  // Type cast
+HANDLE_INST  (33, Trunc   , TruncInst,                1)  // Truncate integers
+HANDLE_INST  (34, ZExt    , ZExtInst,                 1)  // Zero extend integers
+HANDLE_INST  (35, SExt    , SExtInst,                 1)  // Sign extend integers
+HANDLE_INST  (36, FPToUI  , FPToUIInst,               1)  // floating point -> UInt
+HANDLE_INST  (37, FPToSI  , FPToSIInst,               1)  // floating point -> SInt
+HANDLE_INST  (38, UIToFP  , UIToFPInst,               1)  // UInt -> floating point
+HANDLE_INST  (39, SIToFP  , SIToFPInst,               1)  // SInt -> floating point
+HANDLE_INST  (40, FPTrunc , FPTruncInst,              1)  // Truncate floating point
+HANDLE_INST  (41, FPExt   , FPExtInst,                1)  // Extend floating point
+HANDLE_INST  (42, PtrToInt, PtrToIntInst,             1)  // Pointer -> Integer
+HANDLE_INST  (43, IntToPtr, IntToPtrInst,             1)  // Integer -> Pointer
+HANDLE_INST  (44, BitCast , BitCastInst,              1)  // Type cast
 
 // Other operators...
-HANDLE_INST  (42, ICmp   , ICmpInst,                  1)  // Integer comparison instruction
-HANDLE_INST  (43, FCmp   , FCmpInst,                  1)  // Floating point comparison instr.
-HANDLE_INST  (44, PHI    , PHINode,                   1)  // PHI node instruction
-HANDLE_INST  (45, Call   , CallInst,                  1)  // Call a function
-HANDLE_INST  (46, Select , SelectInst,                1)  // select instruction
-HANDLE_INST  (47, UserOp1, Instruction,               1)  // May be used internally in a pass
-HANDLE_INST  (48, UserOp2, Instruction,               1)  // Internal to passes only
-HANDLE_INST  (49, VAArg  , VAArgInst,                 1)  // vaarg instruction
-HANDLE_INST  (50, ExtractElement, ExtractElementInst, 1)// extract from vector
-HANDLE_INST  (51, InsertElement, InsertElementInst,   1)  // insert into vector
-HANDLE_INST  (52, ShuffleVector, ShuffleVectorInst,   1)  // shuffle two vectors.
-HANDLE_INST  (53, ExtractValue, ExtractValueInst,     1)// extract from aggregate
-HANDLE_INST  (54, InsertValue, InsertValueInst,       1)  // insert into aggregate
+HANDLE_INST  (45, ICmp   , ICmpInst,                  1)  // Integer comparison instruction
+HANDLE_INST  (46, FCmp   , FCmpInst,                  1)  // Floating point comparison instr.
+HANDLE_INST  (47, PHI    , PHINode,                   1)  // PHI node instruction
+HANDLE_INST  (48, Call   , CallInst,                  1)  // Call a function
+HANDLE_INST  (49, Select , SelectInst,                1)  // select instruction
+HANDLE_INST  (50, UserOp1, Instruction,               1)  // May be used internally in a pass
+HANDLE_INST  (51, UserOp2, Instruction,               1)  // Internal to passes only
+HANDLE_INST  (52, VAArg  , VAArgInst,                 1)  // vaarg instruction
+HANDLE_INST  (53, ExtractElement, ExtractElementInst, 1)// extract from vector
+HANDLE_INST  (54, InsertElement, InsertElementInst,   1)  // insert into vector
+HANDLE_INST  (55, ShuffleVector, ShuffleVectorInst,   1)  // shuffle two vectors.
+HANDLE_INST  (56, ExtractValue, ExtractValueInst,     1)// extract from aggregate
+HANDLE_INST  (57, InsertValue, InsertValueInst,       1)  // insert into aggregate
+HANDLE_INST  (58, LandingPad, LandingPadInst,   1)
 
 #ifdef HANDLE_INST
 #undef HANDLE_INST
