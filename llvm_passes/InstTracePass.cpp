@@ -148,8 +148,9 @@ struct InstTrace : public FunctionPass {
         // LLVM 3.3 Upgrading
         /* FIXME: Jiesheng, is it safe? */
         const char* opcodeNamePt = inst->getOpcodeName();
+	const std::string str(inst->getOpcodeName());
         char* opcodeNamePtNonConst = const_cast<char*>(opcodeNamePt);
-        ArrayRef<uint8_t> opcode_name_array_ref((uint8_t) *opcodeNamePtNonConst);
+        ArrayRef<uint8_t> opcode_name_array_ref((uint8_t) *opcodeNamePtNonConst, str.size());
         //llvm::Value* OPCodeName = llvm::ConstantArray::get(context, opcode_name_array_ref);
         llvm::Value* OPCodeName = llvm::ConstantDataArray::get(context, opcode_name_array_ref);
         /********************************/
