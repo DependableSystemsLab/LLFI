@@ -1,7 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#define LLVM_ON_UNIX 1
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/FileSystem.h"
 
 #include <set>
 #include <map>
