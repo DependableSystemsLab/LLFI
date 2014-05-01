@@ -54,7 +54,7 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
+  if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
     usage("You need to invoke %s at the parent directory of fault injection executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
@@ -70,8 +70,9 @@ def parseArgs(args):
 def checkInputYaml():
   global timeout, doc
   #Check for input.yaml's presence
+  yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    f = open(os.path.join(basedir, 'input.yaml'),'r')
+    f = open(os.path.join(yamldir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
@@ -245,6 +246,10 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == 'fi_bit':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
+  
+  elif key == 'fi_random_seed':
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
 
     if runOverride:
       pass
@@ -314,6 +319,8 @@ def main(args):
         del fi_reg_index
       if 'fi_bit' in locals():
         del fi_bit
+      if 'fi_random_seed' in locals():
+        del fi_random_seed
 
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
@@ -331,6 +338,9 @@ def main(args):
       if "fi_bit" in run["run"]:
         fi_bit=run["run"]["fi_bit"]
         checkValues("fi_bit",fi_bit)
+      if "fi_random_seed" in run["run"]:
+        fi_random_seed=run["run"]["fi_random_seed"]
+        
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
         print(("\nINFO: You choose to inject faults based on LLFI index, "
@@ -347,6 +357,9 @@ def main(args):
         outputfile = stddir + "/std_outputfile-" + "run-"+run_id
         errorfile = errordir + "/errorfile-" + "run-"+run_id
         execlist = [fi_exe]
+        
+        if('fi_cycle' not in locals() and 'fi_random_seed' in locals()):
+          random.seed(fi_random_seed)
 
         if need_to_calc_fi_cycle:
           fi_cycle = random.randint(0, int(totalcycles) - 1)
