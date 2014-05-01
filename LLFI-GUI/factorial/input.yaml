@@ -1,0 +1,20 @@
+kernelOption:
+    - forceRun
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include: 
+            - all
+
+    regSelMethod: regloc
+    regloc: dstreg
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_random_seed: 7
