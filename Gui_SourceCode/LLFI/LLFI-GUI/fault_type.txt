@@ -1,4 +1,0 @@
-bitflip
-stuck_at_0
-stuck_at_1
-

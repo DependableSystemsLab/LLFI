@@ -101,7 +101,7 @@ Environment variable setup
      – A sample SDC script is uploaded in /LLFI-GUI/SdcScript.sh
 Running
 -------
-1. Go to *LLFI-GUI/
+1. On setup the llfi_gui.jar file is built at LLFI-GUI/. Hence go to *LLFI-GUI/
 
 2. Execute the jar file: java -jar llfi_gui.jar
 
