@@ -175,8 +175,8 @@ def build():
     
 def buildgui():
   scriptPath = os.path.dirname(os.path.realpath(__file__))
+  antPath = os.path.join(scriptPath, "Gui_SourceCode/LLFI/build.xml")
   
-  antPath = os.path.join(scriptPath,print(antPath, file=sys.stderr)
   jarPath = os.path.join(scriptPath, "LLFI-GUI/llfi_gui.jar")
   p = subprocess.call(["rm", "-rf", jarPath])
   p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
