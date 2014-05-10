@@ -32,8 +32,8 @@ public class MyThread extends Thread
 	   try{
 		   Controller.console = new ArrayList<String>(); 
 		   
-		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe ");
-		   Controller.console.add("$ "+Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe"+"\n");
+		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString);
+		   Controller.console.add("$ "+Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe"+Controller.inputString+"\n");
 		    p.redirectErrorStream(true);
 		    Process pr = p.start();
 		    
