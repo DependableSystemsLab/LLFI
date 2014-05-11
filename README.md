@@ -11,9 +11,9 @@ Dependencies
   2. CMake (minimum v2.8)
   3. Python 3 and above
   4. Python YAML library (PyYAML)
-  5. Clang v3.3
-  6. LLVM v3.3, built with CMake
-    * Build llvm-3.3 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
+  5. Clang v3.4
+  6. LLVM v3.4, built with CMake
+    * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
   7. Java7 with JavaFX (For GUI)
 
