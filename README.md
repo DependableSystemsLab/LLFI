@@ -36,7 +36,7 @@ List of options:
 ```
 Here is a sample build command if `clang` is already in $PATH:
 ```
-./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.3 -LLVM_DST_ROOT $BUILD/llvm-3.3
+./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4
 ```
 
 Running
