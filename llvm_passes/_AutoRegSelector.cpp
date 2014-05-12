@@ -26,6 +26,10 @@ class _AutoRegSelector: public FIRegSelector {
                  std::string strInput;
                   getline(inf, strInput);
 
+                std::ifstream inf2("Automation2-config");
+                 std::string strInput2;
+                  getline(inf2, strInput2);
+
         if(isa<CallInst>(inst))
            {
              CallInst* CI=dyn_cast<CallInst>(inst);
@@ -47,8 +51,14 @@ class _AutoRegSelector: public FIRegSelector {
                                    ((strInput=="MemBufOverflow2") && (reg == CI->getArgOperand(2)))||
                                      ((strInput=="MemDeadLock") && (reg == CI->getArgOperand(0)))||
                                        ((strInput=="MemThreadKiller") && (reg == CI->getArgOperand(0)))||
-                                        ((strInput=="APIWrongFormat") && (reg == CI->getArgOperand(1)))||
-                                         ((strInput=="MemMemoryLeak") && (reg == CI->getArgOperand(0))))
+                                        // ((strInput=="RaceCondition")  && (reg == CI->getArgOperand(0)))||      
+                                          ((strInput=="APIWrongFormat") && (reg == CI->getArgOperand(1)))||
+                                            ((strInput=="MPIBufferOverflow") && (reg == CI->getArgOperand(2)))||
+                                              ((strInput=="MPINoMessage") && (reg == CI->getArgOperand(1)))||
+                                                ((strInput=="MPIInvalidMessage") && (reg == CI->getArgOperand(1)))||
+                                                 ((strInput=="MPIDeadLock")   && (reg == CI->getArgOperand(0)))|| 
+                                                  ((strInput=="MPIInvalidSender")   && (reg == CI->getArgOperand(0)))|| 
+                                                   ((strInput=="MemMemoryLeak") && (reg == CI->getArgOperand(0))))
                                        
                    {
                           std::cout<<"target is automatically selected"<<"\n" ;
@@ -60,16 +70,20 @@ class _AutoRegSelector: public FIRegSelector {
            {  
                 if (called_func->getName()=="fread")
                {
-                  reg = CI->getArgOperand(0);
+                  if (reg == CI->getArgOperand(0))
+                   {
                   std::cout<<"target is fread0"<<"\n";
                   return true;
+                   }
                } 
 
               else if (called_func->getName()=="fwrite")   
                {
-                  reg = CI->getArgOperand(3);
+                 if ( reg == CI->getArgOperand(3))
+                  {
                   std::cout<<"target is fwrite3"<<"\n";
                   return true;
+                  }
                } 
                          
              return true ; 
@@ -81,16 +95,20 @@ else if  (strInput=="WrongRetrievedAddress")
            {  
                 if (called_func->getName()=="fwrite")
                {
-                  reg = CI->getArgOperand(0);
+                  if (reg == CI->getArgOperand(0))
+                   { 
                   std::cout<<"target is fwrite0"<<"\n";
                   return true;
+                   }
                } 
 
               else if (called_func->getName()=="fread")   
                {
-                  reg = CI->getArgOperand(3);
+                 if ( reg == CI->getArgOperand(3))
+                    {
                   std::cout<<"target is fread3"<<"\n";
                   return true;
+                    }
                } 
                          
              return true ; 
@@ -117,22 +135,24 @@ else if  (strInput=="WrongRetrievedAddress")
                   return true;
                } 
                          
-             return true ; 
+             return true ; threa
            }     */
 
-        else if (strInput=="APIInappropriateClose") 
+        else if ((strInput=="APIInappropriateClose")||(strInput2=="HighFrequentEvent-on-IO")||(strInput=="RaceCondition") ) 
            {  
-            reg=inst;
-            std::cout<<"target is file pointer:"<< reg<<"\n";
+            if (reg==CI)
+               {std::cout<<"target is destination register:"<<"\n";
              return true ; 
+               }
            }
 
 
-        else if ((strInput=="MEMStalePointer") ||(strInput=="MEMExhaustion")||(strInput=="MEMInvalidPointer")||(strInput=="LowMemory"))
+        else if ((strInput=="MEMStalePointer") ||(strInput=="MEMExhaustion")||(strInput=="MEMInvalidPointer")||(strInput=="LowMemory")|| (strInput=="MPINoAck") )
            {  
-            reg=inst;
-            std::cout<<"target is malloc pointer:"<< reg<<"\n";
+            if (reg==CI)
+               {std::cout<<"target is destination register:"<<"\n";
              return true ; 
+               }
            }
        
 
@@ -163,27 +183,64 @@ else if  (strInput=="WrongRetrievedAddress")
 
                 if (called_func->getName()==funcName[j].c_str())
                {
-                  reg = CI->getArgOperand(ArgPosNumber[j]);
+                  if (reg == CI->getArgOperand(ArgPosNumber[j]))
+                  {
                   std::cout<<"target is :"<<funcName[j]<<" "<<ArgPosNumber[j]<<"\n";
                   return true;
+                  }
                } 
              }    
+           }
+
+
+
+  /*  else  if (strInput=="MPIInvalidMessage")
+          
+
+
+
+       {
+          
+
+        std::string line;
+	string funcName[10];
+	int   ArgPosNumber[10];
+        std::ifstream inFile;
+	inFile.open ("MPI-InvalidMessage-Config.txt");
+	int i = 0;
+
+          
+	while(getline(inFile, line))
+
+	{
+           	std::stringstream dosString;
+		dosString<<line;
+		dosString>> funcName[i]>>ArgPosNumber[i];
+                i++;
+
+	}
+ //std::cout<<"debugger:"<<"\n";
+	       for (int j = 0;  j< i; j++)
+	      {
+ 
+                if (called_func->getName()==funcName[j].c_str())
+               {
+                 if ( reg == CI->getArgOperand(ArgPosNumber[j]));
+                 { std::cout<<"target is :"<<funcName[j]<<" "<<ArgPosNumber[j]<<"\n";
+                  return true;}
+               } 
+             }
+
+
+
+    
+           }
+
+
+*/
+
        }
-/*else if (strInput=="MemThreadKiller") 
-           {  
-            reg=inst;
-            std::cout<<"target is pthread_create pointer:"<< reg<<"\n";
-             return true ; 
-           }    */
-
-
-
-
-
-
-
-       }
-       else if (strInput=="CPUHogTarget") 
+       else if ((strInput=="CPUHogTarget")||(strInput=="HighFrequentEvent-on-RETURN")) 
               {
  
                  if (isa<TerminatorInst>(inst))
@@ -193,9 +250,10 @@ else if  (strInput=="WrongRetrievedAddress")
                                           if(isa<ReturnInst>(TI))
                                             {
                                                 ReturnInst* RI=dyn_cast<ReturnInst>(TI);
-                                                       reg=RI->getReturnValue();
-                                                              std::cout<<"target is return value of function"<<"\n" ;                                                                                       
+                                                    if (reg==RI->getReturnValue());
+                                                     }         std::cout<<"target is return value of function"<<"\n" ;                                                                                       
                                                       return true;
+                                                     {
                                             }
                                  }
               }
@@ -216,9 +274,11 @@ else if  (strInput=="WrongRetrievedAddress")
                                                 ReturnInst* RI=dyn_cast<ReturnInst>(TI);
                                                    if (RI->getParent()->getParent()->getName()!="main")
                                                        {
-                                                       reg=RI->getReturnValue();
+                                                         if (reg==RI->getReturnValue())
+                                                         {
                                                               std::cout<<"target is return value of function"<<"\n" ;                                                                                       
-                                                      return true;
+                                                           return true;
+                                                         }
                                                        }
                                             }
                                  }
