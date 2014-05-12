@@ -85,23 +85,21 @@ in the *llfi* directory.
 GUI
 ====
 
+The GUI is built by the setup-script in LLFI_SRC_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
+
 Environment variable setup
 --------------------------
 
 1. Set the ’PYTHONPATH’ environment variable with the path of the installed Python yaml file.
-     – $ open .tcshrc
-     – setenv PYTHONPATH Path of Python yaml file directory
-        eg: usr/Python 2.7/site-packages/
+     – setenv PYTHONPATH  usr/Python 2.7/site-packages/
 2. Create an environment variable "llfibuild" with the path of the llfi build directory.
-     – $ open .tcshrc
-     – setenv llfibuild Path of llfi build directory
-3. Create an environment variable "COMPARE" with the path of the SDC check script.(optional)
-     – $ open .tcshrc
-     – setenv COMPARE Path of SDC check script
-     – A sample SDC script is uploaded in /LLFI-GUI/SdcScript.sh
+     – setenv llfibuild LLFI_BUILD_ROOT
+3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
+     – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
+
 Running
 -------
-1. On setup the llfi_gui.jar file is built at LLFI-GUI/. Hence go to *LLFI-GUI/
+1. Go to LLFI_SRC_ROOT/LLFI-GUI/
 
 2. Execute the jar file: java -jar llfi_gui.jar
 
