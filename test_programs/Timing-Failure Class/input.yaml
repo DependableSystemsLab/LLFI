@@ -1,0 +1,17 @@
+kernelOption:
+    - forceRun
+
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: RaceCondition(Timing)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 15
+        fi_type: AutoInjection
