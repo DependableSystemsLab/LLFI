@@ -8,25 +8,27 @@ import hashlib
 LLVMDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", \
 				'FILENAME':"llvm-3.4.src.tar.gz", \
 				'MD5':"46ed668a1ce38985120dbf6344cf6116", \
-				'EXTRACTPATH':"llvmsrc/"}
+				'EXTRACTPATH':"llvmsrc", \
+				'EXTRACTEDNAME':'llvm-3.4'}
 CLANGDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", \
 				 'FILENAME':"clang-3.4.src.tar.gz", \
 				 'MD5':"b378f1e2c424e03289effc75268d3d2c", \
-				 'EXTRACTPATH':"llvmsrc/tools/clang/"}
+				 'EXTRACTPATH':"llvmsrc/tools/clang", \
+				 'EXTRACTEDNAME':'clang-3.4'}
 PYAMLDOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", \
 				 'FILENAME':"PyYAML-3.11.tar.gz", \
 				 'MD5':"f50e08ef0fe55178479d3a618efe21db", \
-				 'EXTRACTPATH':"pyamlsrc/"}
+				 'EXTRACTPATH':"pyamlsrc", \
+				 'EXTRACTEDNAME':'PyYAML-3.11'}
 DOWNLOADTARGETS = (LLVMDOWNLOAD, CLANGDOWNLOAD, PYAMLDOWNLOAD)
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "./llfi/"
 
-def DownloadSources():
-	DownloadsPath = DOWNLOADSDIRECTORY
-	FullDownloadsPath = os.path.abspath(DownloadsPath)
+def DownloadSources(targets, downloadDirectory):
+	FullDownloadsPath = os.path.abspath(downloadDirectory)
 
-	CheckAndCreateDir(DownloadsPath)
-	for target in DOWNLOADTARGETS:
+	CheckAndCreateDir(FullDownloadsPath)
+	for target in targets:
 		CheckAndDownload(target['FILENAME'], target['MD5'], target['URL'])
 
 def CheckAndDownload(filename, md5, url):
@@ -50,12 +52,12 @@ def CheckAndCreateDir(dir):
 	FullPath = os.path.abspath(dir)
 	if (os.path.exists(FullPath)):
 		if (os.path.isdir(FullPath)):
-			print "Downloads directory exists."
+			print "%s directory exists." % (dir)
 			return True
 		else:
-			print "Downloads path occupied by file, deleting..."
+			print "%s path occupied by file, deleting..." % (dir)
 			subprocess.call(["rm", FullPath])
-	print "Creating downloads directory."
+	print "Creating %s directory." % (dir)
 	subprocess.call(["mkdir", dir])	
 
 def DownloadFile(url, destinationDirectory):
@@ -83,15 +85,30 @@ def DownloadFile(url, destinationDirectory):
 	sys.stdout.flush()
 	print ""
 
-def ExtractSources():
-	for target in DOWNLOADTARGETS:
+def ExtractSources(targets, downloadsDirectory, extractionDirectory):
+	fullDownloadsPath = os.path.abspath(downloadsDirectory)
+	fullExtractionPath = os.path.abspath(extractionDirectory)
+	print "Moving to extraction root directory."
+	os.chdir(extractionDirectory)
+	for target in targets:
+		path = target['EXTRACTPATH']
+		dirName = target['EXTRACTEDNAME']
+		print "Extracting " + target['FILENAME']
+		subprocess.call(["tar", "-xf", os.path.join(fullDownloadsPath, target['FILENAME'])])
+		print "Renaming " + dirName + " to " + path
+		subprocess.call(["mv", dirName, path])
+		os.chdir(fullExtractionPath)
+
+
+		
+
 
 
 def CopyLLFI():
 	print ""
 
 if __name__ == "__main__":
-	DownloadSources()
-	ExtractSources()
+	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
+	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
 	CopyLLFI()
 	
