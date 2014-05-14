@@ -92,6 +92,7 @@ public class InstrumentController implements Initializable {
 	@FXML
 	private CheckBox allCheckBox;
 	private List<String> fileContent;
+	private String buildPath;
 	private String selectedInstSelectionMethod;
 	private String selectedRegSelectionMethod;
 	private String selectedTraceMethod;
@@ -477,7 +478,7 @@ public class InstrumentController implements Initializable {
 				instExcludeListView.setDisable(true);
 				instIncludeButton.setDisable(true);
 				instExcludeButton.setDisable(true);
-				inputFile = new FileReader("customInstruction_list.txt");
+				inputFile = new FileReader(buildPath+"customInstruction_list.txt");
 				BufferedReader bufferReader = new BufferedReader(inputFile);
 		        
 		        customInstList = new ArrayList<String>();
@@ -521,7 +522,7 @@ public class InstrumentController implements Initializable {
 			if(customRegTypeRadio.isSelected() == true){
 				regCombo.setDisable(true);
 				customRegCombo.setDisable(false);
-				inputFile = new FileReader("customRegister_list.txt");
+				inputFile = new FileReader(buildPath+"customRegister_list.txt");
 				BufferedReader bufferReader = new BufferedReader(inputFile);
 		        
 		        customRegList = new ArrayList<String>();
@@ -802,7 +803,7 @@ public void onClickAll(ActionEvent e)
 			instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
 		}*/
 		
-		inputFile1 = new FileReader("instruction_list.txt");
+		inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 		BufferedReader bufferReader1 = new BufferedReader(inputFile1);
 	    
 		instructionList = new ArrayList<String>();
@@ -817,7 +818,7 @@ public void onClickAll(ActionEvent e)
 	    instIncludeListView.setItems(items);
 	}
 	else{
-		inputFile1 = new FileReader("instruction_list.txt");
+		inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 		BufferedReader bufferReader1 = new BufferedReader(inputFile1);
 	    
 		instructionList = new ArrayList<String>();
@@ -855,7 +856,7 @@ public void onClickAllMethod()
 				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
 			}*/
 			
-			inputFile1 = new FileReader("instruction_list.txt");
+			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
 		    
 			instructionList = new ArrayList<String>();
@@ -870,7 +871,7 @@ public void onClickAllMethod()
 		    instIncludeListView.setItems(items);
 		}
 		else{
-			inputFile1 = new FileReader("instruction_list.txt");
+			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
 		    
 			instructionList = new ArrayList<String>();
@@ -894,7 +895,7 @@ private void resetAllOptions()
 	FileReader inputFile;
 	FileReader inputFile1;
 	try{
-	inputFile = new FileReader("register_list.txt");
+	inputFile = new FileReader(buildPath+"register_list.txt");
 	BufferedReader bufferReader = new BufferedReader(inputFile);
     
     registerList = new ArrayList<String>();
@@ -910,7 +911,7 @@ private void resetAllOptions()
     regCombo.setItems(items);
     regCombo.setPromptText("-- Select --");
     
-    inputFile1 = new FileReader("instruction_list.txt");
+    inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 	BufferedReader bufferReader1 = new BufferedReader(inputFile1);
     
 	instructionList = new ArrayList<String>();
@@ -932,7 +933,7 @@ private void resetAllOptions()
 		instExcludeListView.setDisable(true);
 		instIncludeButton.setDisable(true);
 		instExcludeButton.setDisable(true);
-		inputFile = new FileReader("customInstruction_list.txt");
+		inputFile = new FileReader(buildPath+"customInstruction_list.txt");
 		bufferReader = new BufferedReader(inputFile);
         
         customInstList = new ArrayList<String>();
@@ -961,7 +962,7 @@ private void resetAllOptions()
     if(customRegTypeRadio.isSelected() == true){
 		regCombo.setDisable(true);
 		customRegCombo.setDisable(false);
-		inputFile = new FileReader("customRegister_list.txt");
+		inputFile = new FileReader(buildPath+"customRegister_list.txt");
 		bufferReader = new BufferedReader(inputFile);
         
         customRegList = new ArrayList<String>();
@@ -1008,6 +1009,9 @@ private void resetAllOptions()
 		FileReader inputFile;
 		FileReader inputFile1;
 		//try {
+		
+			// The location of the llfibuild
+			buildPath=Controller.llfibuildPath+"LLFI-GUI/";
 			selectProfileFlag = false;
 			existingInputFileFlag = false;
 			folderName = Controller.currentProgramFolder;
