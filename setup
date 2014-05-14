@@ -182,7 +182,8 @@ def buildgui():
   p = subprocess.call(["rm", "-rf", binPath])
   p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
   p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
-
+  p = subprocess.call(["cp","-r","../LLFI-GUI", "LLFI-GUI/"])
+  p = subprocess.call(["rm","../LLFI-GUI/llfi_gui.jar"])
 
 def main(args):
   parseArgs(args)
