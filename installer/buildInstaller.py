@@ -4,30 +4,26 @@ import os
 import subprocess
 import hashlib
 
-#Input: 32/64bit, alternative download locations/options
-
-#Copy LLFI files
-
-#Download LLVM, Clang, etc
+#Update These to change download targets
+LLVMDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", \
+				'FILENAME':"llvm-3.4.src.tar.gz", \
+				'MD5':"46ed668a1ce38985120dbf6344cf6116" }
+CLANGDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", \
+				 'FILENAME':"clang-3.4.src.tar.gz", \
+				 'MD5':"b378f1e2c424e03289effc75268d3d2c" }
+PYAMLDOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", \
+				 'FILENAME':"PyYAML-3.11.tar.gz", \
+				 'MD5':"f50e08ef0fe55178479d3a618efe21db" }
+DOWNLOADTARGETS = (LLVMDOWNLOAD, CLANGDOWNLOAD, PYAMLDOWNLOAD)
+DOWNLOADSDIRECTORY = "./downloads"
 
 def DownloadSources():
-	DownloadsPath = "./downloads"
+	DownloadsPath = DOWNLOADSDIRECTORY
 	FullDownloadsPath = os.path.abspath(DownloadsPath)
 
-	LLVMSRCURL = "http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz"
-	CLANGSRCURL = "http://llvm.org/releases/3.4/clang-3.4.src.tar.gz"
-	PYAMLSRCURL = "http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz"
-	LLVMSRCFILENAME = "llvm-3.4.src.tar.gz"
-	CLANGSRCFILENAME = "clang-3.4.src.tar.gz"
-	PYAMLSRCFILENAME = "PyYAML-3.11.tar.gz"
-	LLVMMD5 = "46ed668a1ce38985120dbf6344cf6116"
-	CLANGMD5 = "b378f1e2c424e03289effc75268d3d2c"
-	PYAMLMD5 = "f50e08ef0fe55178479d3a618efe21db"
-
 	CheckAndCreateDownloadDir(DownloadsPath)
-	CheckAndDownload(LLVMSRCFILENAME, LLVMMD5, LLVMSRCURL)
-	CheckAndDownload(CLANGSRCFILENAME, CLANGMD5, CLANGSRCURL)
-	CheckAndDownload(PYAMLSRCFILENAME, PYAMLMD5, PYAMLSRCURL)
+	for target in DOWNLOADTARGETS:
+		CheckAndDownload(target['FILENAME'], target['MD5'], target['URL'])
 
 def CheckAndDownload(filename, md5, url):
 	md5new = ""
@@ -83,6 +79,14 @@ def DownloadFile(url, destinationDirectory):
 	sys.stdout.flush()
 	print ""
 
+def ExtractSources():
+	print ""
+
+def CopyLLFI():
+	print ""
+
 if __name__ == "__main__":
 	DownloadSources()
+	ExtractSources()
+	CopyLLFI()
 	
