@@ -99,11 +99,6 @@ def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 		subprocess.call(["mv", dirName, path])
 		os.chdir(fullExtractionPath)
 
-
-		
-
-
-
 def CopyLLFI():
 	print ""
 
