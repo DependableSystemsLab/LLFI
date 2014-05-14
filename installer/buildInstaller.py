@@ -7,21 +7,25 @@ import hashlib
 #Update These to change download targets
 LLVMDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", \
 				'FILENAME':"llvm-3.4.src.tar.gz", \
-				'MD5':"46ed668a1ce38985120dbf6344cf6116" }
+				'MD5':"46ed668a1ce38985120dbf6344cf6116", \
+				'EXTRACTPATH':"llvmsrc/"}
 CLANGDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", \
 				 'FILENAME':"clang-3.4.src.tar.gz", \
-				 'MD5':"b378f1e2c424e03289effc75268d3d2c" }
+				 'MD5':"b378f1e2c424e03289effc75268d3d2c", \
+				 'EXTRACTPATH':"llvmsrc/tools/clang/"}
 PYAMLDOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", \
 				 'FILENAME':"PyYAML-3.11.tar.gz", \
-				 'MD5':"f50e08ef0fe55178479d3a618efe21db" }
+				 'MD5':"f50e08ef0fe55178479d3a618efe21db", \
+				 'EXTRACTPATH':"pyamlsrc/"}
 DOWNLOADTARGETS = (LLVMDOWNLOAD, CLANGDOWNLOAD, PYAMLDOWNLOAD)
-DOWNLOADSDIRECTORY = "./downloads"
+DOWNLOADSDIRECTORY = "./downloads/"
+LLFIROOTDIRECTORY = "./llfi/"
 
 def DownloadSources():
 	DownloadsPath = DOWNLOADSDIRECTORY
 	FullDownloadsPath = os.path.abspath(DownloadsPath)
 
-	CheckAndCreateDownloadDir(DownloadsPath)
+	CheckAndCreateDir(DownloadsPath)
 	for target in DOWNLOADTARGETS:
 		CheckAndDownload(target['FILENAME'], target['MD5'], target['URL'])
 
@@ -42,7 +46,7 @@ def CheckAndDownload(filename, md5, url):
 	DownloadFile(url, "./downloads/")
 	return True
 
-def CheckAndCreateDownloadDir(dir):
+def CheckAndCreateDir(dir):
 	FullPath = os.path.abspath(dir)
 	if (os.path.exists(FullPath)):
 		if (os.path.isdir(FullPath)):
@@ -80,7 +84,8 @@ def DownloadFile(url, destinationDirectory):
 	print ""
 
 def ExtractSources():
-	print ""
+	for target in DOWNLOADTARGETS:
+
 
 def CopyLLFI():
 	print ""
