@@ -114,7 +114,7 @@ def ExtractArchive(target, archivePath):
 		subprocess.call(["tar", "-xf", archivePath])
 	if target['ARCHIVETYPE'] == ".zip":
 		archivePath = archivePath[:-4]
-		subprocess.call(["unzip", archivePath])
+		subprocess.call(["unzip", "-q", archivePath])
 
 
 def CopyLLFI():
