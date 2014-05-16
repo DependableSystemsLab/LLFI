@@ -145,10 +145,12 @@ if __name__ == "__main__":
 			print "Done."
 		if arg in ("-cleanSources", "-cS"):
 			print "Cleaning extracted sources..."
+			currPath = os.getcwd()
 			os.chdir(LLFIROOTDIRECTORY)
 			for target in DOWNLOADTARGETS:	
 				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 			print "Done."
+			os.chdir(currPath)
 		if arg in ("-noDownload", "-nD"):
 			print "Flag Set: Do not perform downloads."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "DOWNLOADFLAG", False)
