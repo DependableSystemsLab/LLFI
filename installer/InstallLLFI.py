@@ -163,18 +163,19 @@ def UpdateFlags(targets, key, value):
 		newList.append(target)
 	return newList
 
-def build():
+def build(buildLLVM):
 	#Build LLVM
-	CheckAndCreateDir("llvm")
-	os.chdir("llvm")
-	p = subprocess.call(["cmake", "../llvmsrc", "-DLLVM_REQUIRES_RTTI=1", "-DCMAKE_BUILD_TYPE=Release"])
-	if p != 0:
-		sys.exit(p)
+	if buildLLVM:
+		CheckAndCreateDir("llvm")
+		os.chdir("llvm")
+		p = subprocess.call(["cmake", "../llvmsrc", "-DLLVM_REQUIRES_RTTI=1", "-DCMAKE_BUILD_TYPE=Release"])
+		if p != 0:
+			sys.exit(p)
 
-	p = subprocess.call("make")
-	if p != 0:
-		sys.exit(p)
-	os.chdir("..")
+		p = subprocess.call("make")
+		if p != 0:
+			sys.exit(p)
+		os.chdir("..")
 
 	script_path = os.getcwd()
 	#Configure and Build LLFI
@@ -218,6 +219,7 @@ def build():
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
 	p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
 
+	subprocess.call(["cp", "llfisrc/installer/LLFI-GUI", "."])
 
 	pyyaml_path = os.path.join(script_path,"pyyaml")
 	os.chdir("pyyamlsrc")
@@ -246,6 +248,7 @@ def addEnvs():
 
 if __name__ == "__main__":
 	buildFlag = True
+	buildLLVMFlag = True
 	for arg in sys.argv[1:]:
 		if arg in ("--version", "-v"):
 			print "LLFI Installer Version 0.1"
@@ -272,8 +275,12 @@ if __name__ == "__main__":
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
 		if arg in ("--noBuild", "-nB"):
 			buildFlag = False
+		if arg in ("--nobuildLLVM", "-nBLLVM"):
+			buildLLVMFlag = False
+		else:
+			print "Unkown Argument: " + arg
 	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
 	if buildFlag:
-		build()
+		build(buildLLVMFlag)
 		addEnvs()
