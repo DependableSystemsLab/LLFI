@@ -218,7 +218,7 @@ def build():
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
 	p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
 
-	
+
 	pyyaml_path = os.path.join(script_path,"pyyaml")
 	os.chdir("pyyamlsrc")
 
@@ -245,6 +245,7 @@ def addEnvs():
 		rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
 
 if __name__ == "__main__":
+	buildFlag = True
 	for arg in sys.argv[1:]:
 		if arg in ("--version", "-v"):
 			print "LLFI Installer Version 0.1"
@@ -269,7 +270,10 @@ if __name__ == "__main__":
 		if arg in ("--noExtract", "-nE"):
 			print "Flag set: Do not extract downloaded files."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
+		if arg in ("--noBuild", "-nB"):
+			buildFlag = False
 	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
-	build()
-	addEnvs()
+	if buildFlag:
+		build()
+		addEnvs()
