@@ -80,12 +80,19 @@ def CheckAndCreateDir(dir):
 
 def DownloadFile(url, destinationDirectory):
 	filename = url.split('/')[-1]
-	u = urllib2.urlopen(url)
 	f = open(os.path.join(destinationDirectory, filename), 'wb')
-	meta = u.info()
-	file_size = int(meta.getheaders("Content-Length")[0])
-	print "Downloading: %s: Bytes: %s" % (filename, file_size)
 
+	u = None
+	meta = None
+	file_size = None
+
+	while file_size == None:
+		u = urllib2.urlopen(url, timeout=3)
+		meta = u.info()
+		if len(meta.getheaders("Content-Length")) > 0: 
+			file_size = int(meta.getheaders("Content-Length")[0])
+
+	print "Downloading: %s: Bytes: %s" % (filename, file_size)
 	file_size_dl = 0
 	block_sz = 8192
 	while True:
@@ -106,6 +113,7 @@ def DownloadFile(url, destinationDirectory):
 def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 	fullDownloadsPath = os.path.abspath(downloadsDirectory)
 	fullExtractionPath = os.path.abspath(extractionDirectory)
+	CheckAndCreateDir(extractionDirectory)
 	print "Moving to extraction root directory."
 	os.chdir(extractionDirectory)
 	for target in targets:
@@ -114,15 +122,17 @@ def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 			dirName = target['EXTRACTEDNAME']
 			print "Extracting " + target['FILENAME']
 			archivePath = os.path.join(fullDownloadsPath, target['FILENAME'])
-			ExtractArchive(target, archivePath)
+			ExtractArchive(target["ARCHIVETYPE"], archivePath)
 			print "Renaming " + dirName + " to " + path
-			subprocess.call(["mv", dirName, path])
+			CheckAndCreateDir(path)
+			subprocess.call("cp -R " + dirName+"/* " + path, shell=True)
+			subprocess.call(["rm", "-rf", dirName])
 			os.chdir(fullExtractionPath)
 
-def ExtractArchive(target, archivePath):
-	if target['ARCHIVETYPE'] == ".tar.gz":
+def ExtractArchive(archiveType, archivePath):
+	if archiveType == ".tar.gz":
 		subprocess.call(["tar", "-xf", archivePath])
-	if target['ARCHIVETYPE'] == ".zip":
+	if archiveType == ".zip":
 		archivePath = archivePath[:-4]
 		subprocess.call(["unzip", "-q", archivePath])
 
@@ -146,10 +156,11 @@ if __name__ == "__main__":
 		if arg in ("-cleanSources", "-cS"):
 			print "Cleaning extracted sources..."
 			currPath = os.getcwd()
-			os.chdir(LLFIROOTDIRECTORY)
-			for target in DOWNLOADTARGETS:	
-				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
-			print "Done."
+			if os.path.isdir(LLFIROOTDIRECTORY):
+				os.chdir(LLFIROOTDIRECTORY)
+				for target in DOWNLOADTARGETS:	
+					subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
+				print "Done."
 			os.chdir(currPath)
 		if arg in ("-noDownload", "-nD"):
 			print "Flag Set: Do not perform downloads."
