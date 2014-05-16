@@ -22,37 +22,44 @@ def build(buildLLVM):
       sys.exit(p)
     os.chdir("..")
 
-
-  #Configure and Build LLFI
   script_path = os.getcwd()
-  llvm_paths_cmake = os.path.join(script_path, "llfisrc/config/llvm_paths.cmake")
-  llvm_paths_py = os.path.join(script_path, "llfisrc/config/llvm_paths.py")
-  
-  cmake_File = open(llvm_paths_cmake, "w")
-  LLVM_DST_ROOT = os.path.realpath("llvm")
-  LLVM_SRC_ROOT = os.path.realpath("llvmsrc")
-  LLVM_GXX_BIN_DIR = os.path.realpath("clang/bin")
+  if False:
+    #Configure and Build LLFI
+    
+    llvm_paths_cmake = os.path.join(script_path, "llfisrc/config/llvm_paths.cmake")
+    llvm_paths_py = os.path.join(script_path, "llfisrc/config/llvm_paths.py")
+    
+    cmake_File = open(llvm_paths_cmake, "w")
+    LLVM_DST_ROOT = os.path.realpath("llvm")
+    LLVM_SRC_ROOT = os.path.realpath("llvmsrc")
+    LLVM_GXX_BIN_DIR = os.path.realpath("llvm/bin")
 
-  cmake_File.write("set(LLVM_DST_ROOT " + LLVM_DST_ROOT + ")\n")
-  cmake_File.write("set(LLVM_SRC_ROOT " + LLVM_SRC_ROOT + ")\n")
-  cmake_File.close()
+    cmake_File.write("set(LLVM_DST_ROOT " + LLVM_DST_ROOT + ")\n")
+    cmake_File.write("set(LLVM_SRC_ROOT " + LLVM_SRC_ROOT + ")\n")
+    cmake_File.close()
 
-  py_File = open(llvm_paths_py, "w")
-  py_File.write("LLVM_DST_ROOT = " + '"' + LLVM_DST_ROOT + '"\n')
-  py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
-  py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
-  py_File.close()
+    py_File = open(llvm_paths_py, "w")
+    py_File.write("LLVM_DST_ROOT = " + '"' + LLVM_DST_ROOT + '"\n')
+    py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
+    py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
+    py_File.close()
 
-  os.chdir("llfi")
-  p = subprocess.call(["cmake", "../llfisrc"])
-  if p != 0:
-    sys.exit(p)
+    os.chdir("llfi")
+    p = subprocess.call(["cmake", "../llfisrc"])
+    if p != 0:
+      sys.exit(p)
 
-  p = subprocess.call("make")
-  if p != 0:
-    sys.exit(p)
+    p = subprocess.call("make")
+    if p != 0:
+      sys.exit(p)
 
-  os.chdir("..")
+    os.chdir("..")
+
+  subprocess.call(["python3", "llfisrc/setup", 
+                   "-LLVM_DST_ROOT", "llvm", 
+                   "-LLVM_SRC_ROOT", "llvmsrc",
+                   "-LLVM_GXX_BIN_DIR", "llvm/bin",
+                   "-LLFI_BUILD_ROOT", "llfi"])
 
   pyyaml_path = os.path.join(script_path,"pyyaml")
   os.chdir("pyyamlsrc")
