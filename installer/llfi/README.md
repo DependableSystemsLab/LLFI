@@ -1,7 +1,7 @@
 LLFI 1 Command Installer Package
 ================================
 This package provides the simplest way to fully install an LLFI framework.
-The provided build scribt  will compile both the LLVM, LLFI, and the LLFI-GUI
+The provided build script  will compile both the LLVM, LLFI, and the LLFI-GUI
 into the appropriate subdirectories.
 
 Requirements:

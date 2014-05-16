@@ -11,10 +11,11 @@ Dependencies
   2. CMake (minimum v2.8)
   3. Python 3 and above
   4. Python YAML library (PyYAML)
-  5. Clang v3.3
-  6. LLVM v3.3, built with CMake
-    * Build llvm-3.3 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
+  5. Clang v3.4
+  6. LLVM v3.4, built with CMake
+    * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
+  7. Java7 with JavaFX (For GUI)
 
 Building
 --------
@@ -35,7 +36,7 @@ List of options:
 ```
 Here is a sample build command if `clang` is already in $PATH:
 ```
-./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.3 -LLVM_DST_ROOT $BUILD/llvm-3.3
+./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4
 ```
 
 Running
@@ -46,28 +47,28 @@ You can use example programs in the *test_programs* directory to test LLFI, incl
   * `sum`: compute the sum of positive integers between 1 and N
 
 Example program: `factorial`
-  1. Go to *test_programs/factorial*. 
+  1. Go to *test_programs/. 
   2. Build a single IR file with the LLFI tool `compiletoIR`
 
       ```
-      <LLFI_BUILD_ROOT>/tools/compiletoIR --readable -o factorial.ll factorial.c
+      <LLFI_BUILD_ROOT>/tools/compiletoIR --readable -o factorial/factorial.ll factorial/factorial.c
       ```
      Alternatively, you can build your own IR file with `clang`.
   3. Instrument factorial with calls to LLFI libraries and create executables under *llfi* directory
 
       ```
-      <LLFI_BUILD_ROOT>/bin/instrument --readable factorial.ll
+      <LLFI_BUILD_ROOT>/bin/instrument --readable factorial/factorial.ll
       ```
   4. Run factorial executable with profiling functions instrumented
 
       ```
-      <LLFI_BUILD_ROOT>/bin/profile llfi/factorial-profiling.exe 6
+      <LLFI_BUILD_ROOT>/bin/profile factorial/llfi/factorial-profiling.exe 6
       ```
      In file *llfi/baseline/golden_std_output*, you should be able to see 720
   5. Run `factorial` executable with fault injection functions instrumented
 
       ```
-      <LLFI_BUILD_ROOT>/bin/injectfault llfi/factorial-faultinjection.exe 6
+      <LLFI_BUILD_ROOT>/bin/injectfault factorial/llfi/factorial-faultinjection.exe 6
       ```
 
 Results
@@ -81,6 +82,26 @@ in the *llfi* directory.
 | *llfi_stat_output* | Fault injection statistics                     |
 | *error_output*     | Failure reports (program crashes, hangs, etc.) |
 
+GUI
+====
+
+The GUI is built by the setup-script in LLFI_SRC_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
+
+Environment variable setup
+--------------------------
+
+1. Set the ’PYTHONPATH’ environment variable with the path of the installed Python yaml file.
+     – setenv PYTHONPATH  usr/Python 2.7/site-packages/
+2. Create an environment variable "llfibuild" with the path of the llfi build directory.
+     – setenv llfibuild LLFI_BUILD_ROOT
+3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
+     – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
+
+Running
+-------
+1. Go to LLFI_SRC_ROOT/LLFI-GUI/
+
+2. Execute the jar file: java -jar llfi_gui.jar
 
 References
 ----------
