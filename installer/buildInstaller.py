@@ -5,31 +5,39 @@ import subprocess
 import hashlib
 
 #Update These to change download targets
-LLVMDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
+LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
 				'FILENAME':"llvm-3.4.src.tar.gz", 
 				'MD5':"46ed668a1ce38985120dbf6344cf6116", 
 				'EXTRACTPATH':"llvmsrc", 
 				'EXTRACTEDNAME':'llvm-3.4',
-				'ARCHIVETYPE':'.tar.gz'}
-CLANGDOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", 
+				'ARCHIVETYPE':'.tar.gz',
+				'EXTRACTFLAG':True,
+				'DOWNLOADFLAG':True}
+CLANG34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", 
 				 'FILENAME':"clang-3.4.src.tar.gz", 
 				 'MD5':"b378f1e2c424e03289effc75268d3d2c", 
 				 'EXTRACTPATH':"llvmsrc/tools/clang", 
 				 'EXTRACTEDNAME':'clang-3.4',
-				 'ARCHIVETYPE':'.tar.gz'}
-PYAMLDOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", 
+				 'ARCHIVETYPE':'.tar.gz',
+				 'EXTRACTFLAG':True,
+				 'DOWNLOADFLAG':True}
+PYAML311DOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", 
 				 'FILENAME':"PyYAML-3.11.tar.gz", 
 				 'MD5':"f50e08ef0fe55178479d3a618efe21db", 
-				 'EXTRACTPATH':"pyamlsrc", 
+				 'EXTRACTPATH':"pyyamlsrc", 
 				 'EXTRACTEDNAME':'PyYAML-3.11',
-				 'ARCHIVETYPE':'.tar.gz'}
+				 'ARCHIVETYPE':'.tar.gz',
+				 'EXTRACTFLAG':True,
+				 'DOWNLOADFLAG':True}
 LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"https://github.com/DependableSystemsLab/LLFI/archive/master.zip", 
 				'FILENAME':"master.zip", 
 				'MD5':"fc3ba3cfea7ae3236bf027b847058105", #"c9a8c3ffcbd033a4d3cf1dc9a25de09c"
 				'EXTRACTPATH':"llfisrc", 
 				'EXTRACTEDNAME':'LLFI-master',
-				'ARCHIVETYPE':'.zip'}
-DOWNLOADTARGETS = (LLVMDOWNLOAD, CLANGDOWNLOAD, PYAMLDOWNLOAD, LLFIDOWNLOAD)
+				'ARCHIVETYPE':'.zip',
+				'EXTRACTFLAG':True,
+				'DOWNLOADFLAG':True}
+DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "./llfi/"
 
@@ -38,7 +46,8 @@ def DownloadSources(targets, downloadDirectory):
 
 	CheckAndCreateDir(FullDownloadsPath)
 	for target in targets:
-		CheckAndDownload(target['FILENAME'], target['MD5'], target['URL'])
+		if target["DOWNLOADFLAG"] == True:
+			CheckAndDownload(target['FILENAME'], target['MD5'], target['URL'])
 
 def CheckAndDownload(filename, md5, url):
 	md5new = ""
@@ -100,14 +109,15 @@ def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 	print "Moving to extraction root directory."
 	os.chdir(extractionDirectory)
 	for target in targets:
-		path = target['EXTRACTPATH']
-		dirName = target['EXTRACTEDNAME']
-		print "Extracting " + target['FILENAME']
-		archivePath = os.path.join(fullDownloadsPath, target['FILENAME'])
-		ExtractArchive(target, archivePath)
-		print "Renaming " + dirName + " to " + path
-		subprocess.call(["mv", dirName, path])
-		os.chdir(fullExtractionPath)
+		if target["EXTRACTFLAG"] == True:
+			path = target['EXTRACTPATH']
+			dirName = target['EXTRACTEDNAME']
+			print "Extracting " + target['FILENAME']
+			archivePath = os.path.join(fullDownloadsPath, target['FILENAME'])
+			ExtractArchive(target, archivePath)
+			print "Renaming " + dirName + " to " + path
+			subprocess.call(["mv", dirName, path])
+			os.chdir(fullExtractionPath)
 
 def ExtractArchive(target, archivePath):
 	if target['ARCHIVETYPE'] == ".tar.gz":
@@ -120,21 +130,31 @@ def ExtractArchive(target, archivePath):
 def CopyLLFI():
 	print ""
 
+def UpdateFlags(targets, key, value):
+	newList = []
+	for target in targets:
+		target[key] = value
+		newList.append(target)
+	return newList
+
 if __name__ == "__main__":
-	if len(sys.argv) == 1:
-		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
-		ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
-		CopyLLFI()
-	else:
-		for arg in sys.argv[1:]:
-			if arg in ("-cleanDownloads", "-cD"):
-				print "Cleaning downloads..."
-				subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
-				print "Done."
-			if arg in ("-cleanSources", "-cS"):
-				print "Cleaning extracted sources..."
-				os.chdir(LLFIROOTDIRECTORY)
-				for target in DOWNLOADTARGETS:	
-					subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
-				print "Done."
-	
+	for arg in sys.argv[1:]:
+		if arg in ("-cleanDownloads", "-cD"):
+			print "Cleaning downloads..."
+			subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
+			print "Done."
+		if arg in ("-cleanSources", "-cS"):
+			print "Cleaning extracted sources..."
+			os.chdir(LLFIROOTDIRECTORY)
+			for target in DOWNLOADTARGETS:	
+				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
+			print "Done."
+		if arg in ("-noDownload", "-nD"):
+			print "Flag Set: Do not perform downloads."
+			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "DOWNLOADFLAG", False)
+		if arg in ("-noExtract", "-nE"):
+			print "Flag set: Do not extract downloaded files."
+			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
+	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
+	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
+	CopyLLFI()
