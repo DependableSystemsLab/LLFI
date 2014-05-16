@@ -21,8 +21,8 @@ private:
           CallInst* CI=dyn_cast<CallInst>(inst);
               Function* called_func=CI->getCalledFunction();
                              
-                 if(called_func->getName()=="pthread_create")
-                 {  std::cout<< "pthread_create was found"<<"\n";
+                 if((called_func->getName()=="pthread_create")||(called_func->getName()=="pthread_join"))
+                 {  std::cout<< "thread was found"<<"\n";
                  
                 std::ofstream outf("Automation-config");
                 outf << "MemThreadKiller" << "\n";

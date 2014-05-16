@@ -21,7 +21,7 @@ class AutoInjection: public FaultInjector {
                  std::string strInput2;
                   getline(inf2, strInput2);
            
-        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||  (strInput=="MPINoMessage")||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="MPINoAck")||(strInput=="WrongSavedAddress") )
+        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="WrongSavedAddress") )
       
         {
     unsigned fi_bytepos = fi_bit / 8;
@@ -33,14 +33,26 @@ class AutoInjection: public FaultInjector {
  
        else  if (strInput=="MPIInvalidMessage")
         {
-       /* char*content= (char*) malloc(25);
-          content=  "I am an invalid message";
-         memmove(*buf, content, 25);*/
-  int* newbuf= (int*)buf;
-   *newbuf=*newbuf + 1024;
+       
+      int* newbuf= (int*)buf;
+      *newbuf=*newbuf + 1024;
       buf= (char*)newbuf;
- std::cout<<"InvalidMessage injected"<<*buf<<"\n" ;
+      std::cout<<"InvalidMessage injected"<<*buf<<"\n" ;
         }
+
+
+       else  if (strInput=="MPINoDrain")
+        {
+       
+      int* flag= (int*)buf;
+      *flag=5000;
+      buf= (char*)flag;
+      std::cout<<"NoDrain injected"<<*buf<<"\n" ;
+        }
+
+
+
+
 
 
        else  if ((strInput=="APIBufferOverflow")||(strInput=="MemBufOverflow2")|| (strInput=="MemUnderAccumulator"))
@@ -50,8 +62,7 @@ class AutoInjection: public FaultInjector {
           *newbuf=*newbuf + diff;
             buf= (char*)newbuf;
          std::cout<<"IncValue injected"<<"\n" ;
-       //  std::cout<<"New value is:"<< *newbuf<<"\n" ;
-          }
+         }
         else  if (strInput=="ReturnFunction")
        {
          int* newbuf= (int*)buf;
@@ -67,10 +78,10 @@ class AutoInjection: public FaultInjector {
       
  int diff=4080;
          int* newbuf= (int*)buf;
-          *newbuf=*newbuf-diff;
+          *newbuf=*newbuf+diff;
             buf= (char*)newbuf;
-         std::cout<<"DecValue injected"<<"\n" ;
-         std::cout<<"New value is:"<< *newbuf<<"\n" ;
+         std::cout<<"IncValue injected"<<"\n" ;
+        // std::cout<<"New value is:"<< *newbuf<<"\n" ;
 
 
         
@@ -165,15 +176,11 @@ pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 
 else if (strInput=="MemThreadKiller")
       {
-               /* void (*func_pointer)(void*);
-		func_pointer = pthread_exit;
-		buf = (char* )func_pointer; */
-                     int* newbuf= (int*)buf;
+               int* newbuf= (int*)buf;
                    pthread_t thid= pthread_t (*buf);
                        sleep( 0.02);
                         int ret=  pthread_cancel (thid); 
                         if (ret!=0)
-      {   std::cout<< "it wasnot cancelled"<<ret<<"\n" ;   }
                 std::cout<< "ThreadKiller injected"<<"\n" ;
 
       }
@@ -228,7 +235,7 @@ else if ((strInput=="CPUHogTarget")||(strInput=="HighFrequentEvent-on-RETURN")||
       }
 
 
-else if ((strInput=="APINoOutput")||(strInput=="DataNoOutput"))
+else if ((strInput=="APINoOutput")||(strInput=="DataNoOutput")||(strInput=="MPINoMessage")||(strInput=="MPINoAck"))
       {
                for( ; ; )
                {  std::cout<<"This loop will run forever!!"<<"\n"; }

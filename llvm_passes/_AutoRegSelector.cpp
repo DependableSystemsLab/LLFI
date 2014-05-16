@@ -54,6 +54,7 @@ class _AutoRegSelector: public FIRegSelector {
                                         // ((strInput=="RaceCondition")  && (reg == CI->getArgOperand(0)))||      
                                           ((strInput=="APIWrongFormat") && (reg == CI->getArgOperand(1)))||
                                             ((strInput=="MPIBufferOverflow") && (reg == CI->getArgOperand(2)))||
+                                              ((strInput=="MPINoDrain") && (reg == CI->getArgOperand(3)))||
                                               ((strInput=="MPINoMessage") && (reg == CI->getArgOperand(1)))||
                                                 ((strInput=="MPIInvalidMessage") && (reg == CI->getArgOperand(1)))||
                                                  ((strInput=="MPIDeadLock")   && (reg == CI->getArgOperand(0)))|| 
@@ -138,10 +139,11 @@ else if  (strInput=="WrongRetrievedAddress")
              return true ; threa
            }     */
 
+       
         else if ((strInput=="APIInappropriateClose")||(strInput2=="HighFrequentEvent-on-IO")||(strInput=="RaceCondition") ) 
            {  
             if (reg==CI)
-               {std::cout<<"target is destination register:"<<"\n";
+               {std::cout<<"target is destination register"<<"\n";
              return true ; 
                }
            }
