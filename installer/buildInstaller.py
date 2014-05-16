@@ -136,10 +136,6 @@ def ExtractArchive(archiveType, archivePath):
 		archivePath = archivePath[:-4]
 		subprocess.call(["unzip", "-q", archivePath])
 
-
-def CopyLLFI():
-	print ""
-
 def UpdateFlags(targets, key, value):
 	newList = []
 	for target in targets:
@@ -170,4 +166,3 @@ if __name__ == "__main__":
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
 	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
-	CopyLLFI()
