@@ -31,9 +31,9 @@ PYAML311DOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz"
 				 'DOWNLOADFLAG':True}
 LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"https://github.com/DependableSystemsLab/LLFI/archive/master.zip", 
 				'FILENAME':"master.zip", 
-				'MD5':"fc3ba3cfea7ae3236bf027b847058105", #"c9a8c3ffcbd033a4d3cf1dc9a25de09c"
-				'EXTRACTPATH':"llfisrc", 
-				'EXTRACTEDNAME':'LLFI-master',
+				'MD5':"fc3ba3cfea7ae3236bf027b847058105", #"c9a8c3ffcbd033a4d3cf1dc9a25de09c" #You will have to change this outside of the git repo
+				'EXTRACTPATH':"llfisrc", 													  #If you change this md5 within the repo, the md5 of the
+				'EXTRACTEDNAME':'LLFI-master',           									  #repo will change
 				'ARCHIVETYPE':'.zip',
 				'EXTRACTFLAG':True,
 				'DOWNLOADFLAG':True}
@@ -85,12 +85,26 @@ def DownloadFile(url, destinationDirectory):
 	u = None
 	meta = None
 	file_size = None
-
+	count = 0
 	while file_size == None:
-		u = urllib2.urlopen(url, timeout=3)
+		try: 
+			u = urllib2.urlopen(url, timeout=3)
+		except urllib2.URLError, e:
+			print "Unable to connect to " + url
+			print "Please check your internet connection, or"
+			print "update to latest version of LLFI installer."
+			print "Exiting."
+			sys.exit(0)
 		meta = u.info()
 		if len(meta.getheaders("Content-Length")) > 0: 
 			file_size = int(meta.getheaders("Content-Length")[0])
+		count = count + 1
+		if count > 10:
+			print "Downloading of " + url + "has timed out."
+			print "Please check your internet connection, or"
+			print "update to latest version of LLFI installer."
+			print "Exiting."
+			sys.exit(0)
 
 	print "Downloading: %s: Bytes: %s" % (filename, file_size)
 	file_size_dl = 0
@@ -122,11 +136,12 @@ def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 			dirName = target['EXTRACTEDNAME']
 			print "Extracting " + target['FILENAME']
 			archivePath = os.path.join(fullDownloadsPath, target['FILENAME'])
-			ExtractArchive(target["ARCHIVETYPE"], archivePath)
-			print "Renaming " + dirName + " to " + path
-			CheckAndCreateDir(path)
-			subprocess.call("cp -R " + dirName+"/* " + path, shell=True)
-			subprocess.call(["rm", "-rf", dirName])
+			if os.path.isfile(archivePath):
+				ExtractArchive(target["ARCHIVETYPE"], archivePath)
+				print "Renaming " + dirName + " to " + path
+				CheckAndCreateDir(path)
+				subprocess.call("cp -R " + dirName+"/* " + path, shell=True)
+				subprocess.call(["rm", "-rf", dirName])
 			os.chdir(fullExtractionPath)
 
 def ExtractArchive(archiveType, archivePath):
@@ -143,13 +158,18 @@ def UpdateFlags(targets, key, value):
 		newList.append(target)
 	return newList
 
+
 if __name__ == "__main__":
 	for arg in sys.argv[1:]:
-		if arg in ("-cleanDownloads", "-cD"):
+		if arg in ("--version", "-v"):
+			print "LLFI Installer Version 0.1"
+			print "Last updated May 16th, 2014"
+			sys.exit(0)
+		if arg in ("--cleanDownloads", "-cD"):
 			print "Cleaning downloads..."
 			subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
 			print "Done."
-		if arg in ("-cleanSources", "-cS"):
+		if arg in ("--cleanSources", "-cS"):
 			print "Cleaning extracted sources..."
 			currPath = os.getcwd()
 			if os.path.isdir(LLFIROOTDIRECTORY):
@@ -158,11 +178,12 @@ if __name__ == "__main__":
 					subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 				print "Done."
 			os.chdir(currPath)
-		if arg in ("-noDownload", "-nD"):
+		if arg in ("--noDownload", "-nD"):
 			print "Flag Set: Do not perform downloads."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "DOWNLOADFLAG", False)
-		if arg in ("-noExtract", "-nE"):
+		if arg in ("--noExtract", "-nE"):
 			print "Flag set: Do not extract downloaded files."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
 	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
+
