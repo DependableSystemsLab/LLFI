@@ -3,11 +3,9 @@ import sys
 import os
 import subprocess
 import hashlib
-import sys
-import subprocess
-import os
 import imp
 import site
+import xml.etree.ElementTree as ET
 
 #Update These to change download targets
 LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
@@ -210,6 +208,7 @@ def build(buildLLVM):
 	os.chdir("..")
 
 	#Build LLFI GUI
+	updateGUIXMLBuildPath(getJavaFXLibLocation())
 	currPath = os.getcwd()
 	antPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/build.xml")
 	binPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/bin")
@@ -229,6 +228,31 @@ def build(buildLLVM):
 		sys.exit(p)
 
 	os.chdir("..")
+
+def updateGUIXMLBuildPath(newPath):
+	print "Modifying LLFI-GUI build.xml"
+	tree = ET.parse('llfisrc/Gui_SourceCode/LLFI/build.xml')
+	root = tree.getroot()
+	print root
+	pathnode = root.findall("./path[@id='JavaFX SDK.libraryclasspath']/pathelement")
+	print pathnode
+
+	for path in root.iter('path'):
+		if path.get('id') == "JavaFX SDK.libraryclasspath":
+			pathelement = path.find('./pathelement[@location]')
+			print pathelement
+			print pathelement.get("location")
+			pathelement.set("location", newPath)
+			tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')
+
+def getJavaFXLibLocation():
+	javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True)
+	javaLibPath = javaBinPath[:-9] + "lib/jfxrt.jar"
+	print "Detecting JFX Lib at " + javaLibPath
+	return javaLibPath
+
+
+
 
 def addEnvs():
 	scriptPath = os.path.dirname(os.path.realpath(__file__))
@@ -277,6 +301,9 @@ if __name__ == "__main__":
 			buildFlag = False
 		if arg in ("--nobuildLLVM", "-nBLLVM"):
 			buildLLVMFlag = False
+		if arg in ("--modifyGUIBuildXML", "-mXML"):
+			getJavaFXLibLocation()
+			exit(1)
 		else:
 			print "Unkown Argument: " + arg
 	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
