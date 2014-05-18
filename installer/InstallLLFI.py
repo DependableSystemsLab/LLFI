@@ -6,6 +6,7 @@ import hashlib
 import imp
 import site
 import xml.etree.ElementTree as ET
+import argparse
 
 #Update These to change download targets
 LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
@@ -270,44 +271,50 @@ def addEnvs():
 		rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
 		rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
 
+FLAGS = {"buildLLVM":True, "build":True, "performDownloads":True,
+		 "performExtractions":True, "cleanDownloads":False,
+		 "cleanSources":False, "printHelp":False,
+		 "printVersion":False}
+
+parser = argparse.ArgumentParser(description=("Installer for UBC DependableSystemsLab's LLFI"),
+		epilog="More information available at www.github.com/DependableSystemsLab/LLFI",
+		formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+		usage='%(prog)s [options]')
+parser.add_argument("-v", "--version",  action='version', version="LLFI Installer v0.1, May 17th 2014")
+parser.add_argument("-cD", "--cleanDownloads", action='store_true', help="Clean (rm) already downloaded files before installing")
+parser.add_argument("-cS", "--cleanSources", action='store_true', help="Clean (rm) already extracted files before installing")
+parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not download any files")
+parser.add_argument("-nE", "--noExtract", action='store_true', help="Do not extract the archives before installing")
+parser.add_argument("-nB", "--noBuild", action='store_true', help="Do not perform installation, only downloading + extracting")
+parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
+parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI Development use only")
+
+def testFeature():
+	print "Testing Experimental Installer Feature"
+
 if __name__ == "__main__":
-	buildFlag = True
-	buildLLVMFlag = True
-	for arg in sys.argv[1:]:
-		if arg in ("--version", "-v"):
-			print "LLFI Installer Version 0.1"
-			print "Last updated May 16th, 2014"
-			sys.exit(0)
-		elif arg in ("--cleanDownloads", "-cD"):
-			print "Cleaning downloads..."
-			subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
+	args = parser.parse_args(sys.argv[1:])
+	if args.cleanDownloads:
+		print "Cleaning downloads..."
+		subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
+		print "Done."
+	if args.cleanSources:
+		print "Cleaning extracted sources..."
+		currPath = os.getcwd()
+		if os.path.isdir(LLFIROOTDIRECTORY):
+			os.chdir(LLFIROOTDIRECTORY)
+			for target in DOWNLOADTARGETS:	
+				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 			print "Done."
-		elif arg in ("--cleanSources", "-cS"):
-			print "Cleaning extracted sources..."
-			currPath = os.getcwd()
-			if os.path.isdir(LLFIROOTDIRECTORY):
-				os.chdir(LLFIROOTDIRECTORY)
-				for target in DOWNLOADTARGETS:	
-					subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
-				print "Done."
-			os.chdir(currPath)
-		elif arg in ("--noDownload", "-nD"):
-			print "Flag Set: Do not perform downloads."
-			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "DOWNLOADFLAG", False)
-		elif arg in ("--noExtract", "-nE"):
-			print "Flag set: Do not extract downloaded files."
-			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
-		elif arg in ("--noBuild", "-nB"):
-			buildFlag = False
-		elif arg in ("--nobuildLLVM", "-nBLLVM"):
-			buildLLVMFlag = False
-		elif arg in ("--modifyGUIBuildXML", "-mXML"):
-			getJavaFXLibLocation()
-			exit(1)
-		else:
-			print "Unkown Argument: " + arg
-	DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
-	ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
-	if buildFlag:
-		build(buildLLVMFlag)
+		os.chdir(currPath)
+	if args.testFeature:
+		testFeature()
+		sys.exit(0)
+	print "Installing LLFI:"
+	if not args.noDownload:
+		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
+	if not args.noExtract:
+		ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
+	if not args.noBuild:
+		build(not args.noBuildLLVM)
 		addEnvs()
