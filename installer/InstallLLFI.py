@@ -278,11 +278,11 @@ if __name__ == "__main__":
 			print "LLFI Installer Version 0.1"
 			print "Last updated May 16th, 2014"
 			sys.exit(0)
-		if arg in ("--cleanDownloads", "-cD"):
+		elif arg in ("--cleanDownloads", "-cD"):
 			print "Cleaning downloads..."
 			subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
 			print "Done."
-		if arg in ("--cleanSources", "-cS"):
+		elif arg in ("--cleanSources", "-cS"):
 			print "Cleaning extracted sources..."
 			currPath = os.getcwd()
 			if os.path.isdir(LLFIROOTDIRECTORY):
@@ -291,17 +291,17 @@ if __name__ == "__main__":
 					subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 				print "Done."
 			os.chdir(currPath)
-		if arg in ("--noDownload", "-nD"):
+		elif arg in ("--noDownload", "-nD"):
 			print "Flag Set: Do not perform downloads."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "DOWNLOADFLAG", False)
-		if arg in ("--noExtract", "-nE"):
+		elif arg in ("--noExtract", "-nE"):
 			print "Flag set: Do not extract downloaded files."
 			DOWNLOADTARGETS = UpdateFlags(DOWNLOADTARGETS, "EXTRACTFLAG", False)
-		if arg in ("--noBuild", "-nB"):
+		elif arg in ("--noBuild", "-nB"):
 			buildFlag = False
-		if arg in ("--nobuildLLVM", "-nBLLVM"):
+		elif arg in ("--nobuildLLVM", "-nBLLVM"):
 			buildLLVMFlag = False
-		if arg in ("--modifyGUIBuildXML", "-mXML"):
+		elif arg in ("--modifyGUIBuildXML", "-mXML"):
 			getJavaFXLibLocation()
 			exit(1)
 		else:
