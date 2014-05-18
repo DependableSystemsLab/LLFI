@@ -252,9 +252,6 @@ def getJavaFXLibLocation():
 	print "Detecting JFX Lib at " + javaLibPath
 	return javaLibPath
 
-
-
-
 def addEnvs():
 	scriptPath = os.path.dirname(os.path.realpath(__file__))
 	llfibuildPath = os.path.join(scriptPath, "llfi/")
@@ -271,14 +268,10 @@ def addEnvs():
 		rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
 		rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
 
-FLAGS = {"buildLLVM":True, "build":True, "performDownloads":True,
-		 "performExtractions":True, "cleanDownloads":False,
-		 "cleanSources":False, "printHelp":False,
-		 "printVersion":False}
 
-parser = argparse.ArgumentParser(description=("Installer for UBC DependableSystemsLab's LLFI"),
+parser = argparse.ArgumentParser(
+		description=("Installer for UBC DependableSystemsLab's LLFI"),
 		epilog="More information available at www.github.com/DependableSystemsLab/LLFI",
-		formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 		usage='%(prog)s [options]')
 parser.add_argument("-v", "--version",  action='version', version="LLFI Installer v0.1, May 17th 2014")
 parser.add_argument("-cD", "--cleanDownloads", action='store_true', help="Clean (rm) already downloaded files before installing")
@@ -287,7 +280,7 @@ parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not dow
 parser.add_argument("-nE", "--noExtract", action='store_true', help="Do not extract the archives before installing")
 parser.add_argument("-nB", "--noBuild", action='store_true', help="Do not perform installation, only downloading + extracting")
 parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
-parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI Development use only")
+parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
 
 def testFeature():
 	print "Testing Experimental Installer Feature"
@@ -310,7 +303,7 @@ if __name__ == "__main__":
 	if args.testFeature:
 		testFeature()
 		sys.exit(0)
-	print "Installing LLFI:"
+	print "Installing LLFI to: " + os.path.abspath(LLFIROOTDIRECTORY)
 	if not args.noDownload:
 		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	if not args.noExtract:
