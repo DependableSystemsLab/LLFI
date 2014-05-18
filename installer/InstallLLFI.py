@@ -41,6 +41,34 @@ LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"h
 				'ARCHIVETYPE':'.zip',
 				'EXTRACTFLAG':True,
 				'DOWNLOADFLAG':True}
+
+#LLVM33 Targets:
+LLVM33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz", 
+				'FILENAME':"llvm-3.3.src.tar.gz", 
+				'MD5':"40564e1dc390f9844f1711c08b08e391", 
+				'EXTRACTPATH':"llvmsrc", 
+				'EXTRACTEDNAME':'llvm-3.3',
+				'ARCHIVETYPE':'.tar.gz',
+				'EXTRACTFLAG':True,
+				'DOWNLOADFLAG':True}
+CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz", 
+				 'FILENAME':"cfe-3.3.src.tar.gz", 
+				 'MD5':"8284891e3e311829b8e44ac813d0c9ef", 
+				 'EXTRACTPATH':"llvmsrc/tools/clang", 
+				 'EXTRACTEDNAME':'cfe-3.3',
+				 'ARCHIVETYPE':'.tar.gz',
+				 'EXTRACTFLAG':True,
+				 'DOWNLOADFLAG':True}
+#Primary Repository LLFI
+LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip', 
+					  'FILENAME':"master.zip", 
+					  'MD5':"fc3ba3cfea7ae3236bf027b847058105",
+					  'EXTRACTPATH':"llfisrc", 					
+					  'EXTRACTEDNAME':'LLFI-master',           	
+					  'ARCHIVETYPE':'.zip',
+					  'EXTRACTFLAG':True,
+					  'DOWNLOADFLAG':True}
+
 DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
@@ -284,9 +312,13 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print "Testing Experimental Installer Feature"
+	DownloadSources([LLVM33DOWNLOAD, CLANG33DOWNLOAD, LLFIPUBLICDOWNLOAD], DOWNLOADSDIRECTORY)
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
+	if args.testFeature:
+		testFeature()
+		sys.exit(0)
 	if args.cleanDownloads:
 		print "Cleaning downloads..."
 		subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
@@ -299,10 +331,7 @@ if __name__ == "__main__":
 			for target in DOWNLOADTARGETS:	
 				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 			print "Done."
-		os.chdir(currPath)
-	if args.testFeature:
-		testFeature()
-		sys.exit(0)
+		os.chdir(currPath)	
 	print "Installing LLFI to: " + os.path.abspath(LLFIROOTDIRECTORY)
 	if not args.noDownload:
 		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
