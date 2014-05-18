@@ -16,6 +16,7 @@ Dependencies
     * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
   7. Java7 with JavaFX (For GUI)
+  8. Apache Ant and JDK (For GUI)
 
 Building
 --------

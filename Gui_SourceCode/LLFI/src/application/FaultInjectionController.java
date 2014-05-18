@@ -84,6 +84,7 @@ public class FaultInjectionController implements Initializable{
 	private CheckBox saveProfileCheckBox;
 	@FXML
 	private TextField profileNameText;
+	private String buildPath;
 	private String runCountString;
 	private String noOfRuns;
 	private String fiType;
@@ -873,6 +874,7 @@ public class FaultInjectionController implements Initializable{
 	public void initialize(URL url, ResourceBundle rb) {
 		FileReader inputFile;
 		try{
+			buildPath=Controller.llfibuildPath+"LLFI-GUI/";
 			currentFolderName = Controller.currentProgramFolder;
 			runNumberLabel.setText("run1");
 		inputFile = new FileReader("llfi.stat.totalindex.txt");
@@ -910,7 +912,7 @@ public class FaultInjectionController implements Initializable{
         fiCycleSlider.setMax(Double.parseDouble(indexBound));
         fiCycleSlider.setMajorTickUnit(Double.parseDouble(indexBound));
         
-        inputFile = new FileReader("fault_type.txt");
+        inputFile = new FileReader(buildPath+"fault_type.txt");
 		bufferReader = new BufferedReader(inputFile);
         
 		faultTypeList = new ArrayList<String>();
