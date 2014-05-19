@@ -73,6 +73,10 @@ DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIDOWNLO
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
+def Touch(path):
+    with open(path, 'a'):
+        os.utime(path, None)
+
 def DownloadSources(targets, downloadDirectory):
 	FullDownloadsPath = os.path.abspath(downloadDirectory)
 
@@ -108,7 +112,8 @@ def CheckAndCreateDir(dir):
 			print "%s path occupied by file, deleting..." % (dir)
 			subprocess.call(["rm", FullPath])
 	print "Creating %s directory." % (dir)
-	subprocess.call(["mkdir", dir])	
+	subprocess.call(["mkdir", dir])
+	return False
 
 def DownloadFile(url, destinationDirectory):
 	filename = url.split('/')[-1]
@@ -190,18 +195,25 @@ def UpdateFlags(targets, key, value):
 		newList.append(target)
 	return newList
 
-def build(buildLLVM):
+def build(buildLLVM, forceMakeLLVM):
 	#Build LLVM
 	if buildLLVM:
 		CheckAndCreateDir("llvm")
 		os.chdir("llvm")
-		p = subprocess.call(["cmake", "../llvmsrc", "-DLLVM_REQUIRES_RTTI=1", "-DCMAKE_BUILD_TYPE=Release"])
-		if p != 0:
-			sys.exit(p)
+		if (not os.path.exists("CMAKESUCCESS")) or forceMakeLLVM:
+			print "Running cmake for LLVM:"
+			p = subprocess.call(["cmake", "../llvmsrc", "-DLLVM_REQUIRES_RTTI=1", "-DCMAKE_BUILD_TYPE=Release"])
+			if p != 0:
+				sys.exit(p)
+			Touch("CMAKESUCCESS")
 
-		p = subprocess.call("make")
-		if p != 0:
-			sys.exit(p)
+		if (not os.path.exists("MAKESUCCESS")) or forceMakeLLVM:
+			print "Running make for LLVM"
+			p = subprocess.call("make")
+			if p != 0:
+				sys.exit(p)
+			Touch("MAKESUCCESS")
+
 		os.chdir("..")
 
 	script_path = os.getcwd()
@@ -227,10 +239,12 @@ def build(buildLLVM):
 
 	CheckAndCreateDir("llfi")
 	os.chdir("llfi")
+	print "Running cmake for LLFI:"
 	p = subprocess.call(["cmake", "../llfisrc"])
 	if p != 0:
 		sys.exit(p)
 
+	print "Running make for LLFI:"
 	p = subprocess.call("make")
 	if p != 0:
 		sys.exit(p)
@@ -262,15 +276,11 @@ def updateGUIXMLBuildPath(newPath):
 	print "Modifying LLFI-GUI build.xml"
 	tree = ET.parse('llfisrc/Gui_SourceCode/LLFI/build.xml')
 	root = tree.getroot()
-	print root
 	pathnode = root.findall("./path[@id='JavaFX SDK.libraryclasspath']/pathelement")
-	print pathnode
 
 	for path in root.iter('path'):
 		if path.get('id') == "JavaFX SDK.libraryclasspath":
 			pathelement = path.find('./pathelement[@location]')
-			print pathelement
-			print pathelement.get("location")
 			pathelement.set("location", newPath)
 			tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')
 
@@ -296,7 +306,6 @@ def addEnvs():
 		rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
 		rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
 
-
 parser = argparse.ArgumentParser(
 		description=("Installer for UBC DependableSystemsLab's LLFI"),
 		epilog="More information available at www.github.com/DependableSystemsLab/LLFI",
@@ -308,6 +317,7 @@ parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not dow
 parser.add_argument("-nE", "--noExtract", action='store_true', help="Do not extract the archives before installing")
 parser.add_argument("-nB", "--noBuild", action='store_true', help="Do not perform installation, only downloading + extracting")
 parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
+parser.add_argument("-fBLLVM", "--forceBuildLLVM", action='store_true', help="Force recompilation of LLVM")
 parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
 
 def testFeature():
@@ -338,5 +348,5 @@ if __name__ == "__main__":
 	if not args.noExtract:
 		ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
 	if not args.noBuild:
-		build(not args.noBuildLLVM)
+		build(not args.noBuildLLVM, args.forceBuildLLVM)
 		addEnvs()
