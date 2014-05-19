@@ -263,12 +263,16 @@ def build(buildLLVM, forceMakeLLVM):
 
 	subprocess.call(["cp", "llfisrc/installer/LLFI-GUI", "."])
 
+def buildPyYaml(forceBuild):
+	script_path = os.getcwd()
 	pyyaml_path = os.path.join(script_path,"pyyaml")
 	os.chdir("pyyamlsrc")
 
-	p = subprocess.call(["python3","setup.py","install","--prefix="+pyyaml_path])
-	if p != 0:
-		sys.exit(p)
+	if (not os.path.exists('YAMLBUILDSUCCESS')) or forceBuild:
+		p = subprocess.call(["python3","setup.py","install","--prefix="+pyyaml_path])
+		if p != 0:
+			sys.exit(p)
+		Touch("YAMLBUILDSUCCESS")
 
 	os.chdir("..")
 
@@ -318,6 +322,7 @@ parser.add_argument("-nE", "--noExtract", action='store_true', help="Do not extr
 parser.add_argument("-nB", "--noBuild", action='store_true', help="Do not perform installation, only downloading + extracting")
 parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
 parser.add_argument("-fBLLVM", "--forceBuildLLVM", action='store_true', help="Force recompilation of LLVM")
+parser.add_argument("-fBPyYaml", "--forceBuildPyYaml", action='store_true', help="Force recompilation of PyYaml")
 parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
 
 def testFeature():
@@ -350,3 +355,4 @@ if __name__ == "__main__":
 	if not args.noBuild:
 		build(not args.noBuildLLVM, args.forceBuildLLVM)
 		addEnvs()
+		buildPyYaml(args.forceBuildPyYaml)
