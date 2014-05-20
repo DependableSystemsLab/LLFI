@@ -47,7 +47,7 @@ LLVM33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz",
 				'FILENAME':"llvm-3.3.src.tar.gz", 
 				'MD5':"40564e1dc390f9844f1711c08b08e391", 
 				'EXTRACTPATH':"llvmsrc", 
-				'EXTRACTEDNAME':'llvm-3.3',
+				'EXTRACTEDNAME':'llvm-3.3.src',
 				'ARCHIVETYPE':'.tar.gz',
 				'EXTRACTFLAG':True,
 				'DOWNLOADFLAG':True}
@@ -55,7 +55,7 @@ CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz",
 				 'FILENAME':"cfe-3.3.src.tar.gz", 
 				 'MD5':"8284891e3e311829b8e44ac813d0c9ef", 
 				 'EXTRACTPATH':"llvmsrc/tools/clang", 
-				 'EXTRACTEDNAME':'cfe-3.3',
+				 'EXTRACTEDNAME':'cfe-3.3.src',
 				 'ARCHIVETYPE':'.tar.gz',
 				 'EXTRACTFLAG':True,
 				 'DOWNLOADFLAG':True}
@@ -69,7 +69,7 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
 					  'EXTRACTFLAG':True,
 					  'DOWNLOADFLAG':True}
 
-DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIDOWNLOAD]
+DOWNLOADTARGETS = [LLVM33DOWNLOAD, CLANG33DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLICDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
