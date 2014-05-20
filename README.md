@@ -86,7 +86,7 @@ in the *llfi* directory.
 GUI
 ====
 
-The GUI is built by the setup-script in LLFI_SRC_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
+The GUI is built by the setup-script in LLFI_BUILD_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
 
 Environment variable setup
 --------------------------
@@ -100,9 +100,9 @@ Environment variable setup
 
 Running
 -------
-1. Go to LLFI_SRC_ROOT/LLFI-GUI/
+1. Go to any directory where you want to save the outputs
 
-2. Execute the jar file: java -jar llfi_gui.jar
+2. Execute the jar file: java -jar LLFI_BUILD_ROOT/LLFI-GUI/llfi_gui.jar
 
 References
 ----------
