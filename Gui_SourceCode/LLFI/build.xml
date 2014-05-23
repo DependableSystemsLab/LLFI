@@ -58,7 +58,7 @@
         </java>
     </target>
     <target name="jar">
-        <jar destfile="$../../LLFI-GUI/llfi_gui.jar">
+        <jar destfile="$../../../../LLFI-GUI/llfi_gui.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="application.Main"/>
