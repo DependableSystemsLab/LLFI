@@ -10,16 +10,22 @@ import site
 def main(args):
   scriptPath = os.path.dirname(os.path.realpath(__file__))
   
-  jarPath = os.path.join(scriptPath, "llfisrc/LLFI-GUI/llfi_gui.jar")
+  jarPath = os.path.join(scriptPath, "llfi/LLFI-GUI/llfi_gui.jar")
+  llfienv = os.environ.copy()
 
   majorVer = sys.version_info[0]
   minorVer = sys.version_info[1]
   pyVersion = str(majorVer) + "." + str(minorVer)
   pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
-  os.environ['PYTHONPATH'] = pyPath
-  
-  os.chdir("llfisrc/LLFI-GUI/")
-  p = subprocess.call(["java", "-jar", jarPath], env=os.environ)
+  llfienv['PYTHONPATH'] = pyPath
+
+  llfibuildpath = os.path.join(scriptPath, "llfi/")
+  llfienv['llfibuild'] = llfibuildpath
+
+  os.chdir("llfi/LLFI-GUI/")
+  subprocess.call("echo $llfibuild", shell=True, env=llfienv)
+  subprocess.call("echo $PYTHONPATH", shell=True, env=llfienv)
+  p = subprocess.call("java -jar " + jarPath, shell=True, env=llfienv)
 
 if __name__=="__main__":
   main(sys.argv)
