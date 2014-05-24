@@ -288,7 +288,7 @@ def updateGUIXMLBuildPath(newPath):
 			pathelement.set("location", newPath + "jfxrt.jar")
 			
 	for path in root.iter('target'):
-		if path.get('name') = "jar":
+		if path.get('name') == "jar":
 			buildelement = path.find('./jar[@destfile]')
 			buildelement.set("destfile", "../../../llfi/LLFI-GUI/llfi_gui.jar")
 
