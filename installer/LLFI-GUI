@@ -22,7 +22,6 @@ def main(args):
   llfibuildpath = os.path.join(scriptPath, "llfi/")
   llfienv['llfibuild'] = llfibuildpath
 
-  os.chdir("llfi/LLFI-GUI/")
   subprocess.call("echo $llfibuild", shell=True, env=llfienv)
   subprocess.call("echo $PYTHONPATH", shell=True, env=llfienv)
   p = subprocess.call("java -jar " + jarPath, shell=True, env=llfienv)
