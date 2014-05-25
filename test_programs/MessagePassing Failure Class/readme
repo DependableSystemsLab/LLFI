@@ -1,0 +1,4 @@
+To test message passing failure modes on echoClient.c, you need to
+- open a seperate terminal and execute echoServer.c
+- do fault injection on echoClient.c through GUI
+- put the IP address of server in the command line input of GUI (default: 127.0.0.1)
