@@ -285,12 +285,25 @@ def updateGUIXMLBuildPath(newPath):
 	for path in root.iter('path'):
 		if path.get('id') == "JavaFX SDK.libraryclasspath":
 			pathelement = path.find('./pathelement[@location]')
-			pathelement.set("location", newPath)
-			tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')
+			pathelement.set("location", newPath + "jfxrt.jar")
+			
+
+	for target in root.iter('target'):
+		if target.get('name') == "jar":
+			element = target.find("./jar/zipfileset[@includes='jfxrt.jar']")
+			element.set("dir", newPath)
+	tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')		
+
 
 def getJavaFXLibLocation():
-	javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True)
-	javaLibPath = javaBinPath[:-9] + "lib/jfxrt.jar"
+	uname = subprocess.check_output("uname").strip()
+	javaLibPath = None
+	if 'Darwin' in uname:
+		javahome = subprocess.check_output(["/usr/libexec/java_home", "-v", "1.7"]).strip()
+		javaLibPath = javahome+"/jre/lib/"
+	else:
+		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True)
+		javaLibPath = javaBinPath[:-9] + "lib/"
 	print "Detecting JFX Lib at " + javaLibPath
 	return javaLibPath
 
@@ -327,7 +340,7 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print "Testing Experimental Installer Feature"
-	DownloadSources([LLVM33DOWNLOAD, CLANG33DOWNLOAD, LLFIPUBLICDOWNLOAD], DOWNLOADSDIRECTORY)
+	print getJavaFXLibLocation()
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
