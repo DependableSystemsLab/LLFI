@@ -69,7 +69,7 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
 					  'EXTRACTFLAG':True,
 					  'DOWNLOADFLAG':True}
 
-DOWNLOADTARGETS = [LLVM33DOWNLOAD, CLANG33DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLICDOWNLOAD]
+DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
@@ -256,6 +256,8 @@ def build(buildLLVM, forceMakeLLVM):
 	antPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/build.xml")
 	binPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/bin")
 	jarPath = os.path.join(currPath, "llfisrc/LLFI-GUI/llfi_gui.jar")
+	CheckAndCreateDir("llfisrc/LLFI-GUI")
+	p = subprocess.call("cp llfisrc/LLFI-GUI/* llfi/LLFI-GUI/", shell=True)
 	p = subprocess.call(["rm", "-rf", jarPath])
 	p = subprocess.call(["rm", "-rf", binPath])
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
@@ -287,6 +289,10 @@ def updateGUIXMLBuildPath(newPath):
 			pathelement = path.find('./pathelement[@location]')
 			pathelement.set("location", newPath + "jfxrt.jar")
 			
+	for path in root.iter('target'):
+		if path.get('name') == "jar":
+			buildelement = path.find('./jar[@destfile]')
+			buildelement.set("destfile", "../../../llfi/LLFI-GUI/llfi_gui.jar")
 
 	for target in root.iter('target'):
 		if target.get('name') == "jar":
@@ -311,8 +317,14 @@ def addEnvs():
 	scriptPath = os.path.dirname(os.path.realpath(__file__))
 	llfibuildPath = os.path.join(scriptPath, "llfi/")
 
-	majorVer = sys.version_info[0]
-	minorVer = sys.version_info[1]
+	versionString = subprocess.check_output(["python3", "--version"], stderr=subprocess.STDOUT)
+	versionString = versionString.strip()
+	versionSplit = versionString.split()
+	versionSplit = versionSplit[1].split('.')
+
+	majorVer = versionSplit[0]
+	minorVer = versionSplit[1]
+
 	pyVersion = str(majorVer) + "." + str(minorVer)
 	pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
 
@@ -340,7 +352,7 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print "Testing Experimental Installer Feature"
-	print getJavaFXLibLocation()
+	
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
