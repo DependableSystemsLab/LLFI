@@ -256,6 +256,8 @@ def build(buildLLVM, forceMakeLLVM):
 	antPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/build.xml")
 	binPath = os.path.join(currPath, "llfisrc/Gui_SourceCode/LLFI/bin")
 	jarPath = os.path.join(currPath, "llfisrc/LLFI-GUI/llfi_gui.jar")
+	CheckAndCreateDir("llfisrc/LLFI-GUI")
+	p = subprocess.call("cp llfisrc/LLFI-GUI/* llfi/LLFI-GUI/")
 	p = subprocess.call(["rm", "-rf", jarPath])
 	p = subprocess.call(["rm", "-rf", binPath])
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
