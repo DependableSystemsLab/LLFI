@@ -317,8 +317,14 @@ def addEnvs():
 	scriptPath = os.path.dirname(os.path.realpath(__file__))
 	llfibuildPath = os.path.join(scriptPath, "llfi/")
 
-	majorVer = sys.version_info[0]
-	minorVer = sys.version_info[1]
+	versionString = subprocess.check_output(["python3", "--version"], stderr=subprocess.STDOUT)
+	versionString = versionString.strip()
+	versionSplit = versionString.split()
+	versionSplit = versionSplit[1].split('.')
+
+	majorVer = versionSplit[0]
+	minorVer = versionSplit[1]
+
 	pyVersion = str(majorVer) + "." + str(minorVer)
 	pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
 
@@ -346,7 +352,7 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print "Testing Experimental Installer Feature"
-	print getJavaFXLibLocation()
+	
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
