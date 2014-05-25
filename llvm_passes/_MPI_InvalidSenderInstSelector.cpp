@@ -21,8 +21,8 @@ private:
           CallInst* CI=dyn_cast<CallInst>(inst);
               Function* called_func=CI->getCalledFunction();
                              
-                 if (called_func->getName()=="recv")
-                 {  std::cout<< " receive Call was found"<<"\n";
+                 if ((called_func->getName()=="connect")||(called_func->getName()=="accept"))
+                 {  std::cout<< " accept or connect Call was found"<<"\n";
                  
                 std::ofstream outf("Automation-config");
                 outf << "MPIInvalidSender" << "\n";

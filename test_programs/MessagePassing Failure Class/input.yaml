@@ -5,7 +5,7 @@ timeOut: 1000
 
 compileOption:
     instSelMethod: custominstselector
-    customInstSelector: BufferOverflow(MPI)
+    customInstSelector: PacketStorm(MPI)
 
     regSelMethod: customregselector
     customRegSelector: Automatic

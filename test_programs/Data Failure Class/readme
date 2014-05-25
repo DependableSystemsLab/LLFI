@@ -1,4 +1,4 @@
-Resource failure class is including 2 test programs as follows:
+Resource failure class is including 2 simple test programs and a complex benchmark as follows:
 a. memcpy1.c
 BufOverflowMalloc(Data)
 BufOverflowMemmove(Data)
@@ -10,3 +10,7 @@ b.functions.c
 This program can be used for injecting the following failure modes:
 NoOutput(Data)
 IncorrectOutput(Data)
+
+c.MCF.ll
+MCF.ll is a benchmark which is derived from SPEC CPU2006 Benchmarks. It includes more than 5000 lines of bit code, and it is applicable for all failure modes of this 
+class.

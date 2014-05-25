@@ -21,8 +21,8 @@ private:
           CallInst* CI=dyn_cast<CallInst>(inst);
               Function* called_func=CI->getCalledFunction();
                              
-                 if(called_func->getName()=="malloc")
-                 {  std::cout<< "malloc Call was found"<<"\n";
+                 if ((called_func->getName()=="malloc")||(called_func->getName()=="calloc"))
+                 {  std::cout<< "malloc or calloc Call was found"<<"\n";
                  
                 std::ofstream outf("Automation-config");
                 outf << "MEMExhaustion" << "\n";
@@ -30,7 +30,7 @@ private:
                       
 
                                             std::ofstream outf2("gui-config.txt");
-                outf2 << "Resource MemoryExhaustion malloc MemoryExhauster" << "\n";
+                outf2 << "Resource MemoryExhaustion malloc/calloc MemoryExhauster" << "\n";
                 outf2.close();   
                       
              

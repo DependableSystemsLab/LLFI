@@ -45,7 +45,7 @@ main(int argc, char **argv)
  }
        
 int count=0;
-   FILE*fp= fopen ("message.txt","r");
+  FILE*fp= fopen ("message.txt","r");
    while (fread(sendline,sizeof(char), MAXLINE,fp) !=NULL){
 //while (fgets(sendline, MAXLINE, stdin) != NULL) {
 	

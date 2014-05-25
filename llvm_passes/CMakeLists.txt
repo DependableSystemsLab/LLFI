@@ -55,7 +55,7 @@ add_llvm_loadable_module(llfi-passes
   _Data_WrongDestinationInstSelector.cpp
   _Data_No_OutputInstSelector.cpp
   _Data_Incorrect_OutputInstSelector.cpp
-  
+  _Data_CorruptionInstSelector.cpp
 
   _MPI_NoMessageInstSelector.cpp
   _MPI_InvalidMessageInstSelector.cpp

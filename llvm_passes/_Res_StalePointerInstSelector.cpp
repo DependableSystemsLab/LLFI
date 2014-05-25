@@ -18,36 +18,36 @@ private:
  {
          if(isa<CallInst>(inst))
                                  {
-          CallInst* CI=dyn_cast<CallInst>(inst);
-              Function* called_func=CI->getCalledFunction();
-                             
-                 if(called_func->getName()=="malloc")
-                 {  std::cout<< "malloc Call was found"<<"\n";
-                 
-                std::ofstream outf("Automation-config");
-                outf << "MEMStalePointer" << "\n";
-                outf.close();
+                                CallInst* CI=dyn_cast<CallInst>(inst);
+                                Function* called_func=CI->getCalledFunction();
+                                if( (called_func->getName()=="malloc") || (called_func->getName()=="calloc"))
+                                   {  std::cout<< "malloc or calloc Call was found"<<"\n";
+                                      std::ofstream outf("Automation-config");
+                                      outf << "MEMStalePointer" << "\n";
+                                      outf.close();
                       
 
-                                            std::ofstream outf2("gui-config.txt");
-                outf2 << "Resource StalePointer malloc BitFlip" << "\n";
-                outf2.close();   
+                                      std::ofstream outf2("gui-config.txt");
+                                      outf2 << "Resource StalePointer malloc/calloc BitFlip" << "\n";
+                                      outf2.close();   
              
-             std::ifstream inf("Automation-config");
-                 std::string strInput;
-                  getline(inf, strInput);
-           if (strInput=="MEMStalePointer") 
-           {
-                   std::cout<<strInput<<"\n";
-           std::cout<<"successful"<<"\n";
-                  inf.close();
+                                      std::ifstream inf("Automation-config");
+                                      std::string strInput;
+                                      getline(inf, strInput);
+                                      if (strInput=="MEMStalePointer") 
+                                           {
+                                              std::cout<<strInput<<"\n";
+                                              std::cout<<"successful"<<"\n";
+                                              inf.close();
 
-          }
-           return true;
-                 }
-       else
-         return false;
+                                           }
+                              return true;
+                                  }
+                              else
+                              return false;
                                  }
+      else
+      return false;
  }
                                                };
 

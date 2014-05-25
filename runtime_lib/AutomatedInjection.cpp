@@ -21,7 +21,7 @@ class AutoInjection: public FaultInjector {
                  std::string strInput2;
                   getline(inf2, strInput2);
            
-        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="WrongSavedAddress") )
+        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemMemoryLeak")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="WrongSavedAddress")||(strInput=="DataCorruption") )
       
         {
     unsigned fi_bytepos = fi_bit / 8;
