@@ -8,38 +8,37 @@ Please join the following Google Groups for information related to LLFI developm
 Auto-Installer
 --------------
 This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run "python installLLFI.py". You may run the installer with python2 or python3, but python3 is required to succesfully install and run the LLFI.
-  Dependancies:
   
-    1. 32/64 Bit Linux or OS X
-    2. Cmake (mininum v2.8)
-    3. Python 3 or above
-    4. Java Development kit 1.7
-    5. Apache Ant 
-    6. Internet Connection
+Dependancies:
+  1. 32/64 Bit Linux or OS X
+  2. Cmake (mininum v2.8)
+  3. Python 3 or above
+  4. Java Development kit 1.7
+  5. Apache Ant 
+  6. Internet Connection
 
-  Usage:
-  
-    run "python InstallLLFI.py -h" to see all running options/guidelines
-    1. Copy the InstallLLFI.py script to where you want to build the LLFI
-    2. Run "python InstallLLFI.py"
-    3. Wait for compilation to finish
+Usage:
+run "python InstallLLFI.py -h" to see all running options/guidelines
+  1. Copy the InstallLLFI.py script to where you want to build the LLFI
+  2. Run "python InstallLLFI.py"
+  3. Wait for compilation to finish
 
 Manual Install
 ---------------
 This method is also available, and may be more suitable if you want more control over the location of the LLVM build that the LLFI requires (ie, you already have LLVM built and wish to use that build).
 
-  Dependencies:
+Dependencies:
   
-    1. 32/64 bit Linux or OS X
-    2. CMake (minimum v2.8)
-    3. Python 3 and above
-    4. Python YAML library (PyYAML)
-    5. Clang v3.4
-    6. LLVM v3.4, built with CMake
-      * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
-      * Remember to run `make` in the llvm build directory after running `cmake`.
-    7. Java7 with JavaFX (For GUI)
-    8. Apache Ant and JDK (For GUI)
+  1. 32/64 bit Linux or OS X
+  2. CMake (minimum v2.8)
+  3. Python 3 and above
+  4. Python YAML library (PyYAML)
+  5. Clang v3.4
+  6. LLVM v3.4, built with CMake
+    * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
+    * Remember to run `make` in the llvm build directory after running `cmake`.
+  7. Java7 with JavaFX (For GUI)
+  8. Apache Ant and JDK (For GUI)
 
   Building:
   Run `./setup --help` for build instructions.
