@@ -24,6 +24,7 @@ run "python InstallLLFI.py -h" to see all running options/guidelines
   2. Make sure you are _not_ logged in as root
   2. Run "python InstallLLFI.py"
   3. Wait for compilation to finish
+  4. Run the GUI by executing "./LLFI-GUI"
 
 About tcsh:
 
@@ -69,6 +70,22 @@ Building:
   ./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4
   ```
 
+GUI
+
+The GUI is built by the setup-script in LLFI_BUILD_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
+
+Environment variable setup  
+  1. Set the ’PYTHONPATH’ environment variable with the path of the installed Python yaml file.
+     – setenv PYTHONPATH  usr/Python 2.7/site-packages/
+  2. Create an environment variable "llfibuild" with the path of the llfi build directory.
+     – setenv llfibuild LLFI_BUILD_ROOT
+  3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
+     – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
+
+Running the GUI
+  1. Go to any directory where you want to save the outputs
+  2. Execute the jar file: java -jar LLFI_BUILD_ROOT/LLFI-GUI/llfi_gui.jar
+
 Running
 -------
 You can use example programs in the *test_programs* directory to test LLFI, including: 
@@ -112,26 +129,7 @@ in the *llfi* directory.
 | *llfi_stat_output* | Fault injection statistics                     |
 | *error_output*     | Failure reports (program crashes, hangs, etc.) |
 
-GUI
-====
 
-The GUI is built by the setup-script in LLFI_BUILD_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
-
-Environment variable setup
---------------------------
-
-1. Set the ’PYTHONPATH’ environment variable with the path of the installed Python yaml file.
-     – setenv PYTHONPATH  usr/Python 2.7/site-packages/
-2. Create an environment variable "llfibuild" with the path of the llfi build directory.
-     – setenv llfibuild LLFI_BUILD_ROOT
-3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
-     – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
-
-Running
--------
-1. Go to any directory where you want to save the outputs
-
-2. Execute the jar file: java -jar LLFI_BUILD_ROOT/LLFI-GUI/llfi_gui.jar
 
 References
 ----------
