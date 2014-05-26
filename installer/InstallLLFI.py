@@ -160,52 +160,6 @@ def DownloadFile(url, destinationDirectory, desc=None):
 
     return filename
 
-def DownloadFile2(url, destinationDirectory):
-	filename = url.split('/')[-1]
-	f = open(os.path.join(destinationDirectory, filename), 'wb')
-
-	u = None
-	meta = None
-	file_size = None
-	count = 0
-	while file_size == None:
-		try: 
-			u = urllib2.urlopen(url, timeout=3)
-		except(urllib2.URLError, e):
-			print("Unable to connect to " + url)
-			print("Please check your internet connection, or")
-			print("update to latest version of LLFI installer.")
-			print("Exiting.")
-			sys.exit(0)
-		meta = u.info()
-		if len(meta.getheader("Content-Length")) > 0: 
-			file_size = int(meta.getheaders("Content-Length")[0])
-		count = count + 1
-		if count > 10:
-			print("Downloading of " + url + "has timed out.")
-			print("Please check your internet connection, or")
-			print("update to latest version of LLFI installer.")
-			print("Exiting.")
-			sys.exit(0)
-
-	print("Downloading: %s: Bytes: %s" % (filename, file_size))
-	file_size_dl = 0
-	block_sz = 8192
-	while True:
-	    buffer = u.read(block_sz)
-	    if not buffer:
-	        break
-
-	    file_size_dl += len(buffer)
-	    f.write(buffer)
-	    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-	    status = status + chr(8)*(len(status)+1)
-	    print(status)
-
-	f.close()
-	sys.stdout.flush()
-	print("")
-
 def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 	fullDownloadsPath = os.path.abspath(downloadsDirectory)
 	fullExtractionPath = os.path.abspath(extractionDirectory)
