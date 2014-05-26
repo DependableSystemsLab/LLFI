@@ -15,13 +15,19 @@ Dependancies:
   3. Python 3 or above
   4. Java Development kit 1.7
   5. Apache Ant 
+  6. tcsh
   6. Internet Connection
 
 Usage:
 run "python InstallLLFI.py -h" to see all running options/guidelines
   1. Copy the InstallLLFI.py script to where you want to build the LLFI
+  2. Make sure you are _not_ logged in as root
   2. Run "python InstallLLFI.py"
   3. Wait for compilation to finish
+
+About tcsh:
+
+The LLFI-GUI uses tcsh to read environment variables describing the location of the LLFI build. The installer will automatically add those environmnet variables to your ~/.tcshrc file. You do not need to actively use tcsh as your primary shell, simply having it installed is enough.
 
 Manual Install
 ---------------
@@ -39,6 +45,7 @@ Dependencies:
     * Remember to run `make` in the llvm build directory after running `cmake`.
   7. Java7 with JavaFX (For GUI)
   8. Apache Ant and JDK (For GUI)
+  9. tcsh
 
   Building:
   Run `./setup --help` for build instructions.
