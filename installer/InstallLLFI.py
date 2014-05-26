@@ -1,6 +1,13 @@
-import urllib2
-import sys
-import os
+
+
+from __future__ import ( division, absolute_import, print_function, unicode_literals )
+import sys, os, tempfile, logging
+if sys.version_info >= (3,):
+    import urllib.request as urllib2
+    import urllib.parse as urlparse
+else:
+    import urllib2
+    import urlparse
 import subprocess
 import hashlib
 import imp
@@ -89,15 +96,15 @@ def CheckAndDownload(filename, md5, url):
 	md5new = ""
 	filepath = os.path.abspath("./downloads/" + filename)
 	if os.path.isfile(filepath):
-		print "Download target " + filename + " already exists."
+		print("Download target " + filename + " already exists.")
 		with open(filepath) as check:
 			data = check.read()
 			md5new = hashlib.md5(data).hexdigest()
 		if md5 == md5new:
-			print "MD5 Verified"
+			print("MD5 Verified")
 			return True
 		else:
-			print "MD5 does not match! Deleting File."
+			print("MD5 does not match! Deleting File.")
 			subprocess.call(["rm", filepath])
 	DownloadFile(url, "./downloads/")
 	return True
@@ -106,16 +113,54 @@ def CheckAndCreateDir(dir):
 	FullPath = os.path.abspath(dir)
 	if (os.path.exists(FullPath)):
 		if (os.path.isdir(FullPath)):
-			print "%s directory exists." % (dir)
+			print("%s directory exists." % (dir))
 			return True
 		else:
-			print "%s path occupied by file, deleting..." % (dir)
+			print("%s path occupied by file, deleting..." % (dir))
 			subprocess.call(["rm", FullPath])
-	print "Creating %s directory." % (dir)
+	print("Creating %s directory." % (dir))
 	subprocess.call(["mkdir", dir])
 	return False
 
-def DownloadFile(url, destinationDirectory):
+def DownloadFile(url, destinationDirectory, desc=None):
+    u = urllib2.urlopen(url)
+
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    filename = os.path.basename(path)
+    if not filename:
+        filename = 'downloaded.file'
+    if desc:
+        filename = os.path.join(desc, filename)
+
+    with open(os.path.join(destinationDirectory, filename), 'wb') as f:
+        meta = u.info()
+        meta_func = meta.getheaders if hasattr(meta, 'getheaders') else meta.get_all
+        meta_length = meta_func("Content-Length")
+        file_size = None
+        if meta_length:
+            file_size = int(meta_length[0])
+        print("Downloading: {0} Bytes: {1}".format(url, file_size))
+
+        file_size_dl = 0
+        block_sz = 8192
+        while True:
+            buffer = u.read(block_sz)
+            if not buffer:
+                break
+
+            file_size_dl += len(buffer)
+            f.write(buffer)
+
+            status = "{0:16}".format(file_size_dl)
+            if file_size:
+                status += "   [{0:6.2f}%]".format(file_size_dl * 100 / file_size)
+            status += chr(13)
+            print(status, end="")
+        print()
+
+    return filename
+
+def DownloadFile2(url, destinationDirectory):
 	filename = url.split('/')[-1]
 	f = open(os.path.join(destinationDirectory, filename), 'wb')
 
@@ -126,24 +171,24 @@ def DownloadFile(url, destinationDirectory):
 	while file_size == None:
 		try: 
 			u = urllib2.urlopen(url, timeout=3)
-		except urllib2.URLError, e:
-			print "Unable to connect to " + url
-			print "Please check your internet connection, or"
-			print "update to latest version of LLFI installer."
-			print "Exiting."
+		except(urllib2.URLError, e):
+			print("Unable to connect to " + url)
+			print("Please check your internet connection, or")
+			print("update to latest version of LLFI installer.")
+			print("Exiting.")
 			sys.exit(0)
 		meta = u.info()
-		if len(meta.getheaders("Content-Length")) > 0: 
+		if len(meta.getheader("Content-Length")) > 0: 
 			file_size = int(meta.getheaders("Content-Length")[0])
 		count = count + 1
 		if count > 10:
-			print "Downloading of " + url + "has timed out."
-			print "Please check your internet connection, or"
-			print "update to latest version of LLFI installer."
-			print "Exiting."
+			print("Downloading of " + url + "has timed out.")
+			print("Please check your internet connection, or")
+			print("update to latest version of LLFI installer.")
+			print("Exiting.")
 			sys.exit(0)
 
-	print "Downloading: %s: Bytes: %s" % (filename, file_size)
+	print("Downloading: %s: Bytes: %s" % (filename, file_size))
 	file_size_dl = 0
 	block_sz = 8192
 	while True:
@@ -155,27 +200,27 @@ def DownloadFile(url, destinationDirectory):
 	    f.write(buffer)
 	    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
 	    status = status + chr(8)*(len(status)+1)
-	    print status,
+	    print(status)
 
 	f.close()
 	sys.stdout.flush()
-	print ""
+	print("")
 
 def ExtractSources(targets, downloadsDirectory, extractionDirectory):
 	fullDownloadsPath = os.path.abspath(downloadsDirectory)
 	fullExtractionPath = os.path.abspath(extractionDirectory)
 	CheckAndCreateDir(extractionDirectory)
-	print "Moving to extraction root directory."
+	print("Moving to extraction root directory.")
 	os.chdir(extractionDirectory)
 	for target in targets:
 		if target["EXTRACTFLAG"] == True:
 			path = target['EXTRACTPATH']
 			dirName = target['EXTRACTEDNAME']
-			print "Extracting " + target['FILENAME']
+			print("Extracting " + target['FILENAME'])
 			archivePath = os.path.join(fullDownloadsPath, target['FILENAME'])
 			if os.path.isfile(archivePath):
 				ExtractArchive(target["ARCHIVETYPE"], archivePath)
-				print "Renaming " + dirName + " to " + path
+				print("Renaming " + dirName + " to " + path)
 				CheckAndCreateDir(path)
 				subprocess.call("cp -R " + dirName+"/* " + path, shell=True)
 				subprocess.call(["rm", "-rf", dirName])
@@ -201,14 +246,14 @@ def build(buildLLVM, forceMakeLLVM):
 		CheckAndCreateDir("llvm")
 		os.chdir("llvm")
 		if (not os.path.exists("CMAKESUCCESS")) or forceMakeLLVM:
-			print "Running cmake for LLVM:"
+			print("Running cmake for LLVM:")
 			p = subprocess.call(["cmake", "../llvmsrc", "-DLLVM_REQUIRES_RTTI=1", "-DCMAKE_BUILD_TYPE=Release"])
 			if p != 0:
 				sys.exit(p)
 			Touch("CMAKESUCCESS")
 
 		if (not os.path.exists("MAKESUCCESS")) or forceMakeLLVM:
-			print "Running make for LLVM"
+			print("Running make for LLVM")
 			p = subprocess.call("make")
 			if p != 0:
 				sys.exit(p)
@@ -239,12 +284,12 @@ def build(buildLLVM, forceMakeLLVM):
 
 	CheckAndCreateDir("llfi")
 	os.chdir("llfi")
-	print "Running cmake for LLFI:"
+	print("Running cmake for LLFI:")
 	p = subprocess.call(["cmake", "../llfisrc"])
 	if p != 0:
 		sys.exit(p)
 
-	print "Running make for LLFI:"
+	print("Running make for LLFI:")
 	p = subprocess.call("make")
 	if p != 0:
 		sys.exit(p)
@@ -279,7 +324,7 @@ def buildPyYaml(forceBuild):
 	os.chdir("..")
 
 def updateGUIXMLBuildPath(newPath):
-	print "Modifying LLFI-GUI build.xml"
+	print("Modifying LLFI-GUI build.xml")
 	tree = ET.parse('llfisrc/Gui_SourceCode/LLFI/build.xml')
 	root = tree.getroot()
 	pathnode = root.findall("./path[@id='JavaFX SDK.libraryclasspath']/pathelement")
@@ -304,13 +349,14 @@ def updateGUIXMLBuildPath(newPath):
 def getJavaFXLibLocation():
 	uname = subprocess.check_output("uname").strip()
 	javaLibPath = None
-	if 'Darwin' in uname:
+	if 'Darwin' in str(uname):
 		javahome = subprocess.check_output(["/usr/libexec/java_home", "-v", "1.7"]).strip()
 		javaLibPath = javahome+"/jre/lib/"
 	else:
-		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True)
-		javaLibPath = javaBinPath[:-9] + "lib/"
-	print "Detecting JFX Lib at " + javaLibPath
+		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True, universal_newlines=True)
+		javaBinPath = javaBinPath.strip()
+		javaLibPath = javaBinPath[:-9] + "/lib/"
+	print("Detecting JFX Lib at " + javaLibPath)
 	return javaLibPath
 
 def addEnvs():
@@ -320,7 +366,7 @@ def addEnvs():
 	versionString = subprocess.check_output(["python3", "--version"], stderr=subprocess.STDOUT)
 	versionString = versionString.strip()
 	versionSplit = versionString.split()
-	versionSplit = versionSplit[1].split('.')
+	versionSplit = str(versionSplit[1]).split('.')
 
 	majorVer = versionSplit[0]
 	minorVer = versionSplit[1]
@@ -351,7 +397,7 @@ parser.add_argument("-fBPyYaml", "--forceBuildPyYaml", action='store_true', help
 parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
 
 def testFeature():
-	print "Testing Experimental Installer Feature"
+	print("Testing Experimental Installer Feature")
 	
 
 if __name__ == "__main__":
@@ -360,19 +406,19 @@ if __name__ == "__main__":
 		testFeature()
 		sys.exit(0)
 	if args.cleanDownloads:
-		print "Cleaning downloads..."
+		print("Cleaning downloads...")
 		subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
-		print "Done."
+		print("Done.")
 	if args.cleanSources:
-		print "Cleaning extracted sources..."
+		print("Cleaning extracted sources...")
 		currPath = os.getcwd()
 		if os.path.isdir(LLFIROOTDIRECTORY):
 			os.chdir(LLFIROOTDIRECTORY)
 			for target in DOWNLOADTARGETS:	
 				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
-			print "Done."
+			print("Done.")
 		os.chdir(currPath)	
-	print "Installing LLFI to: " + os.path.abspath(LLFIROOTDIRECTORY)
+	print("Installing LLFI to: " + os.path.abspath(LLFIROOTDIRECTORY))
 	if not args.noDownload:
 		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
 	if not args.noExtract:
