@@ -304,7 +304,7 @@ def getJavaFXLibLocation():
 	uname = subprocess.check_output("uname").strip()
 	javaLibPath = None
 	if 'Darwin' in str(uname):
-		javahome = subprocess.check_output(["/usr/libexec/java_home", "-v", "1.7"]).strip()
+		javahome = subprocess.check_output(["/usr/libexec/java_home", "-v", "1.7"], universal_newlines=True).strip()
 		javaLibPath = javahome+"/jre/lib/"
 	else:
 		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True, universal_newlines=True)
