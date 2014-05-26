@@ -47,7 +47,8 @@ Dependencies:
   8. Apache Ant and JDK (For GUI)
   9. tcsh
 
-  Building:
+Building:
+  
   Run `./setup --help` for build instructions.
   ```
   $ ./setup --help
