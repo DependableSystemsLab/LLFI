@@ -302,15 +302,19 @@ def updateGUIXMLBuildPath(newPath):
 
 def getJavaFXLibLocation():
 	uname = subprocess.check_output("uname").strip()
-	javaLibPath = None
+	javaLibPath = 1
 	if 'Darwin' in str(uname):
 		javahome = subprocess.check_output(["/usr/libexec/java_home", "-v", "1.7"], universal_newlines=True).strip()
 		javaLibPath = javahome+"/jre/lib/"
 	else:
 		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True, universal_newlines=True)
 		javaBinPath = javaBinPath.strip()
-		javaLibPath = javaBinPath[:-9] + "/jre/lib/"
-	print("Detecting JFX Lib at " + javaLibPath)
+		pathSplit = javaBinPath.split("/")
+		if (str('jre') in [str(x) for x in pathSplit]):
+			javaLibPath = javaBinPath[:-9] + "/lib/"
+		else:
+			javaLibPath = javaBinPath[:-9] + "/jre/lib/"
+	print("Detecting JFX Lib at " + str(javaLibPath))
 	return javaLibPath
 
 def addEnvs():
@@ -352,7 +356,6 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print("Testing Experimental Installer Feature")
-	
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
