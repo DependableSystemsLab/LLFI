@@ -91,8 +91,8 @@ public class InstrumentController implements Initializable {
 	private Button createNewProfileButton;
 	@FXML
 	private CheckBox allCheckBox;
-	private List<String> fileContent;
 	private String buildPath;
+	private List<String> fileContent;
 	private String selectedInstSelectionMethod;
 	private String selectedRegSelectionMethod;
 	private String selectedTraceMethod;
@@ -234,7 +234,11 @@ public class InstrumentController implements Initializable {
 					        //File+selectedTraceMethod);
 					        if(fullTraceRadio.isSelected() == true || limitTraceRadio.isSelected() == true)
 					        {
+							w.write("\n\n    "+"tracingPropagation:"+" True");
+					        	w.write("\n\n    "+"tracingPropagationOption:");
+							w.write("\n        "+"generateCDFG: True");
 					        	w.write("\n\n    "+"includeInjectionTrace:");
+
 					        	if(forwardCheckbox.isSelected() == true)
 					        		
 						        	 w.write("\n        "+"- "+forward);
@@ -471,6 +475,7 @@ public class InstrumentController implements Initializable {
 		FileReader inputFile;
 		try{
 			if(customInstTypeRadio.isSelected() == true){
+
 				customInstCombo.setDisable(false);
 				includeLabel.setDisable(true);
 				
@@ -483,7 +488,7 @@ public class InstrumentController implements Initializable {
 		        
 		        customInstList = new ArrayList<String>();
 		        String line;
-		        
+		        	
 		        while ((line = bufferReader.readLine()) != null)   {
 		        	customInstList.add(line);
 		        	
@@ -844,6 +849,7 @@ public void onClickAllMethod()
 	try{
 		FileReader inputFile1;
 		String line;
+
 		if(allCheckBox.isSelected())
 		{
 			/*ArrayList<String> templist = new ArrayList<>();
@@ -855,7 +861,6 @@ public void onClickAllMethod()
 			{
 				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
 			}*/
-			
 			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
 			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
 		    
@@ -1008,10 +1013,10 @@ private void resetAllOptions()
 	public void initialize(URL url, ResourceBundle rb) {
 		FileReader inputFile;
 		FileReader inputFile1;
+		// The location of the llfibuild
+		buildPath=Controller.llfibuildPath+"LLFI-GUI/";
+	
 		//try {
-		
-			// The location of the llfibuild
-			buildPath=Controller.llfibuildPath+"LLFI-GUI/";
 			selectProfileFlag = false;
 			existingInputFileFlag = false;
 			folderName = Controller.currentProgramFolder;
