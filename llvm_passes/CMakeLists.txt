@@ -64,6 +64,7 @@ add_llvm_loadable_module(llfi-passes
   _MPI_DeadLockInstSelector.cpp
   _MPI_InvalidSenderInstSelector.cpp
   _MPI_PacketStormInstSelector.cpp
+  _MPI_BufferOverflowInstSelector.cpp
 
   _Timing_RaceConditionInstSelector.cpp
   _Timing_HighFrequentEventInstSelector.cpp 
