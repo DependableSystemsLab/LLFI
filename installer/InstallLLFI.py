@@ -309,7 +309,7 @@ def getJavaFXLibLocation():
 	else:
 		javaBinPath = subprocess.check_output("readlink -f $(which java)", shell=True, universal_newlines=True)
 		javaBinPath = javaBinPath.strip()
-		javaLibPath = javaBinPath[:-9] + "/lib/"
+		javaLibPath = javaBinPath[:-9] + "/jre/lib/"
 	print("Detecting JFX Lib at " + javaLibPath)
 	return javaLibPath
 
