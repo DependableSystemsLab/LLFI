@@ -314,6 +314,9 @@ def getJavaFXLibLocation():
 			javaLibPath = javaBinPath[:-9] + "/lib/"
 		else:
 			javaLibPath = javaBinPath[:-9] + "/jre/lib/"
+	
+	if (os.path.exists(os.path.join(javaLibPath, "ext/jfxrt.jar"))):
+		javaLibPath = os.path.join(javaLibPath, "ext/")
 	print("Detecting JFX Lib at " + str(javaLibPath))
 	return javaLibPath
 

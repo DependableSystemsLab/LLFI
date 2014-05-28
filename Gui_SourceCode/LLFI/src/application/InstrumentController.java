@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import com.sun.javafx.scene.control.skin.ListViewSkin;
-import com.sun.javafx.sg.PGShape.Mode;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
