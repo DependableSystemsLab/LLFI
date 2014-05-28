@@ -98,6 +98,8 @@ private TableColumn<ResultTable,String> tFiStatus;
 @FXML
 private TableColumn<ResultTable,String> tFiResult;
 @FXML
+private TableColumn<ResultTable,String> tFiTrace;
+@FXML
 private CategoryAxis xAxis;
 @FXML
 private NumberAxis yAxis;
@@ -114,6 +116,8 @@ private Button profilingButton;
 private Button injectfaultButton;
 @FXML
 private Button runtimeButton;
+@FXML
+private Button tracegraphButton;
 @FXML
 private TextArea errorTextArea;
 @FXML
@@ -154,6 +158,8 @@ private ArrayList<String> resultFileNameLists;
 private ArrayList<String> resultErrorFileNameLists;
 private ArrayList<String> resultOutputFileNameLists;
 private ArrayList<String> resultList;
+private ArrayList<String> TraceFileNameLists;
+private ArrayList<String> TraceDiffReportFileNameLists;
 
 private String indexBound;
 private String cycleBound;
@@ -356,7 +362,6 @@ public void onClickActualFaultInjection(ActionEvent event)
 			  if(outputFolder.exists())
 			  deleteFilesInFolder(outputFolder);
 		 // }
-		  
 		  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
           Stage stage = new Stage();                               
 
@@ -385,6 +390,7 @@ public void deleteFilesInFolder(final File folder) {
 
 @FXML
 public void onClickInjectFaultOkHandler(ActionEvent event){
+
 	
 }
 @FXML
@@ -395,7 +401,6 @@ public void onGeneratingResultTable(){
 		int entryCount = 0;
 		data1 =  FXCollections.observableArrayList() ;
 		resultList = new ArrayList<String>();
-		resultFileNameLists = new ArrayList<String>();
 		resultErrorFileNameLists = new ArrayList<String>();
 		resultOutputFileNameLists = new ArrayList<String>();
 		final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
@@ -403,7 +408,9 @@ public void onGeneratingResultTable(){
 		final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
 		listFilesForErrorFolder(errorFolder);
 		final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
-		listFilesForOtputFolder(outputFolder);
+		listFilesForOtputFolder(outputFolder);	
+
+		
 		runCount = 0;
 		/*FileReader inFile = new FileReader(currentProgramFolder+"/llfi/gui_config.txt");
 		BufferedReader bReader = new BufferedReader(inFile);
@@ -412,6 +419,20 @@ public void onGeneratingResultTable(){
 		      	
 		      }
 		  bReader.close();*/
+
+		//Generate  trace_report_output folder to hold TraceDiffReport files
+		ProcessBuilder deleteTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","rm -rf "+Controller.currentProgramFolder+"/llfi/trace_report_output");
+		Process deleteFolder = deleteTraceReportFolder.start();
+		deleteFolder.waitFor();
+		deleteFolder.destroy();
+
+		ProcessBuilder makeTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","mkdir "+Controller.currentProgramFolder+"/llfi/trace_report_output");
+		Process makeFolder = makeTraceReportFolder.start();
+	 	makeFolder.waitFor();
+		makeFolder.destroy();
+
+		   //DiffFile.redirectErrorStream(true);
+
 		  for(int i = 0; i < resultFileNameLists.size();i++)                                
 
 		   {
@@ -419,7 +440,13 @@ public void onGeneratingResultTable(){
 			
 			if(resultFileNameLists.get(i).contains("trace"))
 			{
-				
+			 // Generate diff report file using tracediff
+			ProcessBuilder DiffFile = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/tracediff "+Controller.currentProgramFolder+"/llfi/baseline/llfi.stat.trace.prof.txt"+" "+ Controller.currentProgramFolder+"/llfi/llfi_stat_output/"+  resultFileNameLists.get(i)+" " + "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+"TraceDiffReportFile"+resultFileNameLists.get(i).substring(15));
+			DiffFile.redirectErrorStream(true); 
+			Process pr2 = DiffFile.start();
+			pr2.waitFor();
+			pr2.destroy();
+
 			}
 			else
 			{
@@ -681,13 +708,54 @@ public void onGeneratingResultTable(){
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
 				  data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-	            		 Integer.parseInt(resultList.get(4)),sdc,status,result));
+	            		 Integer.parseInt(resultList.get(4)),sdc,status,result,""));
 				 
 				 
 			}
 			
 			
 		   }
+
+		// Generate Trace Union file
+	final File TraceDiffReportFolder = new File(currentProgramFolder+"/llfi/trace_report_output");
+		FileListofTraceReportFolder(TraceDiffReportFolder);
+		String TraceUnionCmd =Controller.llfibuildPath+"tools/traceunion";
+		for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
+		{
+		TraceUnionCmd += " "+ TraceDiffReportFileNameLists.get(i);
+		}
+
+		TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
+
+		
+		ProcessBuilder UnionTraceDiffReportFile = new  ProcessBuilder("/bin/tcsh","-c",TraceUnionCmd);
+		   UnionTraceDiffReportFile.redirectErrorStream(true); 
+		   Process pr3=UnionTraceDiffReportFile.start();
+		   pr3.waitFor();
+
+
+		pr3.destroy();
+		
+
+
+		//Generate .dot graph file using traceontograph
+		   ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+		   TraceGraph.redirectErrorStream(true);
+		   Process pr4 = TraceGraph.start();
+		   pr4.waitFor();
+
+
+		pr4.destroy();
+
+		//Covert traceontograph to pdf format using Graphviz
+		   ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+		   ConvertToPs.redirectErrorStream(true);
+		   Process pr5 = ConvertToPs.start();
+		   pr5.waitFor();
+
+
+		pr5.destroy();
+		
 		tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
 	    tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
 	    tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
@@ -697,7 +765,9 @@ public void onGeneratingResultTable(){
 	    tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
 	    tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
 	    tFiResult.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("result"));
+	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("Trace"));
 	    resultTable.setItems(data1);
+	    tracegraphButton.setDisable(false);
 	 
 	}
 	catch(IOException e)
@@ -713,6 +783,25 @@ public void onGeneratingResultTable(){
 	
 }
 
+@FXML
+private void onClickGenerateTraceGraph(){
+try{
+		//Open the trace graph file
+		   ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c","xdg-open "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+		   openGraph.redirectErrorStream(true);
+		   Process pr = openGraph.start();
+		   pr.waitFor();
+		   pr.destroy();
+	}
+	catch(IOException e)
+	{
+		e.printStackTrace();
+		 System.out.println(e.getMessage());
+	}catch (InterruptedException e) {
+    		System.out.println(e);
+		e.printStackTrace();
+	}
+}
 @FXML
 private void generateFaultSummaryGraph(){
 	//resultSummary.setVisible(true);
@@ -802,6 +891,7 @@ private void generateFaultSummaryGraph(){
 }
 
 public void listFilesForErrorFolder(final File folder) {
+
 	resultErrorFileNameLists = new ArrayList<String>();
     for (final File fileEntry : folder.listFiles()) {                                
 
@@ -827,6 +917,21 @@ public void listFilesForOtputFolder(final File folder) {
     //System.out.println(line1);
     
 }
+
+public void FileListofTraceReportFolder(final File folder) {
+	TraceDiffReportFileNameLists = new ArrayList<String>();
+    for (final File fileEntry : folder.listFiles()) {                                
+
+        if (fileEntry.isDirectory()) {
+        	listFilesForErrorFolder(fileEntry);
+        } else {
+            TraceDiffReportFileNameLists.add(fileEntry.getName());
+        }
+    }
+    //System.out.println(line1);
+    
+}
+
 public void listFilesForFolder(final File folder) {
 	resultFileNameLists = new ArrayList<String>();
     for (final File fileEntry : folder.listFiles()) {

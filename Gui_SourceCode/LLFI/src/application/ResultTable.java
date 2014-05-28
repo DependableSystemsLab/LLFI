@@ -16,11 +16,13 @@ public class ResultTable {
     SimpleStringProperty sdc;
     SimpleStringProperty status;
     SimpleStringProperty result;
+    SimpleStringProperty trace;
+
 
 
 
     public ResultTable(int noOfRuns,String FaultInjectionType,int index,int cycle,int bit,
-    		String sdc,String status,String result) {
+    		String sdc,String status,String result,String trace) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
         
         this.FaultInjectionType = new SimpleStringProperty(FaultInjectionType);
@@ -32,6 +34,7 @@ public class ResultTable {
         this.sdc = new SimpleStringProperty(sdc);
         this.status = new SimpleStringProperty(status);
         this.result = new SimpleStringProperty(result);
+        this.trace = new SimpleStringProperty(trace);
        
     } 
 
@@ -100,7 +103,13 @@ public class ResultTable {
 	public void setResult(String e) {
 		this.result.set(e);;
 	}
+	public String getTrace() {
+		return trace.get();
+	}
 
+	public void setTrace(String e) {
+		this.trace.set(e);;
+	}
 	
 
 }

@@ -16,7 +16,8 @@ Dependancies:
   4. Java Development kit 1.7
   5. Apache Ant 
   6. tcsh
-  6. Internet Connection
+  7. GraphViz package (for visualizing error propagation)
+  8. Internet Connection
 
 Usage:
 run "python InstallLLFI.py -h" to see all running options/guidelines
@@ -38,7 +39,7 @@ Dependencies:
   
   1. 32/64 bit Linux or OS X
   2. CMake (minimum v2.8)
-  3. Python 3 and above
+  3. Python 2.7 and above
   4. Python YAML library (PyYAML)
   5. Clang v3.4
   6. LLVM v3.4, built with CMake
@@ -47,6 +48,7 @@ Dependencies:
   7. Java7 with JavaFX (For GUI)
   8. Apache Ant and JDK (For GUI)
   9. tcsh
+  10. GraphViz package (for visualizing error propagation)
 
 Building:
   
