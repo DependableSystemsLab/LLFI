@@ -9,7 +9,7 @@ Auto-Installer
 --------------
 This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run "python installLLFI.py". You may run the installer with python2 or python3, but python3 is required to succesfully install and run the LLFI.
   
-Dependancies:
+Dependencies:
   1. 32/64 Bit Linux or OS X
   2. Cmake (mininum v2.8)
   3. Python 3 or above
