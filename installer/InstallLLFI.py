@@ -15,6 +15,51 @@ import site
 import xml.etree.ElementTree as ET
 import argparse
 
+class Dependancy():
+	def __init__(self, Name, Version, ExistsCmd, VersionCmd):
+		self.name = Name
+		self.version = Version
+		self.existsCmd = ExistsCmd 
+		self.versionCmd = VersionCmd
+	def CheckDependancy(self):
+		print("Checking if " + self.name, self.version + " is available...")
+		try:
+		    output = subprocess.check_output(self.existsCmd)
+		except subprocess.CalledProcessError as e:
+		    output = None
+		if output == None:
+			print(self.name + " is not available on the path.")
+			return False
+		print("Found " + self.name + " at " + output)
+		output = subprocess.check_output(self.versionCmd, stderr=subprocess.STDOUT)
+		if not self.versionFunc(output):
+			print(self.name + " is below version number " + self.version)
+
+CMAKEDEP = Dependancy("CMake", "2.8+", ['which', 'cmake'], ['cmake', '--version'])
+def CMAKEVERSIONFUNC(vers):
+	vers = [int(x) for x in vers.split()[2].split('.')]	
+	if vers[0] < 2:
+		return False
+	if vers[1] < 8:
+		return False
+	return True
+CMAKEDEP.versionFunc = CMAKEVERSIONFUNC
+
+PYTHON3DEP = Dependancy("Python", "3.0+", ['which', 'python3'], ['python3', '-V'])
+def PYTHON3VERSIONFUNC(vers):
+	vers = [int(x) for x in vers.split()[1].split('.')]
+	if vers[0] < 3:
+		return False
+	return True
+PYTHON3DEP.versionFunc = PYTHON3VERSIONFUNC
+
+JDKDEP = ANTDEP = TCSHDEP = GRAPHVIZDEP = INTERNETDEP = None
+
+
+
+
+DEPENDANCIES = [CMAKEDEP, PYTHON3DEP, JDKDEP, ANTDEP, TCSHDEP, GRAPHVIZDEP, INTERNETDEP]
+
 #Update These to change download targets
 LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
 				'FILENAME':"llvm-3.4.src.tar.gz", 
@@ -359,6 +404,9 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print("Testing Experimental Installer Feature")
+	for dep in DEPENDANCIES:
+		if dep != None:
+			dep.CheckDependancy()
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
