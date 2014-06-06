@@ -49,9 +49,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import javafx.stage.FileChooser;
 import application.InstrumentController;
 import javafx.stage.Stage;
@@ -98,7 +102,7 @@ private TableColumn<ResultTable,String> tFiStatus;
 @FXML
 private TableColumn<ResultTable,String> tFiResult;
 @FXML
-private TableColumn<ResultTable,String> tFiTrace;
+private TableColumn<ResultTable,Boolean> tFiTrace;
 @FXML
 private CategoryAxis xAxis;
 @FXML
@@ -183,6 +187,7 @@ int bit;
 String status = "";
 String result ="";
 String sdc = "";
+Boolean trace = false;
 private List<List<String>> FileLists;
 private List<String> fileContent;
 private int fileCount = 0;
@@ -707,8 +712,9 @@ public void onGeneratingResultTable(){
 				  System.out.println("\nsdc : "+sdc);
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
+				trace =true;
 				  data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-	            		 Integer.parseInt(resultList.get(4)),sdc,status,result,""));
+	            		 Integer.parseInt(resultList.get(4)),sdc,status,result,trace));
 				 
 				 
 			}
@@ -765,8 +771,26 @@ public void onGeneratingResultTable(){
 	    tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
 	    tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
 	    tFiResult.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("result"));
-	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("Trace"));
+//	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, Boolean>("trace"));
+
+
+
+
+tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("trace"));
+
+//tFiTrace.setCellFactory(CheckBoxTableCell.forTableColumn(tFiTrace));
+    tFiTrace.setCellFactory(new Callback<TableColumn<ResultTable, Boolean>, TableCell<ResultTable, Boolean>>() {
+
+        public TableCell<ResultTable, Boolean> call(TableColumn<ResultTable, Boolean> p) {
+
+            return new CheckBoxTableCell<ResultTable, Boolean>();
+
+        }
+    });
+    tFiTrace.setEditable(true);
+
 	    resultTable.setItems(data1);
+    resultTable.setEditable(true);
 	    tracegraphButton.setDisable(false);
 	 
 	}
@@ -1501,5 +1525,14 @@ catch(IOException e)
 }
 	 
     // TODO
-}    
+   
+
+
+
 }
+
+
+
+}
+
+
