@@ -69,7 +69,7 @@ CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz",
 #Primary Repository LLFI
 LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip', 
 					  'FILENAME':"master.zip", 
-					  'MD5':"fc3ba3cfea7ae3236bf027b847058105",
+					  'MD5':"1fa15656e897e2bb2f8476b34fef7c86",
 					  'EXTRACTPATH':"llfisrc", 					
 					  'EXTRACTEDNAME':'LLFI-master',           	
 					  'ARCHIVETYPE':'.zip',
