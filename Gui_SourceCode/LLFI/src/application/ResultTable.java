@@ -2,6 +2,10 @@ package application;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
+import javafx.event.ActionEvent;
+import javafx.beans.value.ChangeListener;
 
 public class ResultTable {
 
@@ -16,13 +20,13 @@ public class ResultTable {
     SimpleStringProperty sdc;
     SimpleStringProperty status;
     SimpleStringProperty result;
-    SimpleStringProperty trace;
+    SimpleBooleanProperty trace;
 
 
 
 
     public ResultTable(int noOfRuns,String FaultInjectionType,int index,int cycle,int bit,
-    		String sdc,String status,String result,String trace) {
+    		String sdc,String status,String result,Boolean trace) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
         
         this.FaultInjectionType = new SimpleStringProperty(FaultInjectionType);
@@ -34,9 +38,18 @@ public class ResultTable {
         this.sdc = new SimpleStringProperty(sdc);
         this.status = new SimpleStringProperty(status);
         this.result = new SimpleStringProperty(result);
-        this.trace = new SimpleStringProperty(trace);
-       
-    } 
+        this.trace = new SimpleBooleanProperty(trace);
+
+//         this.trace.addListener(new ChangeListener<Boolean>() {
+
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> ov, Boolean oldval, Boolean newval) {
+//                System.out.println("The check Box is: " + newval);
+//            }
+//        });
+
+    }
+    
 
     public Integer getNoOfRuns() {
 		return noOfRuns.get();
@@ -101,15 +114,21 @@ public class ResultTable {
 	}
 
 	public void setResult(String e) {
-		this.result.set(e);;
+		this.result.set(e);
 	}
-	public String getTrace() {
-		return trace.get();
+	public SimpleBooleanProperty traceProperty() 
+	{
+	return trace;
 	}
 
-	public void setTrace(String e) {
-		this.trace.set(e);;
-	}
+//	public Boolean getTrace() {
+//		return trace.get();
+//	}
+
+//	public void setTrace(Boolean e) {
+//		this.trace.set(e);
+//	}
+
 	
 
 }

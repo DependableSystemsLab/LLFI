@@ -49,9 +49,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.util.Callback;
 import javafx.stage.FileChooser;
 import application.InstrumentController;
 import javafx.stage.Stage;
@@ -98,7 +102,7 @@ private TableColumn<ResultTable,String> tFiStatus;
 @FXML
 private TableColumn<ResultTable,String> tFiResult;
 @FXML
-private TableColumn<ResultTable,String> tFiTrace;
+private TableColumn<ResultTable,Boolean> tFiTrace;
 @FXML
 private CategoryAxis xAxis;
 @FXML
@@ -183,6 +187,7 @@ int bit;
 String status = "";
 String result ="";
 String sdc = "";
+Boolean trace = false;
 private List<List<String>> FileLists;
 private List<String> fileContent;
 private int fileCount = 0;
@@ -289,8 +294,11 @@ private void onClickProfiling(ActionEvent event){
            stage.setScene(new Scene(root, 400, 100));
            stage.show();
            runtimeButton.setDisable(false);
+           tracegraphButton.setDisable(true);
            if(InstrumentController.selectProfileFlag == true || InstrumentController.existingInputFileFlag ==true)
-        	   injectfaultButton.setDisable(false);
+        	 injectfaultButton.setDisable(false);
+	   else
+		injectfaultButton.setDisable(true);
         	   
        }
 	    
@@ -707,8 +715,9 @@ public void onGeneratingResultTable(){
 				  System.out.println("\nsdc : "+sdc);
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
+				trace =false;
 				  data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-	            		 Integer.parseInt(resultList.get(4)),sdc,status,result,""));
+	            		 Integer.parseInt(resultList.get(4)),sdc,status,result,trace));
 				 
 				 
 			}
@@ -716,45 +725,11 @@ public void onGeneratingResultTable(){
 			
 		   }
 
-		// Generate Trace Union file
-	final File TraceDiffReportFolder = new File(currentProgramFolder+"/llfi/trace_report_output");
-		FileListofTraceReportFolder(TraceDiffReportFolder);
-		String TraceUnionCmd =Controller.llfibuildPath+"tools/traceunion";
-		for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
-		{
-		TraceUnionCmd += " "+ TraceDiffReportFileNameLists.get(i);
-		}
-
-		TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
 
 		
-		ProcessBuilder UnionTraceDiffReportFile = new  ProcessBuilder("/bin/tcsh","-c",TraceUnionCmd);
-		   UnionTraceDiffReportFile.redirectErrorStream(true); 
-		   Process pr3=UnionTraceDiffReportFile.start();
-		   pr3.waitFor();
 
 
-		pr3.destroy();
-		
 
-
-		//Generate .dot graph file using traceontograph
-		   ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
-		   TraceGraph.redirectErrorStream(true);
-		   Process pr4 = TraceGraph.start();
-		   pr4.waitFor();
-
-
-		pr4.destroy();
-
-		//Covert traceontograph to pdf format using Graphviz
-		   ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
-		   ConvertToPs.redirectErrorStream(true);
-		   Process pr5 = ConvertToPs.start();
-		   pr5.waitFor();
-
-
-		pr5.destroy();
 		
 		tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
 	    tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
@@ -765,8 +740,26 @@ public void onGeneratingResultTable(){
 	    tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
 	    tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
 	    tFiResult.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("result"));
-	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("Trace"));
+//	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, Boolean>("trace"));
+
+
+
+
+tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("trace"));
+
+//tFiTrace.setCellFactory(CheckBoxTableCell.forTableColumn(tFiTrace));
+    tFiTrace.setCellFactory(new Callback<TableColumn<ResultTable, Boolean>, TableCell<ResultTable, Boolean>>() {
+
+        public TableCell<ResultTable, Boolean> call(TableColumn<ResultTable, Boolean> p) {
+
+            return new CheckBoxTableCell<ResultTable, Boolean>();
+
+        }
+    });
+    tFiTrace.setEditable(true);
+
 	    resultTable.setItems(data1);
+    resultTable.setEditable(true);
 	    tracegraphButton.setDisable(false);
 	 
 	}
@@ -786,12 +779,132 @@ public void onGeneratingResultTable(){
 @FXML
 private void onClickGenerateTraceGraph(){
 try{
+
+	// Generate Trace Union file
+	final File TraceDiffReportFolder = new File(currentProgramFolder+"/llfi/trace_report_output");
+		FileListofTraceReportFolder(TraceDiffReportFolder);
+
+
+	//Delete old UnitedDiffReportFile.txt, TraceGraph.dot, and TraceGraph.ps files
+
+	File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt");
+        if(UnitedDiffReportFile.exists())
+        {
+        	delete(UnitedDiffReportFile);
+        	
+        }
+
+	File  TraceGraphDot = new File(currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+        if(TraceGraphDot.exists())
+        {
+        	delete(TraceGraphDot);
+        	
+        }
+
+	File  TraceGraphPs = new File(currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+        if(TraceGraphPs.exists())
+        {
+        	delete(TraceGraphPs);
+        	
+        }
+
+
+
+
+	String TraceUnionCmd =Controller.llfibuildPath+"tools/traceunion";
+	int found =0;
+	for (ResultTable resultTableRow : resultTable.getItems())
+	{
+		if (resultTableRow.getTrace() == true)
+		{
+			
+			for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
+			{
+			//Get the trace file index
+			String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
+			if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
+				{
+				TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
+//				System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
+				found++;
+				break;
+				}
+			}
+		}
+	}
+//	          System.out.println("found="+found);
+//		for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
+//		{
+//		TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
+
+//		}
+
+		TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
+		if(found >1)
+		{
+//		    	System.out.println(TraceUnionCmd);
+		ProcessBuilder UnionTraceDiffReportFile = new  ProcessBuilder("/bin/tcsh","-c",TraceUnionCmd);
+		   UnionTraceDiffReportFile.redirectErrorStream(true); 
+		   Process pr=UnionTraceDiffReportFile.start();
+		   pr.waitFor();
+		pr.destroy();
+		
+
+
+
+		//Generate .dot graph file using traceontograph
+		   ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+		   TraceGraph.redirectErrorStream(true);
+		   Process pr2 = TraceGraph.start();
+		   pr2.waitFor();
+		pr2.destroy();
+		}
+		else
+		{
+		String traceFileName="";
+		for (ResultTable resultTableRow : resultTable.getItems())
+		{
+			if (resultTableRow.getTrace() == true)
+			{
+			
+				for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
+				{
+			//Get the trace file index
+				String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
+				if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
+					{
+					traceFileName = TraceDiffReportFileNameLists.get(i);
+//					System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
+					break;
+					}
+				}
+			}
+		}
+		//Generate .dot graph file using traceontograph
+		   ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+		   TraceGraph.redirectErrorStream(true);
+		   Process pr2 = TraceGraph.start();
+		   pr2.waitFor();
+		pr2.destroy();
+		}
+
+
+		//Covert traceontograph to pdf format using Graphviz
+		   ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+		   ConvertToPs.redirectErrorStream(true);
+		   Process pr3 = ConvertToPs.start();
+		   pr3.waitFor();
+			pr3.destroy();
+
+
+
+
 		//Open the trace graph file
 		   ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c","xdg-open "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
 		   openGraph.redirectErrorStream(true);
-		   Process pr = openGraph.start();
-		   pr.waitFor();
-		   pr.destroy();
+		   Process pr4 = openGraph.start();
+		   pr4.waitFor();
+		   pr4.destroy();
 	}
 	catch(IOException e)
 	{
@@ -979,7 +1092,13 @@ private void onClickCompileToIr(ActionEvent event){
 	        stage.show();
 	        //compiletoIrButton.setDisable(true);
 	        instrumentButton.setDisable(false);
-	        
+            	 profilingButton.setDisable(true);
+            	 runtimeButton.setDisable(true);
+            	 injectfaultButton.setDisable(true);
+            	 tracegraphButton.setDisable(true);
+
+
+
 	    }
 	    else
 	    {
@@ -1022,6 +1141,9 @@ private void onClickInstrument(ActionEvent event) {
          
          //instrumentButton.setDisable(true);
          profilingButton.setDisable(false);
+         runtimeButton.setDisable(true);
+         injectfaultButton.setDisable(true);
+         tracegraphButton.setDisable(true);
          
      } catch (IOException e) {
          e.printStackTrace();
@@ -1501,5 +1623,14 @@ catch(IOException e)
 }
 	 
     // TODO
-}    
+   
+
+
+
 }
+
+
+
+}
+
+
