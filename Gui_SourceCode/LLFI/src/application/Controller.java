@@ -780,11 +780,39 @@ tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("tr
 private void onClickGenerateTraceGraph(){
 try{
 
-		// Generate Trace Union file
+	// Generate Trace Union file
 	final File TraceDiffReportFolder = new File(currentProgramFolder+"/llfi/trace_report_output");
 		FileListofTraceReportFolder(TraceDiffReportFolder);
-		String TraceUnionCmd =Controller.llfibuildPath+"tools/traceunion";
-//		int found =0;
+
+
+	//Delete old UnitedDiffReportFile.txt, TraceGraph.dot, and TraceGraph.ps files
+
+	File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt");
+        if(UnitedDiffReportFile.exists())
+        {
+        	delete(UnitedDiffReportFile);
+        	
+        }
+
+	File  TraceGraphDot = new File(currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+        if(TraceGraphDot.exists())
+        {
+        	delete(TraceGraphDot);
+        	
+        }
+
+	File  TraceGraphPs = new File(currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+        if(TraceGraphPs.exists())
+        {
+        	delete(TraceGraphPs);
+        	
+        }
+
+
+
+
+	String TraceUnionCmd =Controller.llfibuildPath+"tools/traceunion";
+	int found =0;
 	for (ResultTable resultTableRow : resultTable.getItems())
 	{
 		if (resultTableRow.getTrace() == true)
@@ -798,7 +826,7 @@ try{
 				{
 				TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
 //				System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
-//				found++;
+				found++;
 				break;
 				}
 			}
@@ -812,13 +840,15 @@ try{
 //		}
 
 		TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
-
+		if(found >1)
+		{
 //		    	System.out.println(TraceUnionCmd);
 		ProcessBuilder UnionTraceDiffReportFile = new  ProcessBuilder("/bin/tcsh","-c",TraceUnionCmd);
 		   UnionTraceDiffReportFile.redirectErrorStream(true); 
 		   Process pr=UnionTraceDiffReportFile.start();
 		   pr.waitFor();
 		pr.destroy();
+		
 
 
 
@@ -827,9 +857,37 @@ try{
 		   TraceGraph.redirectErrorStream(true);
 		   Process pr2 = TraceGraph.start();
 		   pr2.waitFor();
-
-
 		pr2.destroy();
+		}
+		else
+		{
+		String traceFileName="";
+		for (ResultTable resultTableRow : resultTable.getItems())
+		{
+			if (resultTableRow.getTrace() == true)
+			{
+			
+				for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
+				{
+			//Get the trace file index
+				String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
+				if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
+					{
+					traceFileName = TraceDiffReportFileNameLists.get(i);
+//					System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
+					break;
+					}
+				}
+			}
+		}
+		//Generate .dot graph file using traceontograph
+		   ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+		   TraceGraph.redirectErrorStream(true);
+		   Process pr2 = TraceGraph.start();
+		   pr2.waitFor();
+		pr2.destroy();
+		}
+
 
 		//Covert traceontograph to pdf format using Graphviz
 		   ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
