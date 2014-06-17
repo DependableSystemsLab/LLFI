@@ -33,7 +33,7 @@ options = {
   "sources": [],
   "I": [],
   "readable": False,
-  "debug": True,
+  "debug": False,
   "verbose": False,
 }
 
