@@ -50,7 +50,7 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
+  if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
     usage("You need to invoke %s at the parent directory of fault injection executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
@@ -68,7 +68,7 @@ def checkInputYaml():
   #Check for input.yaml's presence
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    f = open(os.path.join(yamldir, 'input.yaml'),'r')
+    f = open(os.path.join(basedir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)

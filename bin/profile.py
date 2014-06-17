@@ -48,7 +48,7 @@ def parseArgs(args):
   profiling_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
+  if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
     usage("You need to invoke %s at the parent directory of profiling executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
