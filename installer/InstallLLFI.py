@@ -95,18 +95,19 @@ def checkCmake():
 		which = subprocess.check_output(['which', 'cmake'])
 		print("Success: Cmake Found at: " + which.strip())
 		version = subprocess.check_output(['cmake', '--version'])
+		printVersion = version.split()[2]
 		properVersion = True
 		#version = "cmake version 2.7.12\n"
-		vers = [int(x) for x in version.split()[2].split('.')]	
+		vers = [int(x) for x in printVersion.split('.')]	
 		if vers[0] < 2:
 			properVersion = False
 		if vers[1] < 8:
 			properVersion = False
 		if properVersion:
-			print("Success: Cmake(" + version[:-1] + ") is at or above version 2.8")
+			print("Success: Cmake(" + printVersion + ") is at or above version 2.8")
 			return True
 		else:
-			print("Error: Cmake(" + version[:-1] + ") is below version 2.8")
+			print("Error: Cmake(" + printVersion + ") is below version 2.8")
 			return False		
 	except(subprocess.CalledProcessError):
 		print("Error: Cmake (cmake) not found on path")
@@ -163,14 +164,87 @@ def checkJavac():
 		return False
 
 def checkAnt():
-	pass
+	try:
+		which = subprocess.check_output(['which', 'ant'])
+		print("Success: Ant Found at: " + which.strip())
+		version = subprocess.check_output(['ant', '-version'], stderr=subprocess.STDOUT)
+		#print("v", version)
+		printVersion = version.split()[3]
+		#print("pv", printVersion)
+		version = printVersion.split('.')[:2]
+		#print("cv", version)
+		properVersion = True
+		if int(version[0]) < 1:
+			properVersion = False
+		if int(version[1]) < 7:
+			properVersion = False
+		if properVersion:
+			print("Success: Ant(" + printVersion + ") is at or above version 1.7")
+			return True
+		else:
+			print("Error: Ant(" + printVersion + ") is below version 1.7")
+			return False		
+	except(subprocess.CalledProcessError):
+		print("Error: Ant (ant) not found on path")
+		print("       Pease ensure Ant is installed and is available on the path")
+		return False
+
+def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion):
+	try:
+		which = subprocess.check_output(['which', execName])
+		print("Success: " + name +  " Found at: " + which.strip())
+		version = subprocess.check_output([execName, versionArg], stderr=subprocess.STDOUT)
+		#print("v", version)
+		printVersion = printParseFunc(version)
+		#print("pv", printVersion)
+		version = parseFunc(version)
+		#print("cv", version)
+		properVersion = True
+		if int(version[0]) < minVersion[0]:
+			properVersion = False
+		if int(version[1]) < minVersion[1]:
+			properVersion = False
+		if properVersion:
+			print("Success: " + name + "(" + printVersion + ") is at or above version " + ".".join([str(x) for x in minVersion]))
+			return True
+		else:
+			print("Error: " + name + "(" + printVersion + ") is below version " + ".".join([str(x) for x in minVersion]))
+			return False		
+	except(subprocess.CalledProcessError):
+		print("Error: " + name + " (" + execName + ") not found on path")
+		print("       Pease ensure " + name + " is installed and is available on the path")
+		return False
+
+def CmakePrintParse(version):
+	return version.split()[2]
+
+def CmakeParse(version):
+	return [int(x) for x in version.split()[2].split('.')]
+
+def JavaPrintParse(version):
+	return version.split()[2][1:-1]
+		
+def JavaParse(version):
+	return version.split()[2][1:-1].split('.')[:2]
+
+def JavaCPrintParse(version):
+	return version.split()[1]
+
+def JavaCParse(version):
+	return version.split()[1].split('.')[:2]
+
+def AntPrintParse(version):
+	return version.split()[3]
+
+def AntParse(version):
+	return [int(x) for x in version.split()[3].split('.')[:2]]
 
 def checkDependancies():
 	checkPython3()
-	checkCmake()
-	checkJava()
-	checkJavac()
-	checkAnt()
+	checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8])
+	checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7])
+	checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7])
+	checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7])
 
 def Touch(path):
     with open(path, 'a'):
