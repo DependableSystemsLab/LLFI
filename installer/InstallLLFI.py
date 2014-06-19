@@ -88,9 +88,11 @@ def checkPython3():
 	except(subprocess.CalledProcessError):
 		print("Error: Python 3 (python3) not found on path")
 		print("       Pease ensure python3 is installed and is available on the path")
+		print("       The latest version of Python3 can be downloaded from:")
+		print("       https://www.python.org/downloads/")
 		return False
 
-def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion):
+def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, msg):
 	try:
 		which = subprocess.check_output(['which', execName])
 		print("Success: " + name +  " Found at: " + which.strip())
@@ -110,10 +112,12 @@ def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion):
 			return True
 		else:
 			print("Error: " + name + "(" + printVersion + ") is below version " + ".".join([str(x) for x in minVersion]))
+			print(msg)
 			return False		
 	except(subprocess.CalledProcessError):
 		print("Error: " + name + " (" + execName + ") not found on path")
 		print("       Pease ensure " + name + " is installed and is available on the path")
+		print(msg)
 		return False
 
 def CmakePrintParse(version):
@@ -122,11 +126,17 @@ def CmakePrintParse(version):
 def CmakeParse(version):
 	return [int(x) for x in version.split()[2].split('.')]
 
+cmakeMsg = "\tCmake 2.8+ cant be downloaded from:\n\thttp://www.cmake.org/cmake/resources/software.html" 
+
 def JavaPrintParse(version):
 	return version.split()[2][1:-1]
 		
 def JavaParse(version):
 	return version.split()[2][1:-1].split('.')[:2]
+
+javaMsg = ("\tThe latest version of the Oracle Java Development Kit (JDK) can be downloaded from\n"
+		  "\thttp://www.oracle.com/technetwork/java/javase/downloads/index.html\n"
+		  "\tPlease ensure you install the JDK, not only the Java Runtime Environment (JRE)")
 
 def JavaCPrintParse(version):
 	return version.split()[1]
@@ -134,18 +144,26 @@ def JavaCPrintParse(version):
 def JavaCParse(version):
 	return version.split()[1].split('.')[:2]
 
+javacMsg = javaMsg
+
 def AntPrintParse(version):
 	return version.split()[3]
 
 def AntParse(version):
 	return [int(x) for x in version.split()[3].split('.')[:2]]
 
+antMsg = ("\tThe latest versino of Apache Ant can be downloaded from\n"
+		  "\thttp://ant.apache.org/bindownload.cgi")
+
 def checkDependancies():
-	checkPython3()
-	checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8])
-	checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7])
-	checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7])
-	checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7])
+	hasAll = True
+	hasAll = checkPython3() and hasAll
+	hasAll = checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8], cmakeMsg) and hasAll
+	hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
+	hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
+	hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
+	return hasAll
+
 
 def Touch(path):
     with open(path, 'a'):
@@ -414,6 +432,7 @@ parser = argparse.ArgumentParser(
 		epilog="More information available at www.github.com/DependableSystemsLab/LLFI",
 		usage='%(prog)s [options]')
 parser.add_argument("-v", "--version",  action='version', version="LLFI Installer v0.1, May 17th 2014")
+parser.add_argument("-sDC", "--skipDependancyCheck", action='store_true', help="Skip Dependancy Checking")
 parser.add_argument("-cD", "--cleanDownloads", action='store_true', help="Clean (rm) already downloaded files before installing")
 parser.add_argument("-cS", "--cleanSources", action='store_true', help="Clean (rm) already extracted files before installing")
 parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not download any files")
@@ -433,6 +452,14 @@ if __name__ == "__main__":
 	if args.testFeature:
 		testFeature()
 		sys.exit(0)
+	if not args.skipDependancyCheck:
+		print("Checking LLFI Pre-Requisites and Dependancies")
+		deps = checkDependancies()
+		if not deps:
+			print("Some LLFI Pre-Requisites are missing!")
+			print("Please see Errors above, and install the missing dependancies")
+			print("Exiting Installer...")
+			sys.exit(-1)
 	if args.cleanDownloads:
 		print("Cleaning downloads...")
 		subprocess.call(["rm", "-rf", DOWNLOADSDIRECTORY])
