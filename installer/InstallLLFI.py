@@ -81,10 +81,96 @@ DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
 def checkPython3():
-	
+	try:
+		which = subprocess.check_output(['which', 'python3'])
+		print("Success: Python 3 Found at: " + which.strip())
+		return True
+	except(subprocess.CalledProcessError):
+		print("Error: Python 3 (python3) not found on path")
+		print("       Pease ensure python3 is installed and is available on the path")
+		return False
+
+def checkCmake():
+	try:
+		which = subprocess.check_output(['which', 'cmake'])
+		print("Success: Cmake Found at: " + which.strip())
+		version = subprocess.check_output(['cmake', '--version'])
+		properVersion = True
+		#version = "cmake version 2.7.12\n"
+		vers = [int(x) for x in version.split()[2].split('.')]	
+		if vers[0] < 2:
+			properVersion = False
+		if vers[1] < 8:
+			properVersion = False
+		if properVersion:
+			print("Success: Cmake(" + version[:-1] + ") is at or above version 2.8")
+			return True
+		else:
+			print("Error: Cmake(" + version[:-1] + ") is below version 2.8")
+			return False		
+	except(subprocess.CalledProcessError):
+		print("Error: Cmake (cmake) not found on path")
+		print("       Pease ensure Cmake is installed and is available on the path")
+		return False
+
+def checkJava():
+	try:
+		which = subprocess.check_output(['which', 'java'])
+		print("Success: Java Found at: " + which.strip())
+		version = subprocess.check_output(['java', '-version'], stderr=subprocess.STDOUT)
+		printVersion = version.split()[2][1:-1]
+		version = printVersion.split('.')[:2]
+		properVersion = True
+		if int(version[0]) < 1:
+			properVersion = False
+		if int(version[1]) < 7:
+			properVersion = False
+		if properVersion:
+			print("Success: Java(" + printVersion + ") is at or above version 1.7")
+			return True
+		else:
+			print("Error: Java(" + printVersion + ") is below version 1.7")
+			return False		
+	except(subprocess.CalledProcessError):
+		print("Error: Java (java) not found on path")
+		print("       Pease ensure Java is installed and is available on the path")
+		return False
+
+def checkJavac():
+	try:
+		which = subprocess.check_output(['which', 'javac'])
+		print("Success: Javac Found at: " + which.strip())
+		version = subprocess.check_output(['javac', '-version'], stderr=subprocess.STDOUT)
+		#print("v", version)
+		printVersion = version.split()[1]
+		#print("pv", printVersion)
+		version = printVersion.split('.')[:2]
+		#print("cv", version)
+		properVersion = True
+		if int(version[0]) < 1:
+			properVersion = False
+		if int(version[1]) < 7:
+			properVersion = False
+		if properVersion:
+			print("Success: Javac(" + printVersion + ") is at or above version 1.7")
+			return True
+		else:
+			print("Error: Javac(" + printVersion + ") is below version 1.7")
+			return False		
+	except(subprocess.CalledProcessError):
+		print("Error: Javac (javac) not found on path")
+		print("       Pease ensure Javac is installed and is available on the path")
+		return False
+
+def checkAnt():
+	pass
 
 def checkDependancies():
-	pass
+	checkPython3()
+	checkCmake()
+	checkJava()
+	checkJavac()
+	checkAnt()
 
 def Touch(path):
     with open(path, 'a'):
