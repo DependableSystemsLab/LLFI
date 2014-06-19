@@ -358,7 +358,7 @@ def main(args):
         errorfile = errordir + "/errorfile-" + "run-"+run_id
         execlist = [fi_exe]
         
-        if('fi_cycle' not in locals() and 'fi_random_seed' in locals()):
+        if('fi_random_seed' in locals()):
           random.seed(fi_random_seed)
 
         if need_to_calc_fi_cycle:

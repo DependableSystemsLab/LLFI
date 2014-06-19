@@ -12,6 +12,7 @@ List of options:
 -I <include directory>: Include directory for header files
 --readable:             Generate human-readable output file
 --verbose:              Show verbose information
+--debug:		Enable debugging symbols
 --help(-h):             Show help information
 """
 
@@ -32,6 +33,7 @@ options = {
   "sources": [],
   "I": [],
   "readable": False,
+  "debug": False,
   "verbose": False,
 }
 
@@ -67,6 +69,8 @@ def parseArgs(args):
         options["readable"] = True
       elif arg == "--verbose":
         options["verbose"] = True
+      elif arg == "--debug":
+        options["debug"] = True
       elif arg == "--help" or arg == "-h":
         usage()
       else:
@@ -102,6 +106,10 @@ def compileToIR(outputfile, inputfile):
     execlist.append('-S')
   else:
     execlist.append('-c')
+
+  if options['debug']:
+    execlist.append('-g')
+  
   return execute(execlist)
 
 
