@@ -80,6 +80,12 @@ DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLIC
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
+def checkPython3():
+	
+
+def checkDependancies():
+	pass
+
 def Touch(path):
     with open(path, 'a'):
         os.utime(path, None)
@@ -359,6 +365,7 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print("Testing Experimental Installer Feature")
+	checkDependancies()
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
