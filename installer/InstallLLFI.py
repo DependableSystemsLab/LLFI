@@ -69,7 +69,7 @@ CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz",
 #Primary Repository LLFI
 LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip', 
 					  'FILENAME':"master.zip", 
-					  'MD5':"1fa15656e897e2bb2f8476b34fef7c86",
+					  'MD5':"3e0f600a3a6c8ebc1c7841da23864531",
 					  'EXTRACTPATH':"llfisrc", 					
 					  'EXTRACTEDNAME':'LLFI-master',           	
 					  'ARCHIVETYPE':'.zip',
@@ -155,7 +155,7 @@ def AntParse(version):
 antMsg = ("\tThe latest versino of Apache Ant can be downloaded from\n"
 		  "\thttp://ant.apache.org/bindownload.cgi")
 
-def checkDependancies():
+def checkDependencies():
 	hasAll = True
 	hasAll = checkPython3() and hasAll
 	hasAll = checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8], cmakeMsg) and hasAll
@@ -432,7 +432,7 @@ parser = argparse.ArgumentParser(
 		epilog="More information available at www.github.com/DependableSystemsLab/LLFI",
 		usage='%(prog)s [options]')
 parser.add_argument("-v", "--version",  action='version', version="LLFI Installer v0.1, May 17th 2014")
-parser.add_argument("-sDC", "--skipDependancyCheck", action='store_true', help="Skip Dependancy Checking")
+parser.add_argument("-sDC", "--skipDependencyCheck", action='store_true', help="Skip Dependency Checking")
 parser.add_argument("-cD", "--cleanDownloads", action='store_true', help="Clean (rm) already downloaded files before installing")
 parser.add_argument("-cS", "--cleanSources", action='store_true', help="Clean (rm) already extracted files before installing")
 parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not download any files")
@@ -445,19 +445,19 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
 	print("Testing Experimental Installer Feature")
-	checkDependancies()
+	checkDependencies()
 
 if __name__ == "__main__":
 	args = parser.parse_args(sys.argv[1:])
 	if args.testFeature:
 		testFeature()
 		sys.exit(0)
-	if not args.skipDependancyCheck:
-		print("Checking LLFI Pre-Requisites and Dependancies")
-		deps = checkDependancies()
+	if not args.skipDependencyCheck:
+		print("Checking LLFI Pre-Requisites and Dependencies")
+		deps = checkDependencies()
 		if not deps:
 			print("Some LLFI Pre-Requisites are missing!")
-			print("Please see Errors above, and install the missing dependancies")
+			print("Please see Errors above, and install the missing dependencies")
 			print("Exiting Installer...")
 			sys.exit(-1)
 	if args.cleanDownloads:
