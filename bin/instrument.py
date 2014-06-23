@@ -191,6 +191,9 @@ def readCompileOption():
       else:
         compileOptions.append('-custominstselector')
         compileOptions.append('-fiinstselectorname='+method[methodName])
+        if "customInstSelectorOption" in cOpt:
+          for opt in cOpt["customInstSelectorOption"]:
+            compileOptions.append(opt)
         continue # custom selectors don't have attributes
       
       # Ensure that 'include' is specified at least
