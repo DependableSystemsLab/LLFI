@@ -121,13 +121,13 @@ public class ResultTable {
 	return trace;
 	}
 
-//	public Boolean getTrace() {
-//		return trace.get();
-//	}
+	public Boolean getTrace() {
+		return trace.get();
+	}
 
-//	public void setTrace(Boolean e) {
-//		this.trace.set(e);
-//	}
+	public void setTrace(Boolean e) {
+		this.trace.set(e);
+	}
 
 	
 
