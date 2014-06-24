@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 /**
- * This instruction selector only selects the API call functions as target
+ * This instruction selector only selects the memory deallocation call functions as target
  */
 using namespace llvm;
 namespace llfi {
@@ -28,7 +28,7 @@ private:
                           outf.close();
                       
                           std::ofstream outf2("gui-config.txt");
-                          outf2 << "Resource MemoryLeak free BitFlip" << "\n";
+                          outf2 << "Resource MemoryLeak free FakeDe-allocator" << "\n";
                           outf2.close();   
              
                           std::ifstream inf("Automation-config");

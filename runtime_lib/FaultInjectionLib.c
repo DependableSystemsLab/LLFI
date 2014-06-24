@@ -195,7 +195,7 @@ void injectFunc(long llfi_index, unsigned size,
 
 FILE* fp;
  const  char failure_class[20], failure_mode[20], function_name[20],  fault_injector[20];
-  fp=fopen("../LLFI-GUI/gui-config.txt", "r");
+  fp=fopen("gui-config.txt", "r");
      
 fscanf(fp, "%s", failure_class) ;
 fscanf(fp, "%s", failure_mode) ;

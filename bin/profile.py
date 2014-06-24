@@ -48,8 +48,15 @@ def parseArgs(args):
   profiling_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
-    usage("You need to invoke %s at the parent directory of profiling executable" %prog)
+  if "-e" in optionlist or "--CLI" in optionlist:
+    print "found -e or --CLI"
+    if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
+      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
+     # print "program should launch in CLI"
+  else: 
+    if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
+      print "program should launch in GUI"	
+      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
