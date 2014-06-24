@@ -55,10 +55,15 @@ import javafx.scene.control.TableCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import application.InstrumentController;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;  
+import javafx.event.EventHandler;
 public class Controller implements Initializable {
 
 @FXML
@@ -427,8 +432,8 @@ public void onGeneratingResultTable(){
 		      	
 		      }
 		  bReader.close();*/
-
 		//Generate  trace_report_output folder to hold TraceDiffReport files
+
 		ProcessBuilder deleteTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","rm -rf "+Controller.currentProgramFolder+"/llfi/trace_report_output");
 		Process deleteFolder = deleteTraceReportFolder.start();
 		deleteFolder.waitFor();
@@ -732,7 +737,7 @@ public void onGeneratingResultTable(){
 
 		
 		tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
-	    tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
+		tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
 	    tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
 	    tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("cycle"));
 	    //tFiRegIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("regIndex"));
@@ -740,14 +745,8 @@ public void onGeneratingResultTable(){
 	    tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
 	    tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
 	    tFiResult.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("result"));
-//	    tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, Boolean>("trace"));
 
-
-
-
-tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("trace"));
-
-//tFiTrace.setCellFactory(CheckBoxTableCell.forTableColumn(tFiTrace));
+		tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("trace"));
     tFiTrace.setCellFactory(new Callback<TableColumn<ResultTable, Boolean>, TableCell<ResultTable, Boolean>>() {
 
         public TableCell<ResultTable, Boolean> call(TableColumn<ResultTable, Boolean> p) {
@@ -761,7 +760,18 @@ tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("tr
 	    resultTable.setItems(data1);
     resultTable.setEditable(true);
 	    tracegraphButton.setDisable(false);
-	 
+
+
+        // Header CheckBox for select all
+	HBox box = new HBox();
+	Label text = new Label("Trace");
+        CheckBox cb = new CheckBox();  
+        cb.setUserData(this.tFiTrace); 
+	cb.setText("Select All"); 
+	cb.setOnAction(handleSelectAllCheckbox());  
+	box.getChildren().addAll(text, cb);
+	box.setSpacing(5);
+	this.tFiTrace.setGraphic(box);
 	}
 	catch(IOException e)
 	{
@@ -775,10 +785,34 @@ tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("tr
 	
 	
 }
-
+private EventHandler<ActionEvent> handleSelectAllCheckbox() {  
+        return new EventHandler<ActionEvent>() {  
+            @Override  
+            public void handle(ActionEvent event) {  
+		CheckBox cb = (CheckBox) event.getSource();  
+                TableColumn column = (TableColumn) cb.getUserData();  
+		if(cb.isSelected())
+		{
+			for (ResultTable resultTableRow : resultTable.getItems())
+			{
+			resultTableRow.setTrace(true);
+			}
+		}
+		else
+		{
+			for (ResultTable resultTableRow : resultTable.getItems())
+			{
+			resultTableRow.setTrace(false);
+			}
+		}
+            }  
+        };  
+}
 @FXML
-private void onClickGenerateTraceGraph(){
+private void onClickGenerateTraceGraph(ActionEvent event){
+	Parent root;
 try{
+
 
 	// Generate Trace Union file
 	final File TraceDiffReportFolder = new File(currentProgramFolder+"/llfi/trace_report_output");
@@ -859,7 +893,7 @@ try{
 		   pr2.waitFor();
 		pr2.destroy();
 		}
-		else
+		else if ( found ==1)
 		{
 		String traceFileName="";
 		for (ResultTable resultTableRow : resultTable.getItems())
@@ -869,7 +903,7 @@ try{
 			
 				for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
 				{
-			//Get the trace file index
+				//Get the trace file index
 				String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
 				if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
 					{
@@ -886,6 +920,17 @@ try{
 		   Process pr2 = TraceGraph.start();
 		   pr2.waitFor();
 		pr2.destroy();
+		}
+		else
+		{
+		// When cannot find trace files, inform users about the error.
+		root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TracingErrorDisplay.fxml"));
+        	  Stage stage = new Stage();                               
+
+        	  stage.setTitle("Error");
+        	  stage.setScene(new Scene(root, 500, 118));
+        	  stage.show();
+		return;
 		}
 
 
