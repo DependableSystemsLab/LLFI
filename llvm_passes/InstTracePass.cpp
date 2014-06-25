@@ -70,17 +70,17 @@ struct InstTrace : public FunctionPass {
     Constant *postracingfunc = M.getOrInsertFunction("postTracing",
                                              postinjectfunctype);
 
-    std::set<Instruction*> exitinsts;
-    getProgramExitInsts(M, exitinsts);
-    assert (exitinsts.size() != 0 
-            && "Program does not have explicit exit point");
 
-    for (std::set<Instruction*>::iterator it = exitinsts.begin();
-         it != exitinsts.end(); ++it) {
-      Instruction *term = *it;
-      CallInst::Create(postracingfunc, "", term);
-    }
-
+ std::set<Instruction*> exitinsts;
+     getProgramExitInsts(M, exitinsts);
+     assert (exitinsts.size() != 0 
+             && "Program does not have explicit exit point");
+ 
+     for (std::set<Instruction*>::iterator it = exitinsts.begin();
+          it != exitinsts.end(); ++it) {
+       Instruction *term = *it;
+       CallInst::Create(postracingfunc, "", term);
+     }
     return true;
   }
 
@@ -126,42 +126,59 @@ struct InstTrace : public FunctionPass {
         //can be like 1 bit if it only needs 1 bit out of an 8bit/1byte data type
         float bitSize;
         AllocaInst* ptrInst;
-        if (inst->getType() != Type::getVoidTy(context)) {
-          //insert an instruction Allocate stack memory to store/pass instruction value
-          ptrInst = new AllocaInst(inst->getType(), "llfi_trace", insertPoint);
-          //Insert an instruction to Store the instruction Value!
-          new StoreInst(inst, ptrInst, insertPoint);
+        int flag = 0; // 0: int 1: floating point 2: void
+        ConstantInt* intConst = NULL;
+        ConstantFP* fpConst = NULL;
+        CastInst* castinst = NULL;
 
+        if (inst->getType() != Type::getVoidTy(context)) {
+
+          if ((inst->getType())->isFloatingPointTy()){
+              flag = 1;
+              castinst = CastInst::CreateFPCast(inst,Type::getDoubleTy(context),"castfloat",insertPoint);
+              intConst = ConstantInt::get(IntegerType::get(context, 64), 0);
+          }
+          else if ((inst->getType())->isIntegerTy()){
+              flag = 0;
+              castinst = CastInst::CreateSExtOrBitCast(inst,Type::getInt64Ty(context),"castint",insertPoint);
+              fpConst = ConstantFP::get(context, APFloat(0.0));
+          }
+          else if ((inst->getType())->isPointerTy()){
+              flag = 0;
+              castinst = CastInst::CreatePointerCast(inst,Type::getInt64Ty(context),"castpointer",insertPoint);
+              fpConst = ConstantFP::get(context, APFloat(0.0));
+          }
+          else{
+               fpConst = ConstantFP::get(context, APFloat(double(0.0)));
+               intConst = ConstantInt::get(IntegerType::get(context, 64), 0);
+               flag = 2;
+          }
           DataLayout &td = getAnalysis<DataLayout>();
           bitSize = (float)td.getTypeSizeInBits(inst->getType());
         }
         else {
-          ptrInst = new AllocaInst(Type::getInt32Ty(context), "llfi_trace", insertPoint);
-          new StoreInst(ConstantInt::get(IntegerType::get(context, 32), 0), 
-                        ptrInst, insertPoint);
           bitSize = 32;
+          flag = 2;
+          fpConst = ConstantFP::get(context, APFloat(double(0.0)));
+          intConst = ConstantInt::get(IntegerType::get(context, 64), 0);
         }
         int byteSize = (int)ceil(bitSize / 8.0);
 
-        //Insert instructions to allocate stack memory for opcode name
 
-        const char* opcodeNamePt = inst->getOpcodeName();
-	 const std::string str(inst->getOpcodeName());
-        ArrayRef<uint8_t> opcode_name_array_ref((uint8_t*)opcodeNamePt, str.size() + 1); //+1 to capture null terminating byte
-        llvm::Value* OPCodeName = llvm::ConstantDataArray::get(context, opcode_name_array_ref);
-        /********************************/
 
-        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(),
-                                               "llfi_trace", insertPoint);
-        new StoreInst(OPCodeName, OPCodePtr, insertPoint);
+
+        int opcodeIndex = inst->getOpcode();
 
         //Create the decleration of the printInstTracer Function
-        std::vector<Type*> parameterVector(5);
+        std::vector<Type*> parameterVector(7);
         parameterVector[0] = Type::getInt32Ty(context); //ID
-        parameterVector[1] = OPCodePtr->getType();     //Ptr to OpCode
+        parameterVector[1] = Type::getInt32Ty(context);     //OpCode ID
         parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value
-        parameterVector[3] = ptrInst->getType();    //Ptr to Inst Value
+        parameterVector[3] = Type::getDoubleTy(context); //Floating point value
         parameterVector[4] = Type::getInt32Ty(context); //Int of max traces
+        parameterVector[5] = Type::getInt64Ty(context); //Int value
+        parameterVector[6] = Type::getInt32Ty(context); //Flag
+   
         
         // LLVM 3.3 Upgrade
         ArrayRef<Type*> parameterVector_array_ref(parameterVector);
@@ -182,14 +199,42 @@ struct InstTrace : public FunctionPass {
         //Fetch maxtrace number:
         ConstantInt* maxTraceConstInt =
             ConstantInt::get(IntegerType::get(context, 32), maxtrace);
+        
+        ConstantInt* opcodeConstInt =
+            ConstantInt::get(IntegerType::get(context, 32), opcodeIndex);
+        ConstantInt* flagConstInt =
+            ConstantInt::get(IntegerType::get(context, 32), flag);
+          
 
         //Load All Arguments
-        traceArgs.push_back(IDConstInt);
-        traceArgs.push_back(OPCodePtr);
-        traceArgs.push_back(instValSize);
-        traceArgs.push_back(ptrInst);
-        traceArgs.push_back(maxTraceConstInt);
+        if (flag == 0){
+            traceArgs.push_back(IDConstInt);
+            traceArgs.push_back(opcodeConstInt);
+            traceArgs.push_back(instValSize);
+            traceArgs.push_back(fpConst);
+            traceArgs.push_back(maxTraceConstInt);
+            traceArgs.push_back(castinst);
+            traceArgs.push_back(flagConstInt);
 
+        }
+        else if (flag == 1){
+            traceArgs.push_back(IDConstInt);
+            traceArgs.push_back(opcodeConstInt);
+            traceArgs.push_back(instValSize);
+            traceArgs.push_back(castinst);
+            traceArgs.push_back(maxTraceConstInt);
+            traceArgs.push_back(intConst);
+            traceArgs.push_back(flagConstInt);
+        }
+        else {
+            traceArgs.push_back(IDConstInt);
+            traceArgs.push_back(opcodeConstInt);
+            traceArgs.push_back(instValSize);
+            traceArgs.push_back(fpConst);
+            traceArgs.push_back(maxTraceConstInt);
+            traceArgs.push_back(intConst);
+            traceArgs.push_back(flagConstInt);
+        }
         // LLVM 3.3 Upgrade
         ArrayRef<Value*> traceArgs_array_ref(traceArgs);
 
@@ -209,4 +254,3 @@ static RegisterPass<InstTrace> X("insttracepass",
     false, false);
 
 }//namespace llfi
-
