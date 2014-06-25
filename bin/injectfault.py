@@ -26,7 +26,7 @@ import shutil
 
 runOverride = False
 optionlist = []
-timeout = 50
+timeout = 500
 
 basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
@@ -50,16 +50,9 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[0])
   optionlist = args[1:]
 
-  if "-e" in optionlist or "--CLI" in optionlist:
-    print "found -e or --CLI"
-    if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
-      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-     # print "program should launch in CLI"
-  else: 
-    if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
-      print "program should launch in GUI"	
-      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
-    
+  if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
+    usage("You need to invoke %s at the parent directory of fault injection executable" %prog)
+
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -73,13 +66,9 @@ def parseArgs(args):
 def checkInputYaml():
   global timeout, doc
   #Check for input.yaml's presence
-  
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    if "-e" in optionlist or "--CLI" in optionlist:
-      f = open(os.path.join(basedir, 'input.yaml'),'r')
-    else: 
-      f = open(os.path.join(yamldir, 'input.yaml'),'r') 
+    f = open(os.path.join(basedir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
