@@ -87,9 +87,9 @@ class AutoInjection: public FaultInjector {
 
        {
       
- int diff=4080;
+ int diff=40;
          int* newbuf= (int*)buf;
-          *newbuf=*newbuf+diff;
+          *newbuf=*newbuf-diff;
             buf= (char*)newbuf;
         // std::cout<<"IncValue injected"<<"\n" ;
         // std::cout<<"New value is:"<< *newbuf<<"\n" ;

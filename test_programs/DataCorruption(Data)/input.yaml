@@ -1,7 +1,3 @@
-kernelOption:
-    - forceRun
-
-timeOut: 1000
 
 compileOption:
     instSelMethod: custominstselector
@@ -12,14 +8,8 @@ compileOption:
 
     includeInjectionTrace:
         - backward
-
-   tracingPropagation: True # trace dynamic instruction values.
-
-    tracingPropagationOption:
-        maxTrace: 250 # max number of instructions to trace during fault injection run
-        debugTrace: True/False
-        generateCDFG: True
-
+    
+    
 runOption:
     - run:
         numOfRuns: 5
