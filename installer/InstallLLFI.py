@@ -69,7 +69,7 @@ CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz",
 #Primary Repository LLFI
 LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip', 
 					  'FILENAME':"master.zip", 
-					  'MD5':"3e0f600a3a6c8ebc1c7841da23864531",
+					  'MD5':"04fcd2c0dc23b97f72eaf6b76e021821",
 					  'EXTRACTPATH':"llfisrc", 					
 					  'EXTRACTEDNAME':'LLFI-master',           	
 					  'ARCHIVETYPE':'.zip',
@@ -155,6 +155,17 @@ def AntParse(version):
 antMsg = ("\tThe latest versino of Apache Ant can be downloaded from\n"
 		  "\thttp://ant.apache.org/bindownload.cgi")
 
+#tcsh 6.18.01 (Astron) 2012-02-14 (x86_64-unknown-linux) options wide,nls,dl,al,kan,rh,nd,color,filec
+
+def tcshPrintParse(version):
+	return version.split()[1]
+
+def tcshParse(version):
+	return version.split()[1].split(".")[:2]
+
+tcshMsg = ("\ttcsh can be downloaded from: http://www.tcsh.org/MostRecentRelease\n"
+		   "\tor from your system package manager.")
+
 def checkDependencies():
 	hasAll = True
 	hasAll = checkPython3() and hasAll
@@ -162,6 +173,7 @@ def checkDependencies():
 	hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
 	hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
 	hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
+	hasAll = checkDep("tcsh", "tcsh", "--version", tcshPrintParse, tcshParse,[6,0], tcshMsg) and hasAll
 	return hasAll
 
 
