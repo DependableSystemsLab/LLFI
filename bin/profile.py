@@ -41,16 +41,27 @@ def usage(msg = None):
 
 
 def parseArgs(args):
-  global optionlist, profiling_exe
+  global optionlist, profiling_exe, env
   if args[0] == "--help" or args[0] == "-h":
     usage()
   
-  profiling_exe = os.path.realpath(args[0])
-  optionlist = args[1:]
+  profiling_exe = os.path.realpath(args[1])
+  env= args[0]
+  optionlist = args[2:]
 
-  if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
-    usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-
+ # print args
+ # print env
+  if env=="-e" or env== "--CLI":
+    
+    if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
+      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
+     # "program should launch in CLI"
+  elif env=="-u" or env== "--GUI": 
+    if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
+     # "program should launch in GUI"	
+      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
+  else: 
+      usage("You need to enable optiones for GUI/CLI")
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -175,7 +186,7 @@ def main(args):
   outputfile = os.path.join(baselinedir, "golden_std_output")
   execlist = [profiling_exe]
   execlist.extend(optionlist)
-  
+ 
   return execute(execlist)
 
 

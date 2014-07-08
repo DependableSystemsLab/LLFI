@@ -209,7 +209,7 @@ private void onClickProfiling(ActionEvent event){
 		errorString = new ArrayList<>();
 		//System.out.println("inputString;"+inputString);
 		
-			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
+			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile --GUI "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
 		
 			console.add("$ "+llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString+"\n");
 	    
@@ -308,7 +308,7 @@ private void onClickProfiling(ActionEvent event){
 public void executefaultInjection()
 {
 	try{
-	ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
+	ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault --GUI "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
     
     p.redirectErrorStream(true);
     Process pr = p.start();
