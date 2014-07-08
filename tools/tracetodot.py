@@ -7,12 +7,53 @@
 #  Requires: Please run this scripts in the folder that contains the llfi trace files e.g. the llfi_stat_output folder by default
 #  Output: Generate trace different report files and its .dot files to the folder trace_report_output
 
+
+
+"""
+
+%(prog)s needs to be called in the folder that contains the llfi trace files (e.g. /llfi_stat_output)
+
+The trace different report files and .dot files will be generated to the folder trace_report_output in parallel with the folder llfi_stat_output
+
+Usage: %(prog)s [OPTIONS]
+
+List of options:
+
+--help(-h):             Show help information
+
+"""
+
+
 import sys, os
 import subprocess
 import shlex
 from tracetools import *
 
 prog = os.path.basename(sys.argv[0])
+
+
+
+def parseArgs(args):
+  argid = 0
+  while argid < len(args):
+    arg = args[argid]
+    if arg.startswith("-"):
+      if arg == "--help" or arg == "-h":
+        usage()
+      else:
+        usage("Invalid argument: " + arg)
+    argid += 1
+
+
+def usage(msg = None):
+  retval = 0
+  if msg is not None:
+    retval = 1
+    msg = "ERROR: " + msg
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
+  sys.exit(retval)
+
 
 def findPath():
 	global currentpath, scriptdir
@@ -27,7 +68,6 @@ def makeTraceOutputFolder():
 	goldenTraceFilePath = os.path.join(currentpath, "../baseline/llfi.stat.trace.prof.txt")
 	if not os.path.exists(traceOutputFolder):
 		os.makedirs(traceOutputFolder)
-		print ("traceOutputFolder not exists")
 	else:
 		# Remove the contents in traceOutputFolder
 		for f in os.listdir(traceOutputFolder):
@@ -35,7 +75,7 @@ def makeTraceOutputFolder():
 			if os.path.isfile(file_path):
 				os.unlink(file_path)
 	if not os.path.isfile(goldenTraceFilePath):
-		print ("Cannot file golden Trace File 'llfi.stat.trace.prof.txt'")
+		print ("Cannot find golden Trace File 'llfi.stat.trace.prof.txt'")
 
 
 
@@ -68,6 +108,7 @@ def generateDotFile():
 
 def main(args):
 	global currentpath, scriptdir, traceOutputFolder, goldenTraceFilePath
+	parseArgs(args)
 	findPath()
 	makeTraceOutputFolder()
 	executeTraceDiff()
