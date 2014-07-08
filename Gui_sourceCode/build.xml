@@ -1,15 +1,14 @@
-<!-- After updating this file, build the GUI with the following commands:
-    "ant -f <path_to_build.xml>"
-    "ant -f <path_to_build.xml> jar"
--->
-
-
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- WARNING: Eclipse auto-generated file.
               Any modifications will be overwritten.
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="LLFI">
+              as the first entry and export the buildfile again. -->
+    <!-- After updating this file, build the GUI with the following commands:
+    "ant -f <path_to_build.xml>"
+    "ant -f <path_to_build.xml> jar"
+    -->
+    <project basedir="." default="build" name="LLFI">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../Softwares/eclipse.2"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -66,7 +65,7 @@
     </target>
     <target name="jar">
         <!-- #### CHANGE THIS To Where you want the jar file to be built! -->
-        <jar destfile="${env.llfibuild}/LLFI-GUI/llfi_gui.jar">
+        <jar destfile="llfi_gui.jar">
             <manifest>
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="application.Main"/>
