@@ -85,6 +85,7 @@ def executeTraceDiff():
 	for file in os.listdir(currentpath):
 		if file.endswith(".txt") and file.startswith("llfi.stat.trace."):
 			cmd = scriptdir+"/tracediff "+goldenTraceFilePath+" "+file+" > "+traceOutputFolder+"/TraceDiffReportFile"+file[file.find("llfi.stat.trace")+len("llfi.stat.trace"):]
+			#p =subprocess.call(cmd,shell=True,stderr=log_file)
 			p =subprocess.call(cmd,shell=True,stderr=log_file)
 			traceFileCount += 1
 	#Check if trace files present, if not show error messages
