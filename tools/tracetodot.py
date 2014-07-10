@@ -95,6 +95,8 @@ def generateDotFile():
 	log_file =open('stderr_log.txt','a')
 	goldenTraceDotFile = os.path.abspath(os.path.join(currentpath, "../../../llfi.stat.graph.dot"))
 	if not os.path.isfile(goldenTraceDotFile):
+		goldenTraceDotFile = os.path.abspath(os.path.join(currentpath, "../../llfi.stat.graph.dot"))
+		if not os.path.isfile(goldenTraceDotFile):
 		print ("Cannot find golden Trace Dot File 'llfi.stat.graph.dot'")
 
 	for file in os.listdir(traceOutputFolder):
