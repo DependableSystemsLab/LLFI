@@ -97,7 +97,7 @@ def generateDotFile():
 	if not os.path.isfile(goldenTraceDotFile):
 		goldenTraceDotFile = os.path.abspath(os.path.join(currentpath, "../../llfi.stat.graph.dot"))
 		if not os.path.isfile(goldenTraceDotFile):
-		print ("Cannot find golden Trace Dot File 'llfi.stat.graph.dot'")
+			print ("Cannot find golden Trace Dot File 'llfi.stat.graph.dot'")
 
 	for file in os.listdir(traceOutputFolder):
 		if file.startswith("TraceDiffReportFile"):
