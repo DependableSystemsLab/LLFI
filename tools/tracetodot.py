@@ -82,7 +82,8 @@ def makeTraceOutputFolder():
 
 def executeTraceDiff():
 	traceFileCount = 0
-	log_file =open('stderr_log.txt','w')
+	log_path =os.path.abspath(os.path.join(traceOutputFolder, "stderr_log.txt"))
+	log_file =open(log_path ,'w')
 	#Parse the goldenTraceFile path
 	tempgoldenTraceFilePath = goldenTraceFilePath
 	while "(" in tempgoldenTraceFilePath and not "\(" in tempgoldenTraceFilePath:
@@ -112,7 +113,8 @@ def executeTraceDiff():
 		print ("Please make sure you are running this script in the llfi_stat_output folder")
 
 def generateDotFile():
-	log_file =open('stderr_log.txt','a')
+	log_path =os.path.abspath(os.path.join(traceOutputFolder, "stderr_log.txt"))
+	log_file =open(log_path ,'a')
 	goldenTraceDotFile = os.path.abspath(os.path.join(currentpath, "../../../llfi.stat.graph.dot"))
 	if not os.path.isfile(goldenTraceDotFile):
 		goldenTraceDotFile = os.path.abspath(os.path.join(currentpath, "../../llfi.stat.graph.dot"))
