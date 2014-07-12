@@ -355,7 +355,7 @@ class diffLine:
     self.OPCode = str(elements[3])
     self.Value = 0
     if (len(elements) > 5):
-    	self.Value = int(elements[5])
+    	self.Value = elements[5]
 
   def _print(self):
     print("ID:",self.ID, "OPCode", self.OPCode, "Value:", self.Value)
