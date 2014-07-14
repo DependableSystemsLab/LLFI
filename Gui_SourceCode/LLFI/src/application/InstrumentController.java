@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -43,7 +44,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import application.Controller;
 public class InstrumentController implements Initializable {
-	
+
 	@FXML
 	private ListView instExcludeListView;
 	@FXML
@@ -119,8 +120,8 @@ public class InstrumentController implements Initializable {
 	private boolean errorFlag;
 	public String folderName;
 	public String fileName;
-	 File theDirectory;
-//	Controller controller = new Controller();
+	File theDirectory;
+	//	Controller controller = new Controller();
 	//Model model = new Model();
 	@FXML
 	private void onClickGenerateYamlFile(ActionEvent event) {
@@ -131,250 +132,273 @@ public class InstrumentController implements Initializable {
 			theDirectory = new File(folderName+"/llfi");
 			String cmd1 = "rm -rf "+Controller.currentProgramFolder+"/llfi";
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c",cmd1);
-		    
-		    p1.redirectErrorStream(true);
-		    Process pr1 = p1.start();
+
+			p1.redirectErrorStream(true);
+			Process pr1 = p1.start();
 			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-		    String line1;
-		    Controller.errorString = new ArrayList<>();
-		    while ((line1 = in2.readLine()) != null) {
-		    	/*if(line1.contains("Sucess"))
+			String line1;
+			Controller.errorString = new ArrayList<>();
+			while ((line1 = in2.readLine()) != null) {
+				/*if(line1.contains("Sucess"))
 		    		Controller.errorString = new ArrayList<>();
 		    	else*/
-		    		Controller.errorString.add(line1);
-		       
-		        if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-		        	errorFlag = true;
-		        	
-		    }
-		    pr1.waitFor();
-		    in2.close();
-	        //delete(theDirectory);
-		
-		if(instTypeRadio.isSelected() ==true ){
-			selectedInstSelectionMethod = "insttype";
-		}else
-			selectedInstSelectionMethod = "custominstselector";
+				Controller.errorString.add(line1);
+
+				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+					errorFlag = true;
+
+			}
+			pr1.waitFor();
+			in2.close();
+			//delete(theDirectory);
+
+			if(instTypeRadio.isSelected() ==true ){
+				selectedInstSelectionMethod = "insttype";
+			}else
+				selectedInstSelectionMethod = "custominstselector";
 			if(regTypeRadio.isSelected() == true)
 			{
 				selectedRegSelectionMethod = "regloc";
 			}else
 				selectedRegSelectionMethod = "customregselector";
-			
-				if(noTraceRadio.isSelected() == true)
-					selectedTraceMethod = noTraceRadio.getText();
-				else if(fullTraceRadio.isSelected() == true)
-					selectedTraceMethod = fullTraceRadio.getText();
+
+			if(noTraceRadio.isSelected() == true)
+				selectedTraceMethod = noTraceRadio.getText();
+			else if(fullTraceRadio.isSelected() == true)
+				selectedTraceMethod = fullTraceRadio.getText();
+			else
+				selectedTraceMethod = limitTraceRadio.getText();
+
+			//What ever the yamlFile path is.
+
+
+			fileName = Controller.currentFileName;
+			File yamlFile = new File(folderName+"/input.yaml");
+			FileOutputStream is = new FileOutputStream(yamlFile);
+			OutputStreamWriter osw = new OutputStreamWriter(is);    
+			Writer w = new BufferedWriter(osw);
+			w.write("kernelOption:");
+			w.write("\n    - forceRun");
+
+			//w.write("\n\ntimeOut: 1000");
+
+			w.write("\n\ncompileOption:");
+			w.write("\n    "+"instSelMethod:");
+			w.write("\n      - "+selectedInstSelectionMethod+":");
+			if(selectedInstSelectionMethod.equalsIgnoreCase("insttype"))
+			{
+				w.write("\n          "+"include: ");
+				if(allCheckBox.isSelected())
+				{
+					w.write("\n            "+"- all");
+				}
 				else
-					selectedTraceMethod = limitTraceRadio.getText();
-				
-					//What ever the yamlFile path is.
-				           
-				            
-				            fileName = Controller.currentFileName;
-					        File yamlFile = new File(folderName+"/input.yaml");
-					        FileOutputStream is = new FileOutputStream(yamlFile);
-					        OutputStreamWriter osw = new OutputStreamWriter(is);    
-					        Writer w = new BufferedWriter(osw);
-					        w.write("kernelOption:");
-					        w.write("\n    - forceRun");
+				{
+					for(int i = 0; i< instIncludeListView.getItems().size(); i++)
+					{
+						w.write("\n            "+"- "+instIncludeListView.getItems().get(i).toString().split("-")[0]);
+					}
+				}
+				if(instExcludeListView.getItems().size()>0 && (allCheckBox.isSelected()))
+				{
+					w.write("\n          "+"exclude: ");
+					for(int i = 0; i< instExcludeListView.getItems().size(); i++)
+					{
+						w.write("\n            "+"- "+instExcludeListView.getItems().get(i).toString().split("-")[0]);
+					}
+				}
 
-					        //w.write("\n\ntimeOut: 1000");
+			}
+			else
+			{
+				w.write("\n    customInstSelector: "+customInstCombo.getValue().toString().split("-")[0]);
+			}
 
-					        w.write("\n\ncompileOption:");
-					        w.write("\n    "+"instSelMethod:");
-					        w.write("\n      - "+selectedInstSelectionMethod+":");
-					        if(selectedInstSelectionMethod.equalsIgnoreCase("insttype"))
-					        {
-					        	w.write("\n          "+"include: ");
-					        	if(allCheckBox.isSelected())
-					        	{
-					        		w.write("\n            "+"- all");
-					        	}
-					        	else
-					        	{
-						        for(int i = 0; i< instIncludeListView.getItems().size(); i++)
-						        {
-						        	 w.write("\n            "+"- "+instIncludeListView.getItems().get(i).toString().split("-")[0]);
-						        }
-					        	}
-					        	if(instExcludeListView.getItems().size()>0 && (allCheckBox.isSelected()))
-					        	{
-					        		 w.write("\n          "+"exclude: ");
-								        for(int i = 0; i< instExcludeListView.getItems().size(); i++)
-								        {
-								        	 w.write("\n            "+"- "+instExcludeListView.getItems().get(i).toString().split("-")[0]);
-								        }
-					        	}
-						       
-					        }
-					        else
-					        {
-					        	w.write("\n    customInstSelector: "+customInstCombo.getValue().toString().split("-")[0]);
-					        }
-					        
-					        w.write("\n\n    "+"regSelMethod: "+selectedRegSelectionMethod);
-					        if(selectedRegSelectionMethod.equalsIgnoreCase("regloc"))
-					        {
-					        	w.write("\n    "+selectedRegSelectionMethod+": "+regCombo.getValue().toString().split("-")[0]);
-					        }
-					        else
-					        {
-					        	w.write("\n    customRegSelector: "+customRegCombo.getValue().toString().split("-")[0]);
-					        }
-					        
-					        
-					       
-					       /* for(int i = 0; i< regIncludeListView.getItems().size(traceCountText); i++)
+			w.write("\n\n    "+"regSelMethod: "+selectedRegSelectionMethod);
+			if(selectedRegSelectionMethod.equalsIgnoreCase("regloc"))
+			{
+				w.write("\n    "+selectedRegSelectionMethod+": "+regCombo.getValue().toString().split("-")[0]);
+			}
+			else
+			{
+				w.write("\n    customRegSelector: "+customRegCombo.getValue().toString().split("-")[0]);
+			}
+
+
+
+			/* for(int i = 0; i< regIncludeListView.getItems().size(traceCountText); i++)
 					        {
 					        	 w.write("\n\t\t"+"- "+regIncludeListView.getItems().get(i));
 					        }*/
-					        
-					        //File+selectedTraceMethod);
-					        if(fullTraceRadio.isSelected() == true || limitTraceRadio.isSelected() == true)
-					        {
-							w.write("\n\n    "+"tracingPropagation:"+" True");
-					        	w.write("\n\n    "+"tracingPropagationOption:");
-							w.write("\n        "+"generateCDFG: True");
-					        	w.write("\n\n    "+"includeInjectionTrace:");
 
-					        	if(forwardCheckbox.isSelected() == true)
-					        		
-						        	 w.write("\n        "+"- "+forward);
-					        	if(backwardCheckbox.isSelected() == true)
-						        	 w.write("\n        "+"- "+backward);
-					        	
-					        	
-					        }
-					        if(limitTraceRadio.isSelected() == true)
-					        {
-					        	
-					        	w.write("\n\n    "+"tracingPropagation:"+" True");
-					        	w.write("\n\n    "+"tracingPropagationOption:");
-					        	w.write("\n        "+"maxTrace: "+traceCountText.getText());
-					        	w.write("\n        "+"debugTrace: True/False");
-					        	w.write("\n        "+"generateCDFG: True");
-					        }
-					        
-					        if(selectProfileFlag == true || existingInputFileFlag ==true)
-					        {
-					        	for(int i = 0; i<fileContent.size();i++)
-					        	{
-					        		w.write(fileContent.get(i));
-					        	}
-					        }
-					        	
-					        w.close();
-					        
-						 String cmd = Controller.llfibuildPath+"bin/instrument -lpthread --readable "+folderName+"/"+folderName+".ll";
-							ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",cmd);
-							Controller.console.add("$ "+cmd+"\n");
-						    
-						    p.redirectErrorStream(true);
-						    Process pr = p.start();
-							BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-						    
-						    Controller.errorString = new ArrayList<>();
-						    while ((line1 = in1.readLine()) != null) {
-						    	/*if(line1.contains("Sucess"))
+			//File+selectedTraceMethod);
+			if(fullTraceRadio.isSelected() == true || limitTraceRadio.isSelected() == true)
+			{
+				w.write("\n\n    "+"tracingPropagation:"+" True");
+				w.write("\n\n    "+"tracingPropagationOption:");
+				w.write("\n        "+"generateCDFG: True");
+				w.write("\n\n    "+"includeInjectionTrace:");
+
+				if(forwardCheckbox.isSelected() == true)
+
+					w.write("\n        "+"- "+forward);
+				if(backwardCheckbox.isSelected() == true)
+					w.write("\n        "+"- "+backward);
+
+
+			}
+			if(limitTraceRadio.isSelected() == true)
+			{
+
+				w.write("\n\n    "+"tracingPropagation:"+" True");
+				w.write("\n\n    "+"tracingPropagationOption:");
+				w.write("\n        "+"maxTrace: "+traceCountText.getText());
+				w.write("\n        "+"debugTrace: True/False");
+				w.write("\n        "+"generateCDFG: True");
+			}
+
+			if(selectProfileFlag == true || existingInputFileFlag ==true)
+			{
+				for(int i = 0; i<fileContent.size();i++)
+				{
+					w.write(fileContent.get(i));
+				}
+			}
+
+			w.close();
+
+			String cmd = Controller.llfibuildPath+"bin/instrument -lpthread --readable "+folderName+"/"+folderName+".ll";
+			ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",cmd);
+			Controller.console.add("$ "+cmd+"\n");
+
+			p.redirectErrorStream(true);
+			Process pr = p.start();
+			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+
+			Controller.errorString = new ArrayList<>();
+			while ((line1 = in1.readLine()) != null) {
+				/*if(line1.contains("Sucess"))
 						    		Controller.errorString = new ArrayList<>();
 						    	else*/
-						    		Controller.console.add(line1+"\n");
-						    		Controller.errorString.add(line1);
-						       
-						        if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-						        	errorFlag = true;
-						        	
-						    }
-						    pr.waitFor();
-						    in1.close();
-					       
-						  if(errorFlag == true)
-						  {
-							  errorFlag = false;
-							  Node  source = (Node)  event.getSource(); 
-							  Stage stage  = (Stage) source.getScene().getWindow();
-							  stage.close();
-							  
-							  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
-						        stage = new Stage();
-						        stage.setTitle("Error");
-						        stage.setScene(new Scene(root, 450, 100));
-						        stage.show();
-						        
-						  }
-						  else
-						  {
-							  Controller.errorString = new ArrayList<>();
-							  Node  source = (Node)  event.getSource(); 
-							  Stage stage  = (Stage) source.getScene().getWindow();
-							  stage.close();
-						  }
-						   
-							   
-						  
-					       
-					    
-			
-			
-			
-		
-			
-			//Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
-	
+				Controller.console.add(line1+"\n");
+				Controller.errorString.add(line1);
 
-		
-			
-		
-		
-	}catch (IOException e) {
-        System.err.println("Problem writing to the file statsTest.txt");
-    } catch (InterruptedException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+					errorFlag = true;
+
+			}
+			pr.waitFor();
+			in1.close();
+
+			if(errorFlag == true)
+			{
+				errorFlag = false;
+				Node  source = (Node)  event.getSource(); 
+				Stage stage  = (Stage) source.getScene().getWindow();
+				stage.close();
+
+				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+				stage = new Stage();
+				stage.setTitle("Error");
+				stage.setScene(new Scene(root, 450, 100));
+				stage.show();
+
+			}
+			else
+			{
+				//Generate the LLFI .ll file with index labelled.
+				fileContent = new ArrayList<>();
+				String line;
+				FileReader inputIndexFile = new FileReader(Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-llfi_index.ll");
+				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
+				//Read file contents
+				while ((line = bufferReader.readLine()) != null)   {
+					fileContent.add(line+"\n");      
+				}
+				bufferReader.close();
+				File outputIndexFile = new File(Controller.currentProgramFolder +"/llfi/"+Controller.currentProgramFolder+"-llfi_displayIndex.ll");
+				BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputIndexFile));
+				for(int i = 0 ; i < fileContent.size(); i++)
+				{
+
+					if (fileContent.get(i).contains("!llfi_index !"))
+						outputFile.write(fileContent.get(i).substring(fileContent.get(i).indexOf("!llfi_index !")+13,fileContent.get(i).lastIndexOf("\n"))+"\t\t"+fileContent.get(i).substring(0,fileContent.get(i).indexOf("!llfi_index !"))+"\n");
+					else if (!fileContent.get(i).contains("= metadata !"))
+						outputFile.write("\t\t"+fileContent.get(i));
+				}
+				outputFile.close();
+
+				Controller.errorString = new ArrayList<>();
+				Node  source = (Node)  event.getSource(); 
+				Stage stage  = (Stage) source.getScene().getWindow();
+				stage.close();
+			}
+
+
+
+
+
+
+
+
+
+
+			//Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
+
+
+
+
+
+
+		}catch (IOException e) {
+			System.err.println("Problem writing to the file statsTest.txt");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		}
 	}
-	}
-	
+
 	public static void delete(File file)
-	    	throws IOException{
-	 
-	    	if(file.isDirectory()){
-	 
-	    		//directory is empty, then delete it
-	    		if(file.list().length==0){
-	 
-	    		   file.delete();
-	    		   
-	 
-	    		}else{
-	 
-	    		   //list all the directory contents
-	        	   String files[] = file.list();
-	 
-	        	   for (String temp : files) {
-	        	      //construct the file structure
-	        	      File fileDelete = new File(file, temp);
-	 
-	        	      //recursive delete
-	        	     delete(fileDelete);
-	        	   }
-	 
-	        	   //check the directory again, if empty then delete it
-	        	   if(file.list().length==0){
-	           	     file.delete();
-	        	    
-	        	   }
-	    		}
-	 
-	    	}else{
-	    		//if file, then delete it
-	    		file.delete();
-	    		
-	    	}
-	    }
-	
-	
-	
+			throws IOException{
+
+		if(file.isDirectory()){
+
+			//directory is empty, then delete it
+			if(file.list().length==0){
+
+				file.delete();
+
+
+			}else{
+
+				//list all the directory contents
+				String files[] = file.list();
+
+				for (String temp : files) {
+					//construct the file structure
+					File fileDelete = new File(file, temp);
+
+					//recursive delete
+					delete(fileDelete);
+				}
+
+				//check the directory again, if empty then delete it
+				if(file.list().length==0){
+					file.delete();
+
+				}
+			}
+
+		}else{
+			//if file, then delete it
+			file.delete();
+
+		}
+	}
+
+
+
 	/*public static boolean deleteDirectory(File directory) {
 		System.out.println("diret == "+directory.toString());
 	    if(directory.exists()){
@@ -392,10 +416,10 @@ public class InstrumentController implements Initializable {
 	    }
 	    return(directory.delete());
 	}*/
-	
+
 	@FXML
 	private void onClickInstructionInclude(ActionEvent event) {
-		
+
 		includeInstList = new ArrayList<>();
 		if(instIncludeListView.getItems().size() > 0)
 		{
@@ -403,7 +427,7 @@ public class InstrumentController implements Initializable {
 			{
 				includeInstList.add(instIncludeListView.getItems().get(i).toString());
 			}
-			
+
 		}
 		removeList = new ArrayList<>();
 		if(instExcludeListView.getSelectionModel().getSelectedItems().size() > 0)
@@ -422,11 +446,11 @@ public class InstrumentController implements Initializable {
 			//System.out.println("selected items = "+removeList.get(i));
 			instExcludeListView.getItems().remove(removeList.get(i));
 		}
-	
+
 	}
 	@FXML
 	private void onClickInstructionExclude(ActionEvent event) {
-		
+
 
 		excludeInstList = new ArrayList<>();
 		if(instExcludeListView.getItems().size() > 0)
@@ -435,7 +459,7 @@ public class InstrumentController implements Initializable {
 			{
 				excludeInstList.add(instExcludeListView.getItems().get(i).toString());
 			}
-			
+
 		}
 		removeList = new ArrayList<>();
 		if(instIncludeListView.getSelectionModel().getSelectedItems().size() > 0)
@@ -452,23 +476,23 @@ public class InstrumentController implements Initializable {
 		{
 			instIncludeListView.getItems().remove(removeList.get(i));
 		}
-		
+
 	}
-	
-	
+
+
 	@FXML
 	private void enableIncludeMultipleSelection(javafx.scene.input.MouseEvent event){
-		
+
 		instIncludeListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		
+
 	}
 	@FXML
 	private void enableExcludeMultipleSelection(javafx.scene.input.MouseEvent event){
-		
+
 		instExcludeListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		
+
 	}
-	
+
 	@FXML
 	private void onSelectInstSelectRadio(ActionEvent event){
 		FileReader inputFile;
@@ -477,28 +501,28 @@ public class InstrumentController implements Initializable {
 
 				customInstCombo.setDisable(false);
 				includeLabel.setDisable(true);
-				
+
 				instIncludeListView.setDisable(true);
 				instExcludeListView.setDisable(true);
 				instIncludeButton.setDisable(true);
 				instExcludeButton.setDisable(true);
 				inputFile = new FileReader(buildPath+"customInstruction_list.txt");
 				BufferedReader bufferReader = new BufferedReader(inputFile);
-		        
-		        customInstList = new ArrayList<String>();
-		        String line;
-		        	
-		        while ((line = bufferReader.readLine()) != null)   {
-		        	customInstList.add(line);
-		        	
-		        }
-		        bufferReader.close();
-		        items =FXCollections.observableArrayList (customInstList);
-		        //regCombo.getItems().removeAll(true);
-		        customInstCombo.setItems(items);
-		        customInstCombo.setPromptText("-- Select --");
-				
-				
+
+				customInstList = new ArrayList<String>();
+				String line;
+
+				while ((line = bufferReader.readLine()) != null)   {
+					customInstList.add(line);
+
+				}
+				bufferReader.close();
+				items =FXCollections.observableArrayList (customInstList);
+				//regCombo.getItems().removeAll(true);
+				customInstCombo.setItems(items);
+				customInstCombo.setPromptText("-- Select --");
+
+
 			}
 			else{
 				includeLabel.setDisable(false);
@@ -509,15 +533,15 @@ public class InstrumentController implements Initializable {
 				instExcludeButton.setDisable(false);
 			}
 		}
-		
+
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();String line;
 		}
-        	
-	
+
+
 	}
-	
+
 	@FXML
 	private void onSelectRegSelectRadio(ActionEvent event){
 		FileReader inputFile;
@@ -528,277 +552,277 @@ public class InstrumentController implements Initializable {
 				customRegCombo.setDisable(false);
 				inputFile = new FileReader(buildPath+"customRegister_list.txt");
 				BufferedReader bufferReader = new BufferedReader(inputFile);
-		        
-		        customRegList = new ArrayList<String>();
-		        String line;
-		        
-		        while ((line = bufferReader.readLine()) != null)   {
-		        	customRegList.add(line);
-		        	
-		        }
-		        bufferReader.close();
-		        items =FXCollections.observableArrayList (customRegList);
-		        //regCombo.getItems().removeAll(true);
-		        customRegCombo.setItems(items);
-		        customRegCombo.setPromptText("-- Select --");
-			
+
+				customRegList = new ArrayList<String>();
+				String line;
+
+				while ((line = bufferReader.readLine()) != null)   {
+					customRegList.add(line);
+
 				}
+				bufferReader.close();
+				items =FXCollections.observableArrayList (customRegList);
+				//regCombo.getItems().removeAll(true);
+				customRegCombo.setItems(items);
+				customRegCombo.setPromptText("-- Select --");
+
+			}
 			else{
 				regCombo.setDisable(false);
 				customRegCombo.setDisable(true);
-				
+
 			}
 		}
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-			
-	
+
+
+
 	}
-	
+
 	@FXML
 	private void onClickTraceOption(ActionEvent event){
 		if(noTraceRadio.isSelected() == true)
 		{
 			forwardCheckbox.setDisable(true);
 			backwardCheckbox.setDisable(true);
-			
+
 		}
 		else if(limitTraceRadio.isSelected() == true){
 			traceCountText.setDisable(false);
 		}
-		  
+
 		else
 		{
 			forwardCheckbox.setDisable(false);
 			backwardCheckbox.setDisable(false);
 			traceCountText.setDisable(true);
 		}
-		
+
 	}
 	@FXML
 	private void onClickSelectProfile(ActionEvent event){
-		 Parent root;
-	        //fileCount=0;
-		 
-	    	Stage stage = new Stage();
-	    	FileChooser fileChooser = new FileChooser();
-	    	fileChooser.setTitle("Open Resource File");
-	    	configureFileChooser(fileChooser); 
-	    	List<File> list = fileChooser.showOpenMultipleDialog(stage);
-	            if (list != null) {
-	                for (File file : list) {
-	                    openFile(file);
-	                }
-	            }
+		Parent root;
+		//fileCount=0;
+
+		Stage stage = new Stage();
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Open Resource File");
+		configureFileChooser(fileChooser); 
+		List<File> list = fileChooser.showOpenMultipleDialog(stage);
+		if (list != null) {
+			for (File file : list) {
+				openFile(file);
+			}
+		}
 	}
 	private static void configureFileChooser(
-	        final FileChooser fileChooser) {      
-	            
-	            fileChooser.getExtensionFilters().addAll(
-	               
-	                new FileChooser.ExtensionFilter("YAML", "*.yaml")
-	            );
-	    }
+			final FileChooser fileChooser) {      
 
-private void openFile(File file) {
-    try{
-    	tempItems=FXCollections.observableArrayList();
-    	tempItems1=FXCollections.observableArrayList();
-    	selectProfileFlag = true;
-    	String line;
-    	String customInst;
-    	String customReg;
-    	String regloc;
-    	String includeInst;
-    	String excludeInst;
-    	String tmpString = null;
-    	boolean includeFlag = false;
-    	boolean excludeFlag = false;
-    	fileContent = new ArrayList<>();
-    	Path path = file.toPath();
-        
-        String fileInfo =path.toString();
-        
-        FileReader inputFile = new FileReader(fileInfo);
-        BufferedReader bufferReader = new BufferedReader(inputFile);
-        while ((line = bufferReader.readLine()) != null)   {
-        	if(line.contains("instSelMethod"))
-        	{
-        		if(line.contains("customInstSelector"))
-        		{
-        			customInstTypeRadio.setSelected(true);
-        			customInstCombo.setDisable(false);
-        			includeLabel.setDisable(true);    				
-    				instIncludeListView.setDisable(true);
-    				instExcludeListView.setDisable(true);
-    				instIncludeButton.setDisable(true);
-    				instExcludeButton.setDisable(true);
-        			
-        		}
-        		
-        			
-        	}
-        	else if(line.contains("insttype"))
-        	{
-        		customInstTypeRadio.setSelected(false);
-    			customInstCombo.setDisable(true);
-    			includeLabel.setDisable(false);    				
-				instIncludeListView.setDisable(false);
-				instExcludeListView.setDisable(false);
-				instIncludeButton.setDisable(false);
-				instExcludeButton.setDisable(false);
-        	}
-        	else if (line.contains("customInstSelector"))
-        	{
-        		customInst = line.split(":")[1].trim();
-        		customInstCombo.setValue(customInst);
+		fileChooser.getExtensionFilters().addAll(
 
-        	}
-        	else if(line.contains("include:"))
-        	{
-        		includeFlag = true;
-        		
-        	}
-        	else if(line.contains("-") && includeFlag)
-        	{
-        		if(line.contains("all"))
-        		{
-        			allCheckBox.setSelected(true);
-        			onClickAllMethod();
-        			
-        			includeFlag = false;
-        		}
-        		else
-        		{
-        			includeInst = line.split("-")[1].trim();
-        			for(int i = 0;i<instExcludeListView.getItems().size();i++)
-        			{
-        				if(instExcludeListView.getItems().get(i).toString().contains(includeInst))
-        				{
-        					tmpString = instExcludeListView.getItems().get(i).toString();
-        					instExcludeListView.getItems().remove(i);
-        				}
-        			}
-        			tempItems.add(tmpString); 
-        			instIncludeListView.setItems(tempItems);
-        		}
-        	}
-        	else if(line.contains("exclude"))
-        	{
-        		includeFlag = false;
-        		excludeFlag = true;
-        	}
-        	else if(line.contains("-") && excludeFlag)
-        	{
-        		excludeInst = line.split("-")[1].trim();
-        		for(int i = 0;i<instIncludeListView.getItems().size();i++)
-    			{
-    				if(instIncludeListView.getItems().get(i).toString().contains(excludeInst))
-    				{
-    					tmpString = instIncludeListView.getItems().get(i).toString();
-    					instIncludeListView.getItems().remove(i);
-    				}
-    			}
-        		tempItems1.add(tmpString); 
-    			instExcludeListView.setItems(tempItems1);
-        	}
-        	else if(line.contains("regSelMethod"))
-        	{
-        		includeFlag = false;
-        		excludeFlag = false;
-        		if(line.split(":")[1].equalsIgnoreCase("customregselector"))
-        		{
-        			customRegTypeRadio.setSelected(true);
-        			regCombo.setDisable(true);
-        			customRegCombo.setDisable(false);
-        		}
-        		else
-        		{
-        			customRegTypeRadio.setSelected(false);
-        			regCombo.setDisable(false);
-        			customRegCombo.setDisable(true);
-        		}
-        			
-        	}
-        	else if (line.contains("customRegSelector"))
-        	{
-        		customReg = line.split(":")[1].trim();
-        		customRegCombo.setValue(customReg);
+				new FileChooser.ExtensionFilter("YAML", "*.yaml")
+				);
+	}
 
-        	}
-        	else if (line.contains("regloc"))
-        	{
-        		regloc = line.split(":")[1].trim();
-        		for(int i = 0;i<regCombo.getItems().size();i++)
-        		{
-        			if(regCombo.getItems().get(i).toString().contains(regloc))
-        			{
-        				regCombo.setValue(regCombo.getItems().get(i).toString());
-        			}
-        		}
-        		
+	private void openFile(File file) {
+		try{
+			tempItems=FXCollections.observableArrayList();
+			tempItems1=FXCollections.observableArrayList();
+			selectProfileFlag = true;
+			String line;
+			String customInst;
+			String customReg;
+			String regloc;
+			String includeInst;
+			String excludeInst;
+			String tmpString = null;
+			boolean includeFlag = false;
+			boolean excludeFlag = false;
+			fileContent = new ArrayList<>();
+			Path path = file.toPath();
 
-        	}
-        	else if(line.contains("includeInjectionTrace"))
-        	{
-        		fullTraceRadio.setSelected(true);
-        	}
-        	else if(line.contains("backward"))
-        	{
-        		backwardCheckbox.setSelected(true);
-        	}
-        	else if(line.contains("forward"))
-        	{
-        		forwardCheckbox.setSelected(true);
-        	}
-        	else if(line.contains("maxTrace"))
-        	{
-        		limitTraceRadio.setSelected(true);
-        		traceCountText.setText(line.split(":")[1].trim());
-        	}
-        	if(line.contains("runOption"))
-        	{
-        		fileContent.add("\n\n"+line);
-        		while ((line = bufferReader.readLine()) != null)   {
-        			fileContent.add("\n"+line);
-        		}
-        	}
-        	
-        		
-            
-            
-        }
-    }catch(IOException e){
-        System.out.println("Error while reading file line by line:" 
-        + e.getMessage());                      
-    } 
-    }
+			String fileInfo =path.toString();
 
-@FXML
-private void onClickCreateNewProfile(ActionEvent event)
-{
-	
-	
+			FileReader inputFile = new FileReader(fileInfo);
+			BufferedReader bufferReader = new BufferedReader(inputFile);
+			while ((line = bufferReader.readLine()) != null)   {
+				if(line.contains("instSelMethod"))
+				{
+					if(line.contains("customInstSelector"))
+					{
+						customInstTypeRadio.setSelected(true);
+						customInstCombo.setDisable(false);
+						includeLabel.setDisable(true);    				
+						instIncludeListView.setDisable(true);
+						instExcludeListView.setDisable(true);
+						instIncludeButton.setDisable(true);
+						instExcludeButton.setDisable(true);
+
+					}
+
+
+				}
+				else if(line.contains("insttype"))
+				{
+					customInstTypeRadio.setSelected(false);
+					customInstCombo.setDisable(true);
+					includeLabel.setDisable(false);    				
+					instIncludeListView.setDisable(false);
+					instExcludeListView.setDisable(false);
+					instIncludeButton.setDisable(false);
+					instExcludeButton.setDisable(false);
+				}
+				else if (line.contains("customInstSelector"))
+				{
+					customInst = line.split(":")[1].trim();
+					customInstCombo.setValue(customInst);
+
+				}
+				else if(line.contains("include:"))
+				{
+					includeFlag = true;
+
+				}
+				else if(line.contains("-") && includeFlag)
+				{
+					if(line.contains("all"))
+					{
+						allCheckBox.setSelected(true);
+						onClickAllMethod();
+
+						includeFlag = false;
+					}
+					else
+					{
+						includeInst = line.split("-")[1].trim();
+						for(int i = 0;i<instExcludeListView.getItems().size();i++)
+						{
+							if(instExcludeListView.getItems().get(i).toString().contains(includeInst))
+							{
+								tmpString = instExcludeListView.getItems().get(i).toString();
+								instExcludeListView.getItems().remove(i);
+							}
+						}
+						tempItems.add(tmpString); 
+						instIncludeListView.setItems(tempItems);
+					}
+				}
+				else if(line.contains("exclude"))
+				{
+					includeFlag = false;
+					excludeFlag = true;
+				}
+				else if(line.contains("-") && excludeFlag)
+				{
+					excludeInst = line.split("-")[1].trim();
+					for(int i = 0;i<instIncludeListView.getItems().size();i++)
+					{
+						if(instIncludeListView.getItems().get(i).toString().contains(excludeInst))
+						{
+							tmpString = instIncludeListView.getItems().get(i).toString();
+							instIncludeListView.getItems().remove(i);
+						}
+					}
+					tempItems1.add(tmpString); 
+					instExcludeListView.setItems(tempItems1);
+				}
+				else if(line.contains("regSelMethod"))
+				{
+					includeFlag = false;
+					excludeFlag = false;
+					if(line.split(":")[1].equalsIgnoreCase("customregselector"))
+					{
+						customRegTypeRadio.setSelected(true);
+						regCombo.setDisable(true);
+						customRegCombo.setDisable(false);
+					}
+					else
+					{
+						customRegTypeRadio.setSelected(false);
+						regCombo.setDisable(false);
+						customRegCombo.setDisable(true);
+					}
+
+				}
+				else if (line.contains("customRegSelector"))
+				{
+					customReg = line.split(":")[1].trim();
+					customRegCombo.setValue(customReg);
+
+				}
+				else if (line.contains("regloc"))
+				{
+					regloc = line.split(":")[1].trim();
+					for(int i = 0;i<regCombo.getItems().size();i++)
+					{
+						if(regCombo.getItems().get(i).toString().contains(regloc))
+						{
+							regCombo.setValue(regCombo.getItems().get(i).toString());
+						}
+					}
+
+
+				}
+				else if(line.contains("includeInjectionTrace"))
+				{
+					fullTraceRadio.setSelected(true);
+				}
+				else if(line.contains("backward"))
+				{
+					backwardCheckbox.setSelected(true);
+				}
+				else if(line.contains("forward"))
+				{
+					forwardCheckbox.setSelected(true);
+				}
+				else if(line.contains("maxTrace"))
+				{
+					limitTraceRadio.setSelected(true);
+					traceCountText.setText(line.split(":")[1].trim());
+				}
+				if(line.contains("runOption"))
+				{
+					fileContent.add("\n\n"+line);
+					while ((line = bufferReader.readLine()) != null)   {
+						fileContent.add("\n"+line);
+					}
+				}
+
+
+
+
+			}
+		}catch(IOException e){
+			System.out.println("Error while reading file line by line:" 
+					+ e.getMessage());                      
+		} 
+	}
+
+	@FXML
+	private void onClickCreateNewProfile(ActionEvent event)
+	{
+
+
 		File yFile= new File(folderName+"/input.yaml");
 		yFile.delete();
 		resetAllOptions();
 		existingInputFileFlag = false;
-	
-}
 
-@FXML
-public void onClickAll(ActionEvent e)
-{
-	try{
-	FileReader inputFile1;
-	String line;
-	if(allCheckBox.isSelected())
+	}
+
+	@FXML
+	public void onClickAll(ActionEvent e)
 	{
-		/*ArrayList<String> templist = new ArrayList<>();
-		
+		try{
+			FileReader inputFile1;
+			String line;
+			if(allCheckBox.isSelected())
+			{
+				/*ArrayList<String> templist = new ArrayList<>();
+
 		templist.addAll(instExcludeListView.getItems());
 		includeItems = FXCollections.observableArrayList (templist);
 		instIncludeListView.setItems(includeItems);
@@ -806,53 +830,53 @@ public void onClickAll(ActionEvent e)
 		{
 			instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
 		}*/
-		
-		inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-		BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-	    
-		instructionList = new ArrayList<String>();
-	       
-	    while ((line = bufferReader1.readLine()) != null)   {
-	    	instructionList.add(line);
-	    	
-	    }
-	    bufferReader1.close();
-	    items =FXCollections.observableArrayList (instructionList);
-	    instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-	    instIncludeListView.setItems(items);
-	}
-	else{
-		inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-		BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-	    
-		instructionList = new ArrayList<String>();
-	       
-	    while ((line = bufferReader1.readLine()) != null)   {
-	    	instructionList.add(line);
-	    	
-	    }
-	    bufferReader1.close();
-	    items =FXCollections.observableArrayList (instructionList);
-	    instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
-	    instExcludeListView.setItems(items);	
-	}
-	}catch(IOException ex)
-	{
-		System.out.println(ex);
-	}
-	
-	
-}
-public void onClickAllMethod()
-{
-	try{
-		FileReader inputFile1;
-		String line;
 
-		if(allCheckBox.isSelected())
+				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+
+				instructionList = new ArrayList<String>();
+
+				while ((line = bufferReader1.readLine()) != null)   {
+					instructionList.add(line);
+
+				}
+				bufferReader1.close();
+				items =FXCollections.observableArrayList (instructionList);
+				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
+				instIncludeListView.setItems(items);
+			}
+			else{
+				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+
+				instructionList = new ArrayList<String>();
+
+				while ((line = bufferReader1.readLine()) != null)   {
+					instructionList.add(line);
+
+				}
+				bufferReader1.close();
+				items =FXCollections.observableArrayList (instructionList);
+				instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
+				instExcludeListView.setItems(items);	
+			}
+		}catch(IOException ex)
 		{
-			/*ArrayList<String> templist = new ArrayList<>();
-			
+			System.out.println(ex);
+		}
+
+
+	}
+	public void onClickAllMethod()
+	{
+		try{
+			FileReader inputFile1;
+			String line;
+
+			if(allCheckBox.isSelected())
+			{
+				/*ArrayList<String> templist = new ArrayList<>();
+
 			templist.addAll(instExcludeListView.getItems());
 			includeItems = FXCollections.observableArrayList (templist);
 			instIncludeListView.setItems(includeItems);
@@ -860,180 +884,180 @@ public void onClickAllMethod()
 			{
 				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
 			}*/
-			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-		    
-			instructionList = new ArrayList<String>();
-		       
-		    while ((line = bufferReader1.readLine()) != null)   {
-		    	instructionList.add(line);
-		    	
-		    }
-		    bufferReader1.close();
-		    items =FXCollections.observableArrayList (instructionList);
-		    instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-		    instIncludeListView.setItems(items);
-		}
-		else{
-			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-		    
-			instructionList = new ArrayList<String>();
-		       
-		    while ((line = bufferReader1.readLine()) != null)   {
-		    	instructionList.add(line);
-		    	
-		    }
-		    bufferReader1.close();
-		    items =FXCollections.observableArrayList (instructionList);
-		    instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
-		    instExcludeListView.setItems(items);	
-		}
+				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+
+				instructionList = new ArrayList<String>();
+
+				while ((line = bufferReader1.readLine()) != null)   {
+					instructionList.add(line);
+
+				}
+				bufferReader1.close();
+				items =FXCollections.observableArrayList (instructionList);
+				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
+				instIncludeListView.setItems(items);
+			}
+			else{
+				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+
+				instructionList = new ArrayList<String>();
+
+				while ((line = bufferReader1.readLine()) != null)   {
+					instructionList.add(line);
+
+				}
+				bufferReader1.close();
+				items =FXCollections.observableArrayList (instructionList);
+				instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
+				instExcludeListView.setItems(items);	
+			}
 		}catch(IOException ex)
 		{
 			System.out.println(ex);
 		}
-}
-private void resetAllOptions()
-{
-	FileReader inputFile;
-	FileReader inputFile1;
-	try{
-	inputFile = new FileReader(buildPath+"register_list.txt");
-	BufferedReader bufferReader = new BufferedReader(inputFile);
-    
-    registerList = new ArrayList<String>();
-    String line;
-    
-    while ((line = bufferReader.readLine()) != null)   {
-   	 registerList.add(line);
-    	
-    }
-    bufferReader.close();
-    items =FXCollections.observableArrayList (registerList);
-    //regCombo.getItems().removeAll(true);
-    regCombo.setItems(items);
-    regCombo.setPromptText("-- Select --");
-    
-    inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-	BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-    
-	instructionList = new ArrayList<String>();
-       
-    while ((line = bufferReader1.readLine()) != null)   {
-    	instructionList.add(line);
-    	
-    }
-    bufferReader1.close();
-    items =FXCollections.observableArrayList (instructionList);
-    
-    instExcludeListView.setItems(items);
-    
-    if(customInstTypeRadio.isSelected() == true){
-		customInstCombo.setDisable(false);
-		includeLabel.setDisable(true);
-		
-		instIncludeListView.setDisable(true);
-		instExcludeListView.setDisable(true);
-		instIncludeButton.setDisable(true);
-		instExcludeButton.setDisable(true);
-		inputFile = new FileReader(buildPath+"customInstruction_list.txt");
-		bufferReader = new BufferedReader(inputFile);
-        
-        customInstList = new ArrayList<String>();
-        
-        
-        while ((line = bufferReader.readLine()) != null)   {
-        	customInstList.add(line);
-        	
-        }
-        bufferReader.close();
-        items =FXCollections.observableArrayList (customInstList);
-        //regCombo.getItems().removeAll(true);
-        customInstCombo.setItems(items);
-        customInstCombo.setPromptText("-- Select --");
-		
-		
 	}
-	else{
-		includeLabel.setDisable(false);
-		customInstCombo.setDisable(true);
-		instIncludeListView.setDisable(false);
-		instExcludeListView.setDisable(false);
-		instIncludeButton.setDisable(false);
-		instExcludeButton.setDisable(false);
-	}
-    if(customRegTypeRadio.isSelected() == true){
-		regCombo.setDisable(true);
-		customRegCombo.setDisable(false);
-		inputFile = new FileReader(buildPath+"customRegister_list.txt");
-		bufferReader = new BufferedReader(inputFile);
-        
-        customRegList = new ArrayList<String>();
-        
-        
-        while ((line = bufferReader.readLine()) != null)   {
-        	customRegList.add(line);
-        	
-        }
-        bufferReader.close();
-        items =FXCollections.observableArrayList (customRegList);
-        //regCombo.getItems().removeAll(true);
-        customRegCombo.setItems(items);
-        customRegCombo.setPromptText("-- Select --");
-	
+	private void resetAllOptions()
+	{
+		FileReader inputFile;
+		FileReader inputFile1;
+		try{
+			inputFile = new FileReader(buildPath+"register_list.txt");
+			BufferedReader bufferReader = new BufferedReader(inputFile);
+
+			registerList = new ArrayList<String>();
+			String line;
+
+			while ((line = bufferReader.readLine()) != null)   {
+				registerList.add(line);
+
+			}
+			bufferReader.close();
+			items =FXCollections.observableArrayList (registerList);
+			//regCombo.getItems().removeAll(true);
+			regCombo.setItems(items);
+			regCombo.setPromptText("-- Select --");
+
+			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+
+			instructionList = new ArrayList<String>();
+
+			while ((line = bufferReader1.readLine()) != null)   {
+				instructionList.add(line);
+
+			}
+			bufferReader1.close();
+			items =FXCollections.observableArrayList (instructionList);
+
+			instExcludeListView.setItems(items);
+
+			if(customInstTypeRadio.isSelected() == true){
+				customInstCombo.setDisable(false);
+				includeLabel.setDisable(true);
+
+				instIncludeListView.setDisable(true);
+				instExcludeListView.setDisable(true);
+				instIncludeButton.setDisable(true);
+				instExcludeButton.setDisable(true);
+				inputFile = new FileReader(buildPath+"customInstruction_list.txt");
+				bufferReader = new BufferedReader(inputFile);
+
+				customInstList = new ArrayList<String>();
+
+
+				while ((line = bufferReader.readLine()) != null)   {
+					customInstList.add(line);
+
+				}
+				bufferReader.close();
+				items =FXCollections.observableArrayList (customInstList);
+				//regCombo.getItems().removeAll(true);
+				customInstCombo.setItems(items);
+				customInstCombo.setPromptText("-- Select --");
+
+
+			}
+			else{
+				includeLabel.setDisable(false);
+				customInstCombo.setDisable(true);
+				instIncludeListView.setDisable(false);
+				instExcludeListView.setDisable(false);
+				instIncludeButton.setDisable(false);
+				instExcludeButton.setDisable(false);
+			}
+			if(customRegTypeRadio.isSelected() == true){
+				regCombo.setDisable(true);
+				customRegCombo.setDisable(false);
+				inputFile = new FileReader(buildPath+"customRegister_list.txt");
+				bufferReader = new BufferedReader(inputFile);
+
+				customRegList = new ArrayList<String>();
+
+
+				while ((line = bufferReader.readLine()) != null)   {
+					customRegList.add(line);
+
+				}
+				bufferReader.close();
+				items =FXCollections.observableArrayList (customRegList);
+				//regCombo.getItems().removeAll(true);
+				customRegCombo.setItems(items);
+				customRegCombo.setPromptText("-- Select --");
+
+			}
+			else{
+				regCombo.setDisable(false);
+				customRegCombo.setDisable(true);
+
+			}
+			if(limitTraceRadio.isSelected() == true)
+			{
+				traceCountText.setDisable(false);
+			}
+			else if(fullTraceRadio.isSelected() == true)
+			{
+				traceCountText.setDisable(true);
+			}
+			else if(noTraceRadio.isSelected() == true)
+			{
+				traceCountText.setDisable(true);
+				forwardCheckbox.setDisable(true);
+				backwardCheckbox.setDisable(true);
+			}
+		}catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	else{
-		regCombo.setDisable(false);
-		customRegCombo.setDisable(true);
-		
+
 	}
-    if(limitTraceRadio.isSelected() == true)
-    {
-    	traceCountText.setDisable(false);
-    }
-    else if(fullTraceRadio.isSelected() == true)
-    {
-    	traceCountText.setDisable(true);
-    }
-    else if(noTraceRadio.isSelected() == true)
-    {
-    	traceCountText.setDisable(true);
-    	forwardCheckbox.setDisable(true);
-    	backwardCheckbox.setDisable(true);
-    }
-	}catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	
-}
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		FileReader inputFile;
 		FileReader inputFile1;
 		// The location of the llfibuild
 		buildPath=Controller.llfibuildPath+"LLFI-GUI/";
-	
+
 		//try {
-			selectProfileFlag = false;
-			existingInputFileFlag = false;
-			folderName = Controller.currentProgramFolder;
-			
-			String line;
-			resetAllOptions();
-	        String customInst;
-	    	String customReg;
-	        File f = new File(Controller.currentProgramFolder+"/input.yaml");
-	       
-	        if(f.exists()) {
-	        	createNewProfileButton.setDisable(false);
-	        	existingInputFileFlag = true;
-	        	fileContent = new ArrayList<>();
-	        	
-	        	 //File iFile = new File(Controller.currentProgramFolder+"/input.yaml");
-	        	 openFile(f);
-	             /*BufferedReader bufferReader2 = new BufferedReader(iFile);
+		selectProfileFlag = false;
+		existingInputFileFlag = false;
+		folderName = Controller.currentProgramFolder;
+
+		String line;
+		resetAllOptions();
+		String customInst;
+		String customReg;
+		File f = new File(Controller.currentProgramFolder+"/input.yaml");
+
+		if(f.exists()) {
+			createNewProfileButton.setDisable(false);
+			existingInputFileFlag = true;
+			fileContent = new ArrayList<>();
+
+			//File iFile = new File(Controller.currentProgramFolder+"/input.yaml");
+			openFile(f);
+			/*BufferedReader bufferReader2 = new BufferedReader(iFile);
 	             while ((line = bufferReader2.readLine()) != null)   {
 	             	if(line.contains("instSelMethod"))
 	             	{
@@ -1046,9 +1070,9 @@ private void resetAllOptions()
 	         				instExcludeListView.setDisable(true);
 	         				instIncludeButton.setDisable(true);
 	         				instExcludeButton.setDisable(true);
-	             			
+
 	             		}
-	             			
+
 	             	}
 	             	else if (line.contains("customInstSelector"))
 	             	{
@@ -1064,7 +1088,7 @@ private void resetAllOptions()
 	             			regCombo.setDisable(true);
 	             			customRegCombo.setDisable(false);
 	             		}
-	             			
+
 	             	}
 	             	else if (line.contains("customRegSelector"))
 	             	{
@@ -1097,14 +1121,14 @@ private void resetAllOptions()
 	             		}
 	             	}
 	        }*/
-	        }
-	        
-	     
+		}
+
+
 		//} catch (IOException e) {
-			// TODO Auto-generated catch block
+		// TODO Auto-generated catch block
 		//	e.printStackTrace();
 		//}
-        
-	    // TODO
+
+		// TODO
 	} 
 }
