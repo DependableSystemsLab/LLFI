@@ -1,5 +1,3 @@
-
-
 from __future__ import ( division, absolute_import, print_function, unicode_literals )
 import sys, os, tempfile, logging
 if sys.version_info >= (3,):
@@ -16,32 +14,32 @@ import xml.etree.ElementTree as ET
 import argparse
 
 #Update These to change download targets
-LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz", 
-				'FILENAME':"llvm-3.4.src.tar.gz", 
-				'MD5':"46ed668a1ce38985120dbf6344cf6116", 
-				'EXTRACTPATH':"llvmsrc", 
+LLVM34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/llvm-3.4.src.tar.gz",
+				'FILENAME':"llvm-3.4.src.tar.gz",
+				'MD5':"46ed668a1ce38985120dbf6344cf6116",
+				'EXTRACTPATH':"llvmsrc",
 				'EXTRACTEDNAME':'llvm-3.4',
 				'ARCHIVETYPE':'.tar.gz',
 				'EXTRACTFLAG':True,
 				'DOWNLOADFLAG':True}
-CLANG34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz", 
-				 'FILENAME':"clang-3.4.src.tar.gz", 
-				 'MD5':"b378f1e2c424e03289effc75268d3d2c", 
-				 'EXTRACTPATH':"llvmsrc/tools/clang", 
+CLANG34DOWNLOAD = {'URL':"http://llvm.org/releases/3.4/clang-3.4.src.tar.gz",
+				 'FILENAME':"clang-3.4.src.tar.gz",
+				 'MD5':"b378f1e2c424e03289effc75268d3d2c",
+				 'EXTRACTPATH':"llvmsrc/tools/clang",
 				 'EXTRACTEDNAME':'clang-3.4',
 				 'ARCHIVETYPE':'.tar.gz',
 				 'EXTRACTFLAG':True,
 				 'DOWNLOADFLAG':True}
-PYAML311DOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz", 
-				 'FILENAME':"PyYAML-3.11.tar.gz", 
-				 'MD5':"f50e08ef0fe55178479d3a618efe21db", 
-				 'EXTRACTPATH':"pyyamlsrc", 
+PYAML311DOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz",
+				 'FILENAME':"PyYAML-3.11.tar.gz",
+				 'MD5':"f50e08ef0fe55178479d3a618efe21db",
+				 'EXTRACTPATH':"pyyamlsrc",
 				 'EXTRACTEDNAME':'PyYAML-3.11',
 				 'ARCHIVETYPE':'.tar.gz',
 				 'EXTRACTFLAG':True,
 				 'DOWNLOADFLAG':True}
-LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"https://github.com/DependableSystemsLab/LLFI/archive/master.zip", 
-				'FILENAME':"master.zip", 
+LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"https://github.com/DependableSystemsLab/LLFI/archive/master.zip",
+				'FILENAME':"master.zip",
 				'MD5':"fc3ba3cfea7ae3236bf027b847058105", #"c9a8c3ffcbd033a4d3cf1dc9a25de09c" #You will have to change this outside of the git repo
 				'EXTRACTPATH':"llfisrc", 													  #If you change this md5 within the repo, the md5 of the
 				'EXTRACTEDNAME':'LLFI-master',           									  #repo will change
@@ -50,28 +48,28 @@ LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"h
 				'DOWNLOADFLAG':True}
 
 #LLVM33 Targets:
-LLVM33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz", 
-				'FILENAME':"llvm-3.3.src.tar.gz", 
-				'MD5':"40564e1dc390f9844f1711c08b08e391", 
-				'EXTRACTPATH':"llvmsrc", 
+LLVM33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/llvm-3.3.src.tar.gz",
+				'FILENAME':"llvm-3.3.src.tar.gz",
+				'MD5':"40564e1dc390f9844f1711c08b08e391",
+				'EXTRACTPATH':"llvmsrc",
 				'EXTRACTEDNAME':'llvm-3.3.src',
 				'ARCHIVETYPE':'.tar.gz',
 				'EXTRACTFLAG':True,
 				'DOWNLOADFLAG':True}
-CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz", 
-				 'FILENAME':"cfe-3.3.src.tar.gz", 
-				 'MD5':"8284891e3e311829b8e44ac813d0c9ef", 
-				 'EXTRACTPATH':"llvmsrc/tools/clang", 
+CLANG33DOWNLOAD = {'URL':"http://llvm.org/releases/3.3/cfe-3.3.src.tar.gz",
+				 'FILENAME':"cfe-3.3.src.tar.gz",
+				 'MD5':"8284891e3e311829b8e44ac813d0c9ef",
+				 'EXTRACTPATH':"llvmsrc/tools/clang",
 				 'EXTRACTEDNAME':'cfe-3.3.src',
 				 'ARCHIVETYPE':'.tar.gz',
 				 'EXTRACTFLAG':True,
 				 'DOWNLOADFLAG':True}
 #Primary Repository LLFI
-LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip', 
-					  'FILENAME':"master.zip", 
+LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/master.zip',
+					  'FILENAME':"master.zip",
 					  'MD5':"04fcd2c0dc23b97f72eaf6b76e021821",
-					  'EXTRACTPATH':"llfisrc", 					
-					  'EXTRACTEDNAME':'LLFI-master',           	
+					  'EXTRACTPATH':"llfisrc",
+					  'EXTRACTEDNAME':'LLFI-master',
 					  'ARCHIVETYPE':'.zip',
 					  'EXTRACTFLAG':True,
 					  'DOWNLOADFLAG':True}
@@ -83,7 +81,7 @@ LLFIROOTDIRECTORY = "."
 def checkPython3():
 	try:
 		which = subprocess.check_output(['which', 'python3'])
-		print("Success: Python 3 Found at: " + which.strip())
+		print("Success: Python 3 Found at: " + str(which.strip()))
 		return True
 	except(subprocess.CalledProcessError):
 		print("Error: Python 3 (python3) not found on path")
@@ -95,25 +93,30 @@ def checkPython3():
 def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, msg):
 	try:
 		which = subprocess.check_output(['which', execName])
-		print("Success: " + name +  " Found at: " + which.strip())
+		print("Success: " + name +  " Found at: " + str(which.strip()))
 		version = subprocess.check_output([execName, versionArg], stderr=subprocess.STDOUT)
 		#print("v", version)
-		printVersion = printParseFunc(version)
-		#print("pv", printVersion)
-		version = parseFunc(version)
-		#print("cv", version)
-		properVersion = True
-		if int(version[0]) < minVersion[0]:
-			properVersion = False
-		if int(version[1]) < minVersion[1]:
-			properVersion = False
-		if properVersion:
-			print("Success: " + name + "(" + printVersion + ") is at or above version " + ".".join([str(x) for x in minVersion]))
-			return True
-		else:
-			print("Error: " + name + "(" + printVersion + ") is below version " + ".".join([str(x) for x in minVersion]))
-			print(msg)
-			return False		
+		try:
+			printVersion = printParseFunc(version)
+			#print("pv", printVersion)
+			version = parseFunc(version)
+			#print("cv", version)
+			properVersion = True
+			if int(version[0]) < minVersion[0]:
+				properVersion = False
+			if int(version[1]) < minVersion[1]:
+				properVersion = False
+			if properVersion:
+				print("Success: " + name + "(" + printVersion + ") is at or above version " + ".".join([str(x) for x in minVersion]))
+				return True
+			else:
+				print("Error: " + name + "(" + printVersion + ") is below version " + ".".join([str(x) for x in minVersion]))
+				print(msg)
+				return False
+		except:
+ 			print("Warning, " + name + " detected on path, but unable to parse version info.")
+ 			print("Please ensure that " + name + " is at least of version: " + '.'.join([str(x) for x in minVersion]))
+ 			return True	
 	except(subprocess.CalledProcessError):
 		print("Error: " + name + " (" + execName + ") not found on path")
 		print("       Pease ensure " + name + " is installed and is available on the path")
@@ -126,11 +129,11 @@ def CmakePrintParse(version):
 def CmakeParse(version):
 	return [int(x) for x in version.split()[2].split('.')]
 
-cmakeMsg = "\tCmake 2.8+ cant be downloaded from:\n\thttp://www.cmake.org/cmake/resources/software.html" 
+cmakeMsg = "\tCmake 2.8+ cant be downloaded from:\n\thttp://www.cmake.org/cmake/resources/software.html"
 
 def JavaPrintParse(version):
 	return version.split()[2][1:-1]
-		
+
 def JavaParse(version):
 	return version.split()[2][1:-1].split('.')[:2]
 
@@ -194,7 +197,7 @@ def CheckAndDownload(filename, md5, url):
 	filepath = os.path.abspath("./downloads/" + filename)
 	if os.path.isfile(filepath):
 		print("Download target " + filename + " already exists.")
-		with open(filepath) as check:
+		with open(filepath 'rb') as check:
 			data = check.read()
 			md5new = hashlib.md5(data).hexdigest()
 		if md5 == md5new:
@@ -384,7 +387,7 @@ def updateGUIXMLBuildPath(newPath):
 		if path.get('id') == "JavaFX SDK.libraryclasspath":
 			pathelement = path.find('./pathelement[@location]')
 			pathelement.set("location", newPath + "jfxrt.jar")
-			
+
 	for path in root.iter('target'):
 		if path.get('name') == "jar":
 			buildelement = path.find('./jar[@destfile]')
@@ -394,7 +397,7 @@ def updateGUIXMLBuildPath(newPath):
 		if target.get('name') == "jar":
 			element = target.find("./jar/zipfileset[@includes='jfxrt.jar']")
 			element.set("dir", newPath)
-	tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')		
+	tree.write('llfisrc/Gui_SourceCode/LLFI/build.xml')
 
 
 def getJavaFXLibLocation():
@@ -411,7 +414,7 @@ def getJavaFXLibLocation():
 			javaLibPath = javaBinPath[:-9] + "/lib/"
 		else:
 			javaLibPath = javaBinPath[:-9] + "/jre/lib/"
-	
+
 	if (os.path.exists(os.path.join(javaLibPath, "ext/jfxrt.jar"))):
 		javaLibPath = os.path.join(javaLibPath, "ext/")
 	print("Detecting JFX Lib at " + str(javaLibPath))
@@ -437,7 +440,7 @@ def addEnvs():
 
 	with open(tcshPath, "a") as rcFile:
 		rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
-		rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
+		rcFile.write("setenv llfibuild " + llfibuildPath + "\n")
 
 parser = argparse.ArgumentParser(
 		description=("Installer for UBC DependableSystemsLab's LLFI"),
@@ -481,10 +484,10 @@ if __name__ == "__main__":
 		currPath = os.getcwd()
 		if os.path.isdir(LLFIROOTDIRECTORY):
 			os.chdir(LLFIROOTDIRECTORY)
-			for target in DOWNLOADTARGETS:	
+			for target in DOWNLOADTARGETS:
 				subprocess.call(["rm", "-rf", target['EXTRACTPATH']])
 			print("Done.")
-		os.chdir(currPath)	
+		os.chdir(currPath)
 	print("Installing LLFI to: " + os.path.abspath(LLFIROOTDIRECTORY))
 	if not args.noDownload:
 		DownloadSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY)
