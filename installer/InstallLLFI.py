@@ -197,7 +197,7 @@ def CheckAndDownload(filename, md5, url):
 	filepath = os.path.abspath("./downloads/" + filename)
 	if os.path.isfile(filepath):
 		print("Download target " + filename + " already exists.")
-		with open(filepath 'rb') as check:
+		with open(filepath, 'rb') as check:
 			data = check.read()
 			md5new = hashlib.md5(data).hexdigest()
 		if md5 == md5new:
