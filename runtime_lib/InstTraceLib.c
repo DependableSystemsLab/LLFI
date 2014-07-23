@@ -51,7 +51,10 @@ void printInstTracer(long instID, int opcode, int size, double fpValue, int maxP
 	{
         fprintf(OutputFile(),"%f",fpValue); 
 	}
-
+	else
+	{
+        fprintf(OutputFile(),"0"); 
+	}
 	
 
     fprintf(OutputFile(), "\n");
