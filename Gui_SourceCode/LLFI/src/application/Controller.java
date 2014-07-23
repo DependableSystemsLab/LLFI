@@ -17,7 +17,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
-
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.sun.glass.ui.View;
 
 import javafx.collections.FXCollections;
@@ -841,7 +843,7 @@ public class Controller implements Initializable {
 
 			//Delete old UnitedDiffReportFile.txt, TraceGraph.dot, and TraceGraph.ps files
 
-			File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt");
+			File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt");
 			if(UnitedDiffReportFile.exists())
 			{
 				delete(UnitedDiffReportFile);
@@ -892,7 +894,7 @@ public class Controller implements Initializable {
 
 			//		}
 
-			TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
+			TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt";
 			if(found >1)
 			{
 				//		    	System.out.println(TraceUnionCmd);
@@ -906,7 +908,7 @@ public class Controller implements Initializable {
 
 
 				//Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 				TraceGraph.redirectErrorStream(true);
 				Process pr2 = TraceGraph.start();
 				pr2.waitFor();
@@ -1111,8 +1113,9 @@ public class Controller implements Initializable {
 
 	public void listFilesForFolder(final File folder) {
 		resultFileNameLists = new ArrayList<String>();
-		for (final File fileEntry : folder.listFiles()) {
-
+		File[] files =folder.listFiles();
+		Arrays.sort(files, new FileNameComparator());
+		for (final File fileEntry : files) {
 			if (fileEntry.isDirectory()) {
 				listFilesForFolder(fileEntry);
 			} else {
@@ -1121,6 +1124,77 @@ public class Controller implements Initializable {
 			}
 		}
 	}
+Pattern splitter = Pattern.compile("(\\d+|\\D+)");
+public class FileNameComparator implements Comparator
+{
+  public int compare(Object o1, Object o2)
+  {
+    // I deliberately use the Java 1.4 syntax, 
+    // all this can be improved with 1.5's generics
+    String s1 = o1.toString(), s2 = o2.toString();
+    // We split each string as runs of number/non-number strings
+    ArrayList sa1 = split(s1);
+    ArrayList sa2 = split(s2);
+    // Nothing or different structure
+    if (sa1.size() == 0 || sa1.size() != sa2.size())
+    {
+      // Just compare the original strings
+      return s1.compareTo(s2);
+    }
+    int i = 0;
+    String si1 = "";
+    String si2 = "";
+    // Compare beginning of string
+    for (; i < sa1.size(); i++)
+    {
+      si1 = (String)sa1.get(i);
+      si2 = (String)sa2.get(i);
+      if (!si1.equals(si2))
+        break;  // Until we find a difference
+    }
+    // No difference found?
+    if (i == sa1.size())
+      return 0; // Same strings!
+
+    // Try to convert the different run of characters to number
+    int val1, val2;
+    try
+    {
+      val1 = Integer.parseInt(si1);
+      val2 = Integer.parseInt(si2);
+    }
+    catch (NumberFormatException e)
+    {
+      return s1.compareTo(s2);  // Strings differ on a non-number
+    }
+
+    // Compare remainder of string
+    for (i++; i < sa1.size(); i++)
+    {
+      si1 = (String)sa1.get(i);
+      si2 = (String)sa2.get(i);
+      if (!si1.equals(si2))
+      {
+        return s1.compareTo(s2);  // Strings differ
+      }
+    }
+
+    // Here, the strings differ only on a number
+    return val1 < val2 ? -1 : 1;
+  }
+
+  ArrayList split(String s)
+  {
+    ArrayList r = new ArrayList();
+    Matcher matcher = splitter.matcher(s);
+    while (matcher.find())
+    {
+      String m = matcher.group(1);
+      r.add(m);
+    }
+    return r;
+  }
+}
 
 	@FXML
 	private void onClickCompileToIr(ActionEvent event){
@@ -1754,5 +1828,4 @@ public class Controller implements Initializable {
 
 
 }
-
 
