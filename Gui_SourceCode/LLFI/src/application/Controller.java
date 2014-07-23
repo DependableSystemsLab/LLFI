@@ -17,7 +17,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
-
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.sun.glass.ui.View;
 
 import javafx.collections.FXCollections;
@@ -158,12 +160,10 @@ public class Controller implements Initializable {
 	static public String llfibuildPath=null;
 	static public String currentFileName;
 	public boolean checkFlag = true;
-	public boolean indexStates =false;
 	static public List<String> console;
 
 
 	public ArrayList<String> fileNameLists = new ArrayList<>();
-	public ArrayList<String> CompiledllFileNameLists = new ArrayList<>();
 	public ArrayList<String> registerList = new ArrayList<>();
 	private ArrayList<String> resultFileNameLists;
 	private ArrayList<String> resultErrorFileNameLists;
@@ -223,7 +223,7 @@ public class Controller implements Initializable {
 
 
 			inputString = programInputText.getText();
-			//programInputText.setEditable(false);
+			programInputText.setEditable(false);
 			errorString = new ArrayList<>();
 			//System.out.println("inputString;"+inputString);
 
@@ -258,6 +258,8 @@ public class Controller implements Initializable {
 			}
 
 			bufferReader.close();
+			
+			//System.out.println("Read!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
 			inputFile = new FileReader("llfi.stat.prof.txt");
 			bufferReader = new BufferedReader(inputFile);
 
@@ -327,6 +329,7 @@ public class Controller implements Initializable {
 				programTextArea.appendText(fileContent.get(i));
 			}
 
+			//profilingButton.setDisable(true);
 
 
 
@@ -342,8 +345,6 @@ public class Controller implements Initializable {
 
 
 	}
-
-
 	public void executefaultInjection()
 	{
 		try{
@@ -395,12 +396,14 @@ public class Controller implements Initializable {
 			if(outputFolder.exists())
 				deleteFilesInFolder(outputFolder);
 			// }
+
 			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
 			Stage stage = new Stage();                               
 
 			stage.setTitle("Fault Injection");
 			stage.setScene(new Scene(root, 440, 118));
 			stage.show();
+			
 		}
 		catch (IOException e) {
 
@@ -424,7 +427,6 @@ public class Controller implements Initializable {
 	@FXML
 	public void onClickInjectFaultOkHandler(ActionEvent event){
 
-
 	}
 	@FXML
 	public void onGeneratingResultTable(){
@@ -434,6 +436,7 @@ public class Controller implements Initializable {
 			int entryCount = 0;
 			data1 =  FXCollections.observableArrayList() ;
 			resultList = new ArrayList<String>();
+			resultFileNameLists = new ArrayList<String>();
 			resultErrorFileNameLists = new ArrayList<String>();
 			resultOutputFileNameLists = new ArrayList<String>();
 			final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
@@ -441,9 +444,7 @@ public class Controller implements Initializable {
 			final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
 			listFilesForErrorFolder(errorFolder);
 			final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
-			listFilesForOtputFolder(outputFolder);	
-
-
+			listFilesForOtputFolder(outputFolder);
 			runCount = 0;
 			/*FileReader inFile = new FileReader(currentProgramFolder+"/llfi/gui_config.txt");
 		BufferedReader bReader = new BufferedReader(inFile);
@@ -452,6 +453,7 @@ public class Controller implements Initializable {
 
 		      }
 		  bReader.close();*/
+
 			//Generate  trace_report_output folder to hold TraceDiffReport files
 
 			ProcessBuilder deleteTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","rm -rf "+Controller.currentProgramFolder+"/llfi/trace_report_output");
@@ -463,8 +465,6 @@ public class Controller implements Initializable {
 			Process makeFolder = makeTraceReportFolder.start();
 			makeFolder.waitFor();
 			makeFolder.destroy();
-
-			//DiffFile.redirectErrorStream(true);
 
 			for(int i = 0; i < resultFileNameLists.size();i++)                                
 
@@ -479,7 +479,6 @@ public class Controller implements Initializable {
 					Process pr2 = DiffFile.start();
 					pr2.waitFor();
 					pr2.destroy();
-
 				}
 				else
 				{
@@ -552,7 +551,6 @@ public class Controller implements Initializable {
 						status = "Not Injected ";
 						result ="Nil";
 					}
-					boolean tmpFlag = false;
 					if(resultOutputFileNameLists.size()>0)
 					{
 						FileReader baseline = new FileReader(currentProgramFolder+"/llfi/baseline/golden_std_output");
@@ -568,163 +566,140 @@ public class Controller implements Initializable {
 						for(int k = 0;k< resultOutputFileNameLists.size();k++)
 						{
 
-							for(int l = 0;l<resultErrorFileNameLists.size();l++)
+
+
+							if(resultOutputFileNameLists.get(k).substring(19).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
 							{
-								if((resultErrorFileNameLists.get(l).substring(14).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0])))
-								{
-									sdc = "Not Occured";
-									tmpFlag = true;
-									break;
+
+
+								ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $COMPARE");
+
+								p1.redirectErrorStream(true);
+								Process pr1 = p1.start();
+								BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+								String line1;
+								String comparePath = null;
+								while ((line1 = in2.readLine()) != null) {
+
+									Controller.errorString.add(line1+"\n");
+									if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+										errorFlag= true;
+									else
+										comparePath = line1;
+
+
 								}
-							}
-							if(tmpFlag)
-								break;
-							else
-							{
-								if(resultOutputFileNameLists.get(k).substring(19).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
+
+								pr1.waitFor();
+								in2.close();
+								pr1.destroy();
+								if(!comparePath.equalsIgnoreCase(null))
 								{
+									ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","sh "+comparePath+" "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
+											currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
 
+									p2.redirectErrorStream(true);
+									Process pr2 = p2.start();
+									BufferedReader in3 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
 
-									ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $COMPARE");
-
-									p1.redirectErrorStream(true);
-									Process pr1 = p1.start();
-									BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-									String line1;
-									String comparePath = null;
-									while ((line1 = in2.readLine()) != null) {
+									while ((line1 = in3.readLine()) != null) {
 
 										Controller.errorString.add(line1+"\n");
-										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR") || line1.contains("Undefined variable"))
+										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
 											errorFlag= true;
 										else
-											comparePath = line1;
-
-
-									}
-
-									pr1.waitFor();
-									in2.close();
-									pr1.destroy();
-									if(!(comparePath == null))
-									{
-										ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","sh "+comparePath+" "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
-												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
-
-										p2.redirectErrorStream(true);
-										Process pr2 = p2.start();
-										BufferedReader in3 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
-
-										while ((line1 = in3.readLine()) != null) {
-
-											Controller.errorString.add(line1+"\n");
-											if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-												errorFlag= true;
+										{
+											if(line1.equalsIgnoreCase("Not Identical"))
+											{
+												sdc = "Not Occured";
+											}
 											else
 											{
-												if(line1.equalsIgnoreCase("Not Identical"))
-												{
+												if(status.equalsIgnoreCase("Injected"))
 													sdc = "Not Occured";
-												}
 												else
 												{
-													// if(status.equalsIgnoreCase("Injected"))
-													// sdc = "Not Occured";
-													// else
-													// {
 													sdcCount++;
 													sdc = "Occured";
 													status = "Injected";
-													// }
 												}
 											}
-
-
 										}
-										pr2.waitFor();
-										in3.close();
+
+
 									}
-									else
-									{
+									pr2.waitFor();
+									in3.close();
+								}
+								else
+								{
 
-										ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","diff "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
-												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
+									ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","diff "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
+											currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
 
-										p3.redirectErrorStream(true);
-										Process pr3 = p3.start();
-										BufferedReader in4 = new BufferedReader(new InputStreamReader(pr3.getInputStream()));
-										if((line1 = in4.readLine()) == null)
-										{
-											sdc = "Not Occured"; 
-											status = "Injected";
-										}
+									p3.redirectErrorStream(true);
+									Process pr3 = p3.start();
+									BufferedReader in4 = new BufferedReader(new InputStreamReader(pr3.getInputStream()));
+
+									while ((line1 = in4.readLine()) != null) {
+
+										Controller.errorString.add(line1+"\n");
+										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+											errorFlag= true;
 										else
 										{
-											while ((line1 = in4.readLine()) != null) {
-
-												Controller.errorString.add(line1+"\n");
-												if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-													errorFlag= true;
+											if(line1.equalsIgnoreCase(""))
+											{
+												sdc = "Not Occured";
+											}
+											else
+											{
+												if(status.equalsIgnoreCase("Injected"))
+													sdc = "Not Occured";
 												else
 												{
-													//if(line1.equalsIgnoreCase(""))
-													//{
-													// sdc = "Not Occured";
-													//}
-													//else
-													//{
-													// if(status.equalsIgnoreCase("Injected"))
-													//  sdc = "Not Occured";
-													// else
-													//  {
 													sdcCount++;
 													sdc = "Occured";
 													status = "Injected";
-													break;
-													// }
-													//}
 												}
-
-
 											}
 										}
 
-										pr3.waitFor();
-										in4.close();
+
 									}
+									pr3.waitFor();
+									in4.close();
+								}
 
 
 
 
-									/*  FileReader progOutputFile= new FileReader(currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
-								  BufferedReader bufferReader2 = new BufferedReader(progOutputFile);
-								  while ((line = bufferReader2.readLine()) != null)   {
+								/*  FileReader progOutputFile= new FileReader(currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
+							  BufferedReader bufferReader2 = new BufferedReader(progOutputFile);
+							  while ((line = bufferReader2.readLine()) != null)   {
 
-									  progValue += line;						      	
-								      }
+								  progValue += line;						      	
+							      }
 
-								  bufferReader2.close();
-								  if(stdValue.equalsIgnoreCase(progValue))
-								  {
+							  bufferReader2.close();
+							  if(stdValue.equalsIgnoreCase(progValue))
+							  {
 
 
+								  sdc = "Not Occured";
+							  }
+							  else
+							  {
+								  if(status.equalsIgnoreCase("Injected"))
 									  sdc = "Not Occured";
-								  }
 								  else
 								  {
-									  if(status.equalsIgnoreCase("Injected"))
-										  sdc = "Not Occured";
-									  else
-									  {
-										  sdcCount++;
-										  sdc = "Occured";
-									  }
+									  sdcCount++;
+									  sdc = "Occured";
+								  }
 
-								  }*/
-								}
+							  }*/
 							}
-
-
 						}
 					}
 					else
@@ -740,8 +715,7 @@ public class Controller implements Initializable {
 				  System.out.println("\nsdc : "+sdc);
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
-					trace =false;
-					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
+					data1.add(new ResultTable(runCount,resultList.get(5),resultList.get(6),resultList.get(7),resultList.get(8),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
 							Integer.parseInt(resultList.get(4)),sdc,status,result,trace));
 
 
@@ -750,13 +724,10 @@ public class Controller implements Initializable {
 
 			}
 
-
-
-
-
-
-
 			tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
+			failureClass.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("failureClass"));
+			failureMode.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("failureMode"));
+			functionName.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("functionName"));
 			tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
 			tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
 			tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("cycle"));
@@ -776,11 +747,9 @@ public class Controller implements Initializable {
 				}
 			});
 			tFiTrace.setEditable(true);
-
 			resultTable.setItems(data1);
 			resultTable.setEditable(true);
 			tracegraphButton.setDisable(false);
-
 
 			// Header CheckBox for select all
 			HBox box = new HBox();
@@ -841,7 +810,7 @@ public class Controller implements Initializable {
 
 			//Delete old UnitedDiffReportFile.txt, TraceGraph.dot, and TraceGraph.ps files
 
-			File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt");
+			File  UnitedDiffReportFile = new File(currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt");
 			if(UnitedDiffReportFile.exists())
 			{
 				delete(UnitedDiffReportFile);
@@ -892,7 +861,7 @@ public class Controller implements Initializable {
 
 			//		}
 
-			TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt";
+			TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt";
 			if(found >1)
 			{
 				//		    	System.out.println(TraceUnionCmd);
@@ -906,7 +875,7 @@ public class Controller implements Initializable {
 
 
 				//Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnitedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 				TraceGraph.redirectErrorStream(true);
 				Process pr2 = TraceGraph.start();
 				pr2.waitFor();
@@ -1006,7 +975,7 @@ public class Controller implements Initializable {
 
 
 
-			String[] params = {"Crashed","Hanged","SDC"};                               
+			String[] params = {"Faults Injected","Crashed","Hanged","SDC"};                               
 
 			// Convert it to a list and add iUTILITYt to our ObservableList of months.
 			// row.addAll(Arrays.asList(params));
@@ -1041,11 +1010,11 @@ public class Controller implements Initializable {
 			yAxis.setTickUnit(1);
 
 			series = new XYChart.Series<Integer,String>();
-			//XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer,String>(resultErrorFileNameLists.size(),"Faults Injected");
-			//series.getData().add(faultData);
+			XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer,String>(resultErrorFileNameLists.size(),"Faults Injected");
+			series.getData().add(faultData);
 
 
-			XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer,String>(crashedCount,"Crashed");
+			faultData = new XYChart.Data<Integer,String>(crashedCount,"Crashed");
 			series.getData().add(faultData);
 
 			faultData = new XYChart.Data<Integer,String>(hangedCount,"Hanged");
@@ -1068,7 +1037,6 @@ public class Controller implements Initializable {
 	}
 
 	public void listFilesForErrorFolder(final File folder) {
-
 		resultErrorFileNameLists = new ArrayList<String>();
 		for (final File fileEntry : folder.listFiles()) {                                
 
@@ -1094,7 +1062,6 @@ public class Controller implements Initializable {
 		//System.out.println(line1);
 
 	}
-
 	public void FileListofTraceReportFolder(final File folder) {
 		TraceDiffReportFileNameLists = new ArrayList<String>();
 		for (final File fileEntry : folder.listFiles()) {                                
@@ -1108,11 +1075,11 @@ public class Controller implements Initializable {
 		//System.out.println(line1);
 
 	}
-
 	public void listFilesForFolder(final File folder) {
 		resultFileNameLists = new ArrayList<String>();
-		for (final File fileEntry : folder.listFiles()) {
-
+		File[] files =folder.listFiles();
+		Arrays.sort(files, new FileNameComparator());
+		for (final File fileEntry : files) {
 			if (fileEntry.isDirectory()) {
 				listFilesForFolder(fileEntry);
 			} else {
@@ -1121,6 +1088,78 @@ public class Controller implements Initializable {
 			}
 		}
 	}
+Pattern splitter = Pattern.compile("(\\d+|\\D+)");
+public class FileNameComparator implements Comparator
+{
+  public int compare(Object o1, Object o2)
+  {
+    // I deliberately use the Java 1.4 syntax, 
+    // all this can be improved with 1.5's generics
+    String s1 = o1.toString(), s2 = o2.toString();
+    // We split each string as runs of number/non-number strings
+    ArrayList sa1 = split(s1);
+    ArrayList sa2 = split(s2);
+    // Nothing or different structure
+    if (sa1.size() == 0 || sa1.size() != sa2.size())
+    {
+      // Just compare the original strings
+      return s1.compareTo(s2);
+    }
+    int i = 0;
+    String si1 = "";
+    String si2 = "";
+    // Compare beginning of string
+    for (; i < sa1.size(); i++)
+    {
+      si1 = (String)sa1.get(i);
+      si2 = (String)sa2.get(i);
+      if (!si1.equals(si2))
+        break;  // Until we find a difference
+    }
+    // No difference found?
+    if (i == sa1.size())
+      return 0; // Same strings!
+
+    // Try to convert the different run of characters to number
+    int val1, val2;
+    try
+    {
+      val1 = Integer.parseInt(si1);
+      val2 = Integer.parseInt(si2);
+    }
+    catch (NumberFormatException e)
+    {
+      return s1.compareTo(s2);  // Strings differ on a non-number
+    }
+
+    // Compare remainder of string
+    for (i++; i < sa1.size(); i++)
+    {
+      si1 = (String)sa1.get(i);
+      si2 = (String)sa2.get(i);
+      if (!si1.equals(si2))
+      {
+        return s1.compareTo(s2);  // Strings differ
+      }
+    }
+
+    // Here, the strings differ only on a number
+    return val1 < val2 ? -1 : 1;
+  }
+
+  ArrayList split(String s)
+  {
+    ArrayList r = new ArrayList();
+    Matcher matcher = splitter.matcher(s);
+    while (matcher.find())
+    {
+      String m = matcher.group(1);
+      r.add(m);
+    }
+    return r;
+  }
+}
+
 
 	@FXML
 	private void onClickCompileToIr(ActionEvent event){
@@ -1155,9 +1194,6 @@ public class Controller implements Initializable {
 				stage.setTitle("Compiling To IR Result");
 				stage.setScene(new Scene(root, 500, 150));
 				stage.show();
-
-
-
 				// Clear fileContent
 				fileContent = new ArrayList<>();
 				String line;
@@ -1201,15 +1237,11 @@ public class Controller implements Initializable {
 				items =FXCollections.observableArrayList (fileNameLists);
 				fileList.setItems(items);
 				fileSelecMap.put(fileName, fileContent);
-				//Add file name to compiledfileNameList
-				CompiledllFileNameLists.add(currentProgramFolder+".c");
 				instrumentButton.setDisable(false);
 				profilingButton.setDisable(true);
 				runtimeButton.setDisable(true);
 				injectfaultButton.setDisable(true);
 				tracegraphButton.setDisable(true);
-
-
 
 			}
 			else
@@ -1244,7 +1276,6 @@ public class Controller implements Initializable {
 	private void onClickInstrument(ActionEvent event) {
 		Parent root;
 		try {
-			indexStates=false;
 			tabBottom.getSelectionModel().select(profilingTab);
 			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Instrument.fxml"));
 			Stage stage = new Stage();
@@ -1253,10 +1284,6 @@ public class Controller implements Initializable {
 			stage.show();
 
 			//instrumentButton.setDisable(true);
-
-
-
-
 			profilingButton.setDisable(false);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
@@ -1283,31 +1310,30 @@ public class Controller implements Initializable {
 			stage.show();
 			//flag = 1;
 
-			/*if(errorFlag == true)
-          {
-       	   errorFlag = false;
-   			  Node  source = (Node)  event.getSource(); 
-   			   stage  = (Stage) source.getScene().getWindow();
-   			  stage.close();
+			if(errorFlag == true)
+			{
+				errorFlag = false;
+				Node  source = (Node)  event.getSource(); 
+				stage  = (Stage) source.getScene().getWindow();
+				stage.close();
 
-   			  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
-   		        stage = new Stage();
-   		        stage.setTitle("Error");
-   		        stage.setScene(new Scene(root, 450, 100));
-   		        stage.show();
-          }
-          else
-          {
-       	   errorString = new ArrayList<>();
+				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+				stage = new Stage();
+				stage.setTitle("Error");
+				stage.setScene(new Scene(root, 450, 100));
+				stage.show();
+			}
+			else
+			{
+				/*errorString = new ArrayList<>();
        	   root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Profile.fxml"));
               Stage stage = new Stage();                               
 
               stage.setTitle("Profiling");
               stage.setScene(new Scene(root, 400, 100));
-              stage.show();
-
-          }*/
-			injectfaultButton.setDisable(false);
+              stage.show();*/
+				injectfaultButton.setDisable(false);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1379,11 +1405,12 @@ public class Controller implements Initializable {
 	}
 	private void openFile(File file) {
 		try{
-			programInputText.clear();
 			boolean flag =false;
 			fileContent = new ArrayList<>();
 			Path path = file.toPath();
-			String fileInfo =path.toString(); 
+
+			String fileInfo =path.toString();
+
 			FileReader inputFile = new FileReader(fileInfo);
 			BufferedReader bufferReader = new BufferedReader(inputFile);
 
@@ -1413,7 +1440,7 @@ public class Controller implements Initializable {
 			//Variable to hold the one line data
 			String line;
 
-			String folderName = fileName.split("\\.")[0]; 
+			String folderName = fileName.split("\\.")[0];
 			File  theDirectory = new File(folderName);
 			if(theDirectory.exists())
 			{
@@ -1427,6 +1454,7 @@ public class Controller implements Initializable {
 
 			while ((line = bufferReader.readLine()) != null)   {
 				fileContent.add(line+"\n");
+
 			}
 			File actualFile = new File(folderName+"/"+fileName);
 			BufferedWriter outputFile = new BufferedWriter(new FileWriter(actualFile));
@@ -1445,36 +1473,34 @@ public class Controller implements Initializable {
 				resultSummary.getData().clear();
 				//resultSummary.setVisible(false);
 				/*series = new XYChart.Series<Integer,String>();
-
         		resultSummary.getData().add(series);*/
+				programTextArea.clear();
+				//System.out.println("Hello");
 				currentProgramFolder = folderName;
 				//fileList.sgetSelectionModel().select(currentFileName);
 				currentFileName = fileName;
-
 				for(int i = 0 ; i < fileContent.size(); i++)
 				{
-					// ProgramTextArea displays the files contents in GUI text console. 
 
 					programTextArea.appendText(fileContent.get(i));
 				}
 				if(fileName.split("\\.")[1].equalsIgnoreCase("ll"))
 				{
-
 					compiletoIrButton.setDisable(true);
 					instrumentButton.setDisable(false);
 					profilingButton.setDisable(true);
 					runtimeButton.setDisable(true);
 					injectfaultButton.setDisable(true);
-
+					tracegraphButton.setDisable(true);
 				}
 				else
 				{
-
 					compiletoIrButton.setDisable(false);
 					instrumentButton.setDisable(true);
 					profilingButton.setDisable(true);
 					runtimeButton.setDisable(true);
 					injectfaultButton.setDisable(true);
+					tracegraphButton.setDisable(true);
 				}
 
 			}
@@ -1490,14 +1516,14 @@ public class Controller implements Initializable {
 	}
 	@FXML
 	private void onFileSelection(MouseEvent event){
-		programInputText.clear();
+
 		fileContent = new ArrayList<>();
 		data = FXCollections.observableArrayList();
 		profilingTable.setItems(data);
 		data1=FXCollections.observableArrayList();
 		resultTable.setItems(data1);
 		resultSummary.getData().clear();
-		//programInputText.setEditable(true);
+		programInputText.setEditable(true);
 		//resultSummary.setVisible(false);
 		/*series = new XYChart.Series<Integer,String>();
 	resultSummary.getData().add(series);*/
@@ -1511,25 +1537,23 @@ public class Controller implements Initializable {
 
 			programTextArea.appendText(fileContent.get(i));
 		}
-
 		if(currentFileName.split("\\.")[1].equalsIgnoreCase("ll"))
 		{
-
 			compiletoIrButton.setDisable(true);
 			instrumentButton.setDisable(false);
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
+			tracegraphButton.setDisable(true);
 		}
 		else
 		{
-
-
 			compiletoIrButton.setDisable(false);
 			instrumentButton.setDisable(true);
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
+			tracegraphButton.setDisable(true);
 		}
 
 
@@ -1538,9 +1562,9 @@ public class Controller implements Initializable {
 	private void onTabChange(){
 		if(faultStatus.isSelected() || faultSummaryTab.isSelected())
 		{
-			if(flag == 1 )
+			if(flag == 1 && errorString.size() == 0 )
 			{
-				//programInputText.setEditable(true);
+				programInputText.setEditable(true);
 				onGeneratingResultTable();
 				generateFaultSummaryGraph();
 				flag = 0;
@@ -1745,14 +1769,5 @@ public class Controller implements Initializable {
 		}
 
 		// TODO
-
-
-
-
-	}
-
-
-
+	}    
 }
-
-
