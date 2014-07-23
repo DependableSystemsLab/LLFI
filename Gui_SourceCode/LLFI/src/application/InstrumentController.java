@@ -234,27 +234,23 @@ public class InstrumentController implements Initializable {
 			//File+selectedTraceMethod);
 			if(fullTraceRadio.isSelected() == true || limitTraceRadio.isSelected() == true)
 			{
-				w.write("\n\n    "+"tracingPropagation:"+" True");
-				w.write("\n\n    "+"tracingPropagationOption:");
-				w.write("\n        "+"generateCDFG: True");
 				w.write("\n\n    "+"includeInjectionTrace:");
-
 				if(forwardCheckbox.isSelected() == true)
 
 					w.write("\n        "+"- "+forward);
 				if(backwardCheckbox.isSelected() == true)
 					w.write("\n        "+"- "+backward);
+				w.write("\n\n    "+"tracingPropagation:"+" True");
+				w.write("\n\n    "+"tracingPropagationOption:");
+				w.write("\n        "+"debugTrace: True/False");
+				w.write("\n        "+"generateCDFG: True");
 
 
 			}
 			if(limitTraceRadio.isSelected() == true)
 			{
 
-				w.write("\n\n    "+"tracingPropagation:"+" True");
-				w.write("\n\n    "+"tracingPropagationOption:");
 				w.write("\n        "+"maxTrace: "+traceCountText.getText());
-				w.write("\n        "+"debugTrace: True/False");
-				w.write("\n        "+"generateCDFG: True");
 			}
 
 			if(selectProfileFlag == true || existingInputFileFlag ==true)
