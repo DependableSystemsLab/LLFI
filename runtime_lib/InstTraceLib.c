@@ -44,14 +44,24 @@ void printInstTracer(long instID, int opcode, int size, double fpValue, int maxP
     fprintf(OutputFile(), "ID: %ld OPCode: %d Value: ", instID, opcode);
 
     if (flag == 0)
+	{
         fprintf(OutputFile(),"%lld",intValue);
-    if(flag == 1) 
+	}
+    else if(flag == 1) 
+	{
         fprintf(OutputFile(),"%f",fpValue); 
+	}
+
+	
 
     fprintf(OutputFile(), "\n");
 
     fflush(OutputFile()); 
 
+  }
+  if ((start_tracing_flag != TRACING_GOLDEN_RUN) && instCount >= cutOff )
+  {
+	start_tracing_flag = TRACING_FI_RUN_END_TRACING;
   }
 }
 

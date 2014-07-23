@@ -8,6 +8,7 @@
 #define TRACING_FI_RUN_INIT 0
 #define TRACING_FI_RUN_FAULT_INSERTED 1
 #define TRACING_FI_RUN_START_TRACING 2
+#define TRACING_FI_RUN_END_TRACING 3
 extern int start_tracing_flag;
 
 // assume the max opcode in instruction.def (LLVM) is smaller than 100
