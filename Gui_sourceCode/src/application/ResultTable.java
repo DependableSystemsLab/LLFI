@@ -2,6 +2,8 @@ package application;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 
 public class ResultTable {
 
@@ -18,11 +20,11 @@ public class ResultTable {
     SimpleStringProperty sdc;
     SimpleStringProperty status;
     SimpleStringProperty result;
-
+    SimpleBooleanProperty trace;
 
 
     public ResultTable(int noOfRuns,String failureClass,String failureMode,String functionName,String FaultInjectionType,int index,int cycle,int bit,
-    		String sdc,String status,String result) {
+    		String sdc,String status,String result,Boolean trace) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
         this.failureClass = new SimpleStringProperty(failureClass);
         this.failureMode = new SimpleStringProperty(failureMode);
@@ -36,7 +38,7 @@ public class ResultTable {
         this.sdc = new SimpleStringProperty(sdc);
         this.status = new SimpleStringProperty(status);
         this.result = new SimpleStringProperty(result);
-       
+        this.trace = new SimpleBooleanProperty(trace); 
     } 
 
     public Integer getNoOfRuns() {
@@ -126,5 +128,16 @@ public class ResultTable {
 	}
 
 	
+	public SimpleBooleanProperty traceProperty() 
+	{
+	return trace;
+	}
 
+	public Boolean getTrace() {
+		return trace.get();
+	}
+
+	public void setTrace(Boolean e) {
+		this.trace.set(e);
+	}
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 """
 
@@ -35,33 +35,36 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
 def parseArgs(args):
   global optionlist, profiling_exe, env
-  if args[0] == "--help" or args[0] == "-h":
-    usage()
-  
+  #print("args:")
+  #print(args)
   profiling_exe = os.path.realpath(args[1])
   env= args[0]
   optionlist = args[2:]
+ # print("exe: ")
+ # print(profiling_exe)
+ # print("opts: ")
+ # print(optionlist)
 
- # print args
- # print env
   if env=="-e" or env== "--CLI":
-    
+   
     if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
       usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-     # "program should launch in CLI"
+      # "program should launch in CLI"
   elif env=="-u" or env== "--GUI": 
     if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
      # "program should launch in GUI"	
       usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
   else: 
       usage("You need to enable optiones for GUI/CLI")
+  
+
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -115,10 +118,10 @@ def execute(execlist):
   #print "Begin"
   #inputFile = open(inputfile, "r")
   global outputfile
-  print '\t' + ' '.join(execlist)
+  print('\t' + ' '.join(execlist))
   #get state of directory
   dirSnapshot()
-  p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
+  p = subprocess.Popen(execlist, stdout=subprocess.PIPE)
   elapsetime = 0
   while True:
     elapsetime += 1
@@ -126,9 +129,10 @@ def execute(execlist):
     #print p.poll()
     if p.poll() is not None:
       moveOutput()
-      print "\t program finish", p.returncode
-      print "\t time taken", elapsetime,"\n"
-      outputFile = open(outputfile, "w")
+      print("\t program finish", p.returncode)
+      print("\t time taken", elapsetime,"\n")
+      outputFile = open(outputfile, "wb")
+      
       outputFile.write(p.communicate()[0])
       outputFile.close()
       replenishInput() #for cases where program deletes input or alters them each run
@@ -159,7 +163,7 @@ def moveOutput():
       fileSize = os.stat(each).st_size
       if fileSize == 0 and each.startswith("llfi"):
         #empty library output, can delete
-        print each + " is going to be deleted for having size of " + str(fileSize)
+        print(each + " is going to be deleted for having size of " + str(fileSize))
         os.remove(each)
       else:
         flds = each.split(".")
@@ -186,7 +190,7 @@ def main(args):
   outputfile = os.path.join(baselinedir, "golden_std_output")
   execlist = [profiling_exe]
   execlist.extend(optionlist)
- 
+   
   return execute(execlist)
 
 

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 class AutoInjection: public FaultInjector {
  public:
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,

@@ -52,7 +52,7 @@
         <Font name="System Bold Italic" size="15.0" />
       </font>
     </Label>
-    <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" text="Forward" AnchorPane.leftAnchor="409.0" />
+    <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" text="Forward" selected="true" AnchorPane.leftAnchor="409.0" />
     <CheckBox fx:id="backwardCheckbox" font="$x1" layoutX="409.0" layoutY="458.0" mnemonicParsing="false" selected="true" text="Backward" />
     <RadioButton fx:id="regTypeRadio" font="$x1" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="false" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="331.0">
       <toggleGroup>

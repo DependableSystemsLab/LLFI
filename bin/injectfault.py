@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 """
 
@@ -26,7 +26,7 @@ import shutil
 
 runOverride = False
 optionlist = []
-timeout = 50
+timeout = 100
 
 basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
@@ -37,8 +37,8 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
@@ -50,11 +50,8 @@ def parseArgs(args):
   fi_exe = os.path.realpath(args[1])
   env= args[0]
   optionlist = args[2:]
-  #print args
-  #print env
-
   if env=="-e" or env== "--CLI":
-    print "found -e or --CLI"
+   # print "found -e or --CLI"
     if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
       usage("You need to invoke %s at the parent directory of profiling executable" %prog)
      # print "program should launch in CLI"
@@ -63,7 +60,8 @@ def parseArgs(args):
      # print "program should launch in GUI"	
       usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
   else: 
-      usage("You need to enable optiones for GUI/CLI")    
+      usage("You need to enable optiones for GUI/CLI")      
+ 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -77,13 +75,12 @@ def parseArgs(args):
 def checkInputYaml():
   global timeout, doc
   #Check for input.yaml's presence
-  
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
     if env=="-e" or env== "--CLI":
       f = open(os.path.join(basedir, 'input.yaml'),'r')
     elif env=="-u" or env== "--GUI": 
-      f = open(os.path.join(yamldir, 'input.yaml'),'r') 
+      f = open(os.path.join(yamldir, 'input.yaml'),'r')  
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
@@ -96,12 +93,12 @@ def checkInputYaml():
       for opt in doc["kernelOption"]:
         if opt=="forceRun":
           runOverride = True
-          print "Kernel: Forcing run"
+          print("Kernel: Forcing run")
     if "timeOut" in doc:
       timeout = int(doc["timeOut"])
       assert timeout > 0, "The timeOut option must be greater than 0"
     else:
-      print "Run fault injection executable with default timeout " + str(timeout)
+      print("Run fault injection executable with default timeout " + str(timeout))
   except:
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
@@ -133,7 +130,7 @@ def config():
 ################################################################################
 def execute( execlist):
   global outputfile
-  print ' '.join(execlist)
+  print(' '.join(execlist))
   #get state of directory
   dirSnapshot()
   p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
@@ -144,16 +141,16 @@ def execute( execlist):
     #print p.poll()
     if p.poll() is not None:
       moveOutput()
-      print "\t program finish", p.returncode
-      print "\t time taken", elapsetime,"\n"
-      outputFile = open(outputfile, "w")
+      print("\t program finish", p.returncode)
+      print("\t time taken", elapsetime,"\n")
+      outputFile = open(outputfile, "wb")
       outputFile.write(p.communicate()[0])
       outputFile.close()
       replenishInput() #for cases where program deletes input or alters them each run
       #inputFile.close()
       return str(p.returncode)
   #inputFile.close()
-  print "\tParent : Child timed out. Cleaning up ... "
+  print("\tParent : Child timed out. Cleaning up ... ")
   p.kill()
 
   moveOutput()
@@ -185,7 +182,7 @@ def moveOutput():
       fileSize = os.stat(each).st_size
       if fileSize == 0 and each.startswith("llfi"):
         #empty library output, can delete
-        print each+ " is going to be deleted for having size of " + str(fileSize)
+        print(each+ " is going to be deleted for having size of " + str(fileSize))
         os.remove(each)
       else:
         flds = each.split(".")
@@ -250,7 +247,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
     if runOverride:
       pass
     elif var1 > 1 and (var2 or var3) and var4:
-      user_input = raw_input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
+      user_input = input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
                   "is redundant as it would yield the same result."+
                   "\nTo turn off this warning, please see Readme "+
                   "for kernel mode.\nDo you wish to continue anyway? (Y/N)\n ")
@@ -275,20 +272,20 @@ def main(args):
   try:
     rOpt = doc["runOption"]
   except:
-    print "ERROR: Please include runOption in input.yaml."
+    print("ERROR: Please include runOption in input.yaml.")
     exit(1)
 
   if not os.path.isfile(fi_exe):
-    print "ERROR: The executable "+ fi_exe+" does not exist."
-    print "Please build the executables with create-executables.\n"
+    print("ERROR: The executable "+ fi_exe+" does not exist.")
+    print("Please build the executables with create-executables.\n")
     exit(1)
   else:
-    print "======Fault Injection======"
+    print("======Fault Injection======")
     for ii, run in enumerate(rOpt):
-      print "---FI Config #"+str(ii)+"---"
+      print("---FI Config #"+str(ii)+"---")
 
       if "numOfRuns" not in run["run"]:
-        print ("ERROR: Must include a run number per fi config in input.yaml.")
+        print("ERROR: Must include a run number per fi config in input.yaml.")
         exit(1)
 
       run_number=run["run"]["numOfRuns"]
@@ -329,9 +326,9 @@ def main(args):
         checkValues("fi_random_seed",fi_random_seed)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
-        print ("\nINFO: You choose to inject faults based on LLFI index, "
+        print(("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
-               "index is %d\n" % fi_index)
+               "index is %d\n" % fi_index))
 
       need_to_calc_fi_cycle = True
       if ('fi_cycle' in locals()) or 'fi_index' in locals():

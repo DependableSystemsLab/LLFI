@@ -61,7 +61,7 @@ public class ProgressBarController implements Initializable{
  	}
  	}
    runText.setText(Integer.toString(totalRunCount));
-		//System.out.println("\ntotalRunCount ="+totalRunCount);
+	/*	//System.out.println("\ntotalRunCount ="+totalRunCount);
 		File file = new File(Controller.currentProgramFolder+"/llfi/llfi_stat_output/");
 		 
 		if(file.isDirectory()){
@@ -69,7 +69,7 @@ public class ProgressBarController implements Initializable{
 			if(file.list().length>0){
 				currentCount = file.listFiles().length;
 			}
-		}
+		}*/
   	 // if(currentCount != totalRunCount)
   		 
   		  //System.out.println("currentCount = "+currentCount);
@@ -88,16 +88,36 @@ public class ProgressBarController implements Initializable{
 				 
 				 int parts = 0;
 				 int i = 0;
+				 int listCount=0;
+				 String tempName=null;
 				// System.out.println("i = "+i);
-				 while( i < totalRunCount) {
+				 while( i <= totalRunCount) {
 			          try {
 			        	  //System.out.println("i1 = "+Controller.currentProgramFolder+"/llfi/llfi_stat_output/");
 			        	  File file = new File(Controller.currentProgramFolder+"/llfi/llfi_stat_output/");
-			     		 
+			        	  listCount=0;
 			      		if(file.isDirectory()){
-			      	 
-			      			if(file.list().length>0){
-			      		currentCount = file.listFiles().length;
+			      			File[] listOfFiles = file.listFiles();
+			      			if(listOfFiles.length>0){
+			      				for(int k = 0;k<listOfFiles.length;k++)
+			      				{
+			      					tempName = listOfFiles[k].getName();
+			      					//tempName = "he";
+			      					if(tempName.contains("injectedfaults"))
+						    		{
+			      						//System.out.println(listOfFiles[k].getName());
+			      						listCount++;
+						    		}
+			      					/*if(tempName.equalsIgnoreCase("llfi"));
+			      					{
+			      						System.out.println(listOfFiles[k].getName());
+			      						listCount++;
+			      					}*/
+			      					
+			      					
+			      				}
+			      		    currentCount = listCount;
+			      		  //System.out.println(currentCount);
 			         	 // if(currentCount != totalRunCount)
 			         		 
 			         		  //System.out.println("currentCount = "+currentCount);

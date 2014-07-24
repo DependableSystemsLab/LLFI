@@ -1,3 +1,3 @@
-LLVM_DST_ROOT = "/ubc/ece/home/kp/grads/raiyat/newproject/llvm_build"
-LLVM_SRC_ROOT = "/ubc/ece/home/kp/grads/raiyat/newproject/llvm-2.9"
-LLVM_GXX_BIN_DIR = "/ubc/ece/home/kp/grads/raiyat/newproject/llvm-gcc/bin"
+LLVM_DST_ROOT = "/ubc/ece/home/kp/grads/raiyat/Desktop/FlaggedLLFI3.4/llvm"
+LLVM_SRC_ROOT = "/ubc/ece/home/kp/grads/raiyat/Desktop/FlaggedLLFI3.4/llvmsrc"
+LLVM_GXX_BIN_DIR = "/ubc/ece/home/kp/grads/raiyat/Desktop/FlaggedLLFI3.4/clang/bin"

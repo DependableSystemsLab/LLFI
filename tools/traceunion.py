@@ -1,9 +1,9 @@
-#!/usr/bin/python
+#! /usr/bin/env python3
 
 #traceUnion.py
 #Author: Sam Coulter
 #This script will take any number (1+) of fault tracing reports as input, and output
-#a combined (union'd) faultreport to standard input, use pipe redirection to 
+#a combined (union'd) faultreport to standard input, use pipe redirection to
 #save to file
 #Example Usage:
 #     ./traceUnion.py file1 file2 file3 ... fileN > finalFile
@@ -17,7 +17,7 @@ def traceUnion(argv, output=0):
   oldSTDOut = sys.stdout
 
   if output != 0:
-    sys.stdout = open(output, "w")
+    sys.stdout = open(output, "wb")
 
 
   reps = []
@@ -37,7 +37,7 @@ def traceUnion(argv, output=0):
     i += 1
 
   for rep in reps:
-    print rep.report()
+    print(rep.report())
 
 
   #restore stdout
@@ -45,10 +45,11 @@ def traceUnion(argv, output=0):
 
 if __name__ == "__main__":
   if len(sys.argv) >= 2 and (sys.argv[1] == '-h' or sys.argv[1] == '--help'):
-    print >> sys.stderr, ("%(prog)s takes more than one input program trace difference summary file and combines them to one report\n\n"
-    "running option: %(prog)s file1 file2 ..." %{"prog": prog})
+    print(("%(prog)s takes more than one input program trace difference summary file and combines them to one report\n\n"
+    "running option: %(prog)s file1 file2 ..." %{"prog": prog}), file=sys.stderr)
   elif len(sys.argv) >= 3:
     traceUnion(sys.argv[1:])
   else:
-    print >> sys.stderr, "Error: running option: %(prog)s file1 file2 ..." %{"prog": prog}
+    print("Error: running option: %(prog)s file1 file2 ..." %{"prog": prog}, file=sys.stderr)
     exit(1)
+

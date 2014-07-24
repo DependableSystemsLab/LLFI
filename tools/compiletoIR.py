@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 
 """
@@ -23,8 +23,8 @@ sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
 llvmlink = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llvm-link")
-llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-gcc")
-llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "llvm-g++")
+llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
+llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 prog = os.path.basename(sys.argv[0])
 
 basedir = os.getcwd()
@@ -44,14 +44,14 @@ def usage(msg = None):
   if msg is not None:
     retval = 1
     msg = "ERROR: " + msg
-    print >> sys.stderr, msg
-  print >> sys.stderr, __doc__ % globals()
+    print(msg, file=sys.stderr)
+  print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
 
 def verbosePrint(msg, verbose):
   if verbose:
-    print msg
+    print(msg)
 
 
 def parseArgs(args):
@@ -71,7 +71,7 @@ def parseArgs(args):
       elif arg == "--verbose":
         options["verbose"] = True
       elif arg == "--debug":
-        options["debug"] = True	
+        options["debug"] = True
       elif arg == "--help" or arg == "-h":
         usage()
       else:
@@ -107,9 +107,9 @@ def compileToIR(outputfile, inputfile):
     execlist.append('-S')
   else:
     execlist.append('-c')
-    
+
   if options['debug']:
-    execlist.append('-g')	
+    execlist.append('-g')
   return execute(execlist)
 
 
@@ -152,9 +152,9 @@ def compileProg():
         pass
 
   if retcode != 0:
-    print >> sys.stderr, "\nERROR: there was a compilation error, please follow"\
+    print("\nERROR: there was a compilation error, please follow"\
                           " the provided instructions for %s or compile the "\
-                          "source file(s) to one single IR file manually." % prog
+                          "source file(s) to one single IR file manually." % prog, file=sys.stderr)
     sys.exit(retcode)
 
 

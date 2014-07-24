@@ -54,6 +54,10 @@ void printInstTracer(long instID, char *opcode, int size, char* ptr, int maxPrin
     fprintf(OutputFile(), "\n");
     fflush(OutputFile()); 
   }
+  if ((start_tracing_flag != TRACING_GOLDEN_RUN) && instCount >= cutOff )
+  {
+	start_tracing_flag = TRACING_FI_RUN_END_TRACING;
+  }
 }
 
 void postTracing() {
