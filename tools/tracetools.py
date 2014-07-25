@@ -441,6 +441,7 @@ class faultReport:
       if "Diff@" in self.diffs[i] and "Pre  Diff" in self.diffs[i+1]:
         csplit = self.diffs[i+2].split()
         edgeStart = int(self.diffs[i+1].split()[3])
+        edgeEnd = None
         if csplit[5] != "None":
           edgeEnd = int(csplit[5])
           if (i+3 < len(self.diffs)):
