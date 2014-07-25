@@ -353,7 +353,9 @@ class diffLine:
       elements[4] == "Value:"), "DiffLine constructor called incorrectly"
     self.ID = int(elements[1])
     self.OPCode = str(elements[3])
-    self.Value = str(elements[5])
+    self.Value = 0
+    if (len(elements) > 5):
+    	self.Value = elements[5]
 
   def _print(self):
     print("ID:",self.ID, "OPCode", self.OPCode, "Value:", self.Value)
