@@ -77,11 +77,11 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
 					  'DOWNLOADFLAG':True}
 
 #Cisco Repository LLFI
-LLFICISCODOWNLOAD = {'URL':'https://github.com/karthikp-ubc/LLFI-Cisco/archive/LLFI3.4.zip', 
-					  'FILENAME':"LLFI3.4.zip", 
+LLFICISCODOWNLOAD = {'URL':'https://github.com/karthikp-ubc/LLFI-Cisco/archive/Final.zip', 
+					  'FILENAME':"Final.zip", 
 					  'MD5':"04fcd2c0dc23b97f72eaf6b76e021821",
 					  'EXTRACTPATH':"llfisrc", 					
-					  'EXTRACTEDNAME':'LLFI-Cisco-LLFI3.4',           	
+					  'EXTRACTEDNAME':'LLFI-Cisco-Final',           	
 					  'ARCHIVETYPE':'.zip',
 					  'EXTRACTFLAG':True,
 					  'DOWNLOADFLAG':True}
