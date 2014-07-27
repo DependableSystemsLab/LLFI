@@ -135,7 +135,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
   assert(opcodecyclearray[opcode] >= 0 && 
           "opcode does not exist, need to update instructions.def");
   
-   if (! fiFlag) return;
+   if (! fiFlag) return false;
    if (my_reg_index == 0)
     is_fault_injected_in_curr_dyn_inst = false;
 
