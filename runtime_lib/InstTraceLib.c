@@ -1,6 +1,5 @@
 /************
 /instTraceLib.c
-/Author: Sam Coulter
 /  This library is part of the greater LLFI framework
 /  This library should be linked against programs that have had the LLFI instTrace LLVM
 /  pass performed on them
