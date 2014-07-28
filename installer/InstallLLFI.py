@@ -373,8 +373,6 @@ def build(buildLLVM, forceMakeLLVM):
 	p = subprocess.call(["rm", "-rf", binPath])
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
 	p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
-
-	subprocess.call(["cp", "llfisrc/installer/LLFI-GUI", "."])
 	
 
 def buildPyYaml(forceBuild):
