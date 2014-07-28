@@ -90,33 +90,24 @@ DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFICISCOD
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
-def checkPython3():
-	try:
-		which = subprocess.check_output(['which', 'python3'])
-		print("Success: Python 3 Found at: " + str(which.strip()))
-		return True
-	except(subprocess.CalledProcessError):
-		print("Error: Python 3 (python3) not found on path")
-		print("       Pease ensure python3 is installed and is available on the path")
-		print("       The latest version of Python3 can be downloaded from:")
-		print("       https://www.python.org/downloads/")
-		return False
 
 def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, msg):
 	try:
 		which = subprocess.check_output(['which', execName])
 		print("Success: " + name +  " Found at: " + str(which.strip()))
-		version = subprocess.check_output([execName, versionArg], stderr=subprocess.STDOUT)
+		version = str(subprocess.check_output([execName, versionArg], stderr=subprocess.STDOUT).strip())
+		version = version.lstrip("b'").rstrip('\'').replace('\\n',' ')
 		#print("v", version)
 		try:
-			printVersion = printParseFunc(version)
+			printVersion = str(printParseFunc(version))
 			#print("pv", printVersion)
-			version = parseFunc(version)
+			version = parseFunc(str(version).strip())
 			#print("cv", version)
 			properVersion = True
+			3.0 < 2.8
 			if int(version[0]) < minVersion[0]:
 				properVersion = False
-			elif int(version[1]) < minVersion[1]:
+			elif (int(version[0]) == minVersion[0]) and (int(version[1]) < minVersion[1]):
 				properVersion = False
 			if properVersion:
 				print("Success: " + name + "(" + printVersion + ") is at or above version " + ".".join([str(x) for x in minVersion]))
@@ -135,11 +126,23 @@ def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, 
 		print(msg)
 		return False
 
+
+def python3PrintParse(version):
+	return version.split()[1]
+
+def python3Parse(version):
+	return version.split()[1].split('.')[:2]
+
+python3Msg = "Error: Python 3 (python3) not found on path" + \
+			 "       Pease ensure python3 is installed and is available on the path"  + \
+			 "       The latest version of Python3 can be downloaded from:"  + \
+			 "       https://www.python.org/downloads/"
+
 def CmakePrintParse(version):
 	return version.split()[2]
 
 def CmakeParse(version):
-	return [int(x) for x in version.split()[2].split('.')]
+	return version.split()[2].split('.')[:2]
 
 cmakeMsg = "\tCmake 2.8+ cant be downloaded from:\n\thttp://www.cmake.org/cmake/resources/software.html" 
 
@@ -183,7 +186,7 @@ tcshMsg = ("\ttcsh can be downloaded from: http://www.tcsh.org/MostRecentRelease
 
 def checkDependencies():
 	hasAll = True
-	hasAll = checkPython3() and hasAll
+	hasAll = checkDep("Python 3", "python3", "--version", python3PrintParse, python3Parse, [3,2], python3Msg) and hasAll
 	hasAll = checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8], cmakeMsg) and hasAll
 	hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
 	hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
