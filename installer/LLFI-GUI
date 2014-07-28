@@ -24,7 +24,10 @@ def main(args):
 
   subprocess.call("echo $llfibuild", shell=True, env=llfienv)
   subprocess.call("echo $PYTHONPATH", shell=True, env=llfienv)
-  p = subprocess.call("java -jar " + jarPath, shell=True, env=llfienv)
+
+  jarPath = os.path.join(scriptPath, "llfi/LLFI-GUI/")
+  os.chdir(jarPath)
+  p = subprocess.call("java -jar llfi_gui.jar", shell=True, env=llfienv)
 
 if __name__=="__main__":
   main(sys.argv)
