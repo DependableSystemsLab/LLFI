@@ -116,7 +116,7 @@ def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, 
 			properVersion = True
 			if int(version[0]) < minVersion[0]:
 				properVersion = False
-			if int(version[1]) < minVersion[1]:
+			elif int(version[1]) < minVersion[1]:
 				properVersion = False
 			if properVersion:
 				print("Success: " + name + "(" + printVersion + ") is at or above version " + ".".join([str(x) for x in minVersion]))
