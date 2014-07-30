@@ -184,14 +184,17 @@ def tcshParse(version):
 tcshMsg = ("\ttcsh can be downloaded from: http://www.tcsh.org/MostRecentRelease\n"
 		   "\tor from your system package manager.")
 
-def checkDependencies():
+def checkDependencies(checkJava=True):
 	hasAll = True
 	hasAll = checkDep("Python 3", "python3", "--version", python3PrintParse, python3Parse, [3,2], python3Msg) and hasAll
 	hasAll = checkDep("Cmake","cmake","--version", CmakePrintParse, CmakeParse, [2,8], cmakeMsg) and hasAll
-	hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
-	hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
-	hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
 	hasAll = checkDep("tcsh", "tcsh", "--version", tcshPrintParse, tcshParse,[6,0], tcshMsg) and hasAll
+
+	if checkJava:
+		hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
+		hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
+		hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
+	
 	return hasAll
 
 
@@ -364,6 +367,10 @@ def build(buildLLVM, forceMakeLLVM):
 		sys.exit(p)
 	os.chdir("..")
 
+
+	
+
+def buildGUI():
 	#Build LLFI GUI
 	updateGUIXMLBuildPath(getJavaFXLibLocation())
 	currPath = os.getcwd()
@@ -376,7 +383,6 @@ def build(buildLLVM, forceMakeLLVM):
 	p = subprocess.call(["rm", "-rf", binPath])
 	p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
 	p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
-	
 
 def buildPyYaml(forceBuild):
 	script_path = os.getcwd()
@@ -467,10 +473,12 @@ parser.add_argument("-cS", "--cleanSources", action='store_true', help="Clean (r
 parser.add_argument("-nD", "--noDownload", action='store_true', help="Do not download any files")
 parser.add_argument("-nE", "--noExtract", action='store_true', help="Do not extract the archives before installing")
 parser.add_argument("-nB", "--noBuild", action='store_true', help="Do not perform installation, only downloading + extracting")
+parser.add_argument("-nGUI", "--noGUI", action='store_true', help="Do not build the Java LLFI GUI")
 parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
 parser.add_argument("-fBLLVM", "--forceBuildLLVM", action='store_true', help="Force recompilation of LLVM")
 parser.add_argument("-fBPyYaml", "--forceBuildPyYaml", action='store_true', help="Force recompilation of PyYaml")
 parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
+
 
 def testFeature():
 	print("Testing Experimental Installer Feature")
@@ -493,7 +501,10 @@ if __name__ == "__main__":
 		sys.exit(0)
 	if not args.skipDependencyCheck:
 		print("Checking LLFI Pre-Requisites and Dependencies")
-		deps = checkDependencies()
+		buildGUI = True
+		if args.noGUI:
+			buildGUI = False
+		deps = checkDependencies(buildGUI)
 		if not deps:
 			print("Some LLFI Pre-Requisites are missing!")
 			print("Please see Errors above, and install the missing dependencies")
@@ -519,5 +530,7 @@ if __name__ == "__main__":
 		ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
 	if not args.noBuild:
 		build(not args.noBuildLLVM, args.forceBuildLLVM)
+	if not args.noGUI:
+		buildGUI()
 		addEnvs()
 		buildPyYaml(args.forceBuildPyYaml)
