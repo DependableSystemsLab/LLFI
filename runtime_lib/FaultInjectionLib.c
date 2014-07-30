@@ -12,6 +12,7 @@ static long long curr_cycle = 0;
 
 static FILE *injectedfaultsFile;
 
+static int fiFlag = 1;	// Should we turn on fault injections ?
 
 static int opcodecyclearray[OPCODE_CYCLE_ARRAY_LEN];
 static bool is_fault_injected_in_curr_dyn_inst = false;
@@ -133,7 +134,9 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
              unsigned total_reg_target_num) {
   assert(opcodecyclearray[opcode] >= 0 && 
           "opcode does not exist, need to update instructions.def");
-  if (my_reg_index == 0)
+  
+   if (! fiFlag) return false;
+   if (my_reg_index == 0)
     is_fault_injected_in_curr_dyn_inst = false;
 
   bool inst_selected = false;
@@ -172,6 +175,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 void injectFunc(long llfi_index, unsigned size, 
                 char *buf, unsigned my_reg_index) {
 
+  if (! fiFlag) return;
   start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
 
   unsigned fi_bit, fi_bytepos, fi_bitpos;
@@ -202,6 +206,14 @@ void injectFunc(long llfi_index, unsigned size,
             llfi_index, config.fi_cycle, my_reg_index, fi_bit, 
             size,  oldbuf, buf[fi_bytepos]));
 */
+}
+
+void turnOffInjections() {
+	fiFlag = 0;
+}
+
+void turnOnInjections() {
+	fiFlag = 1;
 }
 
 void postInjections() {
