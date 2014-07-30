@@ -158,6 +158,7 @@ public class Controller implements Initializable {
 	XYChart.Series<Integer, String> series = new XYChart.Series<Integer,String>();
 	static public String currentProgramFolder;
 	static public String llfibuildPath=null;
+	static public String psViewer=null;
 	static public String currentFileName;
 	public boolean checkFlag = true;
 	public boolean indexStates =false;
@@ -1006,7 +1007,13 @@ public class Controller implements Initializable {
 					psError =true;
 				}
 			}
-
+			// If user specified a psViewer in environment variable, use the defined ps file viewer.
+			//kenneth
+			if (!psViewer.contains("Undefined variable"))
+			{
+			psError =false;
+			psOpenner =psViewer+" ";
+			}
 			if (psError)
 			{
 				try{
@@ -1739,6 +1746,21 @@ public class Controller implements Initializable {
 			pr1.waitFor();
 			pr1.destroy();
 			in.close();
+
+
+
+			ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","echo $psViewer");
+
+			p2.redirectErrorStream(true);
+			Process pr2 = p2.start();
+			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
+			while ((line = in2.readLine()) != null) {
+
+				psViewer = line;
+			}
+			pr2.waitFor();
+			pr2.destroy();
+			in2.close();
 			/*for (final File fileEntry : files) {
 	    	fileContent = new ArrayList<>();
 	        if (fileEntry.isDirectory()) {
