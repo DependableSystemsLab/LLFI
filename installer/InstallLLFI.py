@@ -530,7 +530,7 @@ if __name__ == "__main__":
 		ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
 	if not args.noBuild:
 		build(not args.noBuildLLVM, args.forceBuildLLVM)
-	if not args.noGUI:
-		buildGUI()
+		if not args.noGUI:
+			buildGUI()
 		addEnvs()
 		buildPyYaml(args.forceBuildPyYaml)
