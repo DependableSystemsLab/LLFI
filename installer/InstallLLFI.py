@@ -94,7 +94,7 @@ LLFIROOTDIRECTORY = "."
 def checkDep(name, execName, versionArg, printParseFunc, parseFunc, minVersion, msg):
 	try:
 		which = subprocess.check_output(['which', execName])
-		print("Success: " + name +  " Found at: " + str(which.strip()))
+		print("Success: " + name +  " Found at: " + str(which.strip()).lstrip("b\'").rstrip("\'"))
 		version = str(subprocess.check_output([execName, versionArg], stderr=subprocess.STDOUT).strip())
 		version = version.lstrip("b'").rstrip('\'').replace('\\n',' ')
 		#print("v", version)
