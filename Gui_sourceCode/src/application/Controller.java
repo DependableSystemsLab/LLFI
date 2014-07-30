@@ -158,6 +158,7 @@ public class Controller implements Initializable {
 	XYChart.Series<Integer, String> series = new XYChart.Series<Integer,String>();
 	static public String currentProgramFolder;
 	static public String llfibuildPath=null;
+	static public String psViewer =null;
 	static public String currentFileName;
 	public boolean checkFlag = true;
 	static public List<String> console;
@@ -227,7 +228,7 @@ public class Controller implements Initializable {
 			errorString = new ArrayList<>();
 			//System.out.println("inputString;"+inputString);
 
-			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile --GUI "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
+			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
 
 			console.add("$ "+llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString+"\n");
 
@@ -259,6 +260,7 @@ public class Controller implements Initializable {
 
 			bufferReader.close();
 			
+			//System.out.println("Read!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
 			inputFile = new FileReader("llfi.stat.prof.txt");
 			bufferReader = new BufferedReader(inputFile);
 
@@ -347,7 +349,7 @@ public class Controller implements Initializable {
 	public void executefaultInjection()
 	{
 		try{
-			ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault --GUI "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
+			ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
@@ -931,12 +933,78 @@ public class Controller implements Initializable {
 
 
 
-			//Open the trace graph file
-			ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c","xdg-open "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
-			openGraph.redirectErrorStream(true);
-			Process pr4 = openGraph.start();
-			pr4.waitFor();
-			pr4.destroy();
+			//Test system before openning the graph
+			String psOpenner ="";
+			boolean psError = true;
+			String psErrorMessage ="";
+			String checkExe ="";
+			String osName = System.getProperty("os.name").toLowerCase();
+			if(osName.indexOf("mac") >=0){
+				// The current os is mac, use to view ps file
+				psOpenner = "open ";
+				psError = false;
+				checkExe = "open -h > /dev/null 2>&1";
+			}
+			else if (osName.indexOf("nux") >=0){
+				// The current os is linux, use xdg-open to view ps file
+				psOpenner = "xdg-open ";
+				checkExe = "xdg-open --help > /dev/null";
+				psError = false;
+			}
+			else if (osName.indexOf("solaris") >=0){
+				// The current os is solaris, use xdg-open to view ps file
+				psOpenner = "xdg-open ";
+				psError = false;
+				checkExe = "xdg-open --help > /dev/null";
+			}
+			else{
+				// Other OS, display error message when trying to open os file
+				psError = true;
+			}
+
+			if (!psError)
+			{
+				try{
+					Runtime rt = Runtime.getRuntime();
+					Process proc = rt.exec(checkExe);
+					psError = false;
+				}
+				catch (IOException e)
+				{
+					//e.printStackTrace();  
+					//System.out.println(e);
+					psError =true;
+				}
+			}
+			// If user specified a psViewer in environment variable, use the defined ps file viewer.
+			//kenneth
+			if (!psViewer.contains("Undefined variable"))
+			{
+			psError =false;
+			psOpenner =psViewer+" ";
+			}
+			if (psError)
+			{
+				try{
+					root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TraceOpenError.fxml"));
+					Stage stage = new Stage();
+					stage.setTitle("Error");
+					stage.setScene(new Scene(root, 650, 100));
+					stage.show();
+				}
+				catch(IOException e){
+					e.printStackTrace();  
+					System.out.println(e);
+				}
+			}
+			else{
+				//Open the trace graph file
+				ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+				openGraph.redirectErrorStream(true);
+				Process pr4 = openGraph.start();
+				pr4.waitFor();
+				pr4.destroy();
+			}
 		}
 		catch(IOException e)
 		{
@@ -1623,6 +1691,23 @@ public class FileNameComparator implements Comparator
 			pr1.waitFor();
 			pr1.destroy();
 			in.close();
+
+
+
+
+
+			ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","echo $psViewer");
+
+			p2.redirectErrorStream(true);
+			Process pr2 = p2.start();
+			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
+			while ((line = in2.readLine()) != null) {
+
+				psViewer = line;
+			}
+			pr2.waitFor();
+			pr2.destroy();
+			in2.close();
 			/*for (final File fileEntry : files) {
 	    	fileContent = new ArrayList<>();
 	        if (fileEntry.isDirectory()) {
