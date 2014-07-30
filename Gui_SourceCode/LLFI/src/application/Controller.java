@@ -963,14 +963,72 @@ public class Controller implements Initializable {
 			pr3.destroy();
 
 
+			//Test system before openning the graph
+			String psOpenner ="";
+			boolean psError = true;
+			String psErrorMessage ="";
+			String checkExe ="";
+			String osName = System.getProperty("os.name").toLowerCase();
+			if(osName.indexOf("mac") >=0){
+				// The current os is mac, use to view ps file
+				psOpenner = "open ";
+				psError = false;
+				checkExe = "open -h > /dev/null 2>&1";
+			}
+			else if (osName.indexOf("nux") >=0){
+				// The current os is linux, use xdg-open to view ps file
+				psOpenner = "xdg-open ";
+				checkExe = "xdg-open --help > /dev/null";
+				psError = false;
+			}
+			else if (osName.indexOf("solaris") >=0){
+				// The current os is solaris, use xdg-open to view ps file
+				psOpenner = "xdg-open ";
+				psError = false;
+				checkExe = "xdg-open --help > /dev/null";
+			}
+			else{
+				// Other OS, display error message when trying to open os file
+				psError = true;
+			}
 
+			if (!psError)
+			{
+				try{
+					Runtime rt = Runtime.getRuntime();
+					Process proc = rt.exec(checkExe);
+					psError = false;
+				}
+				catch (IOException e)
+				{
+					//e.printStackTrace();  
+					//System.out.println(e);
+					psError =true;
+				}
+			}
 
-			//Open the trace graph file
-			ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c","xdg-open "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
-			openGraph.redirectErrorStream(true);
-			Process pr4 = openGraph.start();
-			pr4.waitFor();
-			pr4.destroy();
+			if (psError)
+			{
+				try{
+					root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TraceOpenError.fxml"));
+					Stage stage = new Stage();
+					stage.setTitle("Error");
+					stage.setScene(new Scene(root, 650, 100));
+					stage.show();
+				}
+				catch(IOException e){
+					e.printStackTrace();  
+					System.out.println(e);
+				}
+			}
+			else{
+				//Open the trace graph file
+				ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+				openGraph.redirectErrorStream(true);
+				Process pr4 = openGraph.start();
+				pr4.waitFor();
+				pr4.destroy();
+			}
 		}
 		catch(IOException e)
 		{
@@ -1124,81 +1182,81 @@ public class Controller implements Initializable {
 			}
 		}
 	}
-Pattern splitter = Pattern.compile("(\\d+|\\D+)");
-public class FileNameComparator implements Comparator
-{
-  public int compare(Object o1, Object o2)
-  {
-    // I deliberately use the Java 1.4 syntax, 
-    // all this can be improved with 1.5's generics
-    String s1 = o1.toString(), s2 = o2.toString();
-    // We split each string as runs of number/non-number strings
-    ArrayList sa1 = split(s1);
-    ArrayList sa2 = split(s2);
-    // Nothing or different structure
-    if (sa1.size() == 0 || sa1.size() != sa2.size())
-    {
-      // Just compare the original strings
-      return s1.compareTo(s2);
-    }
-    int i = 0;
-    String si1 = "";
-    String si2 = "";
-    // Compare beginning of string
-    for (; i < sa1.size(); i++)
-    {
-      si1 = (String)sa1.get(i);
-      si2 = (String)sa2.get(i);
-      if (!si1.equals(si2))
-        break;  // Until we find a difference
-    }
-    // No difference found?
-    if (i == sa1.size())
-      return 0; // Same strings!
+	Pattern splitter = Pattern.compile("(\\d+|\\D+)");
+	public class FileNameComparator implements Comparator
+	{
+		public int compare(Object o1, Object o2)
+		{
+			// I deliberately use the Java 1.4 syntax, 
+			// all this can be improved with 1.5's generics
+			String s1 = o1.toString(), s2 = o2.toString();
+			// We split each string as runs of number/non-number strings
+			ArrayList sa1 = split(s1);
+			ArrayList sa2 = split(s2);
+			// Nothing or different structure
+			if (sa1.size() == 0 || sa1.size() != sa2.size())
+			{
+				// Just compare the original strings
+				return s1.compareTo(s2);
+			}
+			int i = 0;
+			String si1 = "";
+			String si2 = "";
+			// Compare beginning of string
+			for (; i < sa1.size(); i++)
+			{
+				si1 = (String)sa1.get(i);
+				si2 = (String)sa2.get(i);
+				if (!si1.equals(si2))
+					break;  // Until we find a difference
+			}
+			// No difference found?
+			if (i == sa1.size())
+				return 0; // Same strings!
 
-    // Try to convert the different run of characters to number
-    int val1, val2;
-    try
-    {
-      val1 = Integer.parseInt(si1);
-      val2 = Integer.parseInt(si2);
-    }
-    catch (NumberFormatException e)
-    {
-      return s1.compareTo(s2);  // Strings differ on a non-number
-    }
+			// Try to convert the different run of characters to number
+			int val1, val2;
+			try
+			{
+				val1 = Integer.parseInt(si1);
+				val2 = Integer.parseInt(si2);
+			}
+			catch (NumberFormatException e)
+			{
+				return s1.compareTo(s2);  // Strings differ on a non-number
+			}
 
-    // Compare remainder of string
-    for (i++; i < sa1.size(); i++)
-    {
-      si1 = (String)sa1.get(i);
-      si2 = (String)sa2.get(i);
-      if (!si1.equals(si2))
-      {
-        return s1.compareTo(s2);  // Strings differ
-      }
-    }
+			// Compare remainder of string
+			for (i++; i < sa1.size(); i++)
+			{
+				si1 = (String)sa1.get(i);
+				si2 = (String)sa2.get(i);
+				if (!si1.equals(si2))
+				{
+					return s1.compareTo(s2);  // Strings differ
+				}
+			}
 
-    // Here, the strings differ only on a number
-    return val1 < val2 ? -1 : 1;
-  }
+			// Here, the strings differ only on a number
+			return val1 < val2 ? -1 : 1;
+		}
 
-  ArrayList split(String s)
-  {
-    ArrayList r = new ArrayList();
-    Matcher matcher = splitter.matcher(s);
-    while (matcher.find())
-    {
-      String m = matcher.group(1);
-      r.add(m);
-    }
-    return r;
-  }
-}
+		ArrayList split(String s)
+		{
+			ArrayList r = new ArrayList();
+			Matcher matcher = splitter.matcher(s);
+			while (matcher.find())
+			{
+				String m = matcher.group(1);
+				r.add(m);
+			}
+			return r;
+		}
+	}
 
 	@FXML
 	private void onClickCompileToIr(ActionEvent event){
-		Parent root;
+		Parent root;	
 		try{
 			boolean flag =false;
 			console = new ArrayList<String>();
@@ -1206,7 +1264,7 @@ public class FileNameComparator implements Comparator
 			String cmd = "echo $llfibuild";
 			//System.out.println(System.getenv());
 
-			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll "+currentProgramFolder+"/"+currentFileName;
+			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
 			console.add("$ "+command+"\n");
 			Process p = Runtime.getRuntime().exec(command);
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -1313,7 +1371,14 @@ public class FileNameComparator implements Comparator
 
 
 	}
+	@FXML
+	private void onClickOkHandler(ActionEvent event){
 
+
+		Node  source = (Node)  event.getSource(); 
+		Stage stage  = (Stage) source.getScene().getWindow();
+		stage.close();
+	}
 	@FXML
 	private void onClickInstrument(ActionEvent event) {
 		Parent root;
