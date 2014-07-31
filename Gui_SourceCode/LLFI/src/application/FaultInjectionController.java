@@ -135,43 +135,42 @@ public class FaultInjectionController implements Initializable{
 		 it = runOptionMap.entrySet().iterator();
 		 while (it.hasNext()) {
 			java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-	    	tempList = new ArrayList<String>();
-	    	tempList = (ArrayList<String>)pairs.getValue();
-	    	key = (String)pairs.getKey();
-	    	if(Integer.parseInt(key.substring(3)) == Integer.parseInt(currentKey)+1)
-	    	{
-	    		runOptionMap.remove(key);
-	    		delFlag = true;
-	    		runOptionMap.put("run"+currentKey, tempList);
-	    		noOfRunsText.setText(tempList.get(0));
+	    		tempList = new ArrayList<String>();
+	    		tempList = (ArrayList<String>)pairs.getValue();
+	    		key = (String)pairs.getKey();
+	    		if(Integer.parseInt(key.substring(3)) == Integer.parseInt(currentKey)+1)
+	    		{
+	    			runOptionMap.remove(key);
+	    			delFlag = true;
+				runOptionMap.put("run"+currentKey, tempList);
+	    			noOfRunsText.setText(tempList.get(0));
 				if(!tempList.get(1).equalsIgnoreCase(""))
 					faulInjectionTypeCombo.setValue(tempList.get(1));;
-				
 				fiRegIndex.setText(tempList.get(2));
 				if(!tempList.get(3).equalsIgnoreCase(""))
-				fiCycleLabel.setText(tempList.get(3));
+					fiCycleLabel.setText(tempList.get(3));
 				else
 					fiCycleLabel.setText("0");
 				fiBitText.setText(tempList.get(4));
 				if(!tempList.get(5).equalsIgnoreCase(""))
-				fiIndexLabel.setText(tempList.get(5));
+					fiIndexLabel.setText(tempList.get(5));
 				else
 					fiIndexLabel.setText("0");
 				randomSeed.setText(tempList.get(6));
 				timeOut.setText(tempList.get(7));
 				if(!tempList.get(3).equalsIgnoreCase(""))
-				fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
+					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
 				if(!tempList.get(5).equalsIgnoreCase(""))
-				fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
+					fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
 				runNumberLabel.setText("run"+runNumber);
-	    	}
+	    		}
 	    	
 	    	
 	    	
-	    }
+	      }
 		 it = runOptionMap.entrySet().iterator();
 		 while (it.hasNext()) {
-				java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
+			java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
 		    	tempList = new ArrayList<String>();
 		    	tempList = (ArrayList<String>)pairs.getValue();
 		    	key = (String)pairs.getKey();
@@ -192,7 +191,7 @@ public class FaultInjectionController implements Initializable{
 			 fiIndexLabel.setText("0");
 			 fiIndexSlider.setValue(0);
 			 randomSeed.setPromptText("null");
-			 timeOut.setPromptText("500");
+			 timeOut.setPromptText("null");
 		 }
 		
 	}
@@ -211,74 +210,50 @@ public class FaultInjectionController implements Initializable{
 		Parent root;
 		try{
 			Iterator it = runOptionMap.entrySet().iterator();
-		    while (it.hasNext()) {
-		    	java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-		       
-		        //it.remove(); // avoids a ConcurrentModificationException
-		    }
-		   // it = runOptionMap.entrySet().iterator();
-		    if(!noOfRunsText.getText().contentEquals(""))
+		    	while (it.hasNext()) {
+		    		java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
+		    	}
+		    	if(!noOfRunsText.getText().contentEquals(""))
 			{
-		    	
 				runNumberContent = runNumberLabel.getText();
-				
-				// while (it.hasNext()) {
-				    	//java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-					
-					
-						//nextElementChkFlag = true;
-						//tempList = (ArrayList<String>)pairs.getValue();
-						newList = new ArrayList<String>();
-						newList.add(noOfRunsText.getText());
-						newList.add(faulInjectionTypeCombo.getValue().toString());
-						newList.add(fiRegIndex.getText());
-						newList.add(fiCycleLabel.getText());
-						newList.add(fiBitText.getText());
-						newList.add(fiIndexLabel.getText());
-						newList.add(randomSeed.getText());
-						newList.add(timeOut.getText());
-						runOptionMap.put(runNumberContent,newList);
-						
-						
-						
-					
-					
-				// }
-				
+				newList = new ArrayList<String>();
+				newList.add(noOfRunsText.getText());
+				newList.add(faulInjectionTypeCombo.getValue().toString());
+				newList.add(fiRegIndex.getText());
+				newList.add(fiCycleLabel.getText());
+				newList.add(fiBitText.getText());
+				newList.add(fiIndexLabel.getText());
+				newList.add(randomSeed.getText());
+				newList.add(timeOut.getText());
+				runOptionMap.put(runNumberContent,newList);
 			}
-			 it = runOptionMap.entrySet().iterator();
-			 while (it.hasNext()) {
-				
+			it = runOptionMap.entrySet().iterator();
+			while (it.hasNext()) {
 				 
-				 java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-		    	tempList = new ArrayList<String>();
-		    	tempList = (ArrayList<String>)pairs.getValue();
+				java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
+		    		tempList = new ArrayList<String>();
+		    		tempList = (ArrayList<String>)pairs.getValue();
 		    	
-		    }
+		    	}
 			inputFile = new FileReader(currentFolderName+"/input.yaml");
-			
-			
-			//if(runCount == 0)
-			//{
-				BufferedReader bufferReader = new BufferedReader(inputFile);
-			    while ((line = bufferReader.readLine()) != null)   {
-		      	if(line.contains("runOption:"))
-		      	{	runFlag = true;
-			        break;
-		      	}
-		      	else
-		      	{
-		      		fileContent+=line+"\n";
-		      	}
+			BufferedReader bufferReader = new BufferedReader(inputFile);
+			while ((line = bufferReader.readLine()) != null)   {
+		      		if(line.contains("runOption:")) {	
+					runFlag = true;
+			        	break;
+		      		}
+		      		else {
+		      			fileContent+=line+"\n";
+		      		}
 		      	
 		        }
 			    
-			    File yamlFile = new File(currentFolderName+"/input.yaml");
+			File yamlFile = new File(currentFolderName+"/input.yaml");
 		        FileOutputStream is = new FileOutputStream(yamlFile);
 		        OutputStreamWriter osw = new OutputStreamWriter(is);    
 		        Writer w = new BufferedWriter(osw);
 		        w.write(fileContent);
-			    if(runFlag)
+			if(runFlag)
 			    {
 			    	w.write("runOption:");
 			    	runFlag = false;
@@ -309,8 +284,6 @@ public class FaultInjectionController implements Initializable{
 							w.write("\n        fi_cycle: "+tempList.get(3));
 						if(tempList.get(5).equalsIgnoreCase("0"))
 							w.write("\n        fi_index: "+tempList.get(5));
-						
-					
 					}
 			    		if(!tempList.get(5).equalsIgnoreCase("0") && !tempList.get(5).equalsIgnoreCase(""))
 						w.write("\n        fi_index: "+tempList.get(5));
@@ -318,7 +291,6 @@ public class FaultInjectionController implements Initializable{
 						w.write("\n        fi_random_seed: "+tempList.get(6));
 					if(!tempList.get(7).equalsIgnoreCase(""))
 						w.write("\n        timeOut: "+tempList.get(7));
-			    	
 				 }
 				 w.close();
 				 
@@ -396,6 +368,7 @@ public class FaultInjectionController implements Initializable{
 		catch (IOException e) {
 	        System.err.println("Exception Occured in writing to the input.yaml file");
 	    }
+	    System.out.println("Run Option Map: " + runOptionMap);
 		
 	}
 	
@@ -582,7 +555,7 @@ public class FaultInjectionController implements Initializable{
 		}
 		else
 		{
-			timeOut.setText("500");
+			timeOut.setText("null");
 		}
 	}
 	@FXML
@@ -619,6 +592,7 @@ public class FaultInjectionController implements Initializable{
 			singleRunOption.add(fiIndexLabel.getText());
 			singleRunOption.add(randomSeed.getText());
 			singleRunOption.add(timeOut.getText());
+	    		System.out.println("Adding single run option " + singleRunOption);
 			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
 			//profileListRunOption.add(runOptionMap);
 			prevRunOption.setDisable(false);
@@ -665,7 +639,7 @@ public class FaultInjectionController implements Initializable{
 				fiBitText.setPromptText("null");
 				randomSeed.setText("");
 				randomSeed.setPromptText("null");
-				timeOut.setText("500");
+				timeOut.setText("null");
 				timeOut.setPromptText("null");
 				fiCycleLabel.setText("0");
 				fiIndexLabel.setText("0");
@@ -692,6 +666,7 @@ public class FaultInjectionController implements Initializable{
 			singleRunOption.add(fiIndexLabel.getText());
 			singleRunOption.add(randomSeed.getText());
 			singleRunOption.add(timeOut.getText());
+	    		System.out.println("Adding single run option " + singleRunOption);
 			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
 			profileListRunOption.add(runOptionMap);
 		}
@@ -794,6 +769,7 @@ public class FaultInjectionController implements Initializable{
         runOptionList.add("fi_bit");
         runOptionList.add("fi_index");
         runOptionList.add("fi_random_seed");
+        runOptionList.add("timeOut");
        
         boolean runOptionChkFlag = false;
         boolean firstItemChk = false;
@@ -895,15 +871,18 @@ public class FaultInjectionController implements Initializable{
 	    }
 	    if(profileLoadFlag == true)
 	    {
-	    	ArrayList<String> tempList = new ArrayList<String>();
-	    	tempList = runOptionMap.get("run1");
+	    	ArrayList<String> tempList = runOptionMap.get("run1");
+	
 	    	runNumberLabel.setText("run1");
 	    	noOfRunsText.setText(tempList.get(0));
-	    	if(!tempList.get(1).equalsIgnoreCase(""))
+	    	
+  		if(!tempList.get(1).equalsIgnoreCase(""))
 	    	faulInjectionTypeCombo.setValue(tempList.get(1));;
-	    	if(!tempList.get(2).equalsIgnoreCase(""))
+	    	
+		if(!tempList.get(2).equalsIgnoreCase(""))
 	    	fiRegIndex.setText(tempList.get(2));	    		
-	    	if(!tempList.get(3).equalsIgnoreCase(""))
+	    	
+		if(!tempList.get(3).equalsIgnoreCase(""))
 	    	{
 	    		fiCycleLabel.setText(tempList.get(3));
 	    		fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
@@ -913,9 +892,11 @@ public class FaultInjectionController implements Initializable{
 	    		fiCycleSlider.setValue(0);
 	    		fiCycleLabel.setText("0");
 	    	}
+
 	    	if(!tempList.get(4).equalsIgnoreCase(""))
 		    	fiBitText.setText(tempList.get(4));	
-	    	if(!tempList.get(5).equalsIgnoreCase(""))
+	    	
+		if(!tempList.get(5).equalsIgnoreCase(""))
 	    	{
 	    		fiIndexLabel.setText(tempList.get(5));
 	    		fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
@@ -925,18 +906,18 @@ public class FaultInjectionController implements Initializable{
 	    		fiIndexSlider.setValue(0);
 	    		fiIndexLabel.setText("0");
 	    	}
+
 	    	if(!tempList.get(6).equalsIgnoreCase(""))
 		    	randomSeed.setText(tempList.get(6));	
 	    	if(!tempList.get(7).equalsIgnoreCase(""))
 		    	timeOut.setText(tempList.get(7));	
-	    		
 	    	
 	    	
 	    }
 	    
 		}catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			 e.printStackTrace();
 		}
 	    // TODO
 	}

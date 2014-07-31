@@ -56,7 +56,7 @@
     <Button fx:id="nextRunOption" disable="false" layoutX="533.0" layoutY="205.0" mnemonicParsing="false" onAction="#onClickNextRunOption" prefHeight="28.0" prefWidth="46.000099999997474" text="&gt;" />
     <Button fx:id="prevRunOption" disable="true" layoutX="14.0" layoutY="205.0" minWidth="32.0" mnemonicParsing="false" onAction="#onClickPrevRunOption" prefHeight="28.0" prefWidth="47.0" text="&lt;" />
     <Label fx:id="runNumberLabel" layoutX="343.0" layoutY="80.0" text="" />
-    <CheckBox fx:id="saveProfileCheckBox" layoutX="218.0" layoutY="434.0" mnemonicParsing="false" prefWidth="153.0" text="Save Profile" />
+    <CheckBox fx:id="saveProfileCheckBox" layoutX="268.0" layoutY="434.0" mnemonicParsing="false" prefWidth="153.0" text="Save Profile" />
     <Label layoutX="230.0" layoutY="117.0" minWidth="9.0" prefWidth="21.0" text="*">
       <textFill>
         <Color blue="0.000" green="0.239" red="1.000" fx:id="x3" />
