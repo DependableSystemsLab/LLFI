@@ -476,10 +476,10 @@ if __name__ == "__main__":
         sys.exit(0)
     if not args.skipDependencyCheck:
         print("Checking LLFI Pre-Requisites and Dependencies")
-        buildGUI = True
+        makeGUI = True
         if args.noGUI:
-            buildGUI = False
-        deps = checkDependencies(buildGUI)
+            makeGUI = False
+        deps = checkDependencies(makeGUI)
         if not deps:
             print("Some LLFI Pre-Requisites are missing!")
             print("Please see Errors above, and install the missing dependencies")
