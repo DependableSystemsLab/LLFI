@@ -32,10 +32,12 @@ public class MyThread extends Thread
 	   try{
 		   Controller.console = new ArrayList<String>(); 
 		   
-		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString);
-		   Controller.console.add("$ "+Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe"+"\n");
-		    p.redirectErrorStream(true);
-		    Process pr = p.start();
+		   String execName = "bin/injectfault --GUI "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString;	
+
+		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath + execName);
+		   Controller.console.add("$ "+Controller.llfibuildPath + execName+ "\n");
+		   p.redirectErrorStream(true);
+		   Process pr = p.start();
 		    
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
 		    String line1;

@@ -230,9 +230,9 @@ public class Controller implements Initializable {
 			errorString = new ArrayList<>();
 			//System.out.println("inputString;"+inputString);
 
-			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString);
-
-			console.add("$ "+llfibuildPath+"bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString+"\n");
+			String execName = "bin/profile --GUI  "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString;
+			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath + execName);
+			console.add("$ "+llfibuildPath + execName + "\n");
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
@@ -346,37 +346,6 @@ public class Controller implements Initializable {
 
 	}
 
-
-	public void executefaultInjection()
-	{
-		try{
-			ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe "+inputString);
-
-			p.redirectErrorStream(true);
-			Process pr = p.start();
-
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-			String line1;
-			while ((line1 = in1.readLine()) != null) {
-
-				Controller.errorString.add(line1+"\n");
-				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-					errorFlag= true;
-
-
-			}
-			pr.waitFor();
-			in1.close();
-			pr.destroy();
-		}
-		catch (IOException e) {
-			System.err.println("Problem writing to the file statsTest.txt");
-		}catch (InterruptedException e) {
-			System.out.println(e);
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 	@FXML
 	public void onClickActualFaultInjection(ActionEvent event)
 	{
