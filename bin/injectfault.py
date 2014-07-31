@@ -101,11 +101,6 @@ def checkInputYaml():
         if opt=="forceRun":
           runOverride = True
           print("Kernel: Forcing run")
-    if "timeOut" in doc:
-      timeout = int(doc["timeOut"])
-      assert timeout > 0, "The timeOut option must be greater than 0"
-    else:
-      print("Run fault injection executable with default timeout " + str(timeout))
   except:
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
@@ -316,6 +311,12 @@ def main(args):
         print ("ERROR: Must include a run number per fi config in input.yaml.")
         exit(1)
 
+      if "timeOut" in run["run"]:
+         timeout = int(run["run"]["timeOut"])
+         assert timeout > 0, "The timeOut option must be greater than 0"
+      else:
+         print("Run with default timeout " + str(timeout))
+      
       run_number=run["run"]["numOfRuns"]
       checkValues("run_number", run_number)
 

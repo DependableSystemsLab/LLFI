@@ -65,6 +65,8 @@ public class FaultInjectionController implements Initializable{
 	@FXML
 	private TextField randomSeed;
 	@FXML
+	private TextField timeOut;
+	@FXML
 	private Label fiIndexLabel;
 	@FXML
 	private Slider fiIndexSlider;
@@ -156,6 +158,7 @@ public class FaultInjectionController implements Initializable{
 				else
 					fiIndexLabel.setText("0");
 				randomSeed.setText(tempList.get(6));
+				timeOut.setText(tempList.get(7));
 				if(!tempList.get(3).equalsIgnoreCase(""))
 				fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
 				if(!tempList.get(5).equalsIgnoreCase(""))
@@ -189,6 +192,7 @@ public class FaultInjectionController implements Initializable{
 			 fiIndexLabel.setText("0");
 			 fiIndexSlider.setValue(0);
 			 randomSeed.setPromptText("null");
+			 timeOut.setPromptText("500");
 		 }
 		
 	}
@@ -225,13 +229,14 @@ public class FaultInjectionController implements Initializable{
 						//nextElementChkFlag = true;
 						//tempList = (ArrayList<String>)pairs.getValue();
 						newList = new ArrayList<String>();
-							newList.add(noOfRunsText.getText());
-							newList.add(faulInjectionTypeCombo.getValue().toString());
-							newList.add(fiRegIndex.getText());
-							newList.add(fiCycleLabel.getText());
-							newList.add(fiBitText.getText());
-							newList.add(fiIndexLabel.getText());
-							newList.add(randomSeed.getText());
+						newList.add(noOfRunsText.getText());
+						newList.add(faulInjectionTypeCombo.getValue().toString());
+						newList.add(fiRegIndex.getText());
+						newList.add(fiCycleLabel.getText());
+						newList.add(fiBitText.getText());
+						newList.add(fiIndexLabel.getText());
+						newList.add(randomSeed.getText());
+						newList.add(timeOut.getText());
 						runOptionMap.put(runNumberContent,newList);
 						
 						
@@ -316,173 +321,6 @@ public class FaultInjectionController implements Initializable{
 				 }
 				 w.close();
 				 
-						/*w.write("\n    - run:");
-						w.write("\n        numOfRuns: "+noOfRunsText.getText());
-						w.write("\n        fi_type: "+faulInjectionTypeCombo.getValue().toString().split("-")[0]);
-						
-						if(!fiRegIndex.getText().equalsIgnoreCase(""))
-						w.write("\n        fi_reg_index: "+fiRegIndex.getText());
-					
-						if(!fiCycleLabel.getText().equalsIgnoreCase("0"))
-						w.write("\n        fi_cycle: "+fiCycleLabel.getText());
-						
-						if(!fiBitText.getText().equalsIgnoreCase(""))
-						{
-							w.write("\n        fi_bit: "+fiBitText.getText());
-							if(fiRegIndex.getText().equalsIgnoreCase(""))
-								w.write("\n        fi_reg_index: "+"0");
-							if(fiCycleLabel.getText().equalsIgnoreCase("0"))
-								w.write("\n        fi_cycle: "+fiCycleLabel.getText());
-							if(fiIndexLabel.geParent root;tText().equalsIgnoreCase("0"))
-								w.write("\n        fi_index: "+fiIndexLabel.getText());
-						
-						}
-					
-						if(!fiIndexLabel.getText().equalsIgnoreCase("0"))
-						w.write("\n        fi_index: "+fiIndexLabel.getText());
-						if(!randomSeed.getText().equalsIgnoreCase(""))
-						w.write("\n        fi_random_seed: "+randomSeed.getText());
-						w.close();
-				    
-				    
-				    
-				    
-				    
-				}*/
-				/*else
-				{
-
-			    	FileWriter injectWrite = new FileWriter(currentFolderName+"/input.yaml",true);
-			    	//injectWrite.write("\n\nrunOption:");
-					injectWrite.write("\n\n    - run:");
-					injectWrite.write("\n        numOfRuns: "+noOfRunsText.getText());
-					injectWrite.write("\n        fi_type: "+faulInjectionTypeCombo.getValue().toString().split("-")[0]);
-					
-					if(!fiRegIndex.getText().equalsIgnoreCase(""))
-					injectWrite.write("\n        fi_reg_index: "+fiRegIndex.getText());
-				
-					if(!fiCycleLabel.getText().equalsIgnoreCase("0"))
-					injectWrite.write("\n        fi_cycle: "+fiCycleLabel.getText());
-					
-					if(!fiBitText.getTextline.contains("fi_type")().equalsIgnoreCase(""))
-					{
-						injectWrite.write("\n        fi_bit: "+fiBitText.getText());
-						if(fiRegIndex.getText().equalsIgnoreCase(""))
-							injectWrite.write("\n        fi_reg_index: "+"0");
-						if(fiCycleLabel.getText().equalsIgnoreCase("0"))
-							injectWrite.write("\n        fi_cycle: "+fiCycleLabel.getText());
-						if(fiIndexLabel.getText().equalsIgnoreCase("0"))
-							injectWrite.write("\n        fi_index: "+fiIndexLabel.getText());
-					
-					}
-				
-					if(!fiIndexLabel.getText().equalsIgnoreCase("0"))
-					injectWrite.write("\n        fi_index: "+fiIndexLabel.getText());
-					if(!randomSeed.getText().equalsIgnoreCase(""))
-					injectWrite.write("\n        fi_random_seed: "+randomSeed.getText());
-					injectWrite.close();
-				}*/
-				
-				//runCount++;
-				//runCountLabel.setText(runCount+" Run Option Added");
-				 
-				/*noOfRunsText.setText("");
-				faulInjectionTypeCombo.setValue("--Select--");
-				fiRegIndex.setText("");
-				fiRegIndex.setPromptText("null");
-				fiBitText.setText("");
-				fiBitText.setPromptText("null");
-				randomSeed.setText("");
-				randomSeed.setPromptText("null");
-				fiCycleLabel.setText("0");
-				fiIndexLabel.setText("0");
-				fiIndexSlider.setValue(0);
-				fiCycleSlider.setValue(0);
-				
-					w.write("\n    - run:");
-					w.write("\n        numOfRuns: "+noOfRunsText.getText());
-					w.write("\n        fi_type: "+faulInjectionTypeCombo.getValue().toString().split("-")[0]);
-					
-					if(!fiRegIndex.getText().equalsIgnoreCase(""))
-					w.write("\n        fi_reg_index: "+fiRegIndex.getText());
-				
-					if(!fiCycleLabel.getText().equalsIgnoreCase("0"))
-					w.write("\n        fi_cycle: "+fiCycleLabel.getText());
-					
-					if(!fiBitText.getText().equalsIgnoreCase(""))
-					{
-						w.write("\n        fi_bit: "+fiBitText.getText());
-						if(fiRegIndex.getText().equalsIgnoreCase(""))
-							w.write("\n        fi_reg_index: "+"0");
-						if(fiCycleLabel.getText().equalsIgnoreCase("0"))
-							w.write("\n        fi_cycle: "+fiCycleLabel.getText());
-						if(fiIndexLabel.getText().equalsIgnoreCase("0"))
-							w.write("\n        fi_index: "+fiIndexLabel.getText());
-					
-					}
-				
-					if(!fiIndexLabel.getText().equalsIgnoreCase("0"))
-					w.write("\n        fi_index: "+fiIndexLabel.getText());
-					if(!randomSeed.getText().equalsIgnoreCase(""))
-					w.write("\n        fi_random_seed: "+randomSeed.getText());
-					w.close();
-			    
-			    
-			    
-			    
-			    
-			}*/
-			/*else
-			{
-
-		    	FileWriter injectWrite = new FileWriter(currentFolderName+"/input.yaml",true);
-		    	//injectWrite.write("\n\nrunOption:");
-				injectWrite.write("\n\n    - run:");
-				injectWrite.write("\n        numOfRuns: "+noOfRunsText.getText());
-				injectWrite.write("\n        fi_type: "+faulInjectionTypeCombo.getValue().toString().split("-")[0]);
-				
-				if(!fiRegIndex.getText().equalsIgnoreCase(""))
-				injectWrite.write("\n        fi_reg_index: "+fiRegIndex.getText());
-			
-				if(!fiCycleLabel.getText().equalsIgnoreCase("0"))
-				injectWrite.write("\n        fi_cycle: "+fiCycleLabel.getText());
-				
-				if(!fiBitText.getText().equalsIgnoreCase(""))
-				{
-					injectWrite.write("\n        fi_bit: "+fiBitText.getText());
-					if(fiRegIndex.getText().equalsIgnoreCase(""))
-						injectWrite.write("\n        fi_reg_index: "+"0");
-					if(fiCycleLabel.getText().equalsIgnoreCase("0"))
-						injectWrite.write("\n        fi_cycle: "+fiCycleLabel.getText());
-					if(fiIndexLabel.getText().equalsIgnoreCase("0"))
-						injectWrite.write("\n        fi_index: "+fiIndexLabel.getText());
-				
-				}
-			
-				if(!fiIndexLabel.getText().equalsIgnoreCase("0"))
-				injectWrite.write("\n        fi_index: "+fiIndexLabel.getText());
-				if(!randomSeed.getText().equalsIgnoreCase(""))
-				injectWrite.write("\n        fi_random_seed: "+randomSeed.getText());
-				injectWrite.close();
-			}*/
-			
-			//runCount++;@FXML
-					
-			//runCountLabel.setText(runCount+" Run Option Added");
-			
-			
-			/*noOfRunsText.setText("");
-			faulInjectionTypeCombo.setValue("--Select--");
-			fiRegIndex.setText("");
-			fiRegIndex.setPromptText("null");
-			fiBitText.setText("");
-			fiBitText.setPromptText("null");
-			randomSeed.setText("");
-			randomSeed.setPromptText("null");
-			fiCycleLabel.setText("0");
-			fiIndexLabel.setText("0");
-			fiIndexSlider.setValue(0);
-			fiCycleSlider.setValue(0);*/
 			if(errorFlag == true)
 			  {
 				  errorFlag = false;
@@ -735,6 +573,18 @@ public class FaultInjectionController implements Initializable{
 		}
 	}
 	@FXML
+	private void checkForNumberTimeOut(KeyEvent event){
+		String regex = "\\d+";
+		if(timeOut.getText().matches(regex))
+		{
+			//noOfRunsText.setText(noOfRunsText.getText());
+		}
+		else
+		{
+			timeOut.setText("500");
+		}
+	}
+	@FXML
 	private void onClickNextRunOption(ActionEvent event){
 		boolean nextElementChkFlag = false;
 		HashMap<String, ArrayList<String>> tempMap;
@@ -767,6 +617,7 @@ public class FaultInjectionController implements Initializable{
 			singleRunOption.add(fiBitText.getText());
 			singleRunOption.add(fiIndexLabel.getText());
 			singleRunOption.add(randomSeed.getText());
+			singleRunOption.add(timeOut.getText());
 			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
 			//profileListRunOption.add(runOptionMap);
 			prevRunOption.setDisable(false);
@@ -794,6 +645,7 @@ public class FaultInjectionController implements Initializable{
 					else
 						fiIndexLabel.setText("0");
 					randomSeed.setText(tempList.get(6));
+					timeOut.setText(tempList.get(7));
 					if(!tempList.get(3).equalsIgnoreCase(""))
 					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
 					if(!tempList.get(5).equalsIgnoreCase(""))
@@ -812,6 +664,8 @@ public class FaultInjectionController implements Initializable{
 				fiBitText.setPromptText("null");
 				randomSeed.setText("");
 				randomSeed.setPromptText("null");
+				timeOut.setText("500");
+				timeOut.setPromptText("null");
 				fiCycleLabel.setText("0");
 				fiIndexLabel.setText("0");
 				fiIndexSlider.setValue(0);
@@ -836,6 +690,7 @@ public class FaultInjectionController implements Initializable{
 			singleRunOption.add(fiBitText.getText());
 			singleRunOption.add(fiIndexLabel.getText());
 			singleRunOption.add(randomSeed.getText());
+			singleRunOption.add(timeOut.getText());
 			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
 			profileListRunOption.add(runOptionMap);
 		}
@@ -861,6 +716,7 @@ public class FaultInjectionController implements Initializable{
 					fiBitText.setText(tempList.get(4));
 					fiIndexLabel.setText(tempList.get(5));
 					randomSeed.setText(tempList.get(6));
+					timeOut.setText(tempList.get(7));
 					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
 					fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
 					runNumberLabel.setText(prevRun);
@@ -1070,6 +926,8 @@ public class FaultInjectionController implements Initializable{
 	    	}
 	    	if(!tempList.get(6).equalsIgnoreCase(""))
 		    	randomSeed.setText(tempList.get(6));	
+	    	if(!tempList.get(7).equalsIgnoreCase(""))
+		    	timeOut.setText(tempList.get(7));	
 	    		
 	    	
 	    	

@@ -45,6 +45,7 @@
     <Label fx:id="fiCycleLabel" layoutX="503.0" layoutY="197.0" text="0" />
     <Label font="$x1" layoutX="103.0" layoutY="369.0" text="Random Seed" />
     <TextField fx:id="randomSeed" layoutX="343.0" layoutY="363.0" onKeyReleased="#checkForNumberSeed" prefWidth="135.0" promptText="null" />
+    <TextField fx:id="timeOut" layoutX="343.0" layoutY="363.0" onKeyReleased="#checkForNumberTimeOut" prefWidth="135.0" promptText="null" />
     <Button font="$x1" layoutX="418.0" layoutY="394.0" mnemonicParsing="false" onAction="#onClickAddRunOption" prefWidth="161.0" text="Submit" />
     <Label fx:id="runCountLabel" layoutX="62.0" layoutY="426.0" prefWidth="191.0" textFill="RED">
       <font>
