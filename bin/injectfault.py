@@ -27,7 +27,7 @@ import shutil
 
 runOverride = False
 optionlist = []
-timeout = 500
+defaultTimeout = 500
 
 basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
@@ -83,7 +83,7 @@ def parseArgs(args):
 
 
 def checkInputYaml():
-  global timeout, doc
+  global doc
   #Check for input.yaml's presence
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
@@ -140,7 +140,7 @@ def config():
 
 
 ################################################################################
-def execute( execlist):
+def execute( execlist, timeout):
   global outputfile
   global return_codes
   #get state of directory
@@ -315,6 +315,7 @@ def main(args):
          timeout = int(run["run"]["timeOut"])
          assert timeout > 0, "The timeOut option must be greater than 0"
       else:
+         timeout = defaultTimeout 
          print("Run with default timeout " + str(timeout))
       
       run_number=run["run"]["numOfRuns"]
@@ -397,7 +398,7 @@ def main(args):
         # print run index before executing. Comma removes newline for prettier
         # formatting
         execlist.extend(optionlist)
-        ret = execute(execlist)
+        ret = execute(execlist, timeout)
         if ret == "timed-out":
           error_File = open(errorfile, 'w')
           error_File.write("Program hang\n")

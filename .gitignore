@@ -24,8 +24,8 @@ build/
 
 # Java build files
 *.class
-*.css
 *.fxml
+*.css
 
 #.gitingore itself
 .gitignore

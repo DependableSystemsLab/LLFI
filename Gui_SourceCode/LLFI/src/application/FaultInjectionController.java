@@ -288,19 +288,19 @@ public class FaultInjectionController implements Initializable{
 			    	w.write("\nrunOption:");
 			    it = runOptionMap.entrySet().iterator();
 				 while (it.hasNext()) {
-					
+					// Write the run options out to the yaml file					
 					 
-					 java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-			    	tempList = new ArrayList<String>();
-			    	tempList = (ArrayList<String>)pairs.getValue();
-			    	w.write("\n    - run:");
-			    	w.write("\n        numOfRuns: "+tempList.get(0));
-			    	w.write("\n        fi_type: "+tempList.get(1).toString().split("-")[0]);
-			    	if(!tempList.get(2).equalsIgnoreCase(""))
+					java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
+			    		tempList = new ArrayList<String>();
+			    		tempList = (ArrayList<String>)pairs.getValue();
+			    		w.write("\n    - run:");
+			    		w.write("\n        numOfRuns: "+tempList.get(0));
+			    		w.write("\n        fi_type: "+tempList.get(1).toString().split("-")[0]);
+			    		if(!tempList.get(2).equalsIgnoreCase(""))
 						w.write("\n        fi_reg_index: "+tempList.get(2));
-			    	if(!tempList.get(3).equalsIgnoreCase("0") && !tempList.get(3).equalsIgnoreCase(""))
+			    		if(!tempList.get(3).equalsIgnoreCase("0") && !tempList.get(3).equalsIgnoreCase(""))
 						w.write("\n        fi_cycle: "+tempList.get(3));
-			    	if(!tempList.get(4).equalsIgnoreCase(""))
+			    		if(!tempList.get(4).equalsIgnoreCase(""))
 					{
 						w.write("\n        fi_bit: "+tempList.get(4));
 						if(tempList.get(2).equalsIgnoreCase(""))
@@ -312,11 +312,12 @@ public class FaultInjectionController implements Initializable{
 						
 					
 					}
-			    	if(!tempList.get(5).equalsIgnoreCase("0") && !tempList.get(5).equalsIgnoreCase(""))
+			    		if(!tempList.get(5).equalsIgnoreCase("0") && !tempList.get(5).equalsIgnoreCase(""))
 						w.write("\n        fi_index: "+tempList.get(5));
-						if(!tempList.get(6).equalsIgnoreCase(""))
+					if(!tempList.get(6).equalsIgnoreCase(""))
 						w.write("\n        fi_random_seed: "+tempList.get(6));
-						
+					if(!tempList.get(7).equalsIgnoreCase(""))
+						w.write("\n        timeOut: "+tempList.get(7));
 			    	
 				 }
 				 w.close();
