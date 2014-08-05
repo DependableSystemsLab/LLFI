@@ -52,3 +52,4 @@ if __name__ == "__main__":
   else:
     print("Error: running option: %(prog)s file1 file2 ..." %{"prog": prog}, file=sys.stderr)
     exit(1)
+

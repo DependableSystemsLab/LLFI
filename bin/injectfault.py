@@ -27,7 +27,11 @@ import shutil
 
 runOverride = False
 optionlist = []
+<<<<<<< HEAD
 defaultTimeout = 500
+=======
+timeout = 100
+>>>>>>> cisco/Final
 
 basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
@@ -48,30 +52,24 @@ def usage(msg = None):
 
 
 def parseArgs(args):
-  global optionlist, fi_exe
+  global optionlist, fi_exe, env
   if args[0] == "--help" or args[0] == "-h":
     usage()
-
-  if len(args) < 2:
-    usage("Need at least two arguments")
-  
-  # Ugly hack warning: We always launch the executable from the parent of the parent
-  # directory in the GUI as it's not possible to change the working directory in the GUI
-  
-  env = args[0]
   fi_exe = os.path.realpath(args[1])
+  env= args[0]
   optionlist = args[2:]
+  if env=="-e" or env== "--CLI":
+   # print "found -e or --CLI"
+    if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
+      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
+     # print "program should launch in CLI"
+  elif env=="-u" or env== "--GUI": 
+    if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
+     # print "program should launch in GUI" 
+      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
+  else: 
+      usage("You need to enable optiones for GUI/CLI")      
 
-  if env=="-u" or env== "--GUI": 
-     # "program is launched from GUI"	
-     if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
-      	usage("You need to invoke %s at the parent of parent directory of fault injection executable" %prog)
-  elif env=="-c" or env=="--CLI": 
-     # program is launched from CLI - this is the default
-     if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
-      	usage("You need to invoke %s at the parent directory of faultfault injectionn executable" %prog)
-  else:
-        usage("You need to specify --CLI or --GUI") 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -87,7 +85,10 @@ def checkInputYaml():
   #Check for input.yaml's presence
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    f = open(os.path.join(yamldir, 'input.yaml'),'r')
+    if env=="-e" or env== "--CLI":
+      f = open(os.path.join(basedir, 'input.yaml'),'r')
+    elif env=="-u" or env== "--GUI": 
+      f = open(os.path.join(yamldir, 'input.yaml'),'r')  
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)
@@ -101,6 +102,11 @@ def checkInputYaml():
         if opt=="forceRun":
           runOverride = True
           print("Kernel: Forcing run")
+    if "timeOut" in doc:
+      timeout = int(doc["timeOut"])
+      assert timeout > 0, "The timeOut option must be greater than 0"
+    else:
+      print("Run fault injection executable with default timeout " + str(timeout))
   except:
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
@@ -143,6 +149,7 @@ def config():
 def execute( execlist, timeout):
   global outputfile
   global return_codes
+  print(' '.join(execlist))
   #get state of directory
   dirSnapshot()
   p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
@@ -152,6 +159,8 @@ def execute( execlist, timeout):
     time.sleep(1)
     if p.poll() is not None:
       moveOutput()
+      print("\t program finish", p.returncode)
+      print("\t time taken", elapsetime,"\n")
       outputFile = open(outputfile, "wb")
       outputFile.write(p.communicate()[0])
       outputFile.close()
@@ -168,6 +177,8 @@ def execute( execlist, timeout):
     return_codes["TO"] += 1
   else:
     return_codes["TO"] = 1
+  #inputFile.close()
+  print("\tParent : Child timed out. Cleaning up ... ")
   p.kill()
 
   moveOutput()
@@ -199,7 +210,7 @@ def moveOutput():
       fileSize = os.stat(each).st_size
       if fileSize == 0 and each.startswith("llfi"):
         #empty library output, can delete
-        #print each+ " is going to be deleted for having size of " + str(fileSize)
+        print(each+ " is going to be deleted for having size of " + str(fileSize))
         os.remove(each)
       else:
         flds = each.split(".")
@@ -256,11 +267,11 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == 'fi_bit':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-  
+
   elif key == 'fi_random_seed':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-
+    
     if runOverride:
       pass
     elif var1 > 1 and (var2 or var3) and var4:
@@ -308,7 +319,7 @@ def main(args):
       print("---FI Config #"+str(ii)+"---")
 
       if "numOfRuns" not in run["run"]:
-        print ("ERROR: Must include a run number per fi config in input.yaml.")
+        print("ERROR: Must include a run number per fi config in input.yaml.")
         exit(1)
 
       if "timeOut" in run["run"]:
@@ -354,10 +365,10 @@ def main(args):
         checkValues("fi_reg_index",fi_reg_index)
       if "fi_bit" in run["run"]:
         fi_bit=run["run"]["fi_bit"]
-        checkValues("fi_bit",fi_bit)
+        checkValues("fi_bit",fi_bit,run_number,fi_cycle,fi_index,fi_reg_index)
       if "fi_random_seed" in run["run"]:
         fi_random_seed=run["run"]["fi_random_seed"]
-        
+        checkValues("fi_random_seed",fi_random_seed)
 
       if ('fi_cycle' not in locals()) and 'fi_index' in locals():
         print(("\nINFO: You choose to inject faults based on LLFI index, "
@@ -375,7 +386,7 @@ def main(args):
         errorfile = errordir + "/errorfile-" + "run-"+run_id
         execlist = [fi_exe]
         
-        if('fi_random_seed' in locals()):
+        if('fi_cycle' not in locals() and 'fi_random_seed' in locals()):
           random.seed(fi_random_seed)
 
         if need_to_calc_fi_cycle:

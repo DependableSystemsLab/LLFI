@@ -66,3 +66,4 @@ if __name__ == "__main__":
     print("Error: running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}, file=sys.stderr)
     exit(1)
 
+

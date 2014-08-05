@@ -4,6 +4,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/IR/Instruction.h"
 #include <cstdio>
+
 #include "Utils.h"
 
 using namespace llvm;
@@ -22,6 +23,7 @@ static RegisterPass<GenLLFIIndexPass> X(
 
 bool GenLLFIIndexPass::runOnModule(Module &M) {
   Instruction *currinst;
+
   for (Module::iterator m_it = M.begin(); m_it != M.end(); ++m_it) {
     if (!m_it->isDeclaration()) {
       //m_it is a function  

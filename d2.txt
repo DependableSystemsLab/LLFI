@@ -1,0 +1,4 @@
+CONFLICT (content): Merge conflict in bin/injectfault.py
+CONFLICT (modify/delete): README.TXT deleted in HEAD and modified in cisco/Final. Version cisco/Final of README.TXT left in tree.
+CONFLICT (add/add): Merge conflict in LLFI-GUI/fault_type.txt
+Automatic merge failed; fix conflicts and then commit the result.

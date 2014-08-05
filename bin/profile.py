@@ -42,30 +42,29 @@ def usage(msg = None):
 
 
 def parseArgs(args):
-  global optionlist, profiling_exe
-  
-  if args[0] == "--help" or args[0] == "-h":
-    usage()
- 
-  if len(args) < 2:
-    usage("Need at least two arguments")
- 
-  env = args[0]
+  global optionlist, profiling_exe, env
+  #print("args:")
+  #print(args)
   profiling_exe = os.path.realpath(args[1])
+  env= args[0]
   optionlist = args[2:]
+ # print("exe: ")
+ # print(profiling_exe)
+ # print("opts: ")
+ # print(optionlist)
 
-  # Ugly hack warning: We always launch the executable from the parent of the parent
-  # directory in the GUI as it's not possible to change the working directory in the GUI
-  if env=="-u" or env== "--GUI": 
-     # "program is launched from GUI"	
-     if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
-      	usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
-  elif env=="-c" or env=="--CLI": 
-     # program is launched from CLI - this is the default
-     if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
-      	usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-  else:
-        usage("You need to specify --CLI or --GUI")	
+  if env=="-e" or env== "--CLI":
+   
+    if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
+      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
+      # "program should launch in CLI"
+  elif env=="-u" or env== "--GUI": 
+    if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
+     # "program should launch in GUI"	
+      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
+  else: 
+      usage("You need to enable optiones for GUI/CLI")
+  
 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
@@ -123,7 +122,7 @@ def execute(execlist):
   print('\t' + ' '.join(execlist))
   #get state of directory
   dirSnapshot()
-  p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
+  p = subprocess.Popen(execlist, stdout=subprocess.PIPE)
   elapsetime = 0
   while True:
     elapsetime += 1

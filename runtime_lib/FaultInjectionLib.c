@@ -29,6 +29,7 @@ static struct {
   // a previous fault injection experiment
   int fi_reg_index;
   int fi_bit;
+  int fi_random_seed;
 } config = {"bitflip", false, -1, -1, -1, -1}; 
 // -1 to tell the value is not specified in the config file
 
@@ -95,6 +96,9 @@ void _parseLLFIConfigFile() {
     } else if (strcmp(option, "fi_bit") == 0) {
       config.fi_bit = atoi(value);
       assert(config.fi_bit >= 0 && "invalid fi_bit in config file");
+    } else if (strcmp(option, "fi_random_seed") == 0) {
+      config.fi_bit = atoi(value);
+      assert(config.fi_random_seed >= 0 && "invalid fi_bit in config file");
     } else {
       fprintf(stderr, 
               "ERROR: Unknown option %s for LLFI runtime fault injection\n",
@@ -193,10 +197,20 @@ void injectFunc(long llfi_index, unsigned size,
   memcpy(&oldbuf, &buf[fi_bytepos], 1);
 
 
+FILE* fp;
+ const  char failure_class[20], failure_mode[20], function_name[20],  fault_injector[20];
+  fp=fopen("gui-config.txt", "r");
+     
+fscanf(fp, "%s", failure_class) ;
+fscanf(fp, "%s", failure_mode) ;
+fscanf(fp, "%s", function_name) ;
+fscanf(fp, "%s", fault_injector) ;
+
+
   fprintf(injectedfaultsFile, 
           "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
-          "fi_bit=%u\n", config.fi_type,
-          llfi_index, config.fi_cycle, my_reg_index, fi_bit);
+          "fi_bit=%u, failure_class=%s, failure_mode=%s, function_name=%s, fault_injector=%s\n", config.fi_type,
+          llfi_index, config.fi_cycle, my_reg_index, fi_bit,&failure_class, &failure_mode,&function_name, &fault_injector);
 	fflush(injectedfaultsFile); 
   
   injectFaultImpl(config.fi_type, llfi_index, size, fi_bit, buf);

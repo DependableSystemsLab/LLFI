@@ -9,4 +9,6 @@ add_library(llfi-rt SHARED
     InstTraceLib.c
     ProfilingLib.c
     Utils.c
+
+AutomatedInjection.cpp
 )

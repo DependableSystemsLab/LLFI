@@ -1,0 +1,26 @@
+kernelOption:
+    - forceRun
+
+timeOut: 1000
+
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: NoClose(API)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+   
+    tracingPropagation: True # trace dynamic instruction values.
+
+    tracingPropagationOption:
+        maxTrace: 250 # max number of instructions to trace during fault injection run
+        debugTrace: True/False
+        generateCDFG: True
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection

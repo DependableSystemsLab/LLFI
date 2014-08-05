@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.TableRow?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.*?>
+
+<TabPane prefHeight="864.0" prefWidth="1218.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="application.Controller">
+  <tabs>
+    <Tab text="Standard">
+      <content>
+        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="195.0" prefWidth="1218.0">
+          <children>
+            <VBox prefHeight="828.0" prefWidth="1218.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <MenuBar prefHeight="28.0" prefWidth="1217.9999000000025">
+                  <menus>
+                    <Menu mnemonicParsing="false" text="File">
+                      <items>
+                        <MenuItem mnemonicParsing="false" text="Close" />
+                        <MenuItem mnemonicParsing="false" onAction="#onClickOpenFile" text="Open File" />
+                        <MenuItem mnemonicParsing="false" text="Import" />
+                        <MenuItem mnemonicParsing="false" text="Exit" />
+                      </items>
+                    </Menu>
+                    <Menu mnemonicParsing="false" text="Edit">
+                      <items>
+                        <MenuItem mnemonicParsing="false" text="Delete" />
+                      </items>
+                    </Menu>
+                    <Menu mnemonicParsing="false" text="Help">
+                      <items>
+                        <MenuItem mnemonicParsing="false" text="About" />
+                      </items>
+                    </Menu>
+                  </menus>
+                </MenuBar>
+                <SplitPane dividerPositions="0.19983552631578946" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="795.0" prefWidth="1000.0">
+                  <items>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="793.0" prefWidth="240.0">
+                      <children>
+                        <VBox layoutX="0.0" layoutY="0.0" prefHeight="793.0" prefWidth="240.0">
+                          <children>
+                            <HBox prefHeight="28.0" prefWidth="240.0">
+                              <children>
+                                <Label prefHeight="25.0" prefWidth="50.0" text="Search" textAlignment="CENTER">
+                                  <font>
+                                    <Font size="14.0" />
+                                  </font>
+                                </Label>
+                                <TextArea prefHeight="28.0" prefWidth="190.0" wrapText="true" />
+                              </children>
+                            </HBox>
+                            <AnchorPane prefHeight="25.0" prefWidth="240.0" />
+                            <ListView fx:id="fileList" orientation="VERTICAL" prefHeight="512.0" prefWidth="240.0" />
+                          </children>
+                        </VBox>
+                      </children>
+                      <padding>
+                        <Insets top="39.0" />
+                      </padding>
+                    </AnchorPane>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="706.0" prefWidth="664.0">
+                      <children>
+                        <VBox prefHeight="793.0" prefWidth="970.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                          <children>
+                            <AnchorPane prefHeight="28.000099999997474" prefWidth="970.0">
+                              <children>
+                                <Button fx:id="compiletoIrButton" layoutX="0.0" mnemonicParsing="false" onAction="#onClickCompileToIr" prefHeight="25.0" prefWidth="153.0" text="Compile To IR" AnchorPane.topAnchor="2.0" />
+                                <Button fx:id="instrumentButton" layoutX="153.0" mnemonicParsing="false" onAction="#onClickInstrument" prefHeight="25.0" prefWidth="155.0" text="Instrument" AnchorPane.topAnchor="2.0" />
+                                <Button layoutX="308.0" mnemonicParsing="false" onAction="#onClickProfiling" prefHeight="25.0" prefWidth="157.0" text="Profiling" AnchorPane.topAnchor="2.0" />
+                                <Button fx:id="injectfaultButton" layoutX="465.0" mnemonicParsing="false" onAction="#onClickInjectFault" prefHeight="25.0" prefWidth="148.0" text="Inject Fault" AnchorPane.topAnchor="4.0" />
+                              </children>
+                            </AnchorPane>
+                            <AnchorPane prefHeight="543.0" prefWidth="970.0">
+                              <children>
+                                <HBox layoutX="0.0" layoutY="1.0" prefHeight="542.0" prefWidth="970.0">
+                                  <children>
+                                    <TextArea fx:id="programTextArea" prefHeight="542.0" prefRowCount="10" prefWidth="610.0" wrapText="true" />
+                                    <TitledPane animated="false" prefHeight="544.0" prefWidth="360.0" text="Tutorial">
+                                      <content>
+                                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="339.0" prefWidth="281.0">
+                                          <children>
+                                            <VBox prefHeight="515.0" prefWidth="356.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                              <children>
+                                                <Label prefWidth="226.0" text="Tutorial for Running LLFI :">
+                                                  <font>
+                                                    <Font name="System Bold Italic" size="15.0" fx:id="x1" />
+                                                  </font>
+                                                </Label>
+                                                <TextArea editable="false" prefHeight="492.0" prefWidth="356.0" text="1.  Please upload a valid C,C++ or Java  file by   &#10;     choosing File -&gt;Open File -&gt;Select the file -&gt;         Open&#10;     Note : The  program could not be edited here.&#10;&#10;2.  Click the &quot;Compile To IR&quot; button to compile &#10;     your program to IR form.&#10;&#10;3.  Click the &quot;Instrument&quot; button and select the           Compile options to configure LLFI.&#10;&#10;4.  Click the &quot;Profiling&quot; button.&#10;&#10;5.  Click the &quot;Inject Fault&quot; button and select the &#10;     Runtime options to configure your fault      &#10;     injection." wrapText="true" />
+                                              </children>
+                                            </VBox>
+                                          </children>
+                                        </AnchorPane>
+                                      </content>
+                                      <font>
+                                        <Font name="System Bold Italic" size="14.0" />
+                                      </font>
+                                    </TitledPane>
+                                  </children>
+                                </HBox>
+                              </children>
+                            </AnchorPane>
+                            <AnchorPane prefHeight="222.0" prefWidth="970.0">
+                              <children>
+                                <TabPane fx:id="tabBottom" prefHeight="222.0" prefWidth="970.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                  <tabs>
+                                    <Tab text="Profiling Status">
+                                      <content>
+                                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                            <TableView fx:id="profilingTable" prefHeight="186.0" prefWidth="970.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                              <columns>
+                                                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="164.0" text="No.of.Index" fx:id="indexCount">
+                                                  <cellValueFactory>
+                                                    <PropertyValueFactory property="indexCount" />
+                                                  </cellValueFactory>
+                                                </TableColumn>
+                                                <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="150.0" text="No.of.Cycle" fx:id="cycleCount">
+                                                  <cellValueFactory>
+                                                    <PropertyValueFactory property="cycleCount" />
+                                                  </cellValueFactory>
+                                                </TableColumn>
+                                              </columns>
+                                            </TableView>
+                                          </children>
+                                        </AnchorPane>
+                                      </content>
+                                    </Tab>
+                                    <Tab fx:id="faultStatus" text="Fault Injection Status" onSelectionChanged="#onTabChange">
+                                      <content>
+                                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                          <children>
+                                            <TableView fx:id="resultTable" prefHeight="186.0" prefWidth="970.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                              
+                                                <TableColumn fx:id="tFiRun" prefWidth="75.0" text="Run Option">
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiRun" />
+                                                  </cellValueFactory>
+                                                 </TableColumn>
+                                                <TableColumn fx:id="tFiType" maxWidth="5000.0" minWidth="10.0" prefWidth="154.0" text="Fault Injection Type" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiType" />
+                                                  </cellValueFactory>
+                                                 </TableColumn>
+                                                <TableColumn fx:id="tFiIndex" maxWidth="5000.0" minWidth="10.0" prefWidth="74.0" text="Index" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiIndex" />
+                                                  </cellValueFactory>
+                                                 </TableColumn>
+                                                <TableColumn fx:id="tFiCycle" maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="Cycle" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiCycle" />
+                                                  </cellValueFactory>
+                                                  </TableColumn>
+                                                <TableColumn fx:id="tFiRegIndex" maxWidth="5000.0" minWidth="10.0" prefWidth="110.0" text="Register Index" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiRegIndex" />
+                                                  </cellValueFactory>
+                                                 </TableColumn>
+                                                <TableColumn fx:id="tFiBit" maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="Bit" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiBit" />
+                                                  </cellValueFactory>
+                                                 </TableColumn>
+                                                <TableColumn fx:id="tFiStatus" maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="Status">
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiStatus" />
+                                                  </cellValueFactory>
+                                                  </TableColumn>
+                                                <TableColumn fx:id="tFiResult" maxWidth="5000.0" minWidth="10.0" prefWidth="312.0" text="Result" >
+                                                <cellValueFactory>
+                                                    <PropertyValueFactory property="tFiResult" />
+                                                  </cellValueFactory>
+                                                  </TableColumn>
+                                              </columns>
+                                            </TableView>
+                                          </children>
+                                        </AnchorPane>
+                                      </content>
+                                    </Tab>
+                                    <Tab text="Fault Summary">
+                                      <content>
+                                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                      </content>
+                                    </Tab>
+                                  </tabs>
+                                </TabPane>
+                              </children>
+                            </AnchorPane>
+                          </children>
+                        </VBox>
+                      </children>
+                    </AnchorPane>
+                  </items>
+                </SplitPane>
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
+      </content>
+    </Tab>
+    <Tab text="Advanced">
+      <content>
+        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+      </content>
+    </Tab>
+    </tabs>
+    </TabPane>
+    
