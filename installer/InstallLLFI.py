@@ -74,7 +74,7 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
                       'EXTRACTFLAG':True,
                       'DOWNLOADFLAG':True}
 
-LLFIMERGEDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/merge.zip',
+LLFIMERGEDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archive/merge.zip',
                       'FILENAME':"merge.zip",
                       'MD5':"04fcd2c0dc23b97f72eaf6b76e021821",
                       'EXTRACTPATH':"llfisrc",
