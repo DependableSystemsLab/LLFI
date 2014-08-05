@@ -74,7 +74,16 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
                       'EXTRACTFLAG':True,
                       'DOWNLOADFLAG':True}
 
-DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLICDOWNLOAD]
+LLFIMERGEDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/merge.zip',
+                      'FILENAME':"merge.zip",
+                      'MD5':"04fcd2c0dc23b97f72eaf6b76e021821",
+                      'EXTRACTPATH':"llfisrc",
+                      'EXTRACTEDNAME':'LLFI-merge',
+                      'ARCHIVETYPE':'.zip',
+                      'EXTRACTFLAG':True,
+                      'DOWNLOADFLAG':True}
+
+DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIMERGEDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
