@@ -1,4 +1,5 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
+
 
 """
 
@@ -109,7 +110,7 @@ def compileToIR(outputfile, inputfile):
 
   if options['debug']:
     execlist.append('-g')
-  
+
   return execute(execlist)
 
 

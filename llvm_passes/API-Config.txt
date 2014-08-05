@@ -1,0 +1,5 @@
+fwrite 3
+fread  3
+fgetc  2
+fopen 0
+fopen 1

@@ -4,13 +4,19 @@ LLFI, please submit a patch to this file to add yourself, and it will be
 done!
 
 The list is formatted to allow easy grepping and
-beautification by scripts.  The fields are: name (N), and description (D). 
+beautification by scripts.  The fields are: name (N), and description (D).
+
+N: Nithya Narayanamurthy
+D: Added GUI for basic functionality
+
+N: Maryam Raiyat
+D: Implemented API injection capability
 
 N: Anna Thomas
 D: Coding for LLFI - passes and scripts.
 
 N: Karthik Pattabiraman
-D: Provider of initial code and ideas
+D: Provider of initial code and ideas 
 
 N: Qining Lu
 D: Documented README file and examples, add argument-wise injection feature. 

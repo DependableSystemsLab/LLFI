@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="472.0" prefWidth="593.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="application.FaultInjectionController">
+  <!-- TODO Add Nodes -->
+  <children>
+    <Label layoutX="76.0" layoutY="75.0" text="Runtime Option :">
+      <font>
+        <Font name="System Bold Italic" size="15.0" fx:id="x2" />
+      </font>
+    </Label>
+    <Label layoutX="103.0" layoutY="115.0" text="Number Of Runs">
+      <font>
+        <Font size="15.0" fx:id="x1" />
+      </font>
+    </Label>
+    <Label font="$x1" layoutX="103.0" layoutY="156.0" text="Fault Injection Type" />
+    <ComboBox fx:id="faulInjectionTypeCombo" layoutX="343.0" layoutY="156.0" minHeight="18.0" prefHeight="18.0" prefWidth="135.0">
+      <items>
+        <FXCollections fx:factory="observableArrayList" />
+      </items>
+    </ComboBox>
+    <Label font="$x1" layoutX="103.0" layoutY="193.0" text="Fault Injection Cycles" />
+    <Label font="$x1" layoutX="103.0" layoutY="238.0" text="Fault Injection Index" />
+    <Label font="$x1" layoutY="285.0" text="Fault Injection Register Index" AnchorPane.leftAnchor="103.0" />
+    <Label font="$x1" layoutY="326.0" text="Fault Injection Bit" AnchorPane.leftAnchor="103.0" />
+    <Label layoutX="76.0" layoutY="35.0" prefWidth="281.0" text="Fault Injection Configuration">
+      <font>
+        <Font name="System Bold" size="17.0" />
+      </font>
+    </Label>
+    <Slider fx:id="fiIndexSlider" blockIncrement="2.0" disable="false" layoutY="240.0" majorTickUnit="100.0" max="100.0" min="0.0" minorTickCount="0" onMouseReleased="#onChangeIndexSlider" showTickLabels="true" showTickMarks="false" snapToTicks="false" AnchorPane.leftAnchor="343.0" />
+    <TextField fx:id="noOfRunsText" layoutX="343.0" layoutY="115.0" onKeyReleased="#checkForNumberRuns" prefWidth="135.0" text="" />
+    <TextField fx:id="fiRegIndex" layoutY="284.0" onKeyReleased="#checkForNumberRegister" prefWidth="135.0" promptText="null" AnchorPane.leftAnchor="343.0" />
+    <Slider fx:id="fiCycleSlider" blockIncrement="2.0" layoutX="341.0" layoutY="196.0" majorTickUnit="200.0" max="200.0" min="0.0" minorTickCount="0" onMouseReleased="#onChangeRegIndexSlider" showTickLabels="true" />
+    <TextField fx:id="fiBitText" layoutX="343.0" layoutY="325.0" onKeyReleased="#checkForNumberBit" prefWidth="135.0" promptText="null" />
+    <Label fx:id="fiIndexLabel" layoutX="503.0" layoutY="240.0" text="0" />
+    <Label fx:id="fiCycleLabel" layoutX="503.0" layoutY="197.0" text="0" />
+    <Label font="$x1" layoutX="103.0" layoutY="369.0" text="Random Seed" />
+    <TextField fx:id="randomSeed" layoutX="343.0" layoutY="363.0" onKeyReleased="#checkForNumberSeed" prefWidth="135.0" promptText="null" />
+    <Button font="$x1" layoutX="418.0" layoutY="394.0" mnemonicParsing="false" onAction="#onClickAddRunOption" prefWidth="161.0" text="Submit" />
+    <Label fx:id="runCountLabel" layoutX="62.0" layoutY="426.0" prefWidth="191.0" textFill="RED">
+      <font>
+        <Font name="System Italic" size="13.0" />
+      </font>
+    </Label>
+    <Button fx:id="nextRunOption" disable="false" layoutX="533.0" layoutY="205.0" mnemonicParsing="false" onAction="#onClickNextRunOption" prefHeight="28.0" prefWidth="46.000099999997474" text="&gt;" />
+    <Button fx:id="prevRunOption" disable="true" layoutX="14.0" layoutY="205.0" minWidth="32.0" mnemonicParsing="false" onAction="#onClickPrevRunOption" prefHeight="28.0" prefWidth="47.0" text="&lt;" />
+    <Label fx:id="runNumberLabel" layoutX="343.0" layoutY="80.0" text="" />
+    <CheckBox fx:id="saveProfileCheckBox" layoutX="418.0" layoutY="434.0" mnemonicParsing="false" prefWidth="153.0" text="Save Profile" />
+    <Label layoutX="230.0" layoutY="117.0" minWidth="9.0" prefWidth="21.0" text="*" textFill="#ff3d00" />
+    <Label layoutX="253.0" layoutY="156.0" minWidth="9.0" prefWidth="21.0" text="*" textFill="#ff3d00" />
+  </children>
+</AnchorPane>

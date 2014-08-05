@@ -1,0 +1,5 @@
+fread 3
+fwrite 3
+fopen 0
+fclose 0
+

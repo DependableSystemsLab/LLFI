@@ -132,7 +132,6 @@ struct InstTrace : public FunctionPass {
         CastInst* castinst = NULL;
 
         if (inst->getType() != Type::getVoidTy(context)) {
-
           if ((inst->getType())->isFloatingPointTy()){
               flag = 1;
               castinst = CastInst::CreateFPCast(inst,Type::getDoubleTy(context),"castfloat",insertPoint);
@@ -153,6 +152,7 @@ struct InstTrace : public FunctionPass {
                intConst = ConstantInt::get(IntegerType::get(context, 64), 0);
                flag = 2;
           }
+
           DataLayout &td = getAnalysis<DataLayout>();
           bitSize = (float)td.getTypeSizeInBits(inst->getType());
         }
@@ -165,12 +165,24 @@ struct InstTrace : public FunctionPass {
         int byteSize = (int)ceil(bitSize / 8.0);
 
 
-
-
         int opcodeIndex = inst->getOpcode();
+        //Insert instructions to allocate stack memory for opcode name
+        
+        const char* opcodeNamePt = inst->getOpcodeName();
+	      const std::string str(inst->getOpcodeName());
+        ArrayRef<uint8_t> opcode_name_array_ref((uint8_t*)opcodeNamePt, str.size() + 1);
+        //llvm::Value* OPCodeName = llvm::ConstantArray::get(context, opcode_name_array_ref);
+        llvm::Value* OPCodeName = llvm::ConstantDataArray::get(context, opcode_name_array_ref);
+        /********************************/
+
+        AllocaInst* OPCodePtr = new AllocaInst(OPCodeName->getType(),
+                                               "llfi_trace", insertPoint);
+        new StoreInst(OPCodeName, OPCodePtr, insertPoint);
 
         //Create the decleration of the printInstTracer Function
-        std::vector<Type*> parameterVector(7);
+        std::vector<Type*> parameterVector(5);
+
+
         parameterVector[0] = Type::getInt32Ty(context); //ID
         parameterVector[1] = Type::getInt32Ty(context);     //OpCode ID
         parameterVector[2] = Type::getInt32Ty(context); //Size of Inst Value

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 """
 
@@ -173,18 +173,29 @@ def readCompileOption():
   
   ###Instruction selection method
   if "instSelMethod" not in cOpt:  
-    print ("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n")
+    print(("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n"))
     exit(1)
   else:
-    compileOptions = []
-    validMethods = ["insttype", "funcname", "custominstselector"]
-    # Generate list of instruction selection methods
-    # TODO: Generalize and document
-    instSelMethod = cOpt["instSelMethod"]
-    for method in instSelMethod:
-      methodName = list(method.keys())[0]
-      if methodName not in validMethods:
-        print ("\n\nERROR: Unknown instruction selection method in input.yaml.\n")
+    #Select by instruction type
+    if cOpt["instSelMethod"] == 'insttype':
+      compileOptions = ['-insttype']
+      if "include" not in cOpt:  
+        print(("\n\nERROR: An 'Include' list must be present for the insttype method in input.yaml.\n"))
+        exit(1)
+      else:
+        #include list
+        for inst in cOpt["include"]:
+          compileOptions.append('-includeinst='+inst)
+        #exclude list
+        if "exclude" in cOpt:
+          for inst in cOpt["exclude"]:
+            compileOptions.append('-excludeinst='+inst)
+    #Select by custom instruction 
+    elif cOpt["instSelMethod"] == 'custominstselector':
+      compileOptions = ['-custominstselector']
+    
+      if "customInstSelector" not in cOpt:
+        print(("\n\nERROR: A 'customInstSelector' key value pair must be present for the customeinstselector method in input.yaml.\n"))
         exit(1)
       if methodName != "custominstselector":
         compileOptions.append("-%s" % (str(methodName)))
@@ -194,37 +205,20 @@ def readCompileOption():
         if "customInstSelectorOption" in cOpt:
           for opt in cOpt["customInstSelectorOption"]:
             compileOptions.append(opt)
-        continue # custom selectors don't have attributes
-      
-      # Ensure that 'include' is specified at least
-      # TODO: This isn't a very extendible way of doing this.
-      if methodName != "custominstselector" and "include" not in method[methodName]:
-        print(("\n\nERROR: An 'include' list must be present for the %s method in input.yaml.\n" % (methodName)))
-        exit(1)
-
-      # Parse all options for current method
-      for attr in list(method[methodName].keys()):
-        prefix = "-%s" % (str(attr))
-        if methodName == "insttype":
-          prefix += "inst="
-        elif methodName == "funcname":
-          prefix += "func="
-        else: # add the ability to give custom options here?
-          pass
-        # Generate list of options for attribute
-        opts = [prefix + opt for opt in method[methodName][attr]]
-        compileOptions.extend(opts)
+    else:
+      print(("\n\nERROR: Unknown Instruction selection method in input.yaml.\n"))
+      exit(1)
 
   ###Register selection method
   if "regSelMethod" not in cOpt:  
-    print ("\n\nERROR: Please include an 'regSelMethod' key value pair under compileOption in input.yaml.\n")
+    print(("\n\nERROR: Please include an 'regSelMethod' key value pair under compileOption in input.yaml.\n"))
     exit(1)
   else:
     #Select by register location
     if cOpt["regSelMethod"] == 'regloc':
       compileOptions.append('-regloc')
       if "regloc" not in cOpt:
-        print ("\n\nERROR: An 'regloc' key value pair must be present for the regloc method in input.yaml.\n")
+        print(("\n\nERROR: An 'regloc' key value pair must be present for the regloc method in input.yaml.\n"))
         exit(1)
       else:
         compileOptions.append('-'+cOpt["regloc"])
@@ -233,7 +227,7 @@ def readCompileOption():
     elif cOpt["regSelMethod"]  == 'customregselector':
       compileOptions.append('-customregselector')
       if "customRegSelector" not in cOpt:  
-        print ("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n")
+        print(("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n"))
         exit(1)
       else:
           compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
@@ -242,7 +236,7 @@ def readCompileOption():
               compileOptions.append(opt)
 
     else:
-      print ("\n\nERROR: Unknown Register selection method in input.yaml.\n")
+      print(("\n\nERROR: Unknown Register selection method in input.yaml.\n"))
       exit(1)
 
   ###Injection Trace selection 
@@ -253,7 +247,7 @@ def readCompileOption():
       elif trace == 'backward':
         compileOptions.append('-includebackwardtrace')
       else:
-        print ("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n")
+        print(("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n"))
         exit(1)
 
   ###Tracing Proppass
@@ -323,8 +317,8 @@ def compileProg():
 
   if retcode != 0:
     print("\nERROR: there was an error during running the "\
-                         "instrumentation pass, please follow"\
-                         " the provided instructions for %s." % prog, file=sys.stderr)
+          "instrumentation pass, please follow"\
+          " the provided instructions for %s." % prog, file=sys.stderr)
     shutil.rmtree(options['dir'], ignore_errors = True)
     sys.exit(retcode)
 

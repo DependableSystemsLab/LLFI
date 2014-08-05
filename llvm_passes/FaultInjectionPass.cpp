@@ -69,7 +69,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
       paramtypes[3] = i32type; // current fi reg index
       paramtypes[4] = i32type; // total fi reg number
 
-      // LLVM 3.3 Upgrade
+      //LLVM 3.3 Upgrade
       ArrayRef<Type*> paramtypes_array_ref(paramtypes);
       FunctionType* injectfunctype = FunctionType::get(returntype, paramtypes_array_ref, false);
 
@@ -179,9 +179,8 @@ void FaultInjectionPass::createInjectionFuncforType(
                     "tmploc_cast", fi2exit_branch);
   fi_args[3] = args[3];
 
-  // LLVM 3.3 Upgrade
   ArrayRef<Value*> fi_args_array_ref(fi_args);
-
+	
   CallInst::Create(injectfunc, fi_args_array_ref, "",
                    fi2exit_branch);
 
@@ -197,6 +196,7 @@ void FaultInjectionPass::createInjectionFunctions(Module &M) {
        fi_rettype_funcname_map.begin();
        fi != fi_rettype_funcname_map.end(); ++fi) {
     const Type *fi_type = fi->first;
+
 
     // LLVM 3.3 upgrading
     Type *fi_type_unconst = const_cast<Type*>(fi_type);

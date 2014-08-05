@@ -1,0 +1,16 @@
+
+compileOption:
+    instSelMethod: custominstselector
+    customInstSelector: DataCorruption(Data)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+    
+    
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection
