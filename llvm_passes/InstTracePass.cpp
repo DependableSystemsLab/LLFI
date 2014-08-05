@@ -195,9 +195,6 @@ struct InstTrace : public FunctionPass {
         // LLVM 3.3 Upgrade
         ArrayRef<Type*> parameterVector_array_ref(parameterVector);
 
-	//LLVM 3.3 Upgrade
-	ArrayRef<Type*> parameterVector_array_ref(parameterVector);
-
         FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), 
                                                         parameterVector_array_ref, false);
         Constant *traceFunc = M->getOrInsertFunction("printInstTracer", traceFuncType); 
@@ -252,9 +249,6 @@ struct InstTrace : public FunctionPass {
         }
         // LLVM 3.3 Upgrade
         ArrayRef<Value*> traceArgs_array_ref(traceArgs);
-
-	//LLVM 3.3 Upgrade
-	ArrayRef<Value*> traceArgs_array_ref(traceArgs);
 
         //Create the Function
         CallInst::Create(traceFunc, traceArgs_array_ref, "", insertPoint);
