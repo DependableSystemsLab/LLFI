@@ -133,9 +133,22 @@
                                               <children>
                                                 <AnchorPane prefHeight="543.0" prefWidth="691.0" HBox.hgrow="ALWAYS">
                                                   <children>
-                                                    <TextArea fx:id="programTextArea" editable="false" prefHeight="543.0" prefRowCount="10" prefWidth="560.0" promptText="" wrapText="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                    <ProgressBar fx:id="progressBar" disable="true" focusTraversable="false" layoutX="359.0" layoutY="290.0" opacity="1.0" pickOnBounds="false" prefHeight="20.0" prefWidth="213.0" progress="-1.0" visible="false" />
-                                                    <ProgressIndicator fx:id="indicator" disable="true" layoutX="438.0" layoutY="228.0" progress="-1.0" visible="false" />
+                                                    <VBox prefHeight="543.0"  prefWidth="560.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<children>
+                                                          <TableView fx:id="fileContentTitle" prefHeight="20.0">
+                                                            <columns>
+							      <TableColumn fx:id="fileContentIndex" maxWidth="5000.0" minWidth="10.0" prefWidth="55.0" text="Line" >
+							      </TableColumn>
+							      <TableColumn fx:id="fileContentColumn" maxWidth="5000.0" minWidth="10.0" prefWidth="560.0" text="FileContent" >
+							      </TableColumn>
+							    </columns>
+                                                          </TableView>
+							</children>
+							<children>
+							  <TextArea fx:id="programTextArea" editable="false" prefHeight="513.0" prefRowCount="10" prefWidth="560.0" promptText="" wrapText="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+
+							</children>
+                                                    </VBox>
                                                   </children>
                                                 </AnchorPane>
                                                 <AnchorPane minWidth="281.0" prefHeight="406.0" prefWidth="347.0">
@@ -246,7 +259,7 @@
                                                                 <PropertyValueFactory property="tFiResult" />
                                                               </cellValueFactory>
                                                             </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="150.0" text="" fx:id="tFiTrace"  >   
+                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="150.0" text="Trace" fx:id="tFiTrace"  >   
 					
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiTrace" />
