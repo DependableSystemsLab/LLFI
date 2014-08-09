@@ -325,9 +325,18 @@ public class InstrumentController implements Initializable {
 				outputFile.close();
 
 				Controller.errorString = new ArrayList<>();
+
+
 				Node  source = (Node)  event.getSource(); 
 				Stage stage  = (Stage) source.getScene().getWindow();
 				stage.close();
+
+				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/InstrumentSuccessMessage.fxml"));
+				stage = new Stage();
+				stage.setTitle("Instrument");
+				stage.setScene(new Scene(root, 450, 100));
+				stage.show();
+
 			}
 
 
@@ -488,7 +497,15 @@ public class InstrumentController implements Initializable {
 		instExcludeListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
 	}
+	@FXML
+	private void onClickOKHandler(ActionEvent event){
 
+
+	
+		Node  source = (Node)  event.getSource(); 
+		Stage stage  = (Stage) source.getScene().getWindow();
+		stage.close();
+	}
 	@FXML
 	private void onSelectInstSelectRadio(ActionEvent event){
 		FileReader inputFile;
