@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -16,7 +17,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/IR/DataLayout.h"
-
+#include "llvm/DebugInfo.h"
 #include "Utils.h"
 
 #define DATADEPCOLOUR "blue"
@@ -41,7 +42,10 @@ instNode::instNode(Instruction *target) {
   label = std::string(" [shape=record,label=\"") + longToString(llfiID);
   label += std::string("\\n") + target->getOpcodeName() + "\\n";
   if (target->getDebugLoc().getLine()) {
-    label += "(Line #: " + intToString(target->getDebugLoc().getLine()) + ")";
+    label += "(Line #: " + intToString(target->getDebugLoc().getLine()) + ")\\n";
+    if (MDNode *N= target->getMetadata("dbg")){
+      label += "(In File: " + DILocation (N).getFilename().str().substr(DILocation (N).getFilename().str().find_last_of("/\\")+1)+")";
+    }
   }
   label += "\"]";
 }
