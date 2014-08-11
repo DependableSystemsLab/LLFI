@@ -363,6 +363,16 @@ public class FaultInjectionController implements Initializable{
 						
 						 
 					 }
+
+				  source = (Node)  event.getSource(); 
+				  stage  = (Stage) source.getScene().getWindow();
+				  stage.close();
+				  
+				  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/RuntimeOptionSuccessMessage.fxml"));
+			        stage = new Stage();
+			        stage.setTitle("Runtime Option");
+			        stage.setScene(new Scene(root, 450, 100));
+			        stage.show();
 			  }
 		}
 		catch (IOException e) {

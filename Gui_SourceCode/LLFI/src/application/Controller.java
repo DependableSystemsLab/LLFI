@@ -58,6 +58,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
 import javafx.beans.value.ChangeListener;
@@ -79,9 +80,15 @@ public class Controller implements Initializable {
 	@FXML
 	private TableView<Table> profilingTable;
 	@FXML
+	private TableView<Table> fileContentTitle;
+	@FXML
 	private TableColumn<Table,Integer> indexCount;
 	@FXML
 	private TableColumn<Table,Integer> cycleCount;
+	@FXML
+	private TableColumn<Table,Integer> fileContentIndex;
+	@FXML
+	private TableColumn<Table,String> fileContentColumn;
 	@FXML
 	private TableView<ResultTable> resultTable;
 	@FXML
@@ -148,16 +155,13 @@ public class Controller implements Initializable {
 	@FXML 
 	private TabPane tabBottom;
 	@FXML
-	private ProgressBar progressBar;
-	@FXML 
-	private ProgressIndicator indicator;
-	@FXML
 	private ProgressBar progressBar1;
 	@FXML
 	private ProgressIndicator progressIndicator;
 	XYChart.Series<Integer, String> series = new XYChart.Series<Integer,String>();
 	static public String currentProgramFolder;
 	static public String llfibuildPath=null;
+	static public String zgrviewerPath =null;
 	static public String psViewer=null;
 	static public String currentFileName;
 	public boolean checkFlag = true;
@@ -322,7 +326,7 @@ public class Controller implements Initializable {
 			while ((line = bufferReader.readLine()) != null)   {
 				fileContent.add(line+"\n");      
 			}
-
+			fileContentIndex.setText("Index");
 			// Write file contents to Text Area
 			for(int i = 0 ; i < fileContent.size(); i++)
 			{
@@ -927,12 +931,11 @@ public class Controller implements Initializable {
 
 			//Covert traceontograph to pdf format using Graphviz
 			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+			//ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 			ConvertToPs.redirectErrorStream(true);
 			Process pr3 = ConvertToPs.start();
-			pr3.waitFor();
-			pr3.destroy();
-
-
+		
+			
 			//Test system before openning the graph
 			String psOpenner ="";
 			boolean psError = true;
@@ -1004,7 +1007,9 @@ public class Controller implements Initializable {
 				Process pr4 = openGraph.start();
 				pr4.waitFor();
 				pr4.destroy();
+				
 			}
+			
 		}
 		catch(IOException e)
 		{
@@ -1279,10 +1284,11 @@ public class Controller implements Initializable {
 				//Clear the Text area
 				programTextArea.clear();
 				// Write file contents to Text Area
+				fileContentIndex.setText("Index");
 				for(int i = 0 ; i < fileContent.size(); i++)
 				{
 
-					programTextArea.appendText(fileContent.get(i));
+					programTextArea.appendText("\t\t"+fileContent.get(i));
 				}
 				File file = new File(currentProgramFolder+"/"+currentProgramFolder+".ll");
 				Path path = file.toPath();
@@ -1371,7 +1377,7 @@ public class Controller implements Initializable {
 
 
 
-
+			fileContentIndex.setText("Index");
 			profilingButton.setDisable(false);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
@@ -1494,6 +1500,7 @@ public class Controller implements Initializable {
 	}
 	private void openFile(File file) {
 		try{
+			programTextArea.clear();
 			programInputText.clear();
 			boolean flag =false;
 			fileContent = new ArrayList<>();
@@ -1570,7 +1577,7 @@ public class Controller implements Initializable {
 				{
 					// ProgramTextArea displays the files contents in GUI text console. 
 
-					programTextArea.appendText(fileContent.get(i));
+					programTextArea.appendText((i+1)+"\t\t"+fileContent.get(i));
 				}
 				if(fileName.split("\\.")[1].equalsIgnoreCase("ll"))
 				{
@@ -1580,6 +1587,7 @@ public class Controller implements Initializable {
 					profilingButton.setDisable(true);
 					runtimeButton.setDisable(true);
 					injectfaultButton.setDisable(true);
+					fileContentIndex.setText("Index");
 
 				}
 				else
@@ -1590,6 +1598,7 @@ public class Controller implements Initializable {
 					profilingButton.setDisable(true);
 					runtimeButton.setDisable(true);
 					injectfaultButton.setDisable(true);
+					fileContentIndex.setText("Line");
 				}
 
 			}
@@ -1635,6 +1644,7 @@ public class Controller implements Initializable {
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
+			fileContentIndex.setText("Index");
 		}
 		else
 		{
@@ -1645,6 +1655,7 @@ public class Controller implements Initializable {
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
+			fileContentIndex.setText("Line");
 		}
 
 
@@ -1698,7 +1709,8 @@ public class Controller implements Initializable {
 		try{
 			//progressBar.setVisible(false);
 			File f = new File("."); // current directory
-
+			
+			fileContentTitle.setPlaceholder(new Text(""));
 			File[] files = f.listFiles();
 			int i;
 			boolean signFalg = false;
@@ -1730,6 +1742,21 @@ public class Controller implements Initializable {
 			pr2.waitFor();
 			pr2.destroy();
 			in2.close();
+
+
+			ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","echo $zgrviewer");
+
+			p3.redirectErrorStream(true);
+			Process pr3 = p3.start();
+			BufferedReader in3 = new BufferedReader(new InputStreamReader(pr3.getInputStream()));
+
+			while ((line = in3.readLine()) != null) {
+
+				zgrviewerPath = line;
+			}
+			pr3.waitFor();
+			pr3.destroy();
+			in3.close();
 			/*for (final File fileEntry : files) {
 	    	fileContent = new ArrayList<>();
 	        if (fileEntry.isDirectory()) {
@@ -1884,4 +1911,3 @@ public class Controller implements Initializable {
 
 
 }
-
