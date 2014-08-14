@@ -170,7 +170,6 @@ public class Controller implements Initializable {
 
 
 	public ArrayList<String> fileNameLists = new ArrayList<>();
-	public ArrayList<String> CompiledllFileNameLists = new ArrayList<>();
 	public ArrayList<String> registerList = new ArrayList<>();
 	private ArrayList<String> resultFileNameLists;
 	private ArrayList<String> resultErrorFileNameLists;
@@ -934,7 +933,8 @@ public class Controller implements Initializable {
 			//ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 			ConvertToPs.redirectErrorStream(true);
 			Process pr3 = ConvertToPs.start();
-		
+			pr3.waitFor();
+			pr3.destroy();
 			
 			//Test system before openning the graph
 			String psOpenner ="";
@@ -984,7 +984,7 @@ public class Controller implements Initializable {
 			if (!psViewer.contains("Undefined variable"))
 			{
 			psError =false;
-			psOpenner =psViewer+" ";
+			psOpenner =psViewer;
 			}
 			if (psError)
 			{
@@ -1005,8 +1005,7 @@ public class Controller implements Initializable {
 				ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
 				openGraph.redirectErrorStream(true);
 				Process pr4 = openGraph.start();
-				pr4.waitFor();
-				pr4.destroy();
+
 				
 			}
 			
@@ -1245,7 +1244,7 @@ public class Controller implements Initializable {
 			String cmd = "echo $llfibuild";
 			//System.out.println(System.getenv());
 
-			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
+			String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
 			console.add("$ "+command+"\n");
 			Process p = Runtime.getRuntime().exec(command);
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -1315,8 +1314,6 @@ public class Controller implements Initializable {
 				items =FXCollections.observableArrayList (fileNameLists);
 				fileList.setItems(items);
 				fileSelecMap.put(fileName, fileContent);
-				//Add file name to compiledfileNameList
-				CompiledllFileNameLists.add(currentProgramFolder+".c");
 				instrumentButton.setDisable(false);
 				profilingButton.setDisable(true);
 				runtimeButton.setDisable(true);
