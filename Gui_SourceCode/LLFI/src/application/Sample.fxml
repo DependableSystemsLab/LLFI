@@ -235,6 +235,11 @@
                                                                 <PropertyValueFactory property="tFiIndex" />
                                                               </cellValueFactory>
                                                             </TableColumn>
+                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="74.0" text="Line" fx:id="tFiLine">
+                                                              <cellValueFactory>
+                                                                <PropertyValueFactory property="tFiLine" />
+                                                              </cellValueFactory>
+                                                            </TableColumn>
                                                             <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="81.0" text="Cycle" fx:id="tFiCycle">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="tFiCycle" />
