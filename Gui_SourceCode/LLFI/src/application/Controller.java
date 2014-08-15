@@ -1321,7 +1321,7 @@ public class Controller implements Initializable {
 			delete.waitFor();
 			delete.destroy();
 
-			String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
+			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
 			console.add("$ "+command+"\n");
 			Process p = Runtime.getRuntime().exec(command);
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
