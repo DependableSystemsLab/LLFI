@@ -113,6 +113,7 @@
                                     <Button fx:id="runtimeButton" disable="true" font="$x2" layoutX="496.0" mnemonicParsing="false" onAction="#onClickInjectFault" prefHeight="25.0" prefWidth="172.0" text="Runtime Options" AnchorPane.topAnchor="2.0" />
                                     <Button fx:id="injectfaultButton" disable="true" font="$x2" layoutX="673.0" layoutY="3.0" mnemonicParsing="false" onAction="#onClickActualFaultInjection" prefHeight="25.0" prefWidth="160.0" text="Inject Fault" />
                                     <Button fx:id="tracegraphButton" disable="true" font="$x2" layoutX="840.0" layoutY="3.0" mnemonicParsing="false" onAction="#onClickGenerateTraceGraph" prefHeight="25.0" prefWidth="130.0" text="Trace Graph" />
+                                    <CheckBox fx:id="showTraceOutputText" font="$x2" layoutX="980.0" layoutY="5.0" text="Show graph output text" selected="false" visible ="false"/>
                                     <Label fx:id="UploadLabel" layoutX="980.0" layoutY="8.0" prefWidth="200.0" text="PLEASE UPLOAD A FILE" textFill="RED">
                                       <effect>
                                         <Glow level="0.7580645161290323" />
