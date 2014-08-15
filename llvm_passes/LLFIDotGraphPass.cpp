@@ -27,7 +27,7 @@ using namespace llvm;
 namespace llfi {
 
 struct instNode {
-  std::string name, label;
+  std::string name, label; 
   Instruction *raw;
   std::string dotNode();
   instNode(Instruction *target);
@@ -38,6 +38,7 @@ instNode::instNode(Instruction *target) {
 
   long llfiID = llfi::getLLFIIndexofInst(target);
   name = "llfiID_" + longToString(llfiID);
+  FILE *outputFile = fopen("llfi.index.map.txt", "a");
 
   label = std::string(" [shape=record,label=\"") + longToString(llfiID);
   label += std::string("\\n") + target->getOpcodeName() + "\\n";
@@ -46,6 +47,12 @@ instNode::instNode(Instruction *target) {
     if (MDNode *N= target->getMetadata("dbg")){
       label += "(In File: " + DILocation (N).getFilename().str().substr(DILocation (N).getFilename().str().find_last_of("/\\")+1)+")";
     }
+    if (outputFile)
+      fprintf(outputFile, "%s line_%s\n", name.c_str(),intToString(target->getDebugLoc().getLine()).c_str());
+  }
+  else{
+    if (outputFile)
+      fprintf(outputFile, "%s line_N/A\n", name.c_str());
   }
   label += "\"]";
 }
@@ -105,12 +112,12 @@ bool bBlockGraph::writeToStream(std::ofstream &target) {
 struct llfiDotGraph : public FunctionPass {
   static char ID;
   std::ofstream outfs;
-
   llfiDotGraph() : FunctionPass(ID) {}
 
   virtual bool doInitialization(Module &M) {
     outfs.open("llfi.stat.graph.dot", std::ios::trunc);
     outfs << "digraph \"LLFI Program Graph\" {\n";
+
     return false;
   }
 
