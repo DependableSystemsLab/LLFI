@@ -227,6 +227,32 @@ public class Controller implements Initializable {
 
 			console = new ArrayList<String>();
 
+			//Delete old generated files from last profiling
+			//Kenneth
+			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.prof.txt");
+			Process delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm -rf " + currentProgramFolder+"/llfi/baseline/");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm -rf " + currentProgramFolder+"/llfi/error_output/");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm -rf " + currentProgramFolder+"/llfi/prog_input/");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm -rf " + currentProgramFolder+"/llfi/prog_output/");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
 
 			inputString = programInputText.getText();
 			//programInputText.setEditable(false);
@@ -369,6 +395,11 @@ public class Controller implements Initializable {
 			final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
 			if(outputFolder.exists())
 				deleteFilesInFolder(outputFolder);
+			//Kenneth
+			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm llfi.config.fi.txt");
+			Process delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
 			// }
 			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
 			Stage stage = new Stage();                               
@@ -381,6 +412,10 @@ public class Controller implements Initializable {
 
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 
 	}
@@ -927,7 +962,10 @@ public class Controller implements Initializable {
 				return;
 			}
 
-
+			//Kenneth
+			//Test if zgrviewer is being set
+			if (zgrviewerPath.contains("Undefined"))
+			{
 			//Covert traceontograph to pdf format using Graphviz
 			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
 			//ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
@@ -980,7 +1018,6 @@ public class Controller implements Initializable {
 				}
 			}
 			// If user specified a psViewer in environment variable, use the defined ps file viewer.
-			//kenneth
 			if (!psViewer.contains("Undefined variable"))
 			{
 			psError =false;
@@ -1006,7 +1043,15 @@ public class Controller implements Initializable {
 				openGraph.redirectErrorStream(true);
 				Process pr4 = openGraph.start();
 
-				
+			}
+			}
+			else
+			{
+			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+			ConvertToPs.redirectErrorStream(true);
+			Process pr3 = ConvertToPs.start();
+			pr3.waitFor();
+			pr3.destroy();
 			}
 			
 		}
@@ -1243,6 +1288,12 @@ public class Controller implements Initializable {
 			tabBottom.getSelectionModel().select(profilingTab);
 			String cmd = "echo $llfibuild";
 			//System.out.println(System.getenv());
+			//Kenneth
+			// Delete the old .ll file
+			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/"+currentProgramFolder+".ll");
+			Process delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
 
 			String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
 			console.add("$ "+command+"\n");
@@ -1362,6 +1413,58 @@ public class Controller implements Initializable {
 	private void onClickInstrument(ActionEvent event) {
 		Parent root;
 		try {
+			//Kenneth
+			// Delete the old generated file from instrument
+			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.log.compilation.txt");
+			Process delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.graph.dot");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.totalindex.txt");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/input.yaml");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.ll");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-llfi_displayIndex.ll");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-llfi_index.ll");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.ll");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
 			indexStates=false;
 			tabBottom.getSelectionModel().select(profilingTab);
 			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Instrument.fxml"));
@@ -1381,6 +1484,10 @@ public class Controller implements Initializable {
 			tracegraphButton.setDisable(true);
 
 		} catch (IOException e) {
+			e.printStackTrace();
+		}catch (InterruptedException e) {
+			System.out.println(e);
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
