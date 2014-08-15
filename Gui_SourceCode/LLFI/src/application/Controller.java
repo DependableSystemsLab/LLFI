@@ -104,6 +104,8 @@ public class Controller implements Initializable {
 	@FXML
 	private TableColumn<ResultTable,Integer> tFiIndex;
 	@FXML
+	private TableColumn<ResultTable,String> tFiLine;
+	@FXML
 	private TableColumn<ResultTable,Integer> tFiCycle;
 	@FXML
 	private TableColumn<ResultTable,Integer> tFiRegIndex;
@@ -750,9 +752,21 @@ public class Controller implements Initializable {
 				  System.out.println("\nsdc : "+sdc);
 				  System.out.println("\nstatus : "+status);
 				  System.out.println("\result : "+result);*/
-					trace =false;
-					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-							Integer.parseInt(resultList.get(4)),sdc,status,result,trace));
+					//Search the line number coresponding to the index
+					int index = Integer.parseInt(resultList.get(1));
+					String line="N/A";
+					FileReader inputIndexFile = new FileReader("llfi.index.map.txt");
+					BufferedReader Reader = new BufferedReader(inputIndexFile);
+					//Read file contents
+					String temp;
+					while ((temp = Reader.readLine()) != null)   {
+						if(temp.contains("llfiID_"+index))
+							line = temp.substring(temp.indexOf("line_")+5);
+					}
+					Reader.close();
+
+					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),line,Integer.parseInt(resultList.get(2)),
+							Integer.parseInt(resultList.get(4)),sdc,status,result,false));
 
 
 				}
@@ -769,6 +783,7 @@ public class Controller implements Initializable {
 			tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
 			tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
 			tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
+			tFiLine.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("line"));
 			tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("cycle"));
 			//tFiRegIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("regIndex"));
 			tFiBit.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("bit"));
@@ -1321,7 +1336,7 @@ public class Controller implements Initializable {
 			delete.waitFor();
 			delete.destroy();
 
-			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
+			String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
 			console.add("$ "+command+"\n");
 			Process p = Runtime.getRuntime().exec(command);
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -1451,6 +1466,11 @@ public class Controller implements Initializable {
 			delete.destroy();
 
 			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.totalindex.txt");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.index.map.txt");
 			delete = deleteCmd.start();
 			delete.waitFor();
 			delete.destroy();
