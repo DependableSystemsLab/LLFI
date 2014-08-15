@@ -314,11 +314,15 @@ public class InstrumentController implements Initializable {
 				bufferReader.close();
 				File outputIndexFile = new File(Controller.currentProgramFolder +"/llfi/"+Controller.currentProgramFolder+"-llfi_displayIndex.ll");
 				BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputIndexFile));
+				int j =0;
 				for(int i = 0 ; i < fileContent.size(); i++)
 				{
 
 					if (fileContent.get(i).contains("!llfi_index !"))
-						outputFile.write(fileContent.get(i).substring(fileContent.get(i).indexOf("!llfi_index !")+13,fileContent.get(i).lastIndexOf("\n"))+"\t\t"+fileContent.get(i).substring(0,fileContent.get(i).indexOf("!llfi_index !"))+"\n");
+						{
+							outputFile.write(j+"\t\t"+fileContent.get(i).substring(0,fileContent.get(i).indexOf("!llfi_index !"))+"\n");
+							j++;
+						}
 					else if (!fileContent.get(i).contains("= metadata !"))
 						outputFile.write("\t\t"+fileContent.get(i));
 				}
