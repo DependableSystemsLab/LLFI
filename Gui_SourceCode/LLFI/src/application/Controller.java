@@ -229,7 +229,6 @@ public class Controller implements Initializable {
 			console = new ArrayList<String>();
 
 			//Delete old generated files from last profiling
-			//Kenneth
 			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.prof.txt");
 			Process delete = deleteCmd.start();
 			delete.waitFor();
@@ -334,7 +333,6 @@ public class Controller implements Initializable {
 				stage.setScene(new Scene(root, 400, 100));
 				stage.show();
 				runtimeButton.setDisable(false);
-				//kenneth
 				tracegraphButton.setDisable(true);
 				showTraceOutputText.setVisible(false);
 				if(InstrumentController.selectProfileFlag == true || InstrumentController.existingInputFileFlag ==true)
@@ -398,7 +396,6 @@ public class Controller implements Initializable {
 			final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
 			if(outputFolder.exists())
 				deleteFilesInFolder(outputFolder);
-			//Kenneth
 			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm llfi.config.fi.txt");
 			Process delete = deleteCmd.start();
 			delete.waitFor();
@@ -793,7 +790,6 @@ public class Controller implements Initializable {
 			resultTable.setItems(data1);
 			resultTable.setEditable(true);
 			tracegraphButton.setDisable(false);
-			//kenneth
 			showTraceOutputText.setVisible(true);
 
 			// Header CheckBox for select all
@@ -904,7 +900,6 @@ public class Controller implements Initializable {
 
 
 			//Test system before openning the file
-			//kenneth
 			String fileOpener="";
 			String osName = System.getProperty("os.name").toLowerCase();
 			if(osName.indexOf("mac") >=0){
@@ -932,7 +927,6 @@ public class Controller implements Initializable {
 				pr.destroy();
 
 				//If show traceoutput text box is selected, open the text file.
-				//kenneth
 				if (showTraceOutputText.isSelected())
 				{
 					ProcessBuilder openFile = new  ProcessBuilder("/bin/tcsh","-c",fileOpener+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt");
@@ -973,7 +967,6 @@ public class Controller implements Initializable {
 				}
 
 				//If show traceoutput text box is selected, open the text file.
-				//kenneth
 				if (showTraceOutputText.isSelected())
 				{
 					ProcessBuilder openFile = new  ProcessBuilder("/bin/tcsh","-c",fileOpener+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName);
@@ -1000,7 +993,6 @@ public class Controller implements Initializable {
 				return;
 			}
 
-			//Kenneth
 			//Test if zgrviewer is being set
 			if (zgrviewerPath.contains("Undefined"))
 			{
@@ -1087,8 +1079,6 @@ public class Controller implements Initializable {
 				ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 				ConvertToPs.redirectErrorStream(true);
 				Process pr3 = ConvertToPs.start();
-				pr3.waitFor();
-				pr3.destroy();
 			}
 
 		}
@@ -1325,7 +1315,6 @@ public class Controller implements Initializable {
 			tabBottom.getSelectionModel().select(profilingTab);
 			String cmd = "echo $llfibuild";
 			//System.out.println(System.getenv());
-			//Kenneth
 			// Delete the old .ll file
 			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/"+currentProgramFolder+".ll");
 			Process delete = deleteCmd.start();
@@ -1407,7 +1396,6 @@ public class Controller implements Initializable {
 				runtimeButton.setDisable(true);
 				injectfaultButton.setDisable(true);
 				tracegraphButton.setDisable(true);
-				//kenneth
 				showTraceOutputText.setVisible(false);
 
 
@@ -1451,7 +1439,6 @@ public class Controller implements Initializable {
 	private void onClickInstrument(ActionEvent event) {
 		Parent root;
 		try {
-			//Kenneth
 			// Delete the old generated file from instrument
 			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.log.compilation.txt");
 			Process delete = deleteCmd.start();
@@ -1520,7 +1507,6 @@ public class Controller implements Initializable {
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
 			tracegraphButton.setDisable(true);
-			//kenneth
 			showTraceOutputText.setVisible(false);
 
 		} catch (IOException e) {
