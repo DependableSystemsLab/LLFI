@@ -14,6 +14,7 @@ public class ResultTable {
     
     SimpleStringProperty FaultInjectionType;
     SimpleIntegerProperty index;
+    SimpleStringProperty line;
     SimpleIntegerProperty cycle;
     
     SimpleIntegerProperty bit;
@@ -25,12 +26,13 @@ public class ResultTable {
 
 
 
-    public ResultTable(int noOfRuns,String FaultInjectionType,int index,int cycle,int bit,
+    public ResultTable(int noOfRuns,String FaultInjectionType,int index,String line,int cycle,int bit,
     		String sdc,String status,String result,Boolean trace) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
         
         this.FaultInjectionType = new SimpleStringProperty(FaultInjectionType);
         this.index = new SimpleIntegerProperty(index);
+	this.line = new SimpleStringProperty(line);
         this.cycle = new SimpleIntegerProperty(cycle);
         
         
@@ -76,7 +78,13 @@ public class ResultTable {
 	public void setIndex(Integer n) {
 		this.index.set(n);
 	}
+	public String getLine() {
+		return line.get();
+	}
 
+	public void setLine(String n) {
+		this.line.set(n);
+	}
 	public Integer getCycle() {
 		return cycle.get();
 	}
