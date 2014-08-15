@@ -125,7 +125,8 @@ public class Controller implements Initializable {
 	private BarChart<Integer, String> resultSummary;
 	@FXML
 	private Label UploadLabel;
-
+	@FXML
+	private CheckBox showTraceOutputText;
 	@FXML
 	private Button instrumentButton;
 	@FXML
@@ -333,7 +334,9 @@ public class Controller implements Initializable {
 				stage.setScene(new Scene(root, 400, 100));
 				stage.show();
 				runtimeButton.setDisable(false);
+				//kenneth
 				tracegraphButton.setDisable(true);
+				showTraceOutputText.setVisible(false);
 				if(InstrumentController.selectProfileFlag == true || InstrumentController.existingInputFileFlag ==true)
 					injectfaultButton.setDisable(false);
 				else
@@ -790,7 +793,8 @@ public class Controller implements Initializable {
 			resultTable.setItems(data1);
 			resultTable.setEditable(true);
 			tracegraphButton.setDisable(false);
-
+			//kenneth
+			showTraceOutputText.setVisible(true);
 
 			// Header CheckBox for select all
 			HBox box = new HBox();
@@ -895,23 +899,46 @@ public class Controller implements Initializable {
 					}
 				}
 			}
-			//	          System.out.println("found="+found);
-			//		for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
-			//		{
-			//		TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
 
-			//		}
+
+
+
+			//Test system before openning the file
+			//kenneth
+			String fileOpener="";
+			String osName = System.getProperty("os.name").toLowerCase();
+			if(osName.indexOf("mac") >=0){
+				// The current os is mac, use to view ps file
+				fileOpener = "open ";
+			}
+			else if (osName.indexOf("nux") >=0){
+				// The current os is linux, use xdg-open to view ps file
+				fileOpener = "xdg-open ";
+			}
+			else if (osName.indexOf("solaris") >=0){
+				// The current os is solaris, use xdg-open to view ps file
+				fileOpener = "xdg-open ";
+			}
+
 
 			TraceUnionCmd += "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt";
 			if(found >1)
 			{
-				//		    	System.out.println(TraceUnionCmd);
+				
 				ProcessBuilder UnionTraceDiffReportFile = new  ProcessBuilder("/bin/tcsh","-c",TraceUnionCmd);
 				UnionTraceDiffReportFile.redirectErrorStream(true); 
 				Process pr=UnionTraceDiffReportFile.start();
 				pr.waitFor();
 				pr.destroy();
 
+				//If show traceoutput text box is selected, open the text file.
+				//kenneth
+				if (showTraceOutputText.isSelected())
+				{
+					ProcessBuilder openFile = new  ProcessBuilder("/bin/tcsh","-c",fileOpener+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt");
+					openFile.redirectErrorStream(true); 
+					pr=openFile.start();
+				}
 
 
 
@@ -936,6 +963,7 @@ public class Controller implements Initializable {
 							String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
 							if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
 							{
+								
 								traceFileName = TraceDiffReportFileNameLists.get(i);
 								//					System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
 								break;
@@ -943,6 +971,16 @@ public class Controller implements Initializable {
 						}
 					}
 				}
+
+				//If show traceoutput text box is selected, open the text file.
+				//kenneth
+				if (showTraceOutputText.isSelected())
+				{
+					ProcessBuilder openFile = new  ProcessBuilder("/bin/tcsh","-c",fileOpener+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName);
+					openFile.redirectErrorStream(true); 
+					Process pr=openFile.start();
+				}
+
 				//Generate .dot graph file using traceontograph
 				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 				TraceGraph.redirectErrorStream(true);
@@ -966,94 +1004,93 @@ public class Controller implements Initializable {
 			//Test if zgrviewer is being set
 			if (zgrviewerPath.contains("Undefined"))
 			{
-			//Covert traceontograph to pdf format using Graphviz
-			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
-			//ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
-			ConvertToPs.redirectErrorStream(true);
-			Process pr3 = ConvertToPs.start();
-			pr3.waitFor();
-			pr3.destroy();
-			
-			//Test system before openning the graph
-			String psOpenner ="";
-			boolean psError = true;
-			String psErrorMessage ="";
-			String checkExe ="";
-			String osName = System.getProperty("os.name").toLowerCase();
-			if(osName.indexOf("mac") >=0){
-				// The current os is mac, use to view ps file
-				psOpenner = "open ";
-				psError = false;
-				checkExe = "open -h > /dev/null 2>&1";
-			}
-			else if (osName.indexOf("nux") >=0){
-				// The current os is linux, use xdg-open to view ps file
-				psOpenner = "xdg-open ";
-				checkExe = "xdg-open --help > /dev/null";
-				psError = false;
-			}
-			else if (osName.indexOf("solaris") >=0){
-				// The current os is solaris, use xdg-open to view ps file
-				psOpenner = "xdg-open ";
-				psError = false;
-				checkExe = "xdg-open --help > /dev/null";
-			}
-			else{
-				// Other OS, display error message when trying to open os file
-				psError = true;
-			}
+				//Covert traceontograph to pdf format using Graphviz
+				ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+				//ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+				ConvertToPs.redirectErrorStream(true);
+				Process pr3 = ConvertToPs.start();
+				pr3.waitFor();
+				pr3.destroy();
 
-			if (!psError)
-			{
-				try{
-					Runtime rt = Runtime.getRuntime();
-					Process proc = rt.exec(checkExe);
+				//Test system before openning the graph
+				String psOpenner ="";
+				boolean psError = true;
+				String psErrorMessage ="";
+				String checkExe ="";
+				if(osName.indexOf("mac") >=0){
+					// The current os is mac, use to view ps file
+					psOpenner = "open ";
+					psError = false;
+					checkExe = "open -h > /dev/null 2>&1";
+				}
+				else if (osName.indexOf("nux") >=0){
+					// The current os is linux, use xdg-open to view ps file
+					psOpenner = "xdg-open ";
+					checkExe = "xdg-open --help > /dev/null";
 					psError = false;
 				}
-				catch (IOException e)
-				{
-					//e.printStackTrace();  
-					//System.out.println(e);
-					psError =true;
+				else if (osName.indexOf("solaris") >=0){
+					// The current os is solaris, use xdg-open to view ps file
+					psOpenner = "xdg-open ";
+					psError = false;
+					checkExe = "xdg-open --help > /dev/null";
 				}
-			}
-			// If user specified a psViewer in environment variable, use the defined ps file viewer.
-			if (!psViewer.contains("Undefined variable"))
-			{
-			psError =false;
-			psOpenner =psViewer;
-			}
-			if (psError)
-			{
-				try{
-					root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TraceOpenError.fxml"));
-					Stage stage = new Stage();
-					stage.setTitle("Error");
-					stage.setScene(new Scene(root, 650, 100));
-					stage.show();
+				else{
+					// Other OS, display error message when trying to open os file
+					psError = true;
 				}
-				catch(IOException e){
-					e.printStackTrace();  
-					System.out.println(e);
-				}
-			}
-			else{
-				//Open the trace graph file
-				ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
-				openGraph.redirectErrorStream(true);
-				Process pr4 = openGraph.start();
 
-			}
+				if (!psError)
+				{
+					try{
+						Runtime rt = Runtime.getRuntime();
+						Process proc = rt.exec(checkExe);
+						psError = false;
+					}
+					catch (IOException e)
+					{
+						//e.printStackTrace();  
+						//System.out.println(e);
+						psError =true;
+					}
+				}
+				// If user specified a psViewer in environment variable, use the defined ps file viewer.
+				if (!psViewer.contains("Undefined variable"))
+				{
+					psError =false;
+					psOpenner =psViewer;
+				}
+				if (psError)
+				{
+					try{
+						root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TraceOpenError.fxml"));
+						Stage stage = new Stage();
+						stage.setTitle("Error");
+						stage.setScene(new Scene(root, 650, 100));
+						stage.show();
+					}
+					catch(IOException e){
+						e.printStackTrace();  
+						System.out.println(e);
+					}
+				}
+				else{
+					//Open the trace graph file
+					ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
+					openGraph.redirectErrorStream(true);
+					Process pr4 = openGraph.start();
+
+				}
 			}
 			else
 			{
-			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
-			ConvertToPs.redirectErrorStream(true);
-			Process pr3 = ConvertToPs.start();
-			pr3.waitFor();
-			pr3.destroy();
+				ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+				ConvertToPs.redirectErrorStream(true);
+				Process pr3 = ConvertToPs.start();
+				pr3.waitFor();
+				pr3.destroy();
 			}
-			
+
 		}
 		catch(IOException e)
 		{
@@ -1370,7 +1407,8 @@ public class Controller implements Initializable {
 				runtimeButton.setDisable(true);
 				injectfaultButton.setDisable(true);
 				tracegraphButton.setDisable(true);
-
+				//kenneth
+				showTraceOutputText.setVisible(false);
 
 
 			}
@@ -1482,6 +1520,8 @@ public class Controller implements Initializable {
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
 			tracegraphButton.setDisable(true);
+			//kenneth
+			showTraceOutputText.setVisible(false);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1813,7 +1853,6 @@ public class Controller implements Initializable {
 		try{
 			//progressBar.setVisible(false);
 			File f = new File("."); // current directory
-			
 			fileContentTitle.setPlaceholder(new Text(""));
 			File[] files = f.listFiles();
 			int i;
