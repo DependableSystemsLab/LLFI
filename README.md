@@ -17,7 +17,8 @@ Dependencies:
   5. Apache Ant 
   6. tcsh
   7. GraphViz package (for visualizing error propagation)
-  8. Internet Connection
+  8. ZGRVIEWER (optional but recommanded, for a good visualization of error propogation)
+  9. Internet Connection
 
 Usage:
 run "python InstallLLFI.py -h" to see all running options/guidelines
@@ -49,6 +50,7 @@ Dependencies:
   8. Apache Ant and JDK (For GUI)
   9. tcsh
   10. GraphViz package (for visualizing error propagation)
+  11. ZGRVIEWER package
 
 Building:
   
@@ -83,6 +85,8 @@ Environment variable setup
      – setenv llfibuild LLFI_BUILD_ROOT
   3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
      – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
+  4. [OPTIONAL] Create an environment variable "zgrviewer" with the path of the zgrviewer folder. If this variable is set, GUI will use zgrviewer to open the trace propogation graph;otherwise, GUI will use the default file viewer in your system to open the trace propogation graph.      
+     – setenv zgrviewer Path of ZGRVIEWER
 
 Running the GUI
   1. Go to any directory where you want to save the outputs
