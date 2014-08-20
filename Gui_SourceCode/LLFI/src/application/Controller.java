@@ -755,15 +755,18 @@ public class Controller implements Initializable {
 					//Search the line number coresponding to the index
 					int index = Integer.parseInt(resultList.get(1));
 					String line="N/A";
-					FileReader inputIndexFile = new FileReader("llfi.index.map.txt");
-					BufferedReader Reader = new BufferedReader(inputIndexFile);
-					//Read file contents
-					String temp;
-					while ((temp = Reader.readLine()) != null)   {
-						if(temp.contains("llfiID_"+index))
-							line = temp.substring(temp.indexOf("line_")+5);
+					if (new File("llfi.index.map.txt").exists())
+					{
+						FileReader inputIndexFile = new FileReader("llfi.index.map.txt");
+						BufferedReader Reader = new BufferedReader(inputIndexFile);
+						//Read file contents
+						String temp;
+						while ((temp = Reader.readLine()) != null)   {
+							if(temp.contains("llfiID_"+index))
+								line = temp.substring(temp.indexOf("line_")+5);
+						}
+						Reader.close();
 					}
-					Reader.close();
 
 					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),line,Integer.parseInt(resultList.get(2)),
 							Integer.parseInt(resultList.get(4)),sdc,status,result,false));
