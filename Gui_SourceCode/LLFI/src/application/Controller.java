@@ -755,18 +755,15 @@ public class Controller implements Initializable {
 					//Search the line number coresponding to the index
 					int index = Integer.parseInt(resultList.get(1));
 					String line="N/A";
-					if (new File("llfi.index.map.txt").exists())
-					{
-						FileReader inputIndexFile = new FileReader("llfi.index.map.txt");
-						BufferedReader Reader = new BufferedReader(inputIndexFile);
-						//Read file contents
-						String temp;
-						while ((temp = Reader.readLine()) != null)   {
-							if(temp.contains("llfiID_"+index))
-								line = temp.substring(temp.indexOf("line_")+5);
-						}
-						Reader.close();
+					FileReader inputIndexFile = new FileReader("llfi.index.map.txt");
+					BufferedReader Reader = new BufferedReader(inputIndexFile);
+					//Read file contents
+					String temp;
+					while ((temp = Reader.readLine()) != null)   {
+						if(temp.contains("llfiID_"+index))
+							line = temp.substring(temp.indexOf("line_")+5);
 					}
+					Reader.close();
 
 					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),line,Integer.parseInt(resultList.get(2)),
 							Integer.parseInt(resultList.get(4)),sdc,status,result,false));
@@ -1463,6 +1460,11 @@ public class Controller implements Initializable {
 			delete.waitFor();
 			delete.destroy();
 
+			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm -rf " + currentProgramFolder+"/llfi/");
+			delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+
 			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + "llfi.stat.graph.dot");
 			delete = deleteCmd.start();
 			delete.waitFor();
@@ -1483,34 +1485,7 @@ public class Controller implements Initializable {
 			delete.waitFor();
 			delete.destroy();
 
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.exe");
-			delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
 
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-faultinjection.ll");
-			delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
-
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-llfi_displayIndex.ll");
-			delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
-
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-llfi_index.ll");
-			delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
-
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe");
-			delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
-
-			deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.ll");
-			delete = deleteCmd.start();
-			delete.waitFor();
 			delete.destroy();
 
 			indexStates=false;
