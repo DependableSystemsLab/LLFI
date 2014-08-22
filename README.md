@@ -49,7 +49,7 @@ Dependencies:
   7. Java7 with JavaFX (For GUI)
   8. Apache Ant and JDK (For GUI)
   9. tcsh
-  10. GraphViz package (for visualizing error propagation)
+  10. GraphViz package (for visualizing fault propagation)
   11. ZGRVIEWER package
 
 Building:
@@ -129,12 +129,12 @@ Results
 After fault injection, output from LLFI and the tested application can be found
 in the *llfi* directory.
 
-|     Directory      |                 Contents                       |
-| ------------------ | ---------------------------------------------- |
-| *std_output*       | Piped STDOUT from the tested application       |
-| *llfi_stat_output* | Fault injection statistics                     |
-| *error_output*     | Failure reports (program crashes, hangs, etc.) |
-
+|     Directory         |                 Contents                       |
+| ----------------------| ---------------------------------------------- |
+| *std_output*          | Piped STDOUT from the tested application       |
+| *llfi_stat_output*    | Fault injection statistics                     |
+| *error_output*        | Failure reports (program crashes, hangs, etc.) |
+| *trace_report_output* | Faults propogation report files and graph      |
 
 
 References
