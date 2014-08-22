@@ -17,7 +17,7 @@ Dependencies:
   5. Apache Ant 
   6. tcsh
   7. GraphViz package (for visualizing error propagation)
-  8. ZGRVIEWER (optional but recommanded, for a good visualization of error propogation)
+  8. ZGRViewer (optional but recommanded, for a good visualization of error propogation)
   9. Internet Connection
 
 Usage:
