@@ -38,6 +38,20 @@ PYAML311DOWNLOAD = {'URL':"http://pyyaml.org/download/pyyaml/PyYAML-3.11.tar.gz"
                  'ARCHIVETYPE':'.tar.gz',
                  'EXTRACTFLAG':True,
                  'DOWNLOADFLAG':True}
+
+
+ZGRVDOWNLOAD = {'NAME':"ZGRViewer 0.11.1",
+                'URL':"http://sourceforge.net/projects/zvtm/files/zgrviewer/0.9.0/zgrviewer-0.9.0.zip",
+                'FILENAME':"zgrviewer-0.9.0.zip",
+                'MD5':"e8f6407d6866d0d083ed168c94d7e12a",
+                'EXTRACTPATH':"zvgrviewer",
+                'EXTRACTEDNAME':"zgrviewer-0.9.0",
+                'ARCHIVETYPE':".zip",
+                'EXTRACTFLAG':True,
+                'DOWNLOADFLAG':True
+}
+
+
 LLFIDOWNLOAD = {'URL':'https://github.com/scoult3r/LLFI/archive/master.zip', #"https://github.com/DependableSystemsLab/LLFI/archive/master.zip",
                 'FILENAME':"master.zip",
                 'MD5':"fc3ba3cfea7ae3236bf027b847058105", #"c9a8c3ffcbd033a4d3cf1dc9a25de09c" #You will have to change this outside of the git repo
@@ -74,7 +88,7 @@ LLFIPUBLICDOWNLOAD = {'URL':'https://github.com/DependableSystemsLab/LLFI/archiv
                       'EXTRACTFLAG':True,
                       'DOWNLOADFLAG':True}
 
-DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLICDOWNLOAD]
+DOWNLOADTARGETS = [LLVM34DOWNLOAD, CLANG34DOWNLOAD, PYAML311DOWNLOAD, LLFIPUBLICDOWNLOAD, ZGRVDOWNLOAD]
 DOWNLOADSDIRECTORY = "./downloads/"
 LLFIROOTDIRECTORY = "."
 
@@ -383,6 +397,29 @@ def buildPyYaml(forceBuild):
 
     os.chdir("..")
 
+def buildzgv(forceBuild):
+    script_path = os.getcwd()
+    pyyaml_path = os.path.join(script_path,"pyyaml")
+    os.chdir("pyyamlsrc")
+
+    zgrv_path = os.path.join(script_path, "zgrviewer")
+    runsh_path = os.path.join(zgrv_path, "run.sh")
+
+    runsh_lines = None
+    with open(runsh_path, 'r') as runsh:
+        runsh_lines = [line for line in runsh.readlines()]
+        i = 0
+        while i < len(runsh_lines):
+            if "ZGRV_HOME=" in runsh_lines[i] and "#" not in runsh_lines[i]:
+                runsh_lines[i] = "ZGRV_HOME=" + zgrv_path + "\n"
+            i += 1
+
+    if runsh_lines != None:
+        with open(runsh_path,'w') as new:
+            for line in runsh_lines:
+                new.write(line)
+
+
 def updateGUIXMLBuildPath(newPath):
     print("Modifying LLFI-GUI build.xml")
     tree = ET.parse('llfisrc/Gui_SourceCode/LLFI/build.xml')
@@ -441,12 +478,15 @@ def addEnvs():
     pyVersion = str(majorVer) + "." + str(minorVer)
     pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
 
+    zgrv_path = os.path.join(scriptPath, "zgrviewer/")
+
     homePath = os.environ['HOME']
     tcshPath = os.path.join(homePath, ".tcshrc")
 
     with open(tcshPath, "a") as rcFile:
         rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
         rcFile.write("setenv llfibuild " + llfibuildPath + "\n")
+        rcFile.write("setenv zgrviewer " + zgrv_path + "/\n")
 
 parser = argparse.ArgumentParser(
         description=("Installer for UBC DependableSystemsLab's LLFI"),
@@ -467,7 +507,8 @@ parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI inst
 
 def testFeature():
     print("Testing Experimental Installer Feature")
-    checkDependencies()
+    buildzgv(True)
+    addEnvs()
 
 if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:])
@@ -505,6 +546,7 @@ if __name__ == "__main__":
         ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
     if not args.noBuild:
         build(not args.noBuildLLVM, args.forceBuildLLVM)
+        buildzgv(True)
         if not args.noGUI:
             buildGUI()
         addEnvs()
