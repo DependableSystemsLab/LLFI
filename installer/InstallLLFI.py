@@ -400,9 +400,6 @@ def buildPyYaml(forceBuild):
 def buildzgv(forceBuild):
     print("Building zgv viewer")
     script_path = os.getcwd()
-    pyyaml_path = os.path.join(script_path,"pyyaml")
-    os.chdir("pyyamlsrc")
-
     zgrv_path = os.path.join(script_path, "zgrviewer")
     runsh_path = os.path.join(zgrv_path, "run.sh")
 
@@ -420,7 +417,6 @@ def buildzgv(forceBuild):
             for line in runsh_lines:
                 new.write(line)
 
-    os.chdir("..")
 
 def updateGUIXMLBuildPath(newPath):
     print("Modifying LLFI-GUI build.xml")
