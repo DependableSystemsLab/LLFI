@@ -32,3 +32,6 @@ D: Added Progress Bar to injector, multiple instruction selector, unified execut
 
 N: Nithya Narayanamurthy
 D: GUI for LLFI, prepared first release
+
+N: Kenneth Song
+D: Integrated tracing functionality into GUI, many other changes to the GUI and tracing functionality
