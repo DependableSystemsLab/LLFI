@@ -476,7 +476,7 @@ def addEnvs():
     minorVer = versionSplit[1]
 
     pyVersion = str(majorVer) + "." + str(minorVer)
-    pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
+    pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+str(pyVersion).strip("b'")+"/site-packages/")
 
     zgrv_path = os.path.join(scriptPath, "zgrviewer/")
 
