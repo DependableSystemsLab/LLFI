@@ -398,10 +398,8 @@ def buildPyYaml(forceBuild):
     os.chdir("..")
 
 def buildzgv(forceBuild):
+    print("Building zgv viewer")
     script_path = os.getcwd()
-    pyyaml_path = os.path.join(script_path,"pyyaml")
-    os.chdir("pyyamlsrc")
-
     zgrv_path = os.path.join(script_path, "zgrviewer")
     runsh_path = os.path.join(zgrv_path, "run.sh")
 

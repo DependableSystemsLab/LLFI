@@ -607,7 +607,7 @@ public class Controller implements Initializable {
 									while ((line1 = in2.readLine()) != null) {
 
 										Controller.errorString.add(line1+"\n");
-										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR") || line1.contains("Undefined variable"))
+										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
 											errorFlag= true;
 										else
 											comparePath = line1;
@@ -618,8 +618,9 @@ public class Controller implements Initializable {
 									pr1.waitFor();
 									in2.close();
 									pr1.destroy();
-									if(!(comparePath == null))
+									if(!(comparePath == null) && !(comparePath.contains("Undefined variable")))
 									{
+										Controller.errorString.clear();
 										ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","sh "+comparePath+" "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
 												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
 
@@ -658,6 +659,7 @@ public class Controller implements Initializable {
 									}
 									else
 									{
+										Controller.errorString.clear();
 
 										ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","diff "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
 												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
