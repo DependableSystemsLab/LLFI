@@ -378,7 +378,6 @@ public class FaultInjectionController implements Initializable{
 		catch (IOException e) {
 	        System.err.println("Exception Occured in writing to the input.yaml file");
 	    }
-	    System.out.println("Run Option Map: " + runOptionMap);
 		
 	}
 	
