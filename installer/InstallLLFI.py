@@ -484,7 +484,7 @@ def addEnvs():
     with open(tcshPath, "a") as rcFile:
         rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
         rcFile.write("setenv llfibuild " + llfibuildPath + "\n")
-        rcFile.write("setenv zgrviewer " + zgrv_path + "/\n")
+        rcFile.write("setenv zgrviewer " + zgrv_path + "\n")
 
 parser = argparse.ArgumentParser(
         description=("Installer for UBC DependableSystemsLab's LLFI"),
