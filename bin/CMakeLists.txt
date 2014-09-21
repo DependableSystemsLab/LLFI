@@ -7,6 +7,10 @@ project(bin)
 copy(instrument.py instrument)
 copy(injectfault.py injectfault)
 copy(profile.py profile)
+copy(Auto-discovery.py Auto-discovery)
+copy(masterInstrument.py masterInstrument)
+copy(masterProfile.py masterProfile)
+copy(masterInjectfault.py masterInjectfault)
 
 genCopy()
 
