@@ -19,6 +19,9 @@ build/
 *.bc
 *.o
 
+# gedit backup files
+*~
+
 # vim swap files
 *.swp
 
