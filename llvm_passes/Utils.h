@@ -47,6 +47,10 @@ void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 
 //Check metadata to see if instruction was generated/inserted by LLFI
 bool isLLFIIndexedInst(Instruction *inst);
+
+//======== Add opcode_str QINING @SEP 13th========
+GlobalVariable* findOrCreateGlobalNameString(Module &M, std::string name);
+//================================================
 }
 
 #endif

@@ -144,4 +144,30 @@ bool isLLFIIndexedInst(Instruction *inst) {
  }
 }
 
+//======== Add opcode_str QINING @SEP 13th========
+GlobalVariable* findOrCreateGlobalNameString(Module &M, std::string name)
+{
+	LLVMContext& context = M.getContext();
+	std::string str_suffix = std::string("_namestr");
+	GlobalVariable* nameStr = M.getGlobalVariable(name+str_suffix, true);
+	if(nameStr != NULL)
+	{
+		//found
+		return nameStr;
+	}
+	//not found
+	//dbgs()<<"\t\t\tNeed new name_str: "<<name+str_suffix<<"\n";
+	//construction the container name
+	std::string gv_nameStr = name + str_suffix;
+	//get the string content
+	Constant* name_c = ConstantDataArray::getString(context, name);
+	//nameStr = new GlobalVariable(M, AT, true, GlobalVariable::InternalLinkage, 
+	//create a new container named as gv_nameStr with content as name_c
+	nameStr = new GlobalVariable(name_c->getType(), true, GlobalVariable::InternalLinkage, name_c, gv_nameStr.c_str());
+	//add to global list
+	M.getGlobalList().push_back(nameStr);
+	return nameStr;
+}
+//================================================
+
 }

@@ -1,7 +1,0 @@
-bitflip-(BIT_FLIPPING)
-stuck_at_0-(STUCK_WITH_STATE_0)
-stuck_at_1-(STUCK_WITH_STATE_1)
-IncValue-(INCREASE_VALUE) 
-DecValue-(DECREASE_VALUE)
-noOpen_API -(CLOSE_AFTER_OPEN)
-RevMode-(REVERSE_MODE)

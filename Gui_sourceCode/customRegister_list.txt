@@ -1,5 +1,0 @@
-only1stoperand-(FIND_FIRST_OPERAND)
-only2ndoperand-(FIND_FIRST_OPERAND)
-only3rdoperand-(FIND_FIRST_OPERAND)
-only4thoperand-(FIND_FIRST_OPERAND)
-onlyretreg-(RETURN_INSTRUCTION_AS_REGISTER)

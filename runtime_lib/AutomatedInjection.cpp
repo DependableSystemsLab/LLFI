@@ -22,7 +22,7 @@ class AutoInjection: public FaultInjector {
                  std::string strInput2;
                   getline(inf2, strInput2);
            
-        if ((strInput=="APINoOpen")||(strInput=="APINoClose")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="WrongSavedAddress")||(strInput=="DataCorruption"))
+        if ((strInput=="APINoOpen")||(strInput=="APIWrongFile")||(strInput=="APIWrongMode")||(strInput=="APIWrongPointer")||(strInput=="MemWrongSource")||(strInput=="MemWrongDestination")||(strInput=="MEMInvalidPointer")||(strInput=="APIWrongAPI")||(strInput=="APIIncorrectOutput")||(strInput=="DataIncorrectOutput") ||(strInput=="WrongRetrievedAddress") ||(strInput=="MPIInvalidSender")||(strInput=="MPIDeadLock")||(strInput=="WrongSavedAddress")||(strInput=="DataCorruption"))
       
         {
     unsigned fi_bytepos = fi_bit / 8;
@@ -41,8 +41,20 @@ class AutoInjection: public FaultInjector {
 
         }
 
+
+ else  if (strInput=="APINoClose")
+        {
+      FILE* fp;
+      char dest[]= {"tHIS IS A FILe"};
+      fp=fopen("output.txt","w");
+	             if (fp != NULL)
+		       fwrite(dest,sizeof(char),50 ,fp);
+                         
     
- 
+      
+      buf= (char*) &fp;
+
+         }
        else  if (strInput=="MPIInvalidMessage")
         {
        

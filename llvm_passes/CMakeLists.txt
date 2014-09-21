@@ -19,6 +19,7 @@ add_llvm_loadable_module(llfi-passes
   SampleFIInstSelector.cpp
   SampleFIRegSelector.cpp
   LLFIIndexFIInstSelector.cpp
+  AutoScan_Pass.cpp
 
     
     
