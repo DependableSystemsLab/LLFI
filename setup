@@ -189,7 +189,7 @@ def main(args):
   parseArgs(args)
   checkEnviroment()
   build()
-  buildgui()
+  #buildgui()
 
 	
 if __name__=="__main__":
