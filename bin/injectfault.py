@@ -27,11 +27,7 @@ import shutil
 
 runOverride = False
 optionlist = []
-<<<<<<< HEAD
 defaultTimeout = 500
-=======
-timeout = 100
->>>>>>> cisco/Final
 
 basedir = os.getcwd()
 prog = os.path.basename(sys.argv[0])
@@ -82,6 +78,7 @@ def parseArgs(args):
 
 def checkInputYaml():
   global doc
+  global defaultTimeout
   #Check for input.yaml's presence
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
@@ -96,20 +93,23 @@ def checkInputYaml():
   #Check for input.yaml's correct formmating
   try:
     doc = yaml.load(f)
-    f.close()
-    if "kernelOption" in doc:
-      for opt in doc["kernelOption"]:
-        if opt=="forceRun":
-          runOverride = True
-          print("Kernel: Forcing run")
-    if "timeOut" in doc:
-      timeout = int(doc["timeOut"])
-      assert timeout > 0, "The timeOut option must be greater than 0"
-    else:
-      print("Run fault injection executable with default timeout " + str(timeout))
   except:
+    f.close()
     usage("input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     exit(1)
+  finally:
+    f.close()
+
+  if "kernelOption" in doc:
+    for opt in doc["kernelOption"]:
+      if opt=="forceRun":
+        runOverride = True
+        print("Kernel: Forcing run")
+  if "defaultTimeout" in doc:
+    defaultTimeout = int(doc["defaultTimeout"])
+    assert defaultTimeout > 0, "The timeOut option must be greater than 0"
+  else:
+    print("Default timeout is set to " + str(defaultTimeout) + " by default.")
 
 
 def print_progressbar(idx, nruns):
@@ -287,6 +287,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
 ################################################################################
 def main(args):
   global optionlist, outputfile, totalcycles,run_id, return_codes
+  global defaultTimeout
 
   parseArgs(args)
   checkInputYaml()
