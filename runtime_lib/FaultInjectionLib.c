@@ -198,13 +198,13 @@ fprintf(stderr, "injectFunc\n");
 
 
 FILE* fp;
- const  char failure_class[20], failure_mode[20], function_name[20],  fault_injector[20];
+  char failure_class[20], failure_mode[20], function_name[20],  fault_injector[20];
   fp=fopen("gui-config.txt", "r");
      
-fscanf(fp, "%s", failure_class) ;
-fscanf(fp, "%s", failure_mode) ;
-fscanf(fp, "%s", function_name) ;
-fscanf(fp, "%s", fault_injector) ;
+  fscanf(fp, "%s", failure_class) ;
+  fscanf(fp, "%s", failure_mode) ;
+  fscanf(fp, "%s", function_name) ;
+  fscanf(fp, "%s", fault_injector) ;
 
 
   fprintf(injectedfaultsFile, 
