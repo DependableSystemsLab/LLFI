@@ -27,6 +27,17 @@ namespace llfi{
                 funcNames.insert(std::string("memcpy"));
                 funcNames.insert(std::string("memmove"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "Data";
+                info["failure_mode"] = "BufferOverflow";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "ChangeValueInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -43,7 +54,7 @@ namespace llfi{
                 }
                 return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A( "BufOverflowMemmove(Data)", new _Data_BufferOverflowMemmoveInstSelector());
     static RegisterFIRegSelector B("BufOverflowMemmove(Data)", new FuncArgRegSelector(2));

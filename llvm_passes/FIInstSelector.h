@@ -14,6 +14,7 @@ class FIInstSelector {
 
  public:
   void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
+  virtual void getCompileTimeInfo(std::map<std::string, std::string>& info);
 
  public:
   inline void setIncludeBackwardTrace(bool includebt) {

@@ -27,6 +27,12 @@ namespace llfi{
                 funcNames.insert(std::string("fread"));
                 funcNames.insert(std::string("fwrite"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "API";
+                info["failure_mode"] = "BufferOverflow";
+                info["targets"] = "fread()/fwrite()";
+                info["injector"] = "ChangeValueInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -41,7 +47,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A( "BufferOverflow(API)", new _API_BufferOverflowInstSelector());
     static RegisterFIRegSelector B("BufferOverflow(API)", new FuncArgRegSelector(2));

@@ -27,6 +27,17 @@ namespace llfi{
             _IO_WrongRFormatInstSelector(){
                 funcNames.insert(std::string("fread"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "I/O";
+                info["failure_mode"] = "WrongRetrievedFormat";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "WrongFormatInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -41,7 +52,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("WrongRetrievedFormat(I/O)", new _IO_WrongRFormatInstSelector());
     static RegisterFIRegSelector B("WrongRetrievedFormat(I/O)", new FuncArgRegSelector(1));

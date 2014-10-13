@@ -2,6 +2,8 @@
 #define FI_INST_SELECTOR_MANAGER_H
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 
 #include "FIInstSelector.h"
 
@@ -21,6 +23,8 @@ class FIInstSelectorManager {
  private:
   std::vector<FIInstSelector*> selectors;
   std::vector<FIInstSelector*>::iterator it;
+
+  int printCompileTimeInfo(std::map<std::string, std::string>& info);
 };
 
 }

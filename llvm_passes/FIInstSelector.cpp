@@ -82,4 +82,11 @@ void FIInstSelector::getForwardTraceofInst(Instruction *inst,
   }
 }
 
+void FIInstSelector::getCompileTimeInfo(std::map<std::string, std::string>& info) {
+  info["failure_class"] = "Unknown";
+  info["failure_mode"] = "Unknown";
+  info["targets"] = "Unknown";
+  info["injector"] = "Unknown";
+}
+
 }

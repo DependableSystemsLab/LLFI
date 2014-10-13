@@ -24,10 +24,17 @@
 using namespace llvm;
 namespace llfi{
     class _Data_Incorrect_OutputInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             return isa<ReturnInst>(inst);
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "Data";
+            info["failure_mode"] = "IncorrectOutput";
+            info["targets"] = "return";
+            info["injector"] = "BitCorruptionInjector";
+        }
     };
     static RegisterFIInstSelector A( "IncorrectOutput(Data)", new _Data_Incorrect_OutputInstSelector());
     static RegisterFIRegSelector B("IncorrectOutput(Data)", new RetValRegSelector());

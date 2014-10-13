@@ -241,7 +241,16 @@ def readCompileOption():
         print(("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n"))
         exit(1)
       else:
-          compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
+          if cOpt["customRegSelector"] == "SoftwareFault":
+            ## replace the Automatic tag with the customInstSelector name
+            try:
+              regselectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]
+            except:
+              print("\n\nERROR: Cannot extract customRegSelector from instSelMethod. Please check the customInstselector field in input.yaml\n")
+            else:
+              compileOptions.append('-firegselectorname='+regselectorname)
+          else:
+            compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
           if "customRegSelectorOption" in cOpt:
             for opt in cOpt["customRegSelectorOption"]:
               compileOptions.append(opt)

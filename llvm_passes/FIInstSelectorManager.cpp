@@ -1,4 +1,3 @@
-
 #include "llvm/IR/Instructions.h"
 
 #include "FIInstSelectorManager.h"
@@ -7,10 +6,13 @@ namespace llfi {
 
 void FIInstSelectorManager::getFIInsts(Module &M,
                                          std::set<Instruction*> *fiinsts) {
-  // Create a set for each selector 
+  // Create a set for each selector and print compiletime info
   std::vector<std::set<Instruction*>*> allInsts;
   for(it = selectors.begin(); it != selectors.end(); ++it) {
     allInsts.push_back(new std::set<Instruction*>);
+     std::map<std::string, std::string> info;
+     (*it)->getCompileTimeInfo(info);
+     printCompileTimeInfo(info);
      (*it)->getFIInsts(M, allInsts.back());
   }
 
@@ -29,6 +31,22 @@ void FIInstSelectorManager::getFIInsts(Module &M,
   for(size_t i = 0; i < allInsts.size(); ++i) {
     delete allInsts[i];
   }
+}
+
+int FIInstSelectorManager::printCompileTimeInfo(std::map<std::string, std::string>& info) {
+  // print compiletime info returned from inst selector, called by getFIInsts()
+  std::ofstream compiletimeinfo_file("llfi.config.compiletime.txt");
+  if(compiletimeinfo_file.is_open() == false){
+    std::cerr<<"ERROR: can not open llfi.config.compiletime.txt\n";
+    compiletimeinfo_file.close();
+    return -1;
+  }
+  compiletimeinfo_file<<"failure_class="<<info["failure_class"]<<"\n";
+  compiletimeinfo_file<<"failure_mode="<<info["failure_mode"]<<"\n";
+  compiletimeinfo_file<<"targets="<<info["targets"]<<"\n";
+  compiletimeinfo_file<<"injector="<<info["injector"]<<"\n";
+  compiletimeinfo_file.close();
+  return 0;
 }
 
 void FIInstSelectorManager::addSelector(FIInstSelector *s)

@@ -24,10 +24,17 @@
 using namespace llvm;
 namespace llfi{
     class _Data_No_OutputInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             return isa<ReturnInst>(inst);
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "Data";
+            info["failure_mode"] = "NoOutput";
+            info["targets"] = "return";
+            info["injector"] = "HangInjector";
+        }
     };
     static RegisterFIInstSelector A( "NoOutput(Data)", new _Data_No_OutputInstSelector());
     static RegisterFIRegSelector B("NoOutput(Data)", new RetValRegSelector());

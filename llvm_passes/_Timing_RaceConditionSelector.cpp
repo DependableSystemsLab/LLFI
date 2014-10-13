@@ -26,6 +26,17 @@ namespace llfi{
             _Timing_RaceConditionInstSelector(){
                 funcNames.insert(std::string("pthread_mutex_lock"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "Timing";
+                info["failure_mode"] = "RaceCondition";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "PthreadRaceConditionInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -40,7 +51,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("RaceCondition(Timing)", new _Timing_RaceConditionInstSelector());
     static RegisterFIRegSelector B("RaceCondition(Timing)", new FuncDestRegSelector());

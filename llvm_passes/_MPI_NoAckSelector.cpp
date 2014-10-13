@@ -25,7 +25,17 @@ namespace llfi{
         public:
             _MPI_NoAckInstSelector(){
                 funcNames.insert(std::string("recv"));
-                funcNames.insert(std::string("accept"));
+            }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "MPI";
+                info["failure_mode"] = "NoAck";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "BitCorruptionInjector";
             }
 
         private:
@@ -41,7 +51,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("NoAck(MPI)", new _MPI_NoAckInstSelector());
     static RegisterFIRegSelector B("NoAck(MPI)", new FuncDestRegSelector());

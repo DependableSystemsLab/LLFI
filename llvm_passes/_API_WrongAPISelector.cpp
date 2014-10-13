@@ -37,6 +37,17 @@ namespace llfi{
                   funcNamesTargetArgs["fopen"].insert(1);
                 }
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "API";
+                info["failure_mode"] = "WrongAPI";
+                for(std::map<std::string, std::set<int> >::iterator MI = funcNamesTargetArgs.begin();
+                  MI != funcNamesTargetArgs.end(); MI++){
+                  info["targets"] += MI->first + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "BitCorruptionInjector";
+            }
 
             static bool isTarget(CallInst* CI, Value* T){
               std::string func_name = CI->getCalledFunction()->getName();
@@ -61,7 +72,7 @@ namespace llfi{
                 if(funcNamesTargetArgs.find(func_name) != funcNamesTargetArgs.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
 
     class _API_WrongAPIRegSelector: public FIRegSelector{

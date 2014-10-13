@@ -27,6 +27,17 @@ namespace llfi{
                 funcNames.insert(std::string("pthread_create"));
                 funcNames.insert(std::string("pthread_join"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "Resource";
+                info["failure_mode"] = "ThreadKiller";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "PthreadThreadKillerInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -41,7 +52,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("ThreadKiller(Res)", new _Res_ThreadKillerInstSelector());
     static RegisterFIRegSelector B("ThreadKiller(Res)", new FuncArgRegSelector(0));

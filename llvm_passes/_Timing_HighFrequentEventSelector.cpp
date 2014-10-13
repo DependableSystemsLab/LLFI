@@ -28,6 +28,17 @@ namespace llfi{
                 funcNames.insert(std::string("fopen"));
                 funcNames.insert(std::string("fwrite"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "Timing";
+                info["failure_mode"] = "HighFrequentEvent";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] += "return";
+                info["injector"] = "SleepInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -44,7 +55,7 @@ namespace llfi{
               return true;
             }
             else  return false;
-        } 
+        }
     };
 
     class _Timing_HighFrequentEventRegSelector: public FIRegSelector{

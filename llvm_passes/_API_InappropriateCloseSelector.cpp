@@ -22,7 +22,7 @@
 using namespace llvm;
 namespace llfi{
     class _API_InappropriateCloseInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             if(isa<CallInst>(inst) == false)    return false;
             else{
@@ -32,7 +32,14 @@ namespace llfi{
                 if(called_func->getName() == "fopen")    return true;
                 else return false;
             }
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "API";
+            info["failure_mode"] = "InappropriateClose";
+            info["targets"] = "fopen()";
+            info["injector"] = "InappropriateClose";
+        }
     };
     static RegisterFIInstSelector A( "InappropriateClose(API)", new _API_InappropriateCloseInstSelector());
     static RegisterFIRegSelector B("InappropriateClose(API)", new FuncDestRegSelector());

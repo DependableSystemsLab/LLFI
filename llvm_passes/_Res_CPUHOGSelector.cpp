@@ -23,10 +23,17 @@
 using namespace llvm;
 namespace llfi{
     class _Res_CPUHOGInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             return isa<ReturnInst>(inst);
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "Resource";
+            info["failure_mode"] = "CPUHog";
+            info["targets"] = "return";
+            info["injector"] = "SleepInjector";
+        }
     };
     static RegisterFIInstSelector A( "CPUHog(Res)", new _Res_CPUHOGInstSelector());
     static RegisterFIRegSelector B("CPUHog(Res)", new RetValRegSelector());

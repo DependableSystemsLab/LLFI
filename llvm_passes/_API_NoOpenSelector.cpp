@@ -22,7 +22,7 @@
 using namespace llvm;
 namespace llfi{
     class _API_NoOpenInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             if(isa<CallInst>(inst) == false)    return false;
             else{
@@ -32,7 +32,14 @@ namespace llfi{
                 if(called_func->getName() == "fopen")    return true;
                 else return false;
             }
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "API";
+            info["failure_mode"] = "NoOpen";
+            info["targets"] = "fopen()";
+            info["injector"] = "BitCorruptionInjector";
+        }
     };
     static RegisterFIInstSelector A( "NoOpen(API)", new _API_NoOpenInstSelector());
     static RegisterFIRegSelector B("NoOpen(API)", new FuncArgRegSelector(0));

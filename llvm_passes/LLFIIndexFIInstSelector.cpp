@@ -25,6 +25,13 @@ class LLFIIndexFIInstSelector: public FIInstSelector {
         return true;
     return false;
   }
+ public:
+  virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+    info["failure_class"] = "HardwareFault";
+    info["failure_mode"] = "SpecifiedLLFIIndex";
+    info["targets"] = "<include list in yaml>";
+    info["injector"] = "<fi_type>";
+  }
 };
 
 static RegisterFIInstSelector X("llfiindex", new LLFIIndexFIInstSelector());

@@ -26,6 +26,17 @@ namespace llfi{
             _MPI_PacketStormInstSelector(){
                 funcNames.insert(std::string("recv"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "MPI";
+                info["failure_mode"] = "PacketStorm";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "ChangeValueInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -40,7 +51,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("PacketStorm(MPI)", new _MPI_PacketStormInstSelector());
     static RegisterFIRegSelector B("PacketStorm(MPI)", new FuncArgRegSelector(2));

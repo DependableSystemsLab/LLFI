@@ -354,6 +354,13 @@ def main(args):
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
+        if fi_type == "SoftwareFault":
+          try:
+            injectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]
+          except:
+            print("\n\nERROR: Cannot extract fi_type from instSelMethod. Please check the customInstselector field in input.yaml\n")
+          else:
+            fi_type = injectorname
         checkValues("fi_type",fi_type)
       if "fi_cycle" in run["run"]:
         fi_cycle=run["run"]["fi_cycle"]

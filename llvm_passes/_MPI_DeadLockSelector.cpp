@@ -27,6 +27,17 @@ namespace llfi{
                 funcNames.insert(std::string("recv"));
                 funcNames.insert(std::string("send"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "MPI";
+                info["failure_mode"] = "DeadLock";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "BitCorruptionInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -41,7 +52,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A( "DeadLock(MPI)", new _MPI_DeadLockInstSelector());
     static RegisterFIRegSelector B("DeadLock(MPI)", new FuncArgRegSelector(0));

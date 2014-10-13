@@ -27,6 +27,17 @@ namespace llfi{
                 funcNames.insert(std::string("connect"));
                 funcNames.insert(std::string("accept"));
             }
+            virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+                info["failure_class"] = "MPI";
+                info["failure_mode"] = "InvalidSender";
+                for(std::set<std::string>::iterator SI = funcNames.begin();
+                  SI != funcNames.end(); SI++){
+                  info["targets"] += *SI + "()/";
+                }
+                //remove the '/' at the end
+                info["targets"] = info["targets"].substr(0, info["targets"].length()-1);
+                info["injector"] = "BitCorruptionInjector";
+            }
 
         private:
             std::set<std::string> funcNames;
@@ -41,7 +52,7 @@ namespace llfi{
                 if(funcNames.find(func_name) != funcNames.end())    return true;
                 else return false;
             }
-        } 
+        }
     };
     static RegisterFIInstSelector A("InvalidSender(MPI)", new _MPI_InvalidSenderInstSelector());
     static RegisterFIRegSelector B("InvalidSender(MPI)", new FuncArgRegSelector(1));

@@ -24,13 +24,20 @@
 using namespace llvm;
 namespace llfi{
     class _Data_CorruptionInstSelector: public FIInstSelector{
-        private:
+    private:
         virtual bool isInstFITarget(Instruction* inst){
             if(isa<CallInst>(inst) == false)    return false;
             else{
                 return true;
             }
-        } 
+        }
+    public:
+        virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+            info["failure_class"] = "Data";
+            info["failure_mode"] = "DataCorruption";
+            info["targets"] = "all-call-instructions";
+            info["injector"] = "BitCorruptionInjector";
+        }
     };
     static RegisterFIInstSelector A( "DataCorruption(Data)", new _Data_CorruptionInstSelector());
     static RegisterFIRegSelector B("DataCorruption(Data)", new FuncArgRegSelector(0));
