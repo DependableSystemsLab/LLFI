@@ -10,5 +10,6 @@ add_library(llfi-rt SHARED
     ProfilingLib.c
     Utils.c
 
-AutomatedInjection.cpp
+    AutomatedInjection.cpp
+    _SoftwareFaultInjectors.cpp
 )

@@ -15,7 +15,7 @@ class BitCorruptionInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		unsigned int fi_bytepos = fi_bit/8;
-		unsigned int fi_bitpos = fit_bit%8;
+		unsigned int fi_bitpos = fi_bit%8;
 		buf[fi_bytepos] ^= 0x1 << fi_bitpos;
 		return;
 	}
@@ -84,12 +84,12 @@ class ChangeValueInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		if(is_replace == false){
-			buf = (int*) buf;
-			*buf = *buf + add_val;
+			int* newbuf = (int*) buf;
+			*newbuf = *newbuf + add_val;
 		}
 		else{
-			buf = (int*) buf;
-			*buf = rep_val;
+			int* newbuf = (int*) buf;
+			*newbuf = rep_val;
 		}
 		return;
 	}
@@ -115,12 +115,12 @@ class InappropriateCloseInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		if(add_close){
-			buf = (FILE**) buf;
-			fclose(*buf);
+			FILE** newbuf = (FILE**) buf;
+			fclose(*newbuf);
 		}else{
 			FILE* fp = fopen("fake_file.txt", "w");
-			buf = (FILE**) buf;
-			*buf = fp;
+			FILE** newbuf = (FILE**) buf;
+			*newbuf = fp;
 		}
 		return;
 	}
@@ -128,7 +128,7 @@ class InappropriateCloseInjector: public FaultInjector {
 	
 	private:
 	bool add_close;
-}
+};
 
 static RegisterFaultInjector FA("InappropriateClose(API)", new InappropriateCloseInjector(true));
 static RegisterFaultInjector FB("NoClose(API)", new InappropriateCloseInjector(false));
@@ -136,10 +136,10 @@ static RegisterFaultInjector FB("NoClose(API)", new InappropriateCloseInjector(f
 class StalePointerInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
-		buf = (void**) buf;
-		free(*buf);
+		void** newbuf = (void**) buf;
+		free(*newbuf);
 	}
-}
+};
 
 static RegisterFaultInjector GA("StalePointer(Res)", new StalePointerInjector());
 
@@ -154,13 +154,13 @@ class MemoryExhaustionInjector: public FaultInjector {
 			if(p == NULL)	p = malloc(MEM_EXHAUSTION_UNIT>>8);
 			if(p == NULL)	p = malloc(MEM_EXHAUSTION_UNIT>>12);
 			if(p != NULL)	left_space = p;
-		while(p != NULL);
+		}while(p != NULL);
 		if(non_left_space){
-			buf = (void**) buf;
-			*buf = p;
+			void** newbuf = (void**) buf;
+			*newbuf = p;
 		}else{
-			buf = (void**) buf;
-			*buf = left_p;
+			void** newbuf = (void**) buf;
+			*newbuf = left_space;
 		}
 		return;
 	}
@@ -168,7 +168,7 @@ class MemoryExhaustionInjector: public FaultInjector {
 	MemoryExhaustionInjector(bool nonleftspace):non_left_space(nonleftspace) {};
 	private:
 	bool non_left_space;
-}
+};
 
 static RegisterFaultInjector HA("MemoryExhaustion(Res)", new MemoryExhaustionInjector(true));
 static RegisterFaultInjector HB("LowMemory(Res)", new MemoryExhaustionInjector(false));
@@ -192,7 +192,7 @@ class WrongFormatInjector: public FaultInjector {
 		}
 		return;
 	}
-}
+};
 
 static RegisterFaultInjector IA("WrongRetrievedFormat(I/O)", new WrongFormatInjector());
 static RegisterFaultInjector IB("WrongSavedFormat(I/O)", new WrongFormatInjector());
@@ -207,7 +207,7 @@ class PthreadDeadLockInjector: public FaultInjector {
 		pthread_mutex_lock(&mutex1);
 		return;
 	}
-}
+};
 
 static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());
 
@@ -219,7 +219,7 @@ class PthreadThreadKillerInjector: public FaultInjector {
 		pthread_cancel(t);
 		return;
 	}
-}
+};
 
 static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());
 
@@ -230,6 +230,6 @@ class PthreadRaceConditionInjector: public FaultInjector {
 		pthread_mutex_unlock(&mutex);
 		return;
 	}
-}
+};
 
 static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());
