@@ -70,7 +70,6 @@ add_llvm_loadable_module(llfi-passes
 
   _Timing_RaceConditionSelector.cpp
   _Timing_HighFrequentEventSelector.cpp 
-  _AutoRegSelector.cpp
   _SoftwareFaultRegSelectors.cpp
   
   

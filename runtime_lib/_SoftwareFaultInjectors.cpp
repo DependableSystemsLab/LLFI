@@ -41,7 +41,7 @@ static RegisterFaultInjector AI("IncorrectOutput(Data)", BitCorruptionInjector::
 static RegisterFaultInjector AJ("WrongRetrievedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
 static RegisterFaultInjector AK("InvalidSender(MPI)", BitCorruptionInjector::getBitCorruptionInjector());
 static RegisterFaultInjector AL("DeadLock(MPI)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AM("WrongRetrievedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
+static RegisterFaultInjector AM("WrongSavedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
 static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());
 
 class MemoryLeakInjector: public FaultInjector {

@@ -74,6 +74,7 @@ namespace llfi{
             }
         }
     };
+    std::map<std::string, std::set<int> > _API_WrongAPIInstSelector::funcNamesTargetArgs;
 
     class _API_WrongAPIRegSelector: public FIRegSelector{
       private:
