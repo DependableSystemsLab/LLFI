@@ -354,7 +354,7 @@ def main(args):
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
-        if fi_type == "SoftwareFault":
+        if fi_type == "SoftwareFault" or fi_type == "AutoInjection":
           try:
             cOpt = doc["compileOption"]
             injectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]

@@ -241,7 +241,7 @@ def readCompileOption():
         print(("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n"))
         exit(1)
       else:
-          if cOpt["customRegSelector"] == "SoftwareFault":
+          if cOpt["customRegSelector"] == "SoftwareFault" or cOpt["customRegSelector"] == "Automatic":
             ## replace the Automatic tag with the customInstSelector name
             try:
               regselectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]
