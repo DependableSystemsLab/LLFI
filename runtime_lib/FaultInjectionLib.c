@@ -56,7 +56,7 @@ bool _getDecision(double probability) {
 
 void _parseLLFIConfigFile() {
   char ficonfigfilename[80];
-  strncpy(ficonfigfilename, "llfi.config.fi.txt", 80);
+  strncpy(ficonfigfilename, "llfi.config.rumtime.txt", 80);
   FILE *ficonfigFile;
   ficonfigFile = fopen(ficonfigfilename, "r");
   if (ficonfigFile == NULL) {
@@ -178,7 +178,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 
 void injectFunc(long llfi_index, unsigned size, 
                 char *buf, unsigned my_reg_index) {
-fprintf(stderr, "injectFunc\n");
+  fprintf(stderr, "MSG: injectFunc() being called\n");
   if (! fiFlag) return;
   start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
 

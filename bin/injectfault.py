@@ -118,7 +118,7 @@ def print_progressbar(idx, nruns):
   bar = "=" *  int(pct * WIDTH)
   bar += ">"
   bar += "-" * (WIDTH - int(pct * WIDTH))
-  print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end=' ')
+  print(("\r[%s] %.1f%% (%d / %d)" % (bar, pct * 100, idx, nruns)), end='\n')
   sys.stdout.flush()
 
 
@@ -354,7 +354,7 @@ def main(args):
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
-        if fi_type == "SoftwareFault" or fi_type == "AutoInjection":
+        if fi_type == "SoftwareFault" or fi_type == "AutoInjection" or fi_type == "Automated":
           try:
             cOpt = doc["compileOption"]
             injectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]
@@ -401,7 +401,7 @@ def main(args):
         if need_to_calc_fi_cycle:
           fi_cycle = random.randint(0, int(totalcycles) - 1)
 
-        ficonfig_File = open("llfi.config.fi.txt", 'w')
+        ficonfig_File = open("llfi.config.rumtime.txt", 'w')
         if 'fi_cycle' in locals():
           ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
         elif 'fi_index' in locals():
@@ -432,10 +432,10 @@ def main(args):
           error_File.write("Program crashed, terminated by itself, return code " + ret + '\n')
           error_File.close()
 
-        # Print updates
-        print_progressbar(index, run_number)
+        # Print updates, print the number of injections finished
+        print_progressbar(index+1, run_number)
 
-      print_progressbar(run_number, run_number)
+      #print_progressbar(run_number, run_number)
       print("") # progress bar needs a newline after 100% reached
       # Print summary
       if options["verbose"]:
