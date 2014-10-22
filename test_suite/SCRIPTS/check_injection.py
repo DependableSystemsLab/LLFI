@@ -8,10 +8,20 @@ import subprocess
 
 def checkLLFIDir(work_dir, target_IR, prog_input):
 	llfi_dir = os.path.join(work_dir, "llfi")
+	if os.path.isdir(llfi_dir) == False:
+		return "FAIL: No ./llfi folder found!"
 	stats_dir = os.path.join(llfi_dir, "llfi_stat_output")
+	if os.path.isdir(stats_dir) == False:
+		return "FAIL: No ./llfi/llfi_stat_output folder found!"
 	baseline_dir = os.path.join(llfi_dir, "baseline")
+	if os.path.isdir(baseline_dir) == False:
+		return "FAIL: No ./llfi/baseline folder found!"
 	prog_output_dir = os.path.join(llfi_dir, "prog_output")
+	if os.path.isdir(prog_output_dir) == False:
+		return "FAIL: No ./llfi/prog_output folder found!"
 	std_output_dir = os.path.join(llfi_dir, "std_output")
+	if os.path.isdir(std_output_dir) == False:
+		return "FAIL: No ./llfi/std_output folder found!"
 
 	stats = [f for f in os.listdir(stats_dir)]
 	if len(stats) == 0:
@@ -52,7 +62,7 @@ def check_injection(*prog_list):
 		record = {"name":test_path, "result":result}
 		result_list.append(record)
 
-	print "=============== Result ==============="
+	print ("=============== Result ===============")
 	for record in result_list:
 		print(record["name"], "\t\t", record["result"])
 
