@@ -1,0 +1,20 @@
+
+kernelOption:
+    - forceRun
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - BufferOverflow(API)
+
+    regSelMethod: customregselector
+    customRegSelector: SoftwareFault
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: SoftwareFault

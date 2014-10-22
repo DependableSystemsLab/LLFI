@@ -267,14 +267,9 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == 'fi_bit':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-
-  elif key == 'fi_random_seed':
-    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
-    assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
-    
     if runOverride:
       pass
-    elif var1 > 1 and (var2 or var3) and var4:
+    elif var1 != None and var1 > 1 and (var2 or var3) and var4:
       user_input = input("\nWARNING: Injecting into the same cycle(index), bit multiple times "+
                   "is redundant as it would yield the same result."+
                   "\nTo turn off this warning, please see Readme "+
@@ -283,6 +278,10 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
         pass
       else:
         exit(1)
+
+  elif key == 'fi_random_seed':
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
 
 ################################################################################
 def main(args):
@@ -440,7 +439,7 @@ def main(args):
       # Print summary
       if options["verbose"]:
         print("========== SUMMARY ==========")
-        print("Return codes:")
+        print("Return codes: (code:\toccurance)")
         for r in list(return_codes.keys()):
           print(("  %3s: %5d" % (str(r), return_codes[r])))
 

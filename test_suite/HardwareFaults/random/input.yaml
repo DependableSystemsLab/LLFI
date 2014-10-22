@@ -1,0 +1,36 @@
+defaultTimeOut: 500
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include:
+            - all
+          exclude:
+            - ret
+
+    regSelMethod: regloc
+    regloc: dstreg
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+        fi_cycle: 15574729
+        fi_index: 2293
+        fi_reg_index: 0
+        fi_bit: 49
+        fi_random_seed: 10 # Allows the random seed to be set to specific value
+        verbose: True # prints return code summary at end of injection
+        timeOut: 1000
+
+    - run:
+        numOfRuns: 3
+        fi_type: stuck_at_1
+        fi_cycle: 2661577811
+        fi_index: 664
+        fi_reg_index: 0
+        timeOut: 1000

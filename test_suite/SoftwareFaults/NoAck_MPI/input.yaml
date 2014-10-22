@@ -1,0 +1,18 @@
+defaultTimeout: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - NoAck(MPI)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

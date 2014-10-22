@@ -1,0 +1,18 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - ThreadKiller(Res)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

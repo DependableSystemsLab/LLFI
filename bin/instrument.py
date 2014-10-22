@@ -207,18 +207,22 @@ def readCompileOption():
 
     # Parse all options for current method
     for attr in list(method[methodName].keys()):
-      prefix = "-%s" % (str(attr))
-      if methodName == "insttype":
-        prefix += "inst="
-      elif methodName == "funcname":
-        prefix += "func="
-      elif methodName == "customInstselector":
-        prefix = "-fiinstselectorname="
-      else: # add the ability to give custom options here?
-        pass
-      # Generate list of options for attribute
-      opts = [prefix + opt for opt in method[methodName][attr]]
-      compileOptions.extend(opts)
+      if(attr == "include" or attr == "exclude"):
+        prefix = "-%s" % (str(attr))
+        if methodName == "insttype":
+          prefix += "inst="
+        elif methodName == "funcname":
+          prefix += "func="
+        elif methodName == "customInstselector":
+          prefix = "-fiinstselectorname="
+        else: # add the ability to give custom options here?
+          pass
+        # Generate list of options for attribute
+        opts = [prefix + opt for opt in method[methodName][attr]]
+        compileOptions.extend(opts)
+      elif(attr == "options"):
+        opts = [opt for opt in method[methodName]["options"]]
+        compileOptions.extend(opts)
 
   ###Register selection method
   if "regSelMethod" not in cOpt:  

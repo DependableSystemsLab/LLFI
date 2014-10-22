@@ -1,0 +1,18 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - WrongDestination(Data)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

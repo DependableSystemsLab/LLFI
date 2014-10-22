@@ -1,0 +1,16 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - MemoryLeak(Res)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

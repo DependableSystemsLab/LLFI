@@ -1,0 +1,16 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - MemoryExhaustion(Res)
+
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection

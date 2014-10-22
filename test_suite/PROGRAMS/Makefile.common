@@ -1,0 +1,5 @@
+LLVMDIS = llvm-dis
+LLVMGCC = clang
+LLVMGXX = clang++
+LLVMLD = llvm-link
+COMPILE_FLAGS = -emit-llvm
