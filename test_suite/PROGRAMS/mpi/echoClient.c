@@ -61,7 +61,7 @@ main(int argc, char **argv)
      
     printf("%s", "String received from the server: ");
     fputs(recvline, stdout);
-    { exit(5);}
+    //{ exit(5);}
   }   
   exit(0);
 }
