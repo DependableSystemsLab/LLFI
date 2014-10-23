@@ -25,25 +25,28 @@ def callLLFI(work_dir, target_IR, prog_input):
 		else:
 			print ("MSG: instrument successed for:", work_dir, target_IR)
 
-	if target_IR == "echoClient.ll":
-		server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")])
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
+		if target_IR == "echoClient.ll":
+			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
 		execlist = [profile_script, '--CLI', "./llfi/"+profile_exe]
 		execlist.extend(prog_input.split(' '))
 		p = subprocess.Popen(execlist, stdout=log, stderr=log)
 		p.wait()
+		if target_IR == "echoClient.ll":
+			try:
+				server.terminate()
+			except:
+				print ("ERROR: Unable to terminate echoServer.ll in profile for:", work_dir)
 		if p.returncode != 0:
 			print ("ERROR: profile failed for:", work_dir, target_IR)
 			return -1, None
 		else:
 			print ("MSG: profile successed for:", work_dir, target_IR, prog_input)
-	if target_IR == "echoClient.ll":
-		server.terminate()
 
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
-			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")])
+			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
 		execlist = [injectfault_script, '--CLI', "./llfi/"+faultinjection_exe]
 		execlist.extend(prog_input.split(' '))
@@ -52,7 +55,10 @@ def callLLFI(work_dir, target_IR, prog_input):
 			"process":p}
 		if target_IR == "echoClient.ll":
 			p.wait()
-			server.terminate()
+			try:
+				server.terminate()
+			except:
+				print ("ERROR: Unable to terminate echoServer.ll in injectfault for", work_dir)
 			
 	return 0, t
 
