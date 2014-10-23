@@ -18,6 +18,7 @@ build/
 *.ll
 *.bc
 *.o
+*.exe
 
 # gedit backup files
 *~
