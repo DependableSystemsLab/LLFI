@@ -69,7 +69,7 @@ bool FIRegSelector::isRegofInstInjectable(Value *reg, Instruction *inst) {
       return false;
     }
   } else {
-    if (isa<BasicBlock>(reg) || isa<PHINode>(inst) || isa<Constant>(reg))
+    if (isa<BasicBlock>(reg) || isa<PHINode>(inst))
       return false;
   }
   return true;

@@ -7,9 +7,9 @@ compileOption:
             - NoOpen(API)
 
     regSelMethod: customregselector
-    customRegSelector: Automatic
+    customRegSelector: NoOpen(API)
 
 runOption:
     - run:
         numOfRuns: 3
-        fi_type: AutoInjection
+        fi_type: NoOpen(API)

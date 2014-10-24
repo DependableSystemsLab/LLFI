@@ -51,8 +51,10 @@ namespace llfi{
                 Function* called_func = CI->getCalledFunction();
                 if(called_func == NULL) return false;
                 std::string func_name = std::string(called_func->getName());
-                if(funcNames.find(func_name) != funcNames.end())    return true;
-                else return false;
+                for(std::set<std::string>::iterator SI = funcNames.begin(); SI != funcNames.end(); SI++){
+                	if(func_name.find(*SI) != std::string::npos)	return true;
+                }
+                return false;
             }
         }
     };

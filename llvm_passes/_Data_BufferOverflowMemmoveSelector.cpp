@@ -56,6 +56,6 @@ namespace llfi{
             }
         }
     };
-    static RegisterFIInstSelector A( "BufOverflowMemmove(Data)", new _Data_BufferOverflowMemmoveInstSelector());
-    static RegisterFIRegSelector B("BufOverflowMemmove(Data)", new FuncArgRegSelector(2));
+    static RegisterFIInstSelector A( "BufferOverflowMemmove(Data)", new _Data_BufferOverflowMemmoveInstSelector());
+    static RegisterFIRegSelector B("BufferOverflowMemmove(Data)", new FuncArgRegSelector(2));
 }

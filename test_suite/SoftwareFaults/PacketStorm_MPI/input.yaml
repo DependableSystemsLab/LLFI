@@ -1,4 +1,4 @@
-defaultTimeOut: 1000
+defaultTimeOut: 200
 
 compileOption:
     instSelMethod:
@@ -11,5 +11,5 @@ compileOption:
 
 runOption:
     - run:
-        numOfRuns: 3
+        numOfRuns: 2
         fi_type: AutoInjection
