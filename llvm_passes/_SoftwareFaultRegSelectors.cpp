@@ -19,6 +19,10 @@ namespace llfi {
             }
         }
     }
+    bool FuncArgRegSelector::isRegofInstFITarget(Value *reg, Instruction *inst, int pos){
+    	if(specified_arg == true)
+	    	return isRegofInstFITarget(reg, inst) && pos == this->pos_argument;
+    }
 
     bool FuncDestRegSelector::isRegofInstFITarget(Value *reg, Instruction *inst){    
         if(isa<CallInst>(inst) == false){

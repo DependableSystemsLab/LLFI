@@ -20,16 +20,19 @@ namespace llfi {
 		int pos_argument;
 		bool specified_arg;
 		virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
+		virtual bool isRegofInstFITarget(Value* reg, Instruction* inst, int pos);
 	};
 	
 	class FuncDestRegSelector: public FIRegSelector {
 	private:
 		virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
+		
 	};
 
 	class RetValRegSelector: public FIRegSelector {
 	private:
 		virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
+		
 	};
 
 }

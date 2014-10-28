@@ -1,4 +1,4 @@
-defaultTimeout: 1000
+defaultTimeout: 100
 
 compileOption:
     instSelMethod:
