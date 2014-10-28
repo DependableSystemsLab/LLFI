@@ -5,6 +5,7 @@ import sys
 import shutil
 import yaml
 import subprocess
+import time
 
 instrument_script="instrument"
 profile_script="profile"
@@ -29,6 +30,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 		if target_IR == "echoClient.ll":
 			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
 			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
+			time.sleep(2)
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
 		execlist = [profile_script, '--CLI', "./llfi/"+profile_exe]
 		execlist.extend(prog_input.split(' '))
@@ -50,6 +52,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 		if target_IR == "echoClient.ll":
 			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
 			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
+			time.sleep(2)
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
 		execlist = [injectfault_script, '--CLI', "./llfi/"+faultinjection_exe]
 		execlist.extend(prog_input.split(' '))
