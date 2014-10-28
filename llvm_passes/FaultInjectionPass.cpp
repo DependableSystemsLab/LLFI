@@ -44,18 +44,26 @@ std::string FaultInjectionPass::getFIFuncNameforType(const Type *type) {
 }
 
 void FaultInjectionPass::insertInjectionFuncCall(
-    std::map<Instruction*, std::list< Value* >* > *inst_regs_map, Module &M) {
+    std::map<Instruction*, std::list< int >* > *inst_regs_map, Module &M) {
 
-  for (std::map<Instruction*, std::list< Value* >* >::iterator inst_reg_it =
+  for (std::map<Instruction*, std::list< int >* >::iterator inst_reg_it =
        inst_regs_map->begin(); inst_reg_it != inst_regs_map->end(); 
        ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
-    std::list<Value* > *fi_regs = inst_reg_it->second;
+    std::list<int> *fi_reg_pos_list = inst_reg_it->second;
     unsigned reg_index = 0;
-    unsigned total_reg_num = fi_regs->size();
-    for (std::list<Value* >::iterator reg_it = fi_regs->begin(); 
-         reg_it != fi_regs->end(); ++reg_it, ++reg_index) {
-      Value *fi_reg = *reg_it;
+    unsigned total_reg_num = fi_reg_pos_list->size();
+    for (std::list<int>::iterator reg_pos_it = fi_reg_pos_list->begin(); 
+         reg_pos_it != fi_reg_pos_list->end(); ++reg_pos_it, ++reg_index) {
+      /*if(isa<GetElementPtrInst>(fi_inst)){
+        GetElementPtrInst* gepi = dyn_cast<GetElementPtrInst>(fi_inst);
+        gepi->setIsInBounds(false);
+      }*/
+
+      Value* fi_reg = NULL;
+      if(*reg_pos_it == DST_REG_POS)  fi_reg = fi_inst;
+      else fi_reg = fi_inst->getOperand(*reg_pos_it);
+      if(isa<Constant>(fi_reg))  continue;
       Type *returntype = fi_reg->getType();
       LLVMContext &context = M.getContext();
       Type *i64type = Type::getInt64Ty(context);
@@ -114,23 +122,24 @@ void FaultInjectionPass::insertInjectionFuncCall(
           user->replaceUsesOfWith(fi_inst, ficall);
           
           // update the selected inst pool
-          if (Instruction *use_inst = dyn_cast<Instruction>(user)) {
+          /*if (Instruction *use_inst = dyn_cast<Instruction>(user)) {
             if (inst_regs_map->find(use_inst) != inst_regs_map->end()) {
-              std::list<Value*> *reg_list = (*inst_regs_map)[use_inst];
+              std::list<int> *reg_pos_list = (*inst_regs_map)[use_inst];
               
-              for (std::list<Value*>::iterator reg_it = reg_list->begin();
-                   reg_it != reg_list->end(); ++reg_it) {
-                if (*reg_it == fi_inst) {
-                  *reg_it = ficall;
+              for (std::list<int>::iterator reg_pos_it = reg_pos_list->begin();
+                   reg_pos_it != reg_pos_list->end(); ++reg_pos_it) {
+                if (use_inst->getOperand(*reg_pos_it) == fi_inst) {
+                  use_inst->setOperand(*reg_pos_it, ficall);
                 }
               }
             }
-          }
+          }*/
         }
         
       } else {
         // inject into source
-        fi_inst->replaceUsesOfWith(fi_reg, ficall);
+        //fi_inst->replaceUsesOfWith(fi_reg, ficall);
+        fi_inst->setOperand(*reg_pos_it, ficall);
       }
     }
   }
@@ -209,7 +218,7 @@ void FaultInjectionPass::createInjectionFunctions(Module &M) {
 bool FaultInjectionPass::runOnModule(Module &M) {
   checkforMainFunc(M);
 
-  std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
+  std::map<Instruction*, std::list< int >* > *fi_inst_regs_map;
   Controller *ctrl = Controller::getInstance(M);
   ctrl->getFIInstRegsMap(&fi_inst_regs_map);
   insertInjectionFuncCall(fi_inst_regs_map, M);

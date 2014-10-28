@@ -29,7 +29,7 @@ class FaultInjectionPass: public ModulePass {
   void finalize(Module& M);
 
   void insertInjectionFuncCall(
-      std::map<Instruction*, std::list< Value* >* > *inst_regs_map, Module &M);
+      std::map<Instruction*, std::list< int >* > *inst_regs_map, Module &M);
   void createInjectionFuncforType(Module &M, Type *functype, 
                                   std::string &funcname, Constant *fi_func, 
                                   Constant *pre_func);

@@ -253,12 +253,13 @@ Controller::~Controller() {
 }
 
 void Controller::dump() const {
-  for (std::map<Instruction*, std::list< Value* > *>::const_iterator inst_it =
+  for (std::map<Instruction*, std::list< int > *>::const_iterator inst_it =
        fi_inst_regs_map.begin(); inst_it != fi_inst_regs_map.end(); ++inst_it) {
     errs() << "Selected instruction " << *(inst_it->first) << "\nRegs:\n";
-    for (std::list<Value*>::const_iterator reg_it = inst_it->second->begin();
+    for (std::list<int>::const_iterator reg_it = inst_it->second->begin();
          reg_it != inst_it->second->end(); ++reg_it) {
-      errs() << "\t" << **reg_it << "\n";
+      if(*reg_it == DST_REG_POS)  errs() << "\t" << *(inst_it->first) << "\n";
+      else errs() << "\t" << inst_it->first->getOperand(*reg_it) << "\n";
     }
     errs() << "\n";
   }

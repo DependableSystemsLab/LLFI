@@ -11,6 +11,8 @@
 #include <list>
 #include <string>
 
+#define DST_REG_POS -1
+
 using namespace llvm;
 
 namespace llfi {
@@ -38,7 +40,7 @@ class Controller {
 
  public:
   void getFIInstRegsMap(
-      std::map<Instruction*, std::list<Value*>* > **fiinstreg) {
+      std::map<Instruction*, std::list<int>* > **fiinstreg) {
     *fiinstreg = &fi_inst_regs_map;
   }
   void dump() const;
@@ -63,7 +65,7 @@ class Controller {
   // Assumption: changes on instructions do not have temporal relations
   // That's why we can use unordered map instead of list
   // TODO: replace tree-based map to hashtable-based map for performance
-  std::map<Instruction*, std::list< Value* >* > fi_inst_regs_map;  
+  std::map<Instruction*, std::list< int >* > fi_inst_regs_map;  
 
  private:
   FIInstSelectorManager *fiinstselector;

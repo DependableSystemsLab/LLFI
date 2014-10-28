@@ -2,6 +2,7 @@
 #define FI_REG_SELECTOR_H
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/Value.h"
+#include "Controller.h"
 
 #include <set>
 #include <map>
@@ -12,7 +13,7 @@ namespace llfi {
 class FIRegSelector {
  public:
   void getFIInstRegMap(const std::set< Instruction* > *instset, 
-                std::map<Instruction*, std::list< Value* >* > *instregmap);
+                std::map<Instruction*, std::list< int >* > *instregmap);
 
  private:
   virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) = 0;

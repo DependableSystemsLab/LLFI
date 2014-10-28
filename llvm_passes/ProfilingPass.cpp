@@ -34,16 +34,16 @@ namespace llfi {
 bool ProfilingPass::runOnModule(Module &M) {
 	LLVMContext &context = M.getContext();
 
-  std::map<Instruction*, std::list< Value* >* > *fi_inst_regs_map;
+  std::map<Instruction*, std::list< int >* > *fi_inst_regs_map;
   Controller *ctrl = Controller::getInstance(M);
   ctrl->getFIInstRegsMap(&fi_inst_regs_map);
 
-  for (std::map<Instruction*, std::list< Value* >* >::const_iterator 
+  for (std::map<Instruction*, std::list< int >* >::const_iterator 
        inst_reg_it = fi_inst_regs_map->begin(); 
        inst_reg_it != fi_inst_regs_map->end(); ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
-    std::list<Value* > *fi_regs = inst_reg_it->second;
-    Value *fi_reg = *(fi_regs->begin());
+    std::list<int > *fi_regs = inst_reg_it->second;
+    Value *fi_reg = *(fi_regs->begin())==DST_REG_POS ? fi_inst : (fi_inst->getOperand(*(fi_regs->begin())));
     Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
     
     // function declaration
