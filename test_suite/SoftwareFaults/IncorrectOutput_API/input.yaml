@@ -1,6 +1,3 @@
-kernelOption:
-    - forceRun
-
 defaultTimeOut: 1000
 
 compileOption:

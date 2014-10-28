@@ -1,7 +1,4 @@
-kernelOption:
-    - forceRun
-
-timeOut: 1000
+defaultTimeOut: 100
 
 compileOption:
     instSelMethod:
