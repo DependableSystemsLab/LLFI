@@ -55,15 +55,19 @@ void FaultInjectionPass::insertInjectionFuncCall(
     unsigned total_reg_num = fi_reg_pos_list->size();
     for (std::list<int>::iterator reg_pos_it = fi_reg_pos_list->begin(); 
          reg_pos_it != fi_reg_pos_list->end(); ++reg_pos_it, ++reg_index) {
-      /*if(isa<GetElementPtrInst>(fi_inst)){
+      if(isa<GetElementPtrInst>(fi_inst)){
         GetElementPtrInst* gepi = dyn_cast<GetElementPtrInst>(fi_inst);
         gepi->setIsInBounds(false);
-      }*/
+      }
+      if(isa<CallInst>(fi_inst)){
+        CallInst* ci = dyn_cast<CallInst>(fi_inst);
+        ci->setTailCall(false);
+      }
 
       Value* fi_reg = NULL;
       if(*reg_pos_it == DST_REG_POS)  fi_reg = fi_inst;
       else fi_reg = fi_inst->getOperand(*reg_pos_it);
-      if(isa<Constant>(fi_reg))  continue;
+      //if(isa<Constant>(fi_reg))  continue;
       Type *returntype = fi_reg->getType();
       LLVMContext &context = M.getContext();
       Type *i64type = Type::getInt64Ty(context);
@@ -313,5 +317,5 @@ Constant *FaultInjectionPass::getLLFILibPostInjectionFunc(Module &M) {
 }
 
 static RegisterPass<FaultInjectionPass> X(
-    "faultinjectionpass", "Fault injection pass", false, false);
+    "faultinjectionpass", "Fault injection pass", false, true);
 }

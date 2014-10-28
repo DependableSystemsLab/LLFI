@@ -10,7 +10,7 @@ class RegLocBasedFIRegSelector: public FIRegSelector {
 
  private:
   virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
-
+  virtual bool isRegofInstFITarget(Value *reg, Instruction *inst, int pos);
  private:
   FIRegLoc firegloc;
 };
