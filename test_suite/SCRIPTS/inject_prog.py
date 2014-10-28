@@ -28,6 +28,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
 			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
+			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
 		execlist = [profile_script, '--CLI', "./llfi/"+profile_exe]
 		execlist.extend(prog_input.split(' '))
@@ -36,6 +37,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 		if target_IR == "echoClient.ll":
 			try:
 				server.terminate()
+				print ("MSG: echoServer.ll terminated for profile.\n")
 			except:
 				print ("ERROR: Unable to terminate echoServer.ll in profile for:", work_dir)
 		if p.returncode != 0:
@@ -47,6 +49,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
 			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
+			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
 		execlist = [injectfault_script, '--CLI', "./llfi/"+faultinjection_exe]
 		execlist.extend(prog_input.split(' '))
@@ -57,6 +60,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 			p.wait()
 			try:
 				server.terminate()
+				print ("MSG: echoServer.ll terminated for profile.\n")
 			except:
 				print ("ERROR: Unable to terminate echoServer.ll in injectfault for", work_dir)
 			
