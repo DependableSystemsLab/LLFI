@@ -162,10 +162,10 @@ def build():
   py_File.close()
 
   make_File = open(llvm_paths_make, 'w')
-  py_File.write("LLVM_DST_ROOT = " + LLVM_DST_ROOT + '\n')
-  py_File.write("LLVM_SRC_ROOT = " + LLVM_SRC_ROOT + '\n')
-  py_File.write("LLVM_GXX_BIN_DIR = " + LLVM_GXX_BIN_DIR + '\n')
-  py_File.close()
+  make_File.write("LLVM_DST_ROOT = " + LLVM_DST_ROOT + '\n')
+  make_File.write("LLVM_SRC_ROOT = " + LLVM_SRC_ROOT + '\n')
+  make_File.write("LLVM_GXX_BIN_DIR = " + LLVM_GXX_BIN_DIR + '\n')
+  make_File.close()
 
 
 # build
