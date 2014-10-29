@@ -1,5 +1,7 @@
-LLVMDIS = llvm-dis
-LLVMGCC = clang
-LLVMGXX = clang++
-LLVMLD = llvm-link
+include ../../../config/llvm_paths.make
+
+LLVMDIS = $(LLVM_DST_ROOT)/bin/llvm-dis
+LLVMGCC = $(LLVM_GXX_BIN_DIR)clang
+LLVMGXX = $(LLVM_GXX_BIN_DIR)clang++
+LLVMLD = $(LLVM_DST_ROOT)/bin/llvm-link
 COMPILE_FLAGS = -emit-llvm

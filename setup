@@ -141,12 +141,13 @@ def build():
   script_path = os.path.realpath(os.path.dirname(__file__))
   llvm_paths_cmake = os.path.join(script_path, "config/llvm_paths.cmake")
   llvm_paths_py = os.path.join(script_path, "config/llvm_paths.py")
+  llvm_paths_make = os.path.join(script_path, "config/llvm_paths.make")
   
   cmake_File = open(llvm_paths_cmake, "w")
   LLVM_DST_ROOT = os.path.realpath(required_configs['LLVM_DST_ROOT'])
   LLVM_SRC_ROOT = os.path.realpath(required_configs['LLVM_SRC_ROOT'])
   if optional_configs['LLVM_GXX_BIN_DIR'] != "":
-    LLVM_GXX_BIN_DIR = os.path.realpath(optional_configs['LLVM_GXX_BIN_DIR'])
+    LLVM_GXX_BIN_DIR = os.path.realpath(optional_configs['LLVM_GXX_BIN_DIR'])+'/'
   else:
     LLVM_GXX_BIN_DIR = ""
 
@@ -158,6 +159,12 @@ def build():
   py_File.write("LLVM_DST_ROOT = " + '"' + LLVM_DST_ROOT + '"\n')
   py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
   py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
+  py_File.close()
+
+  make_File = open(llvm_paths_make, 'w')
+  py_File.write("LLVM_DST_ROOT = " + LLVM_DST_ROOT + '\n')
+  py_File.write("LLVM_SRC_ROOT = " + LLVM_SRC_ROOT + '\n')
+  py_File.write("LLVM_GXX_BIN_DIR = " + LLVM_GXX_BIN_DIR + '\n')
   py_File.close()
 
 

@@ -6,6 +6,7 @@ project(config)
 
 copy(__init__.py __init__.py)
 copy(llvm_paths.py llvm_paths.py)
+copy(llvm_paths.make llvm_paths.make)
 
 genCopy()
 

@@ -7,11 +7,17 @@ import yaml
 import subprocess
 import time
 
-instrument_script="instrument"
-profile_script="profile"
-injectfault_script="injectfault"
+
+instrument_script = ""
+profile_script = ""
+injectfault_script = ""
+
 
 def callLLFI(work_dir, target_IR, prog_input):
+	global instrument_script
+	global profile_script
+	global injectfault_script
+
 	try:
 		os.chdir(work_dir)
 	except:
@@ -71,9 +77,18 @@ def callLLFI(work_dir, target_IR, prog_input):
 
 
 def inject_prog(num_threads, *prog_list):
+	global instrument_script
+	global profile_script
+	global injectfault_script
+
 	r = 0
 	suite = {}
 	script_dir = os.path.dirname(os.path.realpath(__file__))
+	llfi_bin_dir = os.path.join(script_dir, '../../bin')
+	instrument_script = os.path.join(llfi_bin_dir, "instrument")
+	profile_script = os.path.join(llfi_bin_dir, "profile")
+	injectfault_script = os.path.join(llfi_bin_dir, "injectfault")
+	
 	testsuite_dir = os.path.join(script_dir, os.pardir)
 	with open(os.path.join(testsuite_dir, "test_suite.yaml")) as f:
 		try:
