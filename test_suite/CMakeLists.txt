@@ -8,7 +8,6 @@ copydir(HardwareFaults HardwareFaults)
 copydir(SoftwareFaults SoftwareFaults)
 copydir(PROGRAMS PROGRAMS)
 copydir(SCRIPTS SCRIPTS)
-copydir(Traces Traces)
 copy(test_suite.yaml test_suite.yaml)
 
 genCopy()
