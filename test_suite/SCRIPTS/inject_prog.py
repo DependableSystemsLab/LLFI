@@ -28,7 +28,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
-			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
+			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=sys.stdout, stderr=sys.stdout)
 			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
@@ -50,7 +50,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
-			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=log, stderr=log)
+			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=sys.stdout, stderr=sys.stdout)
 			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
