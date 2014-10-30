@@ -5,13 +5,16 @@ SERVER=echoServer
 ## llvm root and clang
 include ../Makefile.common
 
-LINKED = $(CLIENT).bc $(SERVER).bc
-LL_FILES = $(CLIENT).ll $(SERVER).ll
-
+LINKED = $(CLIENT).bc
+LL_FILE = $(CLIENT).ll
+EXE_FILE = $(SERVER).exe
 ## other choice
 default: all
 
-all: $(LL_FILES)
+all: $(LL_FILE) $(EXE_FILE)
+
+%.exe: %.c
+	$(LLVMGCC) $< -c -o $@
 
 %.ll: %.bc
 	$(LLVMDIS) $< -o $@
@@ -20,4 +23,4 @@ all: $(LL_FILES)
 	$(LLVMGCC) $(COMPILE_FLAGS) $< -c -o $@
 
 clean:
-	$(RM) -f *.bc *.ll *.bc
+	$(RM) -f *.bc *.ll *.bc *.exe

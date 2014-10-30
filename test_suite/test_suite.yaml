@@ -9,7 +9,7 @@ PROGRAMS:
         - factorial.ll
     mpi:
         - echoClient.ll
-        - echoServer.ll
+        - echoServer.exe
         - message.txt
     deadlock:
         - deadlock.ll

@@ -6,12 +6,50 @@ import shutil
 import yaml
 import subprocess
 import time
+from threading  import Thread
 
+try:
+	from Queue import Queue, Empty
+except ImportError:
+	from queue import Queue, Empty  # python 3.x
+ON_POSIX = 'posix' in sys.builtin_module_names
 
 instrument_script = ""
 profile_script = ""
 injectfault_script = ""
 
+def enqueue_output(out, queue):
+	for line in iter(out.readline, b''):
+		queue.put(line)
+	out.close()
+
+def startEchoServer(work_dir):
+	print("using startEchoServer")
+	execlist = ["stdbuf", '-i0', '-o0', '-e0']
+	execlist.extend([os.path.join(work_dir, "echoServer.exe")])
+	server = subprocess.Popen(execlist, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	q = Queue()
+	t = Thread(target=enqueue_output, args=(server.stdout, q))
+	t.daemon = True # thread dies with the program
+	t.start()
+	count = 0
+	while server.poll() == None:
+		if count > 50:
+			server.terminate()
+			return startEchoServer(work_dir)
+		try:  line = q.get_nowait() # or q.get(timeout=.1)
+		except Empty:
+			print('no output yet')
+			count += 1
+			time.sleep(1)
+		else: 
+			print (line)
+			line = str(line)
+			if "Server running...waiting for connections." in line:
+				return server
+			else:
+				count += 1
+				time.sleep(1)
 
 def callLLFI(work_dir, target_IR, prog_input):
 	global instrument_script
@@ -34,7 +72,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
-			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=sys.stdout, stderr=sys.stdout)
+			server = startEchoServer(work_dir)
 			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
@@ -45,9 +83,9 @@ def callLLFI(work_dir, target_IR, prog_input):
 		if target_IR == "echoClient.ll":
 			try:
 				server.terminate()
-				print ("MSG: echoServer.ll terminated for profile.\n")
+				print ("MSG: echoServer.exe terminated for profile.\n")
 			except:
-				print ("ERROR: Unable to terminate echoServer.ll in profile for:", work_dir)
+				print ("ERROR: Unable to terminate echoServer.exe in profile for:", work_dir)
 		if p.returncode != 0:
 			print ("ERROR: profile failed for:", work_dir, target_IR)
 			return -1, None
@@ -56,7 +94,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
-			server = subprocess.Popen(["lli", os.path.join(work_dir, "echoServer.ll")], stdout=sys.stdout, stderr=sys.stdout)
+			server = startEchoServer(work_dir)
 			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
@@ -69,9 +107,9 @@ def callLLFI(work_dir, target_IR, prog_input):
 			p.wait()
 			try:
 				server.terminate()
-				print ("MSG: echoServer.ll terminated for profile.\n")
+				print ("MSG: echoServer.exe terminated for profile.\n")
 			except:
-				print ("ERROR: Unable to terminate echoServer.ll in injectfault for", work_dir)
+				print ("ERROR: Unable to terminate echoServer.exe in injectfault for", work_dir)
 			
 	return 0, t
 

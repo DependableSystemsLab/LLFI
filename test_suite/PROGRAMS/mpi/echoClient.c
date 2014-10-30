@@ -50,7 +50,8 @@ main(int argc, char **argv)
   //while (fgets(sendline, MAXLINE, stdin) != NULL) {
   
     send(sockfd, sendline, strlen(sendline), 0);
-    count ++;	
+    count ++;
+    sleep(2);
     if (recv(sockfd, recvline, MAXLINE,0) == 0){
      
       //error: server terminated prematurely
@@ -61,6 +62,7 @@ main(int argc, char **argv)
      
     printf("%s", "String received from the server: ");
     fputs(recvline, stdout);
+    break;
     //{ exit(5);}
   }   
   exit(0);
