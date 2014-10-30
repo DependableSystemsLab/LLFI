@@ -14,7 +14,7 @@ default: all
 all: $(LL_FILE) $(EXE_FILE)
 
 %.exe: %.c
-	$(LLVMGCC) $< -c -o $@
+	$(LLVMGCC) $< -o $@
 
 %.ll: %.bc
 	$(LLVMDIS) $< -o $@
