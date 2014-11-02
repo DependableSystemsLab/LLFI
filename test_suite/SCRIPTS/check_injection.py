@@ -6,6 +6,30 @@ import shutil
 import yaml
 import subprocess
 
+def examineTraceFile(work_dir):
+	try:
+		inputyaml = open(os.path.join(work_dir, 'input.yaml'), 'r')
+	except:
+		print ("FAIL: (ERROR) input.yaml not found! work_dir:", work_dir)
+		return False
+
+	config_dict = yaml.load(inputyaml)
+	try:
+		if config_dict['compileOption']['tracingPropagation'] == True:
+			## we should have trace file
+			tracefile = os.path.join(work_dir, 'llfi', 'baseline', 'llfi.stat.trace.prof.txt')
+			if os.path.isfile(tracefile) and os.path.getsize(tracefile):
+				return True
+			else:
+				return False
+		else:
+			## Tracing option disabled, pass
+			return True
+	except:
+		## Tracing option disabled, pass
+		return True
+
+
 def checkLLFIDir(work_dir, target_IR, prog_input):
 	llfi_dir = os.path.join(work_dir, "llfi")
 	if os.path.isdir(llfi_dir) == False:
@@ -26,6 +50,9 @@ def checkLLFIDir(work_dir, target_IR, prog_input):
 	stats = [f for f in os.listdir(stats_dir)]
 	if len(stats) == 0:
 		return "FAIL: No stats file found!"
+
+	if examineTraceFile(work_dir) == False:
+		return "FAIL: Tracing was enabled byt trace file not generated!"
 
 	return "PASS"
 

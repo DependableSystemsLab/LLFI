@@ -70,3 +70,34 @@ SoftwareFaults:
     WrongSavedAddress_IO: memcpy1
     WrongSavedFormat_IO: memcpy1
     WrongSource_Data: memcpy1
+
+Traces:
+    factorial:
+        trace_prof: llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi.stat.trace.0-0.txt
+            - llfi.stat.trace.0-1.txt
+            - llfi.stat.trace.0-2.txt
+            - llfi.stat.trace.0-3.txt
+            - llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot
+
+    BufferOverflow_API:
+        trace_prof: llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi.stat.trace.0-0.txt
+            - llfi.stat.trace.0-1.txt
+            - llfi.stat.trace.0-2.txt
+            - llfi.stat.trace.0-3.txt
+            - llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot
+
+    BufferOverflowMemmove_Data:
+        trace_prof: llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi.stat.trace.0-0.txt
+            - llfi.stat.trace.0-1.txt
+            - llfi.stat.trace.0-2.txt
+            - llfi.stat.trace.0-3.txt
+            - llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot

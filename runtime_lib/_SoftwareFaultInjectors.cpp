@@ -106,8 +106,8 @@ static RegisterFaultInjector EA("InvalidMessage(MPI)", new ChangeValueInjector(+
 static RegisterFaultInjector EB("NoDrain(MPI)", new ChangeValueInjector(+5000, true));
 static RegisterFaultInjector EC("BufferOverflow(API)", new ChangeValueInjector(+45, false));
 static RegisterFaultInjector ED("BufferUnderflow(API)", new ChangeValueInjector(-40, false));
-static RegisterFaultInjector EE("BufOverflowMemmove(Data)", new ChangeValueInjector(+45, false));
-static RegisterFaultInjector EF("BufOverflowMalloc(Data)", new ChangeValueInjector(-40, false));
+static RegisterFaultInjector EE("BufferOverflowMemmove(Data)", new ChangeValueInjector(+45, false));
+static RegisterFaultInjector EF("BufferOverflowMalloc(Data)", new ChangeValueInjector(-40, false));
 static RegisterFaultInjector EG("UnderAccumulator(Res)", new ChangeValueInjector(+45, false));
 static RegisterFaultInjector EH("PacketStorm(MPI)", new ChangeValueInjector(-40, false));
 
