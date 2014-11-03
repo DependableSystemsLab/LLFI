@@ -1,0 +1,27 @@
+defaultTimeOut: 100
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - BufferOverflowMemmove(Data)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+    
+    tracingPropagation: True # trace dynamic instruction values.
+
+    tracingPropagationOption:
+        maxTrace: 250 # max number of instructions to trace during fault injection run
+        debugTrace: False
+        generateCDFG: True
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection
+
+
+
+
+

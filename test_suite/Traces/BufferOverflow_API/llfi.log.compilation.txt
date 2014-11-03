@@ -1,0 +1,30 @@
+
+
+Start of a pass
+The selected instruction   %size = alloca i32, align 4, !llfi_index !2does not have any valid registers for fault injection
+The selected instruction   %src = alloca i8*, align 8, !llfi_index !3does not have any valid registers for fault injection
+The selected instruction   %dest = alloca i8*, align 8, !llfi_index !4does not have any valid registers for fault injection
+The selected instruction   %fp = alloca %struct._IO_FILE*, align 8, !llfi_index !5does not have any valid registers for fault injection
+The selected instruction   %24 = load i8** %src, align 8, !llfi_index !37does not have any valid registers for fault injection
+The selected instruction   %25 = load i32* %size, align 4, !llfi_index !38does not have any valid registers for fault injection
+The selected instruction   %26 = sext i32 %25 to i64, !llfi_index !39does not have any valid registers for fault injection
+The selected instruction   %27 = load %struct._IO_FILE** %fp, align 8, !llfi_index !40does not have any valid registers for fault injection
+The selected instruction   %41 = load i8** %dest, align 8, !llfi_index !56does not have any valid registers for fault injection
+The selected instruction   %42 = load i32* %size, align 4, !llfi_index !57does not have any valid registers for fault injection
+The selected instruction   %43 = sext i32 %42 to i64, !llfi_index !58does not have any valid registers for fault injection
+The selected instruction   %44 = load %struct._IO_FILE** %fp, align 8, !llfi_index !59does not have any valid registers for fault injection
+
+
+Start of a pass
+The selected instruction   %size = alloca i32, align 4, !llfi_index !2does not have any valid registers for fault injection
+The selected instruction   %src = alloca i8*, align 8, !llfi_index !3does not have any valid registers for fault injection
+The selected instruction   %dest = alloca i8*, align 8, !llfi_index !4does not have any valid registers for fault injection
+The selected instruction   %fp = alloca %struct._IO_FILE*, align 8, !llfi_index !5does not have any valid registers for fault injection
+The selected instruction   %24 = load i8** %src, align 8, !llfi_index !37does not have any valid registers for fault injection
+The selected instruction   %25 = load i32* %size, align 4, !llfi_index !38does not have any valid registers for fault injection
+The selected instruction   %26 = sext i32 %25 to i64, !llfi_index !39does not have any valid registers for fault injection
+The selected instruction   %27 = load %struct._IO_FILE** %fp, align 8, !llfi_index !40does not have any valid registers for fault injection
+The selected instruction   %41 = load i8** %dest, align 8, !llfi_index !56does not have any valid registers for fault injection
+The selected instruction   %42 = load i32* %size, align 4, !llfi_index !57does not have any valid registers for fault injection
+The selected instruction   %43 = sext i32 %42 to i64, !llfi_index !58does not have any valid registers for fault injection
+The selected instruction   %44 = load %struct._IO_FILE** %fp, align 8, !llfi_index !59does not have any valid registers for fault injection

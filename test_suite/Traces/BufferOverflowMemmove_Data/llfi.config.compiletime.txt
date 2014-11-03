@@ -1,0 +1,4 @@
+failure_class=Data
+failure_mode=BufferOverflow
+targets=memcpy()/memmove()
+injector=ChangeValueInjector

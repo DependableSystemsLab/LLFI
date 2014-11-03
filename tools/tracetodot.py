@@ -58,6 +58,7 @@ def findPath():
 	global currentpath, scriptdir
 
 	currentpath = os.getcwd()
+	#print (currentpath)
 
 	scriptdir = os.path.dirname(os.path.abspath(__file__))
 
@@ -66,6 +67,7 @@ def findPath():
 def makeTraceOutputFolder():
 	global traceOutputFolder, goldenTraceFilePath
 	traceOutputFolder = os.path.abspath(os.path.join(currentpath, "../trace_report_output"))
+	#print (traceOutputFolder)
 	goldenTraceFilePath = os.path.abspath(os.path.join(currentpath, "../baseline/llfi.stat.trace.prof.txt"))
 	if not os.path.exists(traceOutputFolder):
 		os.makedirs(traceOutputFolder)

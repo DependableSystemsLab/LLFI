@@ -1,0 +1,4 @@
+failure_class=HardwareFault
+failure_mode=SpecifiedInstructionTypes
+targets=<include list in yaml>
+injector=<fi_type>
