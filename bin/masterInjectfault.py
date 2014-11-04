@@ -54,7 +54,7 @@ def UpdateInputYaml():
   f.close()
   howmanymodes()
   for i in range(0, num):
-    path= "../MFM%s" %i
+    path= "./MFM%s" %i
     os.chdir(path)
     f = open("input.yaml", "r")
     slave=list(f)
@@ -65,6 +65,7 @@ def UpdateInputYaml():
       for lines in slave:
         print(lines, file = myfile)
       myfile.close 
+    os.chdir(basedir)
 ################################################################################ 
 def howmanymodes():
   global num
@@ -82,12 +83,14 @@ def howmanymodes():
 def callinjectfault():
   if env =="--CLI":
     for i in range (0,num):
-      path= "../MFM%s" %i
+      path= "./MFM%s" %i
       os.chdir(path)
       args_num= len(sys.argv)
-      result = subprocess.check_output([injectfaultPath] + sys.argv[1:])
+      #result = subprocess.check_output([injectfaultPath] + sys.argv[1:])
+      result = subprocess.check_output([injectfaultPath, '--CLI','./llfi/%s-faultinjection.exe' %basename] + sys.argv[3:])
       print ("Current path is:", path)
       print (str(result, encoding='UTF-8'))
+      os.chdir(basedir)
   elif env== "--GUI":
     for i in range (0,num):
       path= GUIMFMdir+"MFM%s" %i

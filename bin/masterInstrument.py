@@ -33,29 +33,33 @@ script_path = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
-prog = os.path.basename(sys.argv[1])
+prog = os.path.basename(sys.argv[-1])
 #infile=sys.argv[2]
 basename= os.path.splitext(prog)[0]
 basedir= os.getcwd()
 #print (basedir)
 
 instrumentPath = os.path.join(llvm_paths.LLVM_DST_ROOT, "../llfi/bin/instrument")
-srcpath = os.path.dirname(os.path.join(basedir, sys.argv[1]))
-srcfile = os.path.join(basedir, sys.argv[1])
+srcpath = os.path.dirname(os.path.join(basedir, sys.argv[-1]))
+srcfile = os.path.join(basedir, sys.argv[-1])
 srcyaml = os.path.join(srcpath, "input.yaml")
 srcsample = os.path.join(srcpath, "sample.txt")
 MFMP = os.path.join(srcpath, "Multiple-Failure-Modes")
 #print(os.path.dirname(sys.argv[1]))
 if os.path.exists(MFMP):
 	shutil.rmtree(MFMP)
-srcdirect = os.path.dirname(sys.argv[1])
+srcdirect = os.path.dirname(sys.argv[-1])
 newyamldir = os.path.join(srcdirect, "Multiple-Failure-Modes")
 #if not os.path.exists(MFMP):
 #  os.makedirs(newyamldir)
 os.makedirs(newyamldir)
 
-shutil.copy(srcfile, MFMP)
-shutil.copy(srcyaml, MFMP)
+fs = [f for f in os.listdir(basedir) if os.path.isfile(f)]
+for f in fs:
+  shutil.copy(f, MFMP)
+
+# shutil.copy(srcfile, MFMP)
+# shutil.copy(srcyaml, MFMP)
 #shutil.copy(srcsample, MFMP)
 os.chdir(MFMP)
 ########################################################################################################
@@ -120,7 +124,9 @@ def callinstrument(prog):
   for j in range (0, size):  
     path = "../MFM%s" %j
     os.chdir( path )
-    result = subprocess.check_output([instrumentPath, '-lpthread', '--readable',prog])
+    command  = [instrumentPath]
+    command.extend(sys.argv[1:])
+    result = subprocess.check_output(command)
     print ("instrumentation done")
 #######################################################################################################
 
@@ -131,4 +137,4 @@ def main(prog):
 ################################################################################
 
 if __name__ == '__main__':
-	main(sys.argv[1])
+	main(sys.argv[1:])

@@ -64,28 +64,30 @@ def howmanymodes():
 #####################################################################################
 def callprofiling():
 
-  if(sys.argv[3:]):
-    optionlist = sys.argv[3:]
-    tmpString = optionlist[0]
-    inputsrcFile = basedir+"/"+tmpString
-    for x in range (0,len(MFM)-1):
-      GUIMFM = GUIMFMdir + "MFM%s" %x
-      shutil.copy(inputsrcFile, GUIMFM)
+  # if(sys.argv[3:]):
+  #   optionlist = sys.argv[3:]
+  #   tmpString = optionlist[0]
+  #   inputsrcFile = basedir+"/"+tmpString
+  #   for x in range (0,len(MFM)-1):
+  #     GUIMFM = GUIMFMdir + "MFM%s" %x
+  #     shutil.copy(inputsrcFile, GUIMFM)
   
   if env =="--CLI":
     for i in range (0,num):
-      path= "../MFM%s" %i
+      path= "./MFM%s" %i
       os.chdir(path)
       args_num= len(sys.argv)
-      result = subprocess.check_output([profilePath] + sys.argv[1:])
+      #result = subprocess.check_output([profilePath] + sys.argv[1:])
+      result = subprocess.check_output([profilePath, '--CLI','./llfi/%s-profiling.exe' %basename] + sys.argv[3:])
       print ("Current path is:", path)
       print (str(result, encoding='UTF-8'))
+      os.chdir(basedir)
   elif env== "--GUI":
     for i in range (0,num):
       path= GUIMFMdir+"MFM%s" %i
       os.chdir(path)
       args_num= len(sys.argv)
-      result = subprocess.check_output([profilePath, '--CLI','llfi/%s.exe' %basename] + sys.argv[3:])
+      result = subprocess.check_output([profilePath, '--CLI','./llfi/%s.exe' %basename] + sys.argv[3:])
       
       print ("Current path is:", path)
       print (str(result, encoding='UTF-8'))
@@ -98,4 +100,4 @@ def main(argv):
 ################################################################################
 
 if __name__ == '__main__':
-	main(sys.argv[1])
+	main(sys.argv[1:])
