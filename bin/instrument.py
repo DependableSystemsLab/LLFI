@@ -220,6 +220,9 @@ def readCompileOption():
         # Generate list of options for attribute
         opts = [prefix + opt for opt in method[methodName][attr]]
         compileOptions.extend(opts)
+        # For customInstselector, only one instruction selector is allowed
+        if methodName == "customInstselector":
+        	break
       elif(attr == "options"):
         opts = [opt for opt in method[methodName]["options"]]
         compileOptions.extend(opts)

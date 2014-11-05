@@ -11,6 +11,9 @@ copy(Auto-discovery.py Auto-discovery)
 copy(masterInstrument.py masterInstrument)
 copy(masterProfile.py masterProfile)
 copy(masterInjectfault.py masterInjectfault)
+copy(batchInstrument.py batchInstrument)
+copy(batchProfile.py batchProfile)
+copy(batchInjectfault.py batchInjectfault)
 
 genCopy()
 
