@@ -48,7 +48,7 @@ def phraseMasterYaml():
 		sys.exit(-1)
 	return master_yaml_dict, model_list
 
-def callInjectfault(model_list):
+def callInjectfault(model_list, *argv):
 	num_failed = 0
 	for model in model_list:
 		workdir = os.path.join(basedir, "llfi-"+model)
@@ -57,7 +57,7 @@ def callInjectfault(model_list):
 		except:
 			print ("ERROR: Unable to change to directory:", workdir)
 			sys.exit(-1)
-		faultinjection_exe_name = sys.argv[1]
+		faultinjection_exe_name = argv[0]
 		if faultinjection_exe_name.endswith('.ll'):
 			faultinjection_exe_name = faultinjection_exe_name.split('.ll')[0]
 		elif faultinjection_exe_name.endswith('.bc'):
@@ -65,11 +65,11 @@ def callInjectfault(model_list):
 		faultinjection_exe_name = faultinjection_exe_name + '-faultinjection.exe'
 		command = [injectfault_script]
 		command.extend(['--CLI', './llfi/'+faultinjection_exe_name])
-		command.extend(sys.argv[2:])
+		command.extend(argv[1:])
 		print ("\nRun injectfault command:", ' '.join(command))
 		try:
 			o = subprocess.check_output(command, stderr=sys.stderr)
-		except CalledProcessError:
+		except subprocess.CalledProcessError:
 			print ("injectfault:", model, " failed!")
 			num_failed += 1
 		else:
@@ -78,14 +78,18 @@ def callInjectfault(model_list):
 		os.chdir(basedir)
 	return num_failed
 
-def main():
+def main(*argv):
 	master_yaml_dict, model_list = phraseMasterYaml()
-	r = callInjectfault(model_list)
+	r = callInjectfault(model_list, *argv)
 	return r
 
 if __name__ == "__main__":
 	if len(sys.argv[1:]) < 1 or sys.argv[1] == '--help' or sys.argv[1] == '-h':
 		usage()
 		sys.exit(0)
-	r = main()
+	if sys.argv[1] == '--CLI' or sys.argv[1] == '--GUI' or sys.argv[1] == '-e' or sys.argv[1] == '-u':
+		argv = sys.argv[2:]
+	else:
+		argv = sys.argv[1:]
+	r = main(*argv)
 	sys.exit(r)

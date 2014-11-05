@@ -101,3 +101,6 @@ Traces:
             - llfi/llfi_stat_output/llfi.stat.trace.0-3.txt
             - llfi/llfi_stat_output/llfi.stat.trace.0-4.txt
         cdfg_prof: llfi.stat.graph.dot
+
+BatchMode:
+    NoOpen_API_WrongMode_API_BufferUnderflow_API: memcpy1

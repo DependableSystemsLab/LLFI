@@ -17,6 +17,9 @@ ON_POSIX = 'posix' in sys.builtin_module_names
 instrument_script = ""
 profile_script = ""
 injectfault_script = ""
+batchinstrument_script = ""
+batchprofile_script = ""
+batchinjectfault_script = ""
 
 def enqueue_output(out, queue):
 	for line in iter(out.readline, b''):
@@ -113,11 +116,73 @@ def callLLFI(work_dir, target_IR, prog_input):
 			
 	return 0, t
 
+def callBatchLLFI(work_dir, target_IR, prog_input):
+	global batchinstrument_script
+	global batchprofile_script
+	global batchinjectfault_script
+
+	try:
+		os.chdir(work_dir)
+	except:
+		print ("ERROR: Unable to change directory to:", work_dir)
+		return -1, None
+	with open("llfi.test.log.instrument.txt", 'w', buffering=1) as log:
+		p = subprocess.Popen([batchinstrument_script, "--readable", "-lpthread", target_IR], stdout=log, stderr=log)
+		p.wait()
+		if p.returncode != 0:
+			print ("ERROR: batchInstrument failed for:", work_dir, target_IR)
+			return -1, None
+		else:
+			print ("MSG: batchInstrument successed for:", work_dir, target_IR)
+
+	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
+		if target_IR == "echoClient.ll":
+			server = startEchoServer(work_dir)
+			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
+			time.sleep(2)
+		execlist = [batchprofile_script, '--CLI', target_IR]
+		execlist.extend(prog_input.split(' '))
+		p = subprocess.Popen(execlist, stdout=log, stderr=log)
+		p.wait()
+		if target_IR == "echoClient.ll":
+			try:
+				server.terminate()
+				print ("MSG: echoServer.exe terminated for profile.\n")
+			except:
+				print ("ERROR: Unable to terminate echoServer.exe in profile for:", work_dir)
+		if p.returncode != 0:
+			print ("ERROR: profile failed for:", work_dir, target_IR)
+			return -1, None
+		else:
+			print ("MSG: profile successed for:", work_dir, target_IR, prog_input)
+
+	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
+		if target_IR == "echoClient.ll":
+			server = startEchoServer(work_dir)
+			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
+			time.sleep(2)
+		execlist = [batchinjectfault_script, '--CLI', target_IR]
+		execlist.extend(prog_input.split(' '))
+		p = subprocess.Popen(execlist, stdout=log, stderr=log)
+		t = {"name":' '.join(work_dir.split('/')[-3:])+"/"+target_IR,
+			"process":p}
+		if target_IR == "echoClient.ll":
+			p.wait()
+			try:
+				server.terminate()
+				print ("MSG: echoServer.exe terminated for profile.\n")
+			except:
+				print ("ERROR: Unable to terminate echoServer.exe in injectfault for", work_dir)
+			
+	return 0, t
 
 def inject_prog(num_threads, *prog_list):
 	global instrument_script
 	global profile_script
 	global injectfault_script
+	global batchinstrument_script
+	global batchprofile_script
+	global batchinjectfault_script
 
 	r = 0
 	suite = {}
@@ -126,6 +191,9 @@ def inject_prog(num_threads, *prog_list):
 	instrument_script = os.path.join(llfi_bin_dir, "instrument")
 	profile_script = os.path.join(llfi_bin_dir, "profile")
 	injectfault_script = os.path.join(llfi_bin_dir, "injectfault")
+	batchinstrument_script = os.path.join(llfi_bin_dir, "batchInstrument")
+	batchprofile_script = os.path.join(llfi_bin_dir, "batchProfile")
+	batchinjectfault_script = os.path.join(llfi_bin_dir, "batchInjectfault")
 	
 	testsuite_dir = os.path.join(script_dir, os.pardir)
 	with open(os.path.join(testsuite_dir, "test_suite.yaml")) as f:
@@ -142,6 +210,9 @@ def inject_prog(num_threads, *prog_list):
 	for test in suite["HardwareFaults"]:
 		if len(prog_list) == 0 or test in prog_list or "HardwareFaults" in prog_list:
 			work_dict["./HardwareFaults/"+test] = suite["HardwareFaults"][test]
+	for test in suite["BatchMode"]:
+		if len(prog_list) == 0 or test in prog_list or "BatchMode" in prog_list:
+			work_dict["./BatchMode/"+test] = suite["BatchMode"][test]
 	
 	running_list = []
 	exitcode_list = []
@@ -159,7 +230,10 @@ def inject_prog(num_threads, *prog_list):
 		inject_dir = os.path.abspath(os.path.join(testsuite_dir, test_path))
 		inject_prog = suite["PROGRAMS"][work_dict[test_path]][0]
 		inject_input = str(suite["INPUTS"][work_dict[test_path]])
-		code, t = callLLFI(inject_dir, inject_prog, inject_input)
+		if test_path.startswith('./BatchMode'):
+			code, t = callBatchLLFI(inject_dir, inject_prog, inject_input)
+		else:
+			code, t = callLLFI(inject_dir, inject_prog, inject_input)
 		if code != 0:
 			print ("ERROR: Skip:", test_path)
 			continue

@@ -37,6 +37,17 @@ def clear_all():
 					shutil.rmtree(os.path.join(testsuite_dir, "SoftwareFaults", test, f))
 				else:
 					os.remove(os.path.join(testsuite_dir, "SoftwareFaults", test, f))
+
+	## clear batch mode faults
+	for test in suite["BatchMode"]:
+		fs = [f for f in os.listdir(os.path.join(testsuite_dir, "BatchMode", test))]
+		for f in fs:
+			if f != "input.yaml":
+				print("MSG: Removing ", "BatchMode/"+test+"/"+f)
+				if os.path.isdir(os.path.join(testsuite_dir, "BatchMode", test, f)):
+					shutil.rmtree(os.path.join(testsuite_dir, "BatchMode", test, f))
+				else:
+					os.remove(os.path.join(testsuite_dir, "BatchMode", test, f))
 	
 	return 0
 

@@ -76,6 +76,9 @@ def check_injection(*prog_list):
 	for test in suite["HardwareFaults"]:
 		if len(prog_list) == 0 or test in prog_list or "HardwareFaults" in prog_list:
 			work_dict["./HardwareFaults/"+test] = suite["HardwareFaults"][test]
+	for test in suite["BatchMode"]:
+		if len(prog_list) == 0 or test in prog_list or "BatchMode" in prog_list:
+			work_dict["./BatchMode/"+test] = suite["BatchMode"][test]
 	
 	
 	result_list = []
@@ -83,7 +86,15 @@ def check_injection(*prog_list):
 		inject_dir = os.path.abspath(os.path.join(testsuite_dir, test_path))
 		inject_prog = suite["PROGRAMS"][work_dict[test_path]][0]
 		inject_input = str(suite["INPUTS"][work_dict[test_path]])
-		result = checkLLFIDir(inject_dir, inject_prog, inject_input)
+		if test_path.startswith('./BatchMode'):
+			models = [m for m in os.listdir(inject_dir) if os.path.isdir(os.path.join(inject_dir, m))]
+			for m in models:
+				subdir = os.path.join(inject_dir, m)
+				result = checkLLFIDir(subdir, inject_prog, inject_input)
+				if result != "PASS":
+					break
+		else:
+			result = checkLLFIDir(inject_dir, inject_prog, inject_input)
 		if result != "PASS":
 			r += 1
 		record = {"name":test_path, "result":result}

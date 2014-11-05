@@ -9,6 +9,7 @@ copydir(SoftwareFaults SoftwareFaults)
 copydir(PROGRAMS PROGRAMS)
 copydir(SCRIPTS SCRIPTS)
 copydir(Traces Traces)
+copydir(BatchMode BatchMode)
 copy(test_suite.yaml test_suite.yaml)
 
 genCopy()

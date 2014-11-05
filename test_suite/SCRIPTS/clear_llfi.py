@@ -38,6 +38,17 @@ def clear_llfi():
 				else:
 					os.remove(os.path.join(testsuite_dir, "SoftwareFaults", test, f))
 
+	## clear software faults
+	for test in suite["BatchMode"]:
+		fs = [f for f in os.listdir(os.path.join(testsuite_dir, "BatchMode", test))]
+		for f in fs:
+			if f.startswith("llfi"):
+				print("MSG: Removing ", "BatchMode/"+test+"/"+f)
+				if os.path.isdir(os.path.join(testsuite_dir, "BatchMode", test, f)):
+					shutil.rmtree(os.path.join(testsuite_dir, "BatchMode", test, f))
+				else:
+					os.remove(os.path.join(testsuite_dir, "BatchMode", test, f))
+
 	return 0
 
 if __name__ == "__main__":

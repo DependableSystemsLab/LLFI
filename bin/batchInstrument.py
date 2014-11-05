@@ -117,7 +117,7 @@ def callInstrument(model_list):
 		command.extend(sys.argv[1:])
 		try:
 			o = subprocess.check_output(command, stderr=sys.stderr)
-		except CalledProcessError:
+		except subprocess.CalledProcessError:
 			print ("instrumenting:", model, " failed!")
 			num_failed += 1
 		else:

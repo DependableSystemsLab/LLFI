@@ -48,7 +48,7 @@ def phraseMasterYaml():
 		sys.exit(-1)
 	return master_yaml_dict, model_list
 
-def callProfile(model_list):
+def callProfile(model_list, *argv):
 	num_failed = 0
 	for model in model_list:
 		workdir = os.path.join(basedir, "llfi-"+model)
@@ -57,7 +57,8 @@ def callProfile(model_list):
 		except:
 			print ("ERROR: Unable to change to directory:", workdir)
 			sys.exit(-1)
-		profile_exe_name = sys.argv[1]
+		profile_exe_name = argv[0]
+		print (profile_exe_name)
 		if profile_exe_name.endswith('.ll'):
 			profile_exe_name = profile_exe_name.split('.ll')[0]
 		elif profile_exe_name.endswith('.bc'):
@@ -65,11 +66,11 @@ def callProfile(model_list):
 		profile_exe_name = profile_exe_name + '-profiling.exe'
 		command = [profile_script]
 		command.extend(['--CLI', './llfi/'+profile_exe_name])
-		command.extend(sys.argv[2:])
+		command.extend(argv[1:])
 		print ("\nRun profiling command:", ' '.join(command))
 		try:
 			o = subprocess.check_output(command, stderr=sys.stderr)
-		except CalledProcessError:
+		except subprocess.CalledProcessError:
 			print ("profiling:", model, " failed!")
 			num_failed += 1
 		else:
@@ -78,14 +79,18 @@ def callProfile(model_list):
 		os.chdir(basedir)
 	return num_failed
 
-def main():
+def main(*argv):
 	master_yaml_dict, model_list = phraseMasterYaml()
-	r = callProfile(model_list)
+	r = callProfile(model_list, *argv)
 	return r
 
 if __name__ == "__main__":
 	if len(sys.argv[1:]) < 1 or sys.argv[1] == '--help' or sys.argv[1] == '-h':
 		usage()
 		sys.exit(0)
-	r = main()
+	if sys.argv[1] == '--CLI' or sys.argv[1] == '--GUI' or sys.argv[1] == '-e' or sys.argv[1] == '-u':
+		argv = sys.argv[2:]
+	else:
+		argv = sys.argv[1:]
+	r = main(*argv)
 	sys.exit(r)

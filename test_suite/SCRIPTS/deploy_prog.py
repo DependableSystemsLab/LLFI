@@ -26,6 +26,9 @@ def deploy_prog(*prog_list):
 	for test in suite["HardwareFaults"]:
 		if len(prog_list) == 0 or test in prog_list or "HardwareFaults" in prog_list:
 			work_dict["./HardwareFaults/"+test] = suite["HardwareFaults"][test]
+	for test in suite["BatchMode"]:
+		if len(prog_list) == 0 or test in prog_list or "BatchMode" in prog_list:
+			work_dict["./BatchMode/"+test] = suite["BatchMode"][test]
 	
 	for test_path in work_dict:
 		src_dir = os.path.join(testsuite_dir, "PROGRAMS", work_dict[test_path])
