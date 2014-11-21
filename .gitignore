@@ -29,3 +29,6 @@ build/
 
 #.gitingore itself
 .gitignore
+
+# gedit backup file
+*~
