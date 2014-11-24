@@ -22,7 +22,7 @@ build/
 *.exe
 
 # gedit backup files
-*~
+#*~
 
 # vim swap files
 *.swp
