@@ -33,4 +33,4 @@ build/
 *.css
 
 #.gitingore itself
-.gitignore
+#.gitignore
