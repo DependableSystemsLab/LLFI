@@ -206,6 +206,7 @@ def readCompileOption():
       exit(1)
 
     # Parse all options for current method
+    custom_instselector_defined = False
     for attr in list(method[methodName].keys()):
       if(attr == "include" or attr == "exclude"):
         prefix = "-%s" % (str(attr))
@@ -215,14 +216,18 @@ def readCompileOption():
           prefix += "func="
         elif methodName == "customInstselector":
           prefix = "-fiinstselectorname="
+          # For customInstselector, only one instruction selector is allowed
+          if custom_instselector_defined == True:
+            print("\nERROR: '\'instrument\' only support one customInstselector included in input.yaml.")
+            print("To apply a list of fault models/failure modes, please use \'batchinstrument\'")
+            exit(1)
+          else:
+            custom_instselector_defined = True
         else: # add the ability to give custom options here?
           pass
         # Generate list of options for attribute
         opts = [prefix + opt for opt in method[methodName][attr]]
         compileOptions.extend(opts)
-        # For customInstselector, only one instruction selector is allowed
-        if methodName == "customInstselector":
-        	break
       elif(attr == "options"):
         opts = [opt for opt in method[methodName]["options"]]
         compileOptions.extend(opts)
