@@ -9,6 +9,8 @@ List of options:
 -LLVM_SRC_ROOT <LLVM source root dir>
 -LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
     You don't need to set it if it is in system path
+-JAVA_HOME_DIR <java home directory for oracle jdk 7 or higher> (optional):
+    You don't need to set it if your default jdk is oracle jdk 7 or higher
 -LLFI_BUILD_ROOT <path where you want to build LLFI>
 
 
@@ -33,6 +35,7 @@ required_configs = {
 }
 optional_configs = {
   "LLVM_GXX_BIN_DIR": "",
+  "JAVA_HOME_DIR": "",
 }
 
 
@@ -137,12 +140,16 @@ def checkEnviroment():
 
 
 def build():
+  global optional_configs
 # create config files
   script_path = os.path.realpath(os.path.dirname(__file__))
   llvm_paths_cmake = os.path.join(script_path, "config/llvm_paths.cmake")
   llvm_paths_py = os.path.join(script_path, "config/llvm_paths.py")
   llvm_paths_make = os.path.join(script_path, "config/llvm_paths.make")
+  java_paths_cmake = os.path.join(script_path, "config/java_paths.cmake")
+  java_paths_py = os.path.join(script_path, "config/java_paths.py")
   
+  # write cmake config file for llvm paths
   cmake_File = open(llvm_paths_cmake, "w")
   LLVM_DST_ROOT = os.path.realpath(required_configs['LLVM_DST_ROOT'])
   LLVM_SRC_ROOT = os.path.realpath(required_configs['LLVM_SRC_ROOT'])
@@ -155,12 +162,60 @@ def build():
   cmake_File.write("set(LLVM_SRC_ROOT " + LLVM_SRC_ROOT + ")\n")
   cmake_File.close()
 
+  # write cmake config file for java paths
+  cmake_File = open(java_paths_cmake, "w")
+  if optional_configs['JAVA_HOME_DIR'] == '':
+    try:
+      ORACLE_JAVA_HOME = \
+        str(subprocess.check_output('readlink -f /usr/bin/javac | sed \"s:/bin/javac::\"',\
+        shell=True, universal_newlines=True
+        )).strip()
+    except:
+      usage("ORACLE_JAVA_HOME not set and not found in system path!")
+      sys.exit(1)
+  else:
+    ORACLE_JAVA_HOME = optional_configs['JAVA_HOME_DIR']
+  print(ORACLE_JAVA_HOME)
+  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/javac')):
+    usage("Invalid ORACLE_JAVA_HOME: bin/javac not found!")
+    sys.exit(1)
+
+  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/java')):
+    usage("Invalid ORACLE_JAVA_HOME: bin/java not found!")
+    sys.exit(1)
+
+  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/jfxrt.jar')):
+    usage("Invalid ORACLE_JAVA_HOME: jre/lib/jfxrt.jar not found! \
+    Please use Oracle JDK 7 or higher version.")
+    sys.exit(1)
+
+  CMAKE_JAVA_INCLUDE_PATH = \
+    str(os.path.join(ORACLE_JAVA_HOME, './jre/lib'))+'/*'+\
+    ':'+\
+    str(os.path.join(ORACLE_JAVA_HOME, './jre/lib/ext'))+'/*'
+
+  cmake_File.write("set(JAVA_HOME " + ORACLE_JAVA_HOME + ")\n")
+  cmake_File.write("set(JAVAC_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/javac' + ")\n")
+  cmake_File.write("set(JAVA_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/java' + ")\n")
+  cmake_File.write("set(CMAKE_JAVA_INCLUDE_PATH " + CMAKE_JAVA_INCLUDE_PATH + ")\n")
+  cmake_File.close()
+
+  # write python config file for llvm paths
   py_File = open(llvm_paths_py, "w")
   py_File.write("LLVM_DST_ROOT = " + '"' + LLVM_DST_ROOT + '"\n')
   py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
   py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
   py_File.close()
 
+  # write python config file for java paths
+  py_File = open(java_paths_py, "w")
+  py_File.write("JAVA_HOME = " + '"' + ORACLE_JAVA_HOME + '"\n')
+  py_File.write("JAVAC_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/javac' + '"\n')
+  py_File.write("JAVA_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/java' + '"\n')
+  py_File.write("CMAKE_JAVA_INCLUDE_PATH = " + '"' + CMAKE_JAVA_INCLUDE_PATH + '"\n')
+  py_File.close()
+
+  # write unix make config file for llvm paths
   make_File = open(llvm_paths_make, 'w')
   make_File.write("LLVM_DST_ROOT = " + LLVM_DST_ROOT + '\n')
   make_File.write("LLVM_SRC_ROOT = " + LLVM_SRC_ROOT + '\n')

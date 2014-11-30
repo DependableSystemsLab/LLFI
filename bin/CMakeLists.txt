@@ -14,6 +14,7 @@ copy(masterInjectfault.py masterInjectfault)
 copy(batchInstrument.py batchInstrument)
 copy(batchProfile.py batchProfile)
 copy(batchInjectfault.py batchInjectfault)
+copy(llfi-gui.py llfi-gui)
 
 genCopy()
 

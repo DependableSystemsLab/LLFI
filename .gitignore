@@ -2,6 +2,8 @@
 config/llvm_paths.cmake
 config/llvm_paths.py
 config/llvm_paths.make
+config/java_paths.cmake
+config/java_paths.py
 
 # Same holds for the installer directory
 installer/downloads/*
@@ -28,9 +30,11 @@ build/
 *.swp
 
 # Java build files
+#*.fxml
 *.class
-*.fxml
-*.css
+#*.css
+*.idea
+*.iml
 
 #.gitingore itself
 #.gitignore
