@@ -26,6 +26,7 @@ import signal
 import subprocess
 import shutil
 import platform
+import stat
 
 prog = os.path.basename(sys.argv[0])
 required_configs = {
@@ -253,6 +254,7 @@ def configZGRV():
   with open(new_script, 'w') as new:
     for line in content:
       new.write(line)
+  os.chmod(new_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
 def main(args):
   parseArgs(args)
