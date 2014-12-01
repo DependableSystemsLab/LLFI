@@ -79,7 +79,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		profile_exe = target_IR.split(".ll")[0]+"-profiling.exe"
-		execlist = [profile_script, '--CLI', "./llfi/"+profile_exe]
+		execlist = [profile_script, "./llfi/"+profile_exe]
 		execlist.extend(prog_input.split(' '))
 		p = subprocess.Popen(execlist, stdout=log, stderr=log)
 		p.wait()
@@ -101,7 +101,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
 			time.sleep(2)
 		faultinjection_exe = target_IR.split(".ll")[0]+"-faultinjection.exe"
-		execlist = [injectfault_script, '--CLI', "./llfi/"+faultinjection_exe]
+		execlist = [injectfault_script, "./llfi/"+faultinjection_exe]
 		execlist.extend(prog_input.split(' '))
 		p = subprocess.Popen(execlist, stdout=log, stderr=log)
 		t = {"name":' '.join(work_dir.split('/')[-3:])+"/"+target_IR,
@@ -140,7 +140,7 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 			server = startEchoServer(work_dir)
 			print ("MSG: echoServer.ll started for profile, please make sure there is only one echoServer running\n")
 			time.sleep(2)
-		execlist = [batchprofile_script, '--CLI', target_IR]
+		execlist = [batchprofile_script, target_IR]
 		execlist.extend(prog_input.split(' '))
 		p = subprocess.Popen(execlist, stdout=log, stderr=log)
 		p.wait()
@@ -161,7 +161,7 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 			server = startEchoServer(work_dir)
 			print ("MSG: echoServer.ll started for injectfault, please make sure there is only one echoServer running\n")
 			time.sleep(2)
-		execlist = [batchinjectfault_script, '--CLI', target_IR]
+		execlist = [batchinjectfault_script, target_IR]
 		execlist.extend(prog_input.split(' '))
 		p = subprocess.Popen(execlist, stdout=log, stderr=log)
 		t = {"name":' '.join(work_dir.split('/')[-3:])+"/"+target_IR,
