@@ -28,7 +28,8 @@ import shutil
 optionlist = []
 prog = os.path.basename(sys.argv[0])
 
-basedir = os.getcwd()
+# basedir is assigned in parseArgs(args)
+basedir = ""
 profiling_exe = ""
 
 def usage(msg = None):
@@ -43,28 +44,9 @@ def usage(msg = None):
 
 def parseArgs(args):
   global optionlist, profiling_exe, env
-  #print("args:")
-  #print(args)
-  profiling_exe = os.path.realpath(args[1])
-  env= args[0]
-  optionlist = args[2:]
- # print("exe: ")
- # print(profiling_exe)
- # print("opts: ")
- # print(optionlist)
-
-  if env=="-e" or env== "--CLI":
-   
-    if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
-      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-      # "program should launch in CLI"
-  elif env=="-u" or env== "--GUI": 
-    if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
-     # "program should launch in GUI"	
-      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
-  else: 
-      usage("You need to enable optiones for GUI/CLI")
-  
+  profiling_exe = os.path.realpath(args[0])
+  basedir = os.path.abspath(os.path.dirname(os.path.dirname(profiling_exe)))
+  optionlist = args[1:]
 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
@@ -74,6 +56,10 @@ def parseArgs(args):
         usage("File %s passed through option is not under current directory" % opt)
       else:
         optionlist[index] = os.path.basename(opt)
+
+  if basedir != os.getcwd():
+    print("Change directory to:", basedir)
+    os.chdir(basedir)
 
 
 def checkInputYaml():

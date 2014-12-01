@@ -38,12 +38,12 @@ llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
 llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
 prog = os.path.basename(sys.argv[0])
-basedir = os.getcwd()
+# basedir is assigned in parseArgs(args)
+basedir = ""
 
-llfibd = os.path.join(basedir, "llfi")
-#print(os.path.dirname(sys.argv[1]))
-if os.path.exists(llfibd):
-  shutil.rmtree(llfibd)
+# llfibd = os.path.join(basedir, "llfi")
+# if os.path.exists(llfibd):
+#   shutil.rmtree(llfibd)
 
 if sys.platform == "linux" or sys.platform == "linux2":
   llfilib = os.path.join(script_path, "../llvm_passes/llfi-passes.so")
@@ -94,7 +94,7 @@ def parseArgs(args):
         options["dir"] = args[argid].rstrip('/')
       elif arg == "-L":
         argid += 1
-        options["L"].append(os.path.join(basedir, args[argid]))
+        options["L"].append(os.path.abspath(os.path.join(os.getcwd(), args[argid])))
       elif arg.startswith("-l"):
         options["l"].append(arg[2:])
       elif arg == "--readable":
@@ -110,7 +110,11 @@ def parseArgs(args):
     else:
       if options["source"] != "":
         usage("More than one source files are specified")
-      options["source"] = os.path.join(basedir, arg)
+      options["source"] = os.path.abspath(os.path.join(os.getcwd(), arg))
+      basedir = os.path.dirname(options["source"])
+      if basedir != os.path.abspath(os.getcwd()):
+        print("Change directory to:", basedir)
+        os.chdir(basedir)
     argid += 1
 
   if options["source"] == "":

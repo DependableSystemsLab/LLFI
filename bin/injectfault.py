@@ -29,7 +29,8 @@ runOverride = False
 optionlist = []
 defaultTimeout = 500
 
-basedir = os.getcwd()
+# basedir is assigned in parseArgs(args)
+basedir = ""
 prog = os.path.basename(sys.argv[0])
 fi_exe = ""
 
@@ -48,24 +49,13 @@ def usage(msg = None):
 
 
 def parseArgs(args):
-  global optionlist, fi_exe, env
+  global optionlist, fi_exe
   if args[0] == "--help" or args[0] == "-h":
     usage()
-  fi_exe = os.path.realpath(args[1])
-  env= args[0]
-  optionlist = args[2:]
-  if env=="-e" or env== "--CLI":
-   # print "found -e or --CLI"
-    if os.path.dirname(os.path.dirname(fi_exe)) != basedir:
-      usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-     # print "program should launch in CLI"
-  elif env=="-u" or env== "--GUI": 
-    if os.path.dirname(os.path.dirname(os.path.dirname(fi_exe))) != basedir:
-     # print "program should launch in GUI" 
-      usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
-  else: 
-      usage("You need to enable optiones for GUI/CLI")      
-
+  fi_exe = os.path.realpath(args[0])
+  basedir = basedir = os.path.abspath(os.path.dirname(os.path.dirname(fi_exe)))
+  optionlist = args[1:]
+  
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
   for index, opt in enumerate(optionlist):
@@ -75,6 +65,10 @@ def parseArgs(args):
       else:
         optionlist[index] = os.path.basename(opt)
 
+  if basedir != os.getcwd():
+    print("Change directory to:", basedir)
+    os.chdir(basedir)
+
 
 def checkInputYaml():
   global doc
@@ -82,10 +76,7 @@ def checkInputYaml():
   #Check for input.yaml's presence
   yamldir = os.path.dirname(os.path.dirname(fi_exe))
   try:
-    if env=="-e" or env== "--CLI":
-      f = open(os.path.join(basedir, 'input.yaml'),'r')
-    elif env=="-u" or env== "--GUI": 
-      f = open(os.path.join(yamldir, 'input.yaml'),'r')  
+    f = open(os.path.join(basedir, 'input.yaml'),'r')
   except:
     usage("No input.yaml file in the parent directory of fault injection executable")
     exit(1)

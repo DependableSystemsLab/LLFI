@@ -159,6 +159,7 @@ public class Controller implements Initializable {
 	static public String currentProgramFolder;
 	static public String llfibuildPath=null;
 	static public String psViewer=null;
+    static public String zgrviewer = null;
 	static public String currentFileName;
 	public boolean checkFlag = true;
 	public boolean indexStates =false;
@@ -214,7 +215,8 @@ public class Controller implements Initializable {
 	@FXML
 	ObservableList<String> row = FXCollections.observableArrayList();
 	public ArrayList<String> parameter = new ArrayList<>();
-	@FXML
+
+    @FXML
 	private void onClickProfiling(ActionEvent event){
 		Parent root;
 		FileReader inputFile;
@@ -1696,59 +1698,8 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
         System.out.println("Controller: llfibuildPath is: " + llfibuildPath);
-        psViewer = llfibuildPath + "/tools/zgrviewer/"
-        System.out.println("Controller psViewer path is: " + psViewer);
-
-		try{
-			//progressBar.setVisible(false);
-			File f = new File("."); // current directory
-
-			File[] files = f.listFiles();
-			int i;
-			boolean signFalg = false;
-			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-			p1.redirectErrorStream(true);
-			Process pr1 = p1.start();
-			BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-			String line;
-			while ((line = in.readLine()) != null) {
-
-				llfibuildPath = line;
-			}
-			pr1.waitFor();
-			pr1.destroy();
-			in.close();
-
-
-
-			ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","echo $psViewer");
-
-			p2.redirectErrorStream(true);
-			Process pr2 = p2.start();
-			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
-			while ((line = in2.readLine()) != null) {
-
-				psViewer = line;
-			}
-			pr2.waitFor();
-			pr2.destroy();
-			in2.close();
-
-		}
-		catch(IOException e)
-		{
-			System.out.println(e);
-		}catch(InterruptedException e)
-		{
-			System.out.println(e);
-		}
-
-		// TODO
-
-
-
-
+        zgrviewer = llfibuildPath + "/tools/zgrviewer/run.sh";
+        System.out.println("Controller ZGRViewer path is: " + zgrviewer);
 	}
 
 
