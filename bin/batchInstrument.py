@@ -23,12 +23,27 @@ import sys, os, shutil
 import yaml
 import subprocess
 
+prog = os.path.basename(sys.argv[0])
 script_path = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
 instrument_script = os.path.join(script_path, 'instrument')
-basedir = os.getcwd()
+# basedir and options are assigned in parseArgs(args)
+basedir = ""
+options = []
+
+def parseArgs(args):
+	global basedir
+	global options
+	cwd = os.getcwd()
+	for arg in args:
+		option = arg
+		if os.path.isfile(arg):
+			basedir = os.path.realpath(os.path.dirname(arg))
+			option = os.path.basename(arg)
+		options.append(option)
+	os.chdir(basedir)
 
 def usage(msg = None):
   retval = 0
@@ -39,14 +54,15 @@ def usage(msg = None):
   print(__doc__ % globals(), file=sys.stderr)
   sys.exit(retval)
 
-def phraseMasterYaml():
+def parseMasterYaml():
+	global basedir
 	master_yaml_dict = {}
 	model_list = []
 	try:
 		with open('input.yaml', 'r') as master_yaml_file:
 			master_yaml_dict = yaml.load(master_yaml_file)
 	except:
-		print ("ERROR: Unable to find input.yaml or load the input.yaml under current directory")
+		print ("ERROR: Unable to find input.yaml or load the input.yaml under basedir directory")
 		print (basedir)
 		sys.exit(-1)
 	try:
@@ -58,6 +74,7 @@ def phraseMasterYaml():
 	return master_yaml_dict, model_list
 
 def splitMasterYaml(master_yaml_dict, model_list):
+	global basedir
 	for model in model_list:
 		include_list = [model]
 		slave_yaml_dict = dict(master_yaml_dict)
@@ -82,6 +99,7 @@ def maybeRequired(abs_path):
 	return True
 
 def prepareDirs(model_list):
+	global basedir
 	stuffs_under_basedir = [f for f in os.listdir(basedir) if maybeRequired(os.path.join(basedir, f))]
 	for model in model_list:
 		workdir = os.path.join(basedir, "llfi-"+model)
@@ -109,12 +127,14 @@ def prepareDirs(model_list):
 
 
 def callInstrument(model_list):
+	global basedir
+	global options
 	num_failed = 0
 	for model in model_list:
 		workdir = os.path.join(basedir, "llfi-"+model)
 		os.chdir(workdir)
 		command = [instrument_script]
-		command.extend(sys.argv[1:])
+		command.extend(options)
 		try:
 			o = subprocess.check_output(command, stderr=sys.stderr)
 		except subprocess.CalledProcessError:
@@ -127,7 +147,8 @@ def callInstrument(model_list):
 	return num_failed
 
 def main():
-	master_yaml_dict, model_list = phraseMasterYaml()
+	parseArgs(sys.argv[1:])
+	master_yaml_dict, model_list = parseMasterYaml()
 	prepareDirs(model_list)
 	splitMasterYaml(master_yaml_dict, model_list)
 	r = callInstrument(model_list)

@@ -16,6 +16,7 @@ import os
 import sys
 import subprocess
 
+prog = os.path.basename(sys.argv[0])
 script_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append((os.path.join(script_path, '../config')))
 import java_paths

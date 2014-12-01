@@ -11,5 +11,7 @@ copy(tracetodot.py tracetodot)
 copy(tracetools.py tracetools.py)
 copy(traceunion.py traceunion)
 
+copy(zgrviewer/llfi_run.sh zgrviewer/run.sh)
+
 
 genCopy()

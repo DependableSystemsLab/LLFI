@@ -14,12 +14,27 @@ import sys, os, shutil
 import yaml
 import subprocess
 
+prog = os.path.basename(sys.argv[0])
 script_path = os.path.realpath(os.path.dirname(__file__))
 sys.path.append(os.path.join(script_path, '../config'))
 import llvm_paths
 
 injectfault_script = os.path.join(script_path, 'injectfault')
-basedir = os.getcwd()
+# basedir and options are assigned in parseArgs(args)
+basedir = ""
+options = []
+
+def parseArgs(args):
+	global basedir
+	global options
+	cwd = os.getcwd()
+	for arg in args:
+		option = arg
+		if os.path.isfile(arg):
+			basedir = os.path.realpath(os.path.dirname(arg))
+			option = os.path.basename(arg)
+		options.append(option)
+	os.chdir(basedir)
 
 def usage(msg = None):
   retval = 0
@@ -64,7 +79,7 @@ def callInjectfault(model_list, *argv):
 			faultinjection_exe_name = faultinjection_exe_name.split('.bc')[0]
 		faultinjection_exe_name = faultinjection_exe_name + '-faultinjection.exe'
 		command = [injectfault_script]
-		command.extend(['--CLI', './llfi/'+faultinjection_exe_name])
+		command.extend(['./llfi/'+faultinjection_exe_name])
 		command.extend(argv[1:])
 		print ("\nRun injectfault command:", ' '.join(command))
 		try:
@@ -79,16 +94,16 @@ def callInjectfault(model_list, *argv):
 	return num_failed
 
 def main(*argv):
+	global options
+	parseArgs(argv)
 	master_yaml_dict, model_list = phraseMasterYaml()
-	r = callInjectfault(model_list, *argv)
+	r = callInjectfault(model_list, *options)
 	return r
 
 if __name__ == "__main__":
 	if len(sys.argv[1:]) < 1 or sys.argv[1] == '--help' or sys.argv[1] == '-h':
 		usage()
 		sys.exit(0)
-	if sys.argv[1] == '--CLI' or sys.argv[1] == '--GUI' or sys.argv[1] == '-e' or sys.argv[1] == '-u':
-		argv = sys.argv[2:]
 	else:
 		argv = sys.argv[1:]
 	r = main(*argv)
