@@ -10,7 +10,8 @@ copy(traceontograph.py traceontograph)
 copy(tracetodot.py tracetodot)
 copy(tracetools.py tracetools.py)
 copy(traceunion.py traceunion)
-copydir(zgrviewer zgrviewer)
+
+copy(zgrviewer/llfi_run.sh zgrviewer/run.sh)
 
 
 genCopy()

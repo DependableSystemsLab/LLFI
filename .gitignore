@@ -4,6 +4,7 @@ config/llvm_paths.py
 config/llvm_paths.make
 config/java_paths.cmake
 config/java_paths.py
+tools/zgrviewer/llfi_run.sh
 
 # Same holds for the installer directory
 installer/downloads/*

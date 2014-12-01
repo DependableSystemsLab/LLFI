@@ -85,7 +85,7 @@ def parseArgs(args):
     usage(errmsg)
 
 
-def checkEnviroment():
+def checkEnvironment():
 # system
   if sys.platform != "linux" and sys.platform != "linux2" and sys.platform != "darwin":
     print("ERROR: LLFI does not support your platform " + sys.platform + "\n", file=sys.stderr)
@@ -235,23 +235,30 @@ def build():
   if p != 0:
     sys.exit(p)
   os.chdir(script_path)
-    
-def buildgui():
-  scriptPath = os.path.dirname(os.path.realpath(__file__))
-  antPath = os.path.join(scriptPath, "./Gui_SourceCode/LLFI/build.xml")
-  binPath = os.path.join(scriptPath, "./Gui_SourceCode/LLFI/bin")
-  jarPath = os.path.join(scriptPath, "./LLFI-GUI/llfi_gui.jar")
-  p = subprocess.call(["rm", "-rf", jarPath])
-  p = subprocess.call(["rm", "-rf", binPath])
-  p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
-  p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
-  p = subprocess.call(["cp","-a",scriptPath+"/LLFI-GUI/.", "LLFI-GUI"])
+
+
+def configZGRV():
+  # config zgrviewer
+  script_path = os.path.realpath(os.path.dirname(__file__))
+  zgrviewer_run_script = os.path.realpath(os.path.join(script_path, 'tools', 'zgrviewer', 'run.sh'))
+  new_script = os.path.realpath(os.path.join(script_path, 'tools', 'zgrviewer', 'llfi_run.sh'))
+  zgrviewer_dir = os.path.dirname(zgrviewer_run_script)
+  content = []
+  with open(zgrviewer_run_script, 'r') as old:
+    content = old.readlines()
+  for i, line in enumerate(content):
+    if line.startswith('ZGRV_HOME='):
+      content[i] = 'ZGRV_HOME='+zgrviewer_dir
+      break
+  with open(new_script, 'w') as new:
+    for line in content:
+      new.write(line)
 
 def main(args):
   parseArgs(args)
-  checkEnviroment()
+  configZGRV()
+  checkEnvironment()
   build()
-  #buildgui()
 
 	
 if __name__=="__main__":
