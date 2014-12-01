@@ -4,9 +4,11 @@ set(DEFAULT_TARGETS "")
 include(../config/java_paths.cmake)
 
 macro(add_java_src SRCCODE)
-    set(DEFAULT_TARGETS ${DEFAULT_TARGETS} ${SRCCODE})
+    STRING(REGEX REPLACE "[.]java" ".class" CLASSFILE "${SRCCODE}")
+    set(DEFAULT_TARGETS ${DEFAULT_TARGETS} ${CLASSFILE})
+    MESSAGE(STATUS "Output .class file is: ${CLASSFILE}")
     add_custom_command(
-        OUTPUT ${SRCCODE}
+        OUTPUT ${CLASSFILE}
         COMMAND ${JAVAC_EXECUTABLE}
         -classpath "${CMAKE_JAVA_INCLUDE_PATH}:${CMAKE_CURRENT_SOURCE_DIR}"
         -d ${CMAKE_CURRENT_BINARY_DIR}

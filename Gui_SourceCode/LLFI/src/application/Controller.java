@@ -1695,6 +1695,10 @@ public class Controller implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+        System.out.println("Controller: llfibuildPath is: " + llfibuildPath);
+        psViewer = llfibuildPath + "/tools/zgrviewer/"
+        System.out.println("Controller psViewer path is: " + psViewer);
+
 		try{
 			//progressBar.setVisible(false);
 			File f = new File("."); // current directory
@@ -1730,141 +1734,7 @@ public class Controller implements Initializable {
 			pr2.waitFor();
 			pr2.destroy();
 			in2.close();
-			/*for (final File fileEntry : files) {
-	    	fileContent = new ArrayList<>();
-	        if (fileEntry.isDirectory()) {
-	        	i = 0;ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
 
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();
-
-
-
-	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
-	                BufferedReader inputFile = new BufferedReader(actualFile);
-	                while ((line = inputFile.readLine()) != null)   {
-	                    fileContent.add(line+"\n");
-
-	                }
-
-	                inputFile.close();
-	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
-	                fileNameLists.add(fileEntry.getName()+".c");
-	                items =FXCollections.observableArrayList (fileNameLists);
-	                fileList.setItems(items);
-	                if(i == 0 && signFalg == false)
-		        	{
-	                	//fileList.getSelectionModel().select(0);
-	                	signFalg = true;
-	                	//System.out.println("inside if");
-		        		currentProgramFolder = fileEntry.getName();
-		        		currentFileName = fileEntry.getName()+".c";
-		        		programTextArea.clear();
-		        		for(int j = 0 ; j < fileContent.size(); j++)
-		        		{
-
-		        			programTextArea.appendText(fileContent.get(j));
-		        		}
-		        		compiletoIrButton.setDisable(false);
-		        		 instrumentButton.setDisable(true);
-		        		 profilingButton.setDisable(true);
-		        		 runtimeButton.setDisable(true);
-		        		 injectfaultButton.setDisable(true);
-		        		PProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();rocessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();
-		        	}
-
-	                i++;
-
-	        } else {
-
-
-	        }
-
-	 for (final File fileEntry : files) {
-	    	fileContent = new ArrayList<>();
-	        if (fileEntry.isDirectory()) {
-	        	i = 0;
-
-
-
-	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
-	                BufferedReader inputFile = new BufferedReader(actualFile);
-	                while ((line = inputFile.readLine()) != null)   {
-	                    fileContent.add(line+"\n");
-
-	                }
-
-	                inputFile.close();
-	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
-	                fileNameLists.add(fileEntry.getName()+".c");
-	                items =FXCollections.observableArrayList (fileNameLists);
-	                fileList.setItems(items);
-	                if(i == 0 && signFalg == false)
-		        	{
-	                	//fileList.getSelectionModel().select(0);
-	                	signFalg = true;
-	                	//System.out.println("inside if");
-		        		currentProgramFolder = fileEntry.getName();
-		        		currentFileName = fileEntry.getName()+".c";
-		        		programTextArea.clear();
-		        		for(int j = 0 ; j < fileContent.size(); j++)
-		        		{
-
-		        			programTextArea.appendText(fileContent.get(j));
-		        		}
-		        		compiletoIrButton.setDisable(false);
-		        		 instrumentButton.setDisable(true);
-		        		 profilingButton.setDisable(true);
-		     compiletoIrButton.setDisable(false);
-	 instrumentButton.setDisable(true);
-	 profilingButton.setDisable(true);
-	 runtimeButton.setDisable(true);
-	 injectfaultButton.setDisable(true);   		 runtimeButton.setDisable(true);
-		        		 injectfaultButton.setDisable(true);
-
-		        	}
-
-	                i++;
-
-	        } else {
-
-
-	        }
-
-	    }   }*/
 		}
 		catch(IOException e)
 		{

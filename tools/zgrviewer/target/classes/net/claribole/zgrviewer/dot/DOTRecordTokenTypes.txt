@@ -1,0 +1,11 @@
+// $ANTLR 2.7.7 (20060906): DOTRecord.g -> DOTRecordTokenTypes.txt$
+DOTRecord    // output token vocab name
+APOS=4
+LT=5
+STR=6
+GT=7
+LCUR=8
+RCUR=9
+PIPE=10
+WS=11
+ESC=12

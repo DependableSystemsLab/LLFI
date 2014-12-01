@@ -1,0 +1,27 @@
+// $ANTLR 2.7.7 (20060906): DOT.g -> DOTTreeParserTokenTypes.txt$
+DOTTreeParser    // output token vocab name
+GRAPH="graph"=4
+DIGRAPH="digraph"=5
+SUBGRAPH="subgraph"=6
+NODE="node"=7
+EDGE="edge"=8
+STRICT="strict"=9
+LABEL="label"=10
+ID("an identifier")=11
+LCUR=12
+SEMI=13
+RCUR=14
+EQUAL=15
+HTML=16
+LBR=17
+RBR=18
+COMMA=19
+D_EDGE_OP=20
+ND_EDGE_OP=21
+COLON=22
+WS=23
+CMT=24
+CPP_COMMENT=25
+ESC=26
+LT=27
+GT=28
