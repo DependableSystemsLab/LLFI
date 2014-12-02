@@ -155,7 +155,7 @@ def build():
   LLVM_DST_ROOT = os.path.realpath(required_configs['LLVM_DST_ROOT'])
   LLVM_SRC_ROOT = os.path.realpath(required_configs['LLVM_SRC_ROOT'])
   if optional_configs['LLVM_GXX_BIN_DIR'] != "":
-    LLVM_GXX_BIN_DIR = os.path.realpath(optional_configs['LLVM_GXX_BIN_DIR'])+'/'
+    LLVM_GXX_BIN_DIR = os.path.realpath(optional_configs['LLVM_GXX_BIN_DIR'])
   else:
     LLVM_GXX_BIN_DIR = ""
 
