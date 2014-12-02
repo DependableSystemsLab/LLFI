@@ -71,6 +71,6 @@ namespace llfi{
         else  return false;
       }
     };
-    static RegisterFIInstSelector A("WrongRetrievedAddress(I/O)", new _IO_WrongRetrievedAddressInstSelector());
-    static RegisterFIRegSelector B("WrongRetrievedAddress(I/O)", new _IO_WrongRetrevedAddressRegSelector());
+    static RegisterFIInstSelector A("WrongRetrievedAddress(IO)", new _IO_WrongRetrievedAddressInstSelector());
+    static RegisterFIRegSelector B("WrongRetrievedAddress(IO)", new _IO_WrongRetrevedAddressRegSelector());
 }

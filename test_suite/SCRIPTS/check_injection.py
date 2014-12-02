@@ -87,9 +87,11 @@ def check_injection(*prog_list):
 		inject_prog = suite["PROGRAMS"][work_dict[test_path]][0]
 		inject_input = str(suite["INPUTS"][work_dict[test_path]])
 		if test_path.startswith('./BatchMode'):
+			# print("\tChecking on BatchMode:", test_path)
 			models = [m for m in os.listdir(inject_dir) if os.path.isdir(os.path.join(inject_dir, m))]
 			for m in models:
 				subdir = os.path.join(inject_dir, m)
+				# print("\t\tChecking on model:", m)
 				result = checkLLFIDir(subdir, inject_prog, inject_input)
 				if result != "PASS":
 					break

@@ -54,6 +54,6 @@ namespace llfi{
             }
         }
     };
-    static RegisterFIInstSelector A("WrongRetrievedFormat(I/O)", new _IO_WrongRFormatInstSelector());
-    static RegisterFIRegSelector B("WrongRetrievedFormat(I/O)", new FuncArgRegSelector(1));
+    static RegisterFIInstSelector A("WrongRetrievedFormat(IO)", new _IO_WrongRFormatInstSelector());
+    static RegisterFIRegSelector B("WrongRetrievedFormat(IO)", new FuncArgRegSelector(1));
 }

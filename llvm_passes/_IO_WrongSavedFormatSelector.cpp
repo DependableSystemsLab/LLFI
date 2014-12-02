@@ -53,6 +53,6 @@ namespace llfi{
             }
         }
     };
-    static RegisterFIInstSelector A( "WrongSavedFormat(I/O)", new _IO_WrongSFormatInstSelector());
-    static RegisterFIRegSelector B("WrongSavedFormat(I/O)", new FuncArgRegSelector(1));
+    static RegisterFIInstSelector A( "WrongSavedFormat(IO)", new _IO_WrongSFormatInstSelector());
+    static RegisterFIRegSelector B("WrongSavedFormat(IO)", new FuncArgRegSelector(1));
 }

@@ -4,7 +4,7 @@ compileOption:
     instSelMethod:
       - customInstselector:
           include:
-            - WrongSavedAddress(I/O)
+            - WrongSavedAddress(IO)
 
     regSelMethod: customregselector
     customRegSelector: Automatic
