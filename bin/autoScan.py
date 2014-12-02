@@ -8,7 +8,7 @@ Usage: %(prog)s [OPTIONS] <source IR file>
 List of options:
 
 -outputfilename=<filename>: set the name of the file that stores the list of applicable software failures (default:llfi.applicable.software.failures.txt)
--numOfRuns <number of runs>: set the number of runs for each found failure mode (default: 5)
+-numOfRuns <number of runs>: set the number of runs for each found failure mode (default: 1)
 --enable_tracing: enable tracing
 --enable_forward_injection: enable injection on the forward slice of the selected injection point
 --enable_backward_injection: enable injection on the backward slice of the selected injection point
@@ -41,7 +41,7 @@ filename = "llfi.applicable.software.failures.txt"
 # directory of the target IR
 basedir = ""
 # input.yaml generation
-run_num_dict = {'numOfRuns': 5}
+run_num_dict = {'numOfRuns': 1}
 tracing_dict = {'tracingPropagation':False, 'tracingPropagationOption':{'generateCDFG':False}}
 trace_injection_dict = {'includeInjectionTrace':[]}
 
