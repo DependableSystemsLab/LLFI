@@ -53,7 +53,9 @@ namespace llfi{
               std::string func_name = CI->getCalledFunction()->getName();
               if(funcNamesTargetArgs.find(func_name) == funcNamesTargetArgs.end())
                 return false;
-              for(std::set<int>::iterator SI = funcNamesTargetArgs[func_name].begin(); SI != funcNamesTargetArgs[func_name].end(); SI++){
+              for(std::set<int>::iterator SI = funcNamesTargetArgs[func_name].begin(); 
+                SI != funcNamesTargetArgs[func_name].end(); SI++){
+                if(*SI >= CI->getNumArgOperands())  continue;
                 if(T == CI->getArgOperand(*SI)) return true;
               }
               return false;

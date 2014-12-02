@@ -20,6 +20,7 @@ injectfault_script = ""
 batchinstrument_script = ""
 batchprofile_script = ""
 batchinjectfault_script = ""
+autoscan_script = ""
 
 def enqueue_output(out, queue):
 	for line in iter(out.readline, b''):
@@ -120,12 +121,24 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 	global batchinstrument_script
 	global batchprofile_script
 	global batchinjectfault_script
+	global autoscan_script
 
 	try:
 		os.chdir(work_dir)
 	except:
 		print ("ERROR: Unable to change directory to:", work_dir)
 		return -1, None
+
+	if 'AutoScan' in os.path.basename(work_dir):
+		with open("llfi.test.log.autoscan.txt", 'w', buffering=1) as log:
+			p = subprocess.Popen([autoscan_script, target_IR], stdout=log, stderr=log)
+			p.wait()
+			if p.returncode != 0:
+				print ("ERROR: autoScan failed for:", work_dir, target_IR)
+				return -1, None
+			else:
+				print ("MSG: autoScan successed for:", work_dir, target_IR)
+
 	with open("llfi.test.log.instrument.txt", 'w', buffering=1) as log:
 		p = subprocess.Popen([batchinstrument_script, "--readable", "-lpthread", target_IR], stdout=log, stderr=log)
 		p.wait()
@@ -183,6 +196,7 @@ def inject_prog(num_threads, *prog_list):
 	global batchinstrument_script
 	global batchprofile_script
 	global batchinjectfault_script
+	global autoscan_script
 
 	r = 0
 	suite = {}
@@ -194,6 +208,7 @@ def inject_prog(num_threads, *prog_list):
 	batchinstrument_script = os.path.join(llfi_bin_dir, "batchInstrument")
 	batchprofile_script = os.path.join(llfi_bin_dir, "batchProfile")
 	batchinjectfault_script = os.path.join(llfi_bin_dir, "batchInjectfault")
+	autoscan_script = os.path.join(llfi_bin_dir, "autoScan")
 	
 	testsuite_dir = os.path.join(script_dir, os.pardir)
 	with open(os.path.join(testsuite_dir, "test_suite.yaml")) as f:

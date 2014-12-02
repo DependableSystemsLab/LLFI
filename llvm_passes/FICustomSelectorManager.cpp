@@ -24,6 +24,20 @@ void FICustomInstSelectorManager::addCustomInstSelector(
   }
 }
 
+void FICustomInstSelectorManager::getAllSoftwareFailures(
+  std::set<std::string>& all_software_failure_names){
+  for(std::map<const std::string, FIInstSelector* >::iterator it = 
+    optionname_instselector.begin(); it != optionname_instselector.end(); 
+    ++it) {
+      std::map<std::string, std::string> info;
+      it->second->getCompileTimeInfo(info);
+      if(info.count("failure_class") != 0 && info["failure_class"] != "HardwareFault"){
+        all_software_failure_names.insert(it->first);
+      }
+  }
+  return;
+}
+
 FIInstSelector *FICustomInstSelectorManager::getCustomInstSelector(
     const std::string &name) {
   if (optionname_instselector.find(name) != optionname_instselector.end()) {

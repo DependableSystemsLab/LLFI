@@ -20,6 +20,13 @@ class SampleFIInstSelector: public FIInstSelector {
     else
       return false;
   }
+ public:
+ 	virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
+    info["failure_class"] = "HardwareFault";
+    info["failure_mode"] = "OnlyMain";
+    info["targets"] = "<instructions in main() function>";
+    info["injector"] = "<fi_type>";
+  }
 };
 
 static RegisterFIInstSelector X("onlymain", new SampleFIInstSelector());
