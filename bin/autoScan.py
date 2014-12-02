@@ -31,7 +31,7 @@ import llvm_paths
 
 optbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/opt")
 llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
-llfipasses = os.path.join(llvm_paths.LLVM_DST_ROOT, "../llfi/llvm_passes/llfi-passes.so")
+llfipasses = os.path.join(script_path, "../llvm_passes/llfi-passes.so")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
 prog = os.path.basename(sys.argv[0])
 # option list for AutoScan pass
