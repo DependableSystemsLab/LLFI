@@ -39,8 +39,7 @@ public class Main extends Application{
             final Parameters params = getParameters();
             final List<String> parameters = params.getRaw();
             LLFI_BUILD_ROOT = !parameters.isEmpty() ? parameters.get(0)+"/" : Paths.get("").toAbsolutePath().toString()+"/../";
-            System.out.println("Current LLFI_BUILD_ROOT path is: " + LLFI_BUILD_ROOT);
-            Controller.llfibuildPath = LLFI_BUILD_ROOT;
+            Controller.setPaths(LLFI_BUILD_ROOT);
 
 			primaryStage.setScene(new Scene(root));
 			primaryStage.show();

@@ -1697,12 +1697,15 @@ public class Controller implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-        System.out.println("Controller: llfibuildPath is: " + llfibuildPath);
-        zgrviewer = llfibuildPath + "/tools/zgrviewer/run.sh";
-        System.out.println("Controller ZGRViewer path is: " + zgrviewer);
+        ;
 	}
 
-
+    static public void setPaths(String llfibuildpath){
+        Controller.llfibuildPath = llfibuildpath;
+        Controller.zgrviewer = Controller.llfibuildPath + "./tools/zgrviewer/run.sh";
+        System.out.println("Controller: llfibuildPath is: " + llfibuildPath);
+        System.out.println("Controller: ZGRViewer path is: " + zgrviewer);
+    }
 
 }
 
