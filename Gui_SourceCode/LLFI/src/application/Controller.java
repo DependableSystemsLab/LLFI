@@ -1696,10 +1696,9 @@ public class Controller implements Initializable {
 
 
 	@Override
-	public void initialize(URL url, ResourceBundle rb) {
-        ;
-	}
+	public void initialize(URL url, ResourceBundle rb) {}
 
+    /* This static method is used by Main.start() to set the paths string to Controller*/
     static public void setPaths(String llfibuildpath){
         Controller.llfibuildPath = llfibuildpath;
         Controller.zgrviewer = Controller.llfibuildPath + "./tools/zgrviewer/run.sh";
