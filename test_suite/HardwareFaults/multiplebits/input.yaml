@@ -1,0 +1,20 @@
+compileOption:
+    instSelMethod:
+      - insttype:
+          include:
+            - all
+          exclude:
+            - ret
+
+    regSelMethod: regloc
+    regloc: dstreg
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_num_bits: 4
+
+    - run:
+        numOfRuns: 50
+        fi_type: bitflip
+        window_len: 10
