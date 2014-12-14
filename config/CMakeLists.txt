@@ -9,6 +9,6 @@ copy(llvm_paths.py llvm_paths.py)
 copy(llvm_paths.make llvm_paths.make)
 if(NOT NO_GUI)
 	copy(java_paths.py java_paths.py)
-endif
+endif()
 genCopy()
 

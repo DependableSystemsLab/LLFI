@@ -11,4 +11,4 @@ add_subdirectory(test_suite)
 
 if(NOT NO_GUI)
 	add_subdirectory(gui)
-endif
+endif()
