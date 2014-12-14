@@ -15,6 +15,9 @@ PROGRAMS:
         - deadlock.ll
     sudoku2:
         - sudoku2.ll
+    bfs:
+        - bfs.ll
+        - graph_input.dat
 
 INPUTS:
     mcf: inp.in
@@ -23,6 +26,7 @@ INPUTS:
     mpi: 127.0.0.1
     deadlock:
     sudoku2:
+    bfs: -i graph_input.dat -o output.dat
 
 HardwareFaults:
     funcname: mcf
@@ -30,6 +34,7 @@ HardwareFaults:
     llfiindex: mcf
     random: mcf
     tracing: factorial
+    multiplebits: bfs
 
 SoftwareFaults:
     BufferOverflow_API: memcpy1

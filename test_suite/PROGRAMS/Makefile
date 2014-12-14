@@ -1,4 +1,4 @@
-progs = deadlock factorial mcf memcpy1 mpi sudoku2 
+progs = deadlock factorial mcf memcpy1 mpi sudoku2 bfs 
 
 defalt: all
 

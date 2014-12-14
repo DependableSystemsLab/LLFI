@@ -80,6 +80,9 @@ void FaultInjectionPass::insertInjectionFuncCall(
       paramtypes[2] = i32type; // opcode
       paramtypes[3] = i32type; // current fi reg index
       paramtypes[4] = i32type; // total fi reg number
+      //======== Add opcode_str QINING @MAR 11th========
+      paramtypes.push_back(PointerType::get(Type::getInt8Ty(context), 0));
+      //================================================
 
       //LLVM 3.3 Upgrade
       ArrayRef<Type*> paramtypes_array_ref(paramtypes);
@@ -99,6 +102,16 @@ void FaultInjectionPass::insertInjectionFuncCall(
       args[2] = ConstantInt::get(i32type, fi_inst->getOpcode());
       args[3] = ConstantInt::get(i32type, reg_index);
       args[4] = ConstantInt::get(i32type, total_reg_num);
+      //======== Add opcode_str QINING @MAR 11th========
+      std::string opcode_str = fi_inst->getOpcodeName();
+      GlobalVariable* opcode_str_gv = findOrCreateGlobalNameString(M, opcode_str);
+      std::vector<Constant*> indices_for_gep(2);
+      indices_for_gep[0] = ConstantInt::get(Type::getInt32Ty(context),0);
+      indices_for_gep[1] = ConstantInt::get(Type::getInt32Ty(context),0);
+      ArrayRef<Constant*> indices_for_gep_array_ref(indices_for_gep);
+      Constant* gep_expr = ConstantExpr::getGetElementPtr(opcode_str_gv, indices_for_gep_array_ref, true);
+      args.push_back(gep_expr);
+      //================================================
 
       // LLVM 3.3 Upgrade
       ArrayRef<Value*> args_array_ref(args);
@@ -191,7 +204,9 @@ void FaultInjectionPass::createInjectionFuncforType(
                     PointerType::get(Type::getInt8Ty(context), 0),
                     "tmploc_cast", fi2exit_branch);
   fi_args[3] = args[3];
-
+  //======== Add opcode_str QINING @MAR 11th========
+  fi_args.push_back(args[5]);
+  //================================================
   ArrayRef<Value*> fi_args_array_ref(fi_args);
 	
   CallInst::Create(injectfunc, fi_args_array_ref, "",
@@ -288,6 +303,9 @@ Constant *FaultInjectionPass::getLLFILibFIFunc(Module &M) {
   fi_func_param_types[1] = Type::getInt32Ty(context); // size
   fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0); //inst
   fi_func_param_types[3] = Type::getInt32Ty(context); // my reg index
+  //======== Add opcode_str QINING @MAR 11th========
+  fi_func_param_types.push_back(PointerType::get(Type::getInt8Ty(context), 0));
+  //================================================
 
   // LLVM 3.3 Upgrade
   ArrayRef<Type*> fi_func_param_types_array_ref(fi_func_param_types);

@@ -242,6 +242,18 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == 'fi_type':
     pass
 
+  ##======== Add number of corrupted bits QINING @MAR 13th========
+  elif key == 'fi_num_bits':
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >=1, key+" must be greater than or equal to 1 in input.yaml"
+  ##==============================================================
+  
+  ##======== Add second corrupted regs QINING @MAR 27th===========
+  elif key == "window_len":
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >=0, key+" must be greater than or equal to zero in input.yaml"
+  ##==============================================================
+
   elif key == 'fi_cycle':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
@@ -338,6 +350,14 @@ def main(args):
         del fi_reg_index
       if 'fi_bit' in locals():
         del fi_bit
+      ##======== Add number of corrupted bits QINING @MAR 13th========
+      if 'fi_num_bits' in locals():
+        del fi_num_bits
+      ##==============================================================
+      ##======== Add second corrupted regs QINING @MAR 27th===========
+      if 'window_len' in locals():
+        del window_len
+      ##==============================================================
       if 'fi_random_seed' in locals():
         del fi_random_seed
 
@@ -353,6 +373,16 @@ def main(args):
           else:
             fi_type = injectorname
         checkValues("fi_type",fi_type)
+      ##======== Add number of corrupted bits QINING @MAR 13th========
+      if "fi_num_bits" in run["run"]:
+        fi_num_bits=run["run"]["fi_num_bits"]
+        checkValues("fi_num_bits", fi_num_bits)
+      ##==============================================================
+      ##======== Add second corrupted regs QINING @MAR 27th===========
+      if 'window_len' in run["run"]:
+        window_len=run["run"]["window_len"]
+        checkValues("window_len", window_len)
+      ##==============================================================
       if "fi_cycle" in run["run"]:
         fi_cycle=run["run"]["fi_cycle"]
         checkValues("fi_cycle",fi_cycle)
@@ -403,6 +433,15 @@ def main(args):
           ficonfig_File.write("fi_reg_index="+str(fi_reg_index)+'\n')
         if 'fi_bit' in locals():
           ficonfig_File.write("fi_bit="+str(fi_bit)+'\n')
+        ##======== Add number of corrupted bits QINING @MAR 13th========
+        if 'fi_num_bits' in locals():
+          ficonfig_File.write("fi_num_bits="+str(fi_num_bits)+'\n')
+        ##==============================================================
+        ##======== Add second corrupted regs QINING @MAR 27th===========
+        if 'window_len' in locals():
+          fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles) - 1)
+          ficonfig_File.write("fi_second_cycle="+str(fi_second_cycle)+'\n')
+        ##==============================================================
         ficonfig_File.close()
 
         # print run index before executing. Comma removes newline for prettier

@@ -37,6 +37,7 @@ llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
 llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
 llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
+defaultlinklibs = ['-lpthread']
 prog = os.path.basename(sys.argv[0])
 # basedir is assigned in parseArgs(args)
 basedir = ""
@@ -316,7 +317,7 @@ def _suffixOfIR():
     return ".bc"
 
 def compileProg():
-  global proffile, fifile, compileOptions
+  global proffile, fifile, compileOptions, defaultlinklibs
   srcbase = os.path.basename(options["source"])
   progbin = os.path.join(options["dir"], srcbase[0 : srcbase.rfind(".")])
 
@@ -368,7 +369,7 @@ def compileProg():
       tmpfiles.append(fifile + '.o')
       retcode = execCompilation(execlist)
 
-    liblist = []
+    liblist = list(defaultlinklibs)
     for lib_dir in options["L"]:
       liblist.extend(["-L", lib_dir])
     for lib in options["l"]:

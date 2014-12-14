@@ -29,8 +29,13 @@ static struct {
   // a previous fault injection experiment
   int fi_reg_index;
   int fi_bit;
-  int fi_random_seed;
-} config = {"bitflip", false, -1, -1, -1, -1}; 
+  //======== Add number of corrupted bits QINING @MAR 13th========
+  int fi_num_bits;
+  //==============================================================
+  //======== Add second corrupted regs QINING @MAR 27th===========
+  long long fi_second_cycle;
+  //==============================================================
+} config = {"bitflip", false, -1, -1, -1, -1, 1, -1}; 
 // -1 to tell the value is not specified in the config file
 
 // declaration of the real implementation of the fault injection function
@@ -96,9 +101,16 @@ void _parseLLFIConfigFile() {
     } else if (strcmp(option, "fi_bit") == 0) {
       config.fi_bit = atoi(value);
       assert(config.fi_bit >= 0 && "invalid fi_bit in config file");
-    } else if (strcmp(option, "fi_random_seed") == 0) {
-      config.fi_bit = atoi(value);
-      assert(config.fi_random_seed >= 0 && "invalid fi_bit in config file");
+    //======== Add number of corrupted bits QINING @MAR 13th========
+    } else if (strcmp(option, "fi_num_bits") == 0){
+    	config.fi_num_bits = atoi(value);
+    	assert(config.fi_num_bits >=0 && "invalid fi_num_bits in config file");
+    //==============================================================	
+    //======== Add second corrupted regs QINING @MAR 27th===========
+    } else if (strcmp(option, "fi_second_cycle") == 0){
+    	config.fi_second_cycle = atoll(value);
+    	assert(config.fi_second_cycle >= 0 && "invalid fi_second_cycle in config file");
+    //==============================================================
     } else {
       fprintf(stderr, 
               "ERROR: Unknown option %s for LLFI runtime fault injection\n",
@@ -177,32 +189,60 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 }
 
 void injectFunc(long llfi_index, unsigned size, 
-                char *buf, unsigned my_reg_index) {
+                char *buf, unsigned my_reg_index, char* opcode_str) {
   fprintf(stderr, "MSG: injectFunc() has being called\n");
   if (! fiFlag) return;
   start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
 
   unsigned fi_bit, fi_bytepos, fi_bitpos;
   unsigned char oldbuf;
-
-  // NOTE: if fi_bit specified, use it, otherwise, randomly generate
-  if (config.fi_bit >= 0)
-    fi_bit = config.fi_bit;
-  else
-    fi_bit = rand() / (RAND_MAX * 1.0) * size;
-  assert (fi_bit < size && "fi_bit larger than the target size");
-  fi_bytepos = fi_bit / 8;
-  fi_bitpos = fi_bit % 8;
   
-  memcpy(&oldbuf, &buf[fi_bytepos], 1);
-
-  fprintf(injectedfaultsFile, 
+  //======== Add opcode_str QINING @MAR 11th========
+  unsigned fi_num_bits;
+  fi_num_bits = config.fi_num_bits;
+  char* score_board = (char*) calloc (size, sizeof(char));
+  //================================================
+  //======== Add opcode_str QINING @MAR 11th========
+  int runs =0;
+  for(runs = 0; runs < fi_num_bits && runs < size; runs++){
+  	  // NOTE: if fi_bit specified, use it, otherwise, randomly generate
+	  if (config.fi_bit >= 0)
+	    fi_bit = config.fi_bit;
+	  else
+	  {
+	    //======== Add opcode_str QINING @MAR 11th========
+	    do{
+	    	fi_bit = rand() / (RAND_MAX * 1.0) * size;
+	    }while(score_board[fi_bit] == 1);
+	    score_board[fi_bit] = 1;
+	    //================================================
+	  }
+	  assert (fi_bit < size && "fi_bit larger than the target size");
+	  fi_bytepos = fi_bit / 8;
+	  fi_bitpos = fi_bit % 8;
+	  
+	  memcpy(&oldbuf, &buf[fi_bytepos], 1);
+	
+	  //======== Add opcode_str QINING @MAR 11th========
+	  fprintf(injectedfaultsFile, 
           "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
-          "fi_bit=%u\n", config.fi_type,
-          llfi_index, config.fi_cycle, my_reg_index, fi_bit);
-	fflush(injectedfaultsFile); 
-  
-  injectFaultImpl(config.fi_type, llfi_index, size, fi_bit, buf);
+          "fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type,
+          llfi_index, config.fi_cycle, my_reg_index, size, fi_bit, opcode_str);
+ 	  fflush(injectedfaultsFile); 
+	  //================================================
+	  
+	  //======== Add second corrupted regs QINING @MAR 27th===========
+	  //update the fi_cycle to the fi_second_cycle,
+	  // so later procedures can still use fi_cycle to print stat info
+	  if(config.fi_second_cycle != -1)
+	  {
+	  	config.fi_cycle = config.fi_second_cycle;
+	  	config.fi_second_cycle = -1;
+	  }
+	  //==============================================================
+  	  injectFaultImpl(config.fi_type, llfi_index, size, fi_bit, buf);
+  }
+  //==================================================
   /*
   debug(("FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
          "fi_bit=%u, size=%u, old=0x%hhx, new=0x%hhx\n", config.fi_type,
