@@ -7,14 +7,15 @@ List of options:
 -LLVM_DST_ROOT <LLVM CMake build root dir>:
     Make sure you build LLVM with CMake and pass build root directory here
 -LLVM_SRC_ROOT <LLVM source root dir>
+-LLFI_BUILD_ROOT <path where you want to build LLFI>
 -LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
     You don't need to set it if it is in system path
 -JAVA_HOME_DIR <java home directory for oracle jdk 7 or higher> (optional):
     You don't need to set it if your default jdk is oracle jdk 7 or higher
--LLFI_BUILD_ROOT <path where you want to build LLFI>
 
 
 --help(-h): show help information
+--no_gui: Add this option if you do not want GUI.
 """
 
 import sys
@@ -39,6 +40,7 @@ optional_configs = {
   "JAVA_HOME_DIR": "",
 }
 
+gui_build_flag = True
 
 def usage(msg = None):
   retval = 0
@@ -54,7 +56,7 @@ def cmd_exists(cmd):
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
 
 def parseArgs(args):
-  global required_configs, optional_configs
+  global required_configs, optional_configs, gui_build_flag
   
   argid = 0
   while argid < len(args):
@@ -68,6 +70,8 @@ def parseArgs(args):
         optional_configs[arg[1:]] = args[argid]
       elif arg == "--help" or arg == "-h":
         usage()
+      elif arg == "--no_gui":
+        gui_build_flag = False
       else:
         usage("Invalid argument: " + arg)
     else:
@@ -141,7 +145,7 @@ def checkEnvironment():
 
 
 def build():
-  global optional_configs
+  global optional_configs, gui_build_flag
 # create config files
   script_path = os.path.realpath(os.path.dirname(__file__))
   llvm_paths_cmake = os.path.join(script_path, "config/llvm_paths.cmake")
@@ -163,43 +167,44 @@ def build():
   cmake_File.write("set(LLVM_SRC_ROOT " + LLVM_SRC_ROOT + ")\n")
   cmake_File.close()
 
-  # write cmake config file for java paths
-  cmake_File = open(java_paths_cmake, "w")
-  if optional_configs['JAVA_HOME_DIR'] == '':
-    try:
-      ORACLE_JAVA_HOME = \
-        str(subprocess.check_output('readlink -f /usr/bin/javac | sed \"s:/bin/javac::\"',\
-        shell=True, universal_newlines=True
-        )).strip()
-    except:
-      usage("ORACLE_JAVA_HOME not set and not found in system path!")
+  if gui_build_flag == True:
+    # write cmake config file for java paths
+    cmake_File = open(java_paths_cmake, "w")
+    if optional_configs['JAVA_HOME_DIR'] == '':
+      try:
+        ORACLE_JAVA_HOME = \
+          str(subprocess.check_output('readlink -f /usr/bin/javac | sed \"s:/bin/javac::\"',\
+          shell=True, universal_newlines=True
+          )).strip()
+      except:
+        usage("ORACLE_JAVA_HOME not set and not found in system path!")
+        sys.exit(1)
+    else:
+      ORACLE_JAVA_HOME = optional_configs['JAVA_HOME_DIR']
+    print(ORACLE_JAVA_HOME)
+    if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/javac')):
+      usage("Invalid ORACLE_JAVA_HOME: bin/javac not found!")
       sys.exit(1)
-  else:
-    ORACLE_JAVA_HOME = optional_configs['JAVA_HOME_DIR']
-  print(ORACLE_JAVA_HOME)
-  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/javac')):
-    usage("Invalid ORACLE_JAVA_HOME: bin/javac not found!")
-    sys.exit(1)
-
-  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/java')):
-    usage("Invalid ORACLE_JAVA_HOME: bin/java not found!")
-    sys.exit(1)
-
-  if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/jfxrt.jar')):
-    usage("Invalid ORACLE_JAVA_HOME: jre/lib/jfxrt.jar not found! \
-    Please use Oracle JDK 7 or higher version.")
-    sys.exit(1)
-
-  CMAKE_JAVA_INCLUDE_PATH = \
-    str(os.path.join(ORACLE_JAVA_HOME, './jre/lib'))+'/*'+\
-    ':'+\
-    str(os.path.join(ORACLE_JAVA_HOME, './jre/lib/ext'))+'/*'
-
-  cmake_File.write("set(JAVA_HOME " + ORACLE_JAVA_HOME + ")\n")
-  cmake_File.write("set(JAVAC_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/javac' + ")\n")
-  cmake_File.write("set(JAVA_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/java' + ")\n")
-  cmake_File.write("set(CMAKE_JAVA_INCLUDE_PATH " + CMAKE_JAVA_INCLUDE_PATH + ")\n")
-  cmake_File.close()
+  
+    if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './bin/java')):
+      usage("Invalid ORACLE_JAVA_HOME: bin/java not found!")
+      sys.exit(1)
+  
+    if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/jfxrt.jar')):
+      usage("Invalid ORACLE_JAVA_HOME: jre/lib/jfxrt.jar not found! \
+      Please use Oracle JDK 7 or higher version.")
+      sys.exit(1)
+  
+    CMAKE_JAVA_INCLUDE_PATH = \
+      str(os.path.join(ORACLE_JAVA_HOME, './jre/lib'))+'/*'+\
+      ':'+\
+      str(os.path.join(ORACLE_JAVA_HOME, './jre/lib/ext'))+'/*'
+  
+    cmake_File.write("set(JAVA_HOME " + ORACLE_JAVA_HOME + ")\n")
+    cmake_File.write("set(JAVAC_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/javac' + ")\n")
+    cmake_File.write("set(JAVA_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/java' + ")\n")
+    cmake_File.write("set(CMAKE_JAVA_INCLUDE_PATH " + CMAKE_JAVA_INCLUDE_PATH + ")\n")
+    cmake_File.close()
 
   # write python config file for llvm paths
   py_File = open(llvm_paths_py, "w")
@@ -208,13 +213,14 @@ def build():
   py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
   py_File.close()
 
-  # write python config file for java paths
-  py_File = open(java_paths_py, "w")
-  py_File.write("JAVA_HOME = " + '"' + ORACLE_JAVA_HOME + '"\n')
-  py_File.write("JAVAC_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/javac' + '"\n')
-  py_File.write("JAVA_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/java' + '"\n')
-  py_File.write("CMAKE_JAVA_INCLUDE_PATH = " + '"' + CMAKE_JAVA_INCLUDE_PATH + '"\n')
-  py_File.close()
+  if gui_build_flag == True:
+    # write python config file for java paths
+    py_File = open(java_paths_py, "w")
+    py_File.write("JAVA_HOME = " + '"' + ORACLE_JAVA_HOME + '"\n')
+    py_File.write("JAVAC_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/javac' + '"\n')
+    py_File.write("JAVA_EXECUTABLE = " + '"' + ORACLE_JAVA_HOME + '/bin/java' + '"\n')
+    py_File.write("CMAKE_JAVA_INCLUDE_PATH = " + '"' + CMAKE_JAVA_INCLUDE_PATH + '"\n')
+    py_File.close()
 
   # write unix make config file for llvm paths
   make_File = open(llvm_paths_make, 'w')
@@ -228,7 +234,11 @@ def build():
   LLFI_BUILD_DIR = os.path.realpath(required_configs['LLFI_BUILD_ROOT'])
   os.makedirs(LLFI_BUILD_DIR)
   os.chdir(LLFI_BUILD_DIR)
-  p = subprocess.call(["cmake", script_path])
+  config_command = ["cmake"]
+  if gui_build_flag == False:
+    config_command.append("-DNO_GUI=ON")
+  config_command.append(script_path)
+  p = subprocess.call(config_command)
   if p != 0:
     sys.exit(p)
 
