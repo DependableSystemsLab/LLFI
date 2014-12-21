@@ -1,4 +1,4 @@
-#define DEBUG_TYPE "AutoScan_Pass"
+#define DEBUG_TYPE "SoftwareFailureAutoScanPass"
 
 #include "FICustomSelectorManager.h"
 #include "Utils.h"
@@ -20,7 +20,7 @@
 
 using namespace llvm;
 namespace llfi{
-    static cl::opt< std::string > outputpath("outputfilename",
+    static cl::opt< std::string > outputpath("softwarescan_outputfilename",
         cl::desc("The path to store a list of applicable software failures"),
         cl::init("llfi.applicable.software.failures.txt"));
 
@@ -36,7 +36,7 @@ namespace llfi{
             FICustomInstSelectorManager *im = FICustomInstSelectorManager::getCustomInstSelectorManager();
             FICustomRegSelectorManager *rm = FICustomRegSelectorManager::getCustomRegSelectorManager();
             std::set<std::string> all_software_failure_names;
-            im->getAllSoftwareFailures(all_software_failure_names);
+            im->getAllSoftwareSelectors(all_software_failure_names);
             // errs()<<"get all soft failures\n";
             for(std::set<std::string>::iterator name = all_software_failure_names.begin();
                 name != all_software_failure_names.end(); name++){

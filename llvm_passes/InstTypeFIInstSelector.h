@@ -7,7 +7,7 @@
 using namespace llvm;
 namespace llfi {
 
-class InstTypeFIInstSelector: public FIInstSelector {
+class InstTypeFIInstSelector: public HardwareFIInstSelector {
  public:
   InstTypeFIInstSelector(std::set<unsigned> *opcodelist) {
     this->opcodelist = opcodelist;

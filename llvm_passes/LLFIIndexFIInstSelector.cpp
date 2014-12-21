@@ -16,7 +16,7 @@ static cl::list< std::string > injecttoindex("injecttoindex",
 /**
  * LLFI Index instruction selector selects instruction of certain indices
  */
-class LLFIIndexFIInstSelector: public FIInstSelector {
+class LLFIIndexFIInstSelector: public HardwareFIInstSelector {
  private:
   virtual bool isInstFITarget(Instruction *inst) {
     long llfiindex = getLLFIIndexofInst(inst);

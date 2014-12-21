@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_MemoryLeakInstSelector: public FIInstSelector{
+    class _Res_MemoryLeakInstSelector: public SoftwareFIInstSelector{
         public:
             _Res_MemoryLeakInstSelector(){
                 funcNames.insert(std::string("free"));

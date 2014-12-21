@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_BufferOverflowMemmoveInstSelector: public FIInstSelector{
+    class _Data_BufferOverflowMemmoveInstSelector: public SoftwareFIInstSelector{
         public:
             _Data_BufferOverflowMemmoveInstSelector(){
                 funcNames.insert(std::string("memcpy"));

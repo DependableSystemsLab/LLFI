@@ -8,7 +8,7 @@
 using namespace llvm;
 namespace llfi {
 
-class FuncNameFIInstSelector: public FIInstSelector {
+class FuncNameFIInstSelector: public HardwareFIInstSelector {
  public:
   FuncNameFIInstSelector(std::set<std::string> *funclist) {
     this->funclist = funclist;

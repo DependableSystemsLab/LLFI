@@ -7,7 +7,9 @@ Usage: %(prog)s [OPTIONS] <source IR file>
 
 List of options:
 
--outputfilename=<filename>: set the name of the file that stores the list of applicable software failures (default:llfi.applicable.software.failures.txt)
+-outputfilename=<filename>: set the name of the file that stores the list of applicable software failures (default: llfi.applicable.software.failures.txt)
+ Note: If <filename> is a relative path instead of an absolute path, the base path of <filename> will be the path of the targeting IR file instead of the calling path.
+ 
 -numOfRuns <number of runs>: set the number of runs for each found failure mode (default: 1)
 --enable_tracing: enable tracing
 --enable_forward_injection: enable injection on the forward slice of the selected injection point
@@ -59,7 +61,7 @@ def parseArgs(args):
            options.append(option)
        elif arg.startswith('-outputfilename='):
            filename = arg.split('-outputfilename=')[-1]
-           options.append(option)
+           options.append('-softwarescan_outputfilename='+filename)
        elif arg == "-numOfRuns":
            run_num_dict['numOfRuns'] = int(args[i+1])
        elif arg == "--enable_tracing":
@@ -88,7 +90,7 @@ def runAutoScan(args):
     p = subprocess.Popen(execlist)
     p.wait()
     if p.returncode != 0:
-        print("ERROR: Auto scan pass return code !=0\n")
+        print("ERROR: Software Auto scan pass return code !=0\n")
         exit(p.returncode)
     elif os.path.isfile(os.path.join(basedir, filename)) == False:
         print("ERROR: No output file found at: "+os.path.join(basedir, filename)+"!\n")

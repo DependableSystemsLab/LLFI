@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _MPI_PacketStormInstSelector: public FIInstSelector{
+    class _MPI_PacketStormInstSelector: public SoftwareFIInstSelector{
         public:
             _MPI_PacketStormInstSelector(){
                 funcNames.insert(std::string("recv"));

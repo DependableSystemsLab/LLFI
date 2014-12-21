@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _MPI_DeadLockInstSelector: public FIInstSelector{
+    class _MPI_DeadLockInstSelector: public SoftwareFIInstSelector{
         public:
             _MPI_DeadLockInstSelector(){
                 funcNames.insert(std::string("recv"));

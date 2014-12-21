@@ -22,7 +22,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_CPUHOGInstSelector: public FIInstSelector{
+    class _Res_CPUHOGInstSelector: public SoftwareFIInstSelector{
     private:
         virtual bool isInstFITarget(Instruction* inst){
             return isa<ReturnInst>(inst);

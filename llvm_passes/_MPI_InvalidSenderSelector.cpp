@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _MPI_InvalidSenderInstSelector: public FIInstSelector{
+    class _MPI_InvalidSenderInstSelector: public SoftwareFIInstSelector{
         public:
             _MPI_InvalidSenderInstSelector(){
                 funcNames.insert(std::string("connect"));

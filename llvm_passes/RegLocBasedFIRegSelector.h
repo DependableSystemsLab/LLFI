@@ -4,7 +4,7 @@
 #include "Controller.h"
 #include "FIRegSelector.h"
 namespace llfi {
-class RegLocBasedFIRegSelector: public FIRegSelector {
+class RegLocBasedFIRegSelector: public HardwareFIRegSelector {
  public:
   RegLocBasedFIRegSelector(FIRegLoc filoc): firegloc(filoc) {}
 

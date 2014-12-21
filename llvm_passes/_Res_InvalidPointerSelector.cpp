@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_InvalidPointerInstSelector: public FIInstSelector{
+    class _Res_InvalidPointerInstSelector: public SoftwareFIInstSelector{
         public:
             _Res_InvalidPointerInstSelector(){
                 funcNames.insert(std::string("malloc"));

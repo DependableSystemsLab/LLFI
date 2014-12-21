@@ -1,7 +1,7 @@
-#include <string>
-
 #ifndef FAULT_INJECTOR_H
 #define FAULT_INJECTOR_H
+
+#include <string>
 
 class FaultInjector {
   // TODO: need to change the interface when we inject multiple bits faults

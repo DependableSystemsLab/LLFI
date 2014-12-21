@@ -19,7 +19,8 @@ class FICustomInstSelectorManager {
   void addCustomInstSelector(const std::string &name, 
                              FIInstSelector *instselector);
   FIInstSelector *getCustomInstSelector(const std::string &name);
-  void getAllSoftwareFailures(std::set<std::string>& all_software_failure_names);
+  void getAllSoftwareSelectors(std::set<std::string>& all_software_failure_names);
+  void getAllHardwareSelectors(std::set<std::string>& all_hardware_failure_names);
 
  private:
   std::map<const std::string, FIInstSelector* > optionname_instselector;
@@ -35,7 +36,9 @@ class FICustomRegSelectorManager {
   void addCustomRegSelector(const std::string &name, 
                             FIRegSelector *regselector);
   FIRegSelector *getCustomRegSelector(const std::string &name);
-
+  void getAllSoftwareSelectors(std::set<std::string>& all_software_failure_names);
+  void getAllHardwareSelectors(std::set<std::string>& all_hardware_failure_names);
+  
  private:
   std::map<const std::string, FIRegSelector* > optionname_regselector;
 };

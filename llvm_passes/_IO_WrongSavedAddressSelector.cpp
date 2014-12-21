@@ -22,7 +22,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _IO_WrongSavedAddressInstSelector: public FIInstSelector{
+    class _IO_WrongSavedAddressInstSelector: public SoftwareFIInstSelector{
         public:
             _IO_WrongSavedAddressInstSelector(){
                 funcNames.insert(std::string("fread"));
@@ -56,7 +56,7 @@ namespace llfi{
         }
     };
 
-    class _IO_WrongSavedAddressRegSelector: public FIRegSelector{
+    class _IO_WrongSavedAddressRegSelector: public SoftwareFIRegSelector{
       private:
       virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){
         if(isa<CallInst>(inst) == false)  return false;

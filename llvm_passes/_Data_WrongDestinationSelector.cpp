@@ -22,7 +22,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_WrongDestinationInstSelector: public FIInstSelector{
+    class _Data_WrongDestinationInstSelector: public SoftwareFIInstSelector{
         public:
             _Data_WrongDestinationInstSelector(){
                 funcNames.insert(std::string("memcpy"));

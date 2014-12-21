@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _API_NoCloseInstSelector: public FIInstSelector{
+    class _API_NoCloseInstSelector: public SoftwareFIInstSelector{
     private:
         virtual bool isInstFITarget(Instruction* inst){
             if(isa<CallInst>(inst) == false)    return false;

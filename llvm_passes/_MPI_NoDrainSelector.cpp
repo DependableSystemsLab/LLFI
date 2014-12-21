@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _MPI_NoDrainInstSelector: public FIInstSelector{
+    class _MPI_NoDrainInstSelector: public SoftwareFIInstSelector{
         public:
             _MPI_NoDrainInstSelector(){
                 funcNames.insert(std::string("recv"));

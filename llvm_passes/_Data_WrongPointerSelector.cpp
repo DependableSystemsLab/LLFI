@@ -22,7 +22,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_WrongPointerInstSelector: public FIInstSelector{
+    class _Data_WrongPointerInstSelector: public SoftwareFIInstSelector{
         public:
             _Data_WrongPointerInstSelector(){
                 funcNames.insert(std::string("fread"));

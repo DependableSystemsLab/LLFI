@@ -12,7 +12,7 @@
 
 using namespace std;
 namespace llfi {
-	class FuncArgRegSelector: public FIRegSelector {
+	class FuncArgRegSelector: public SoftwareFIRegSelector {
 	public:
 		FuncArgRegSelector(int target_arg) : pos_argument(target_arg), specified_arg(true) {};
 		FuncArgRegSelector():pos_argument(0), specified_arg(false) {};
@@ -23,13 +23,13 @@ namespace llfi {
 		virtual bool isRegofInstFITarget(Value* reg, Instruction* inst, int pos);
 	};
 	
-	class FuncDestRegSelector: public FIRegSelector {
+	class FuncDestRegSelector: public SoftwareFIRegSelector {
 	private:
 		virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
 		
 	};
 
-	class RetValRegSelector: public FIRegSelector {
+	class RetValRegSelector: public SoftwareFIRegSelector {
 	private:
 		virtual bool isRegofInstFITarget(Value *reg, Instruction *inst);
 		

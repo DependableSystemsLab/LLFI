@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Timing_RaceConditionInstSelector: public FIInstSelector{
+    class _Timing_RaceConditionInstSelector: public SoftwareFIInstSelector{
         public:
             _Timing_RaceConditionInstSelector(){
                 funcNames.insert(std::string("pthread_mutex_lock"));

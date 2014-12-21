@@ -23,7 +23,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_Incorrect_OutputInstSelector: public FIInstSelector{
+    class _Data_Incorrect_OutputInstSelector: public SoftwareFIInstSelector{
     private:
         virtual bool isInstFITarget(Instruction* inst){
             return isa<ReturnInst>(inst);

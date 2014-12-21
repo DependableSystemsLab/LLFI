@@ -16,6 +16,10 @@ class FIInstSelector {
   void getFIInsts(Module &M, std::set<Instruction*> *fiinsts);
   virtual void getCompileTimeInfo(std::map<std::string, std::string>& info);
 
+  virtual std::string getInstSelectorClass(){
+    return std::string("Unknown");
+  }
+
  public:
   inline void setIncludeBackwardTrace(bool includebt) {
     includebackwardtrace = includebt;
@@ -45,6 +49,18 @@ class FIInstSelector {
   bool includebackwardtrace;
   bool includeforwardtrace;
 }; 
+
+class SoftwareFIInstSelector: public FIInstSelector{
+  virtual std::string getInstSelectorClass(){
+    return std::string("SoftwareFault");
+  }
+};
+
+class HardwareFIInstSelector: public FIInstSelector{
+  virtual std::string getInstSelectorClass(){
+    return std::string("HardwareFault");
+  }
+};
 }
 
 #endif

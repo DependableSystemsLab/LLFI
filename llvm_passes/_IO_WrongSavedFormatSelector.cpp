@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _IO_WrongSFormatInstSelector: public FIInstSelector{
+    class _IO_WrongSFormatInstSelector: public SoftwareFIInstSelector{
         public:
             _IO_WrongSFormatInstSelector(){
                 funcNames.insert(std::string("fwrite"));

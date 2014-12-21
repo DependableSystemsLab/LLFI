@@ -23,7 +23,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_CorruptionInstSelector: public FIInstSelector{
+    class _Data_CorruptionInstSelector: public SoftwareFIInstSelector{
     private:
         virtual bool isInstFITarget(Instruction* inst){
             if(isa<CallInst>(inst) == false)    return false;

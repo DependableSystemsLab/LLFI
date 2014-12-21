@@ -12,7 +12,7 @@ namespace llfi {
  */
 // TODO: enable custom selctor to have more sources of options, e.g. read from
 // config file
-class SampleFIInstSelector: public FIInstSelector {
+class SampleFIInstSelector: public HardwareFIInstSelector {
  private:
   virtual bool isInstFITarget(Instruction *inst) {
     if (inst->getParent()->getParent()->getName() == "main")

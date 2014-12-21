@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Timing_HighFrequentEventInstSelector: public FIInstSelector{
+    class _Timing_HighFrequentEventInstSelector: public SoftwareFIInstSelector{
         public:
             _Timing_HighFrequentEventInstSelector(){
                 funcNames.insert(std::string("fread"));
@@ -58,7 +58,7 @@ namespace llfi{
         }
     };
 
-    class _Timing_HighFrequentEventRegSelector: public FIRegSelector{
+    class _Timing_HighFrequentEventRegSelector: public SoftwareFIRegSelector{
       private:
       virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){
         if(isa<CallInst>(inst)){

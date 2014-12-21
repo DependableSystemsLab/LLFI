@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _MPI_NoAckInstSelector: public FIInstSelector{
+    class _MPI_NoAckInstSelector: public SoftwareFIInstSelector{
         public:
             _MPI_NoAckInstSelector(){
                 funcNames.insert(std::string("recv"));

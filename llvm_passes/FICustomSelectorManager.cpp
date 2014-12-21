@@ -24,15 +24,25 @@ void FICustomInstSelectorManager::addCustomInstSelector(
   }
 }
 
-void FICustomInstSelectorManager::getAllSoftwareFailures(
+void FICustomInstSelectorManager::getAllSoftwareSelectors(
   std::set<std::string>& all_software_failure_names){
   for(std::map<const std::string, FIInstSelector* >::iterator it = 
     optionname_instselector.begin(); it != optionname_instselector.end(); 
     ++it) {
-      std::map<std::string, std::string> info;
-      it->second->getCompileTimeInfo(info);
-      if(info.count("failure_class") != 0 && info["failure_class"] != "HardwareFault"){
+      if(it->second->getInstSelectorClass() == std::string("SoftwareFault")){
         all_software_failure_names.insert(it->first);
+      }
+  }
+  return;
+}
+
+void FICustomInstSelectorManager::getAllHardwareSelectors(
+  std::set<std::string>& all_hardware_failure_names){
+  for(std::map<const std::string, FIInstSelector* >::iterator it = 
+    optionname_instselector.begin(); it != optionname_instselector.end(); 
+    ++it) {
+      if(it->second->getInstSelectorClass() == std::string("HardwareFault")){
+        all_hardware_failure_names.insert(it->first);
       }
   }
   return;
@@ -77,6 +87,30 @@ FIRegSelector *FICustomRegSelectorManager::getCustomRegSelector(
         name << "\n";
     exit(1);
   }
+}
+
+void FICustomRegSelectorManager::getAllSoftwareSelectors(
+  std::set<std::string>& all_software_failure_names){
+  for(std::map<const std::string, FIRegSelector* >::iterator it = 
+    optionname_regselector.begin(); it != optionname_regselector.end(); 
+    ++it) {
+      if(it->second->getRegSelectorClass() == std::string("SoftwareFault")){
+        all_software_failure_names.insert(it->first);
+      }
+  }
+  return;
+}
+
+void FICustomRegSelectorManager::getAllHardwareSelectors(
+  std::set<std::string>& all_hardware_failure_names){
+  for(std::map<const std::string, FIRegSelector* >::iterator it = 
+    optionname_regselector.begin(); it != optionname_regselector.end(); 
+    ++it) {
+      if(it->second->getRegSelectorClass() == std::string("HardwareFault")){
+        all_hardware_failure_names.insert(it->first);
+      }
+  }
+  return;
 }
 
 }

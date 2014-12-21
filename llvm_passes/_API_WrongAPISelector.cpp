@@ -22,7 +22,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _API_WrongAPIInstSelector: public FIInstSelector{
+    class _API_WrongAPIInstSelector: public SoftwareFIInstSelector{
         public:
             _API_WrongAPIInstSelector(){
                 if(funcNamesTargetArgs.size() == 0){
@@ -78,7 +78,7 @@ namespace llfi{
     };
     std::map<std::string, std::set<int> > _API_WrongAPIInstSelector::funcNamesTargetArgs;
 
-    class _API_WrongAPIRegSelector: public FIRegSelector{
+    class _API_WrongAPIRegSelector: public SoftwareFIRegSelector{
       private:
       virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){
         if(isa<CallInst>(inst) == false)  return false;

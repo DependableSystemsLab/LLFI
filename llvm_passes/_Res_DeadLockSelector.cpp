@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_DeadLockInstSelector: public FIInstSelector{
+    class _Res_DeadLockInstSelector: public SoftwareFIInstSelector{
         public:
             _Res_DeadLockInstSelector(){
                 funcNames.insert(std::string("pthread_join"));

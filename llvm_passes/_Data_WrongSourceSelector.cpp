@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_WrongSourceInstSelector: public FIInstSelector{
+    class _Data_WrongSourceInstSelector: public SoftwareFIInstSelector{
         public:
             _Data_WrongSourceInstSelector(){
                 funcNames.insert(std::string("memcpy"));

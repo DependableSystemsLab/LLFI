@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Data_BufferOverflowMallocInstSelector: public FIInstSelector{
+    class _Data_BufferOverflowMallocInstSelector: public SoftwareFIInstSelector{
         public:
             _Data_BufferOverflowMallocInstSelector(){
                 funcNames.insert(std::string("malloc"));

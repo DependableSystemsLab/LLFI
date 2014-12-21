@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_ThreadKillerInstSelector: public FIInstSelector{
+    class _Res_ThreadKillerInstSelector: public SoftwareFIInstSelector{
         public:
             _Res_ThreadKillerInstSelector(){
                 funcNames.insert(std::string("pthread_create"));

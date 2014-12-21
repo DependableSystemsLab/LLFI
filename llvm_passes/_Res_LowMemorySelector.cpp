@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_LowMemoryInstSelector: public FIInstSelector{
+    class _Res_LowMemoryInstSelector: public SoftwareFIInstSelector{
         public:
             _Res_LowMemoryInstSelector(){
                 funcNames.insert(std::string("malloc"));

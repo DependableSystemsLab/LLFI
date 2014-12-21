@@ -21,7 +21,7 @@
 
 using namespace llvm;
 namespace llfi{
-    class _API_BufferOverflowInstSelector: public FIInstSelector{
+    class _API_BufferOverflowInstSelector: public SoftwareFIInstSelector{
         public:
             _API_BufferOverflowInstSelector(){
                 funcNames.insert(std::string("fread"));
