@@ -9,6 +9,7 @@ copydir(SoftwareFaults SoftwareFaults)
 copydir(PROGRAMS PROGRAMS)
 copydir(Traces Traces)
 copydir(BatchMode BatchMode)
+copydir(MakefileGeneration MakefileGeneration)
 copy(test_suite.yaml test_suite.yaml)
 
 add_subdirectory(SCRIPTS)

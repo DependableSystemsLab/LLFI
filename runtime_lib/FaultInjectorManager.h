@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <stdio.h>
 #include <cstdlib>
@@ -20,6 +21,9 @@ class FaultInjectorManager {
   void addFaultInjector(const std::string &name,
                         FaultInjector *fi);
   FaultInjector *getFaultInjector(const std::string &name);
+
+  std::vector<std::string> getAllInjectorNames();
+  std::vector<std::string> getInjectorNamesForType(std::string type_str);
 
  private:
   std::map<const std::string, FaultInjector* > type_injector;

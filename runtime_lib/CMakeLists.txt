@@ -11,3 +11,10 @@ add_library(llfi-rt SHARED
     Utils.c
     _SoftwareFaultInjectors.cpp
 )
+
+add_executable(InjectorScanner
+    InjectorScanner.cpp
+)
+
+TARGET_LINK_LIBRARIES(llfi-rt pthread)
+TARGET_LINK_LIBRARIES(InjectorScanner llfi-rt)

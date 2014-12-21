@@ -110,3 +110,5 @@ Traces:
 BatchMode:
     NoOpen_API_WrongMode_API_BufferUnderflow_API: memcpy1
     AutoScan: memcpy1
+
+MakefileGeneration:

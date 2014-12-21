@@ -1,7 +1,7 @@
 #include "FaultInjector.h"
 #include "FaultInjectorManager.h"
 
-class BitFlipFI: public FaultInjector {
+class BitFlipFI: public HardwareFaultInjector {
  public:
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,
                       char *buf) {
@@ -11,7 +11,7 @@ class BitFlipFI: public FaultInjector {
   }
 };
 
-class StuckAt0FI: public FaultInjector {
+class StuckAt0FI: public HardwareFaultInjector {
  public:
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,
                       char *buf) {
@@ -21,7 +21,7 @@ class StuckAt0FI: public FaultInjector {
   }
 };
 
-class StuckAt1FI: public FaultInjector {
+class StuckAt1FI: public HardwareFaultInjector {
  public:
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,
                       char *buf) {
