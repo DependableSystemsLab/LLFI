@@ -208,7 +208,7 @@ def inject_prog(num_threads, *prog_list):
 	batchinstrument_script = os.path.join(llfi_bin_dir, "batchInstrument")
 	batchprofile_script = os.path.join(llfi_bin_dir, "batchProfile")
 	batchinjectfault_script = os.path.join(llfi_bin_dir, "batchInjectfault")
-	autoscan_script = os.path.join(llfi_bin_dir, "autoScan")
+	autoscan_script = os.path.join(llfi_bin_dir, "SoftwareFailureAutoScan")
 	
 	testsuite_dir = os.path.join(script_dir, os.pardir)
 	with open(os.path.join(testsuite_dir, "test_suite.yaml")) as f:
