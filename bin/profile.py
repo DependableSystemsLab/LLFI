@@ -129,7 +129,15 @@ def execute(execlist):
 def storeInputFiles():
   global inputList
   inputList=[]
-  for opt in optionlist:
+  ##========Consider comma as separator of arguments ==================================
+  temp_optionlist = []
+  for item in optionlist:
+    if item.count(',') == 0:
+      temp_optionlist.append(item)
+    else:
+      temp_optionlist.extend(item.split(','))
+  ##===================================================================================
+  for opt in temp_optionlist:
     if os.path.isfile(opt):#stores all files in inputList and copy over to inputdir
       shutil.copy2(opt, os.path.join(inputdir, opt))
       inputList.append(opt)

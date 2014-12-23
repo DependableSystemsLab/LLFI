@@ -421,7 +421,7 @@ def main(args):
         if need_to_calc_fi_cycle:
           fi_cycle = random.randint(0, int(totalcycles) - 1)
 
-        ficonfig_File = open("llfi.config.rumtime.txt", 'w')
+        ficonfig_File = open("llfi.config.runtime.txt", 'w')
         if 'fi_cycle' in locals():
           ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
         elif 'fi_index' in locals():

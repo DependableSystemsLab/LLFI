@@ -100,7 +100,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
       args[0] = indexval;
       args[1] = fi_reg;
       args[2] = ConstantInt::get(i32type, fi_inst->getOpcode());
-      args[3] = ConstantInt::get(i32type, reg_index);
+      args[3] = ConstantInt::get(i32type, *reg_pos_it+1); // dstreg->0, operand0->1, operand1->2 ...
       args[4] = ConstantInt::get(i32type, total_reg_num);
       //======== Add opcode_str QINING @MAR 11th========
       std::string opcode_str = fi_inst->getOpcodeName();

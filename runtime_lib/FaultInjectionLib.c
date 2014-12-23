@@ -61,7 +61,7 @@ bool _getDecision(double probability) {
 
 void _parseLLFIConfigFile() {
   char ficonfigfilename[80];
-  strncpy(ficonfigfilename, "llfi.config.rumtime.txt", 80);
+  strncpy(ficonfigfilename, "llfi.config.runtime.txt", 80);
   FILE *ficonfigFile;
   ficonfigFile = fopen(ficonfigfilename, "r");
   if (ficonfigFile == NULL) {
