@@ -307,13 +307,14 @@ Constant *FaultInjectionPass::getLLFILibPreFIFunc(Module &M) {
 
 Constant *FaultInjectionPass::getLLFILibFIFunc(Module &M) {
   LLVMContext& context = M.getContext();
-  std::vector<Type*> fi_func_param_types(4);
+  std::vector<Type*> fi_func_param_types(6);
   fi_func_param_types[0] = Type::getInt64Ty(context); // index
   fi_func_param_types[1] = Type::getInt32Ty(context); // size
   fi_func_param_types[2] = PointerType::get(Type::getInt8Ty(context), 0); //inst
   fi_func_param_types[3] = Type::getInt32Ty(context); // my reg index
+  fi_func_param_types[4] = Type::getInt32Ty(context); // reg_pos
   //======== Add opcode_str QINING @MAR 11th========
-  fi_func_param_types.push_back(PointerType::get(Type::getInt8Ty(context), 0));
+  fi_func_param_types[5] = PointerType::get(Type::getInt8Ty(context), 0);
   //================================================
 
   // LLVM 3.3 Upgrade
