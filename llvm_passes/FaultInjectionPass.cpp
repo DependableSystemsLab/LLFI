@@ -74,14 +74,17 @@ void FaultInjectionPass::insertInjectionFuncCall(
       Type *i32type = Type::getInt32Ty(context);
 
       // function declaration
-      std::vector<Type*> paramtypes(5);
+      std::vector<Type*> paramtypes(7);
       paramtypes[0] = i64type;	// llfi index
       paramtypes[1] = returntype;	// the instruction to be injected
       paramtypes[2] = i32type; // opcode
       paramtypes[3] = i32type; // current fi reg index
       paramtypes[4] = i32type; // total fi reg number
+      //======== Add reg_pos QINING @DEC 23rd ==========
+      paramtypes[5] = i32type;
+      //================================================
       //======== Add opcode_str QINING @MAR 11th========
-      paramtypes.push_back(PointerType::get(Type::getInt8Ty(context), 0));
+      paramtypes[6] = PointerType::get(Type::getInt8Ty(context), 0);
       //================================================
 
       //LLVM 3.3 Upgrade
@@ -96,12 +99,15 @@ void FaultInjectionPass::insertInjectionFuncCall(
       // injection into "the instruction", use instruction's index instead
       Value *indexval = ConstantInt::get(i64type, getLLFIIndexofInst(fi_inst));
 
-      std::vector<Value*> args(5);
-      args[0] = indexval;
-      args[1] = fi_reg;
-      args[2] = ConstantInt::get(i32type, fi_inst->getOpcode());
-      args[3] = ConstantInt::get(i32type, *reg_pos_it+1); // dstreg->0, operand0->1, operand1->2 ...
-      args[4] = ConstantInt::get(i32type, total_reg_num);
+      std::vector<Value*> args(7);
+      args[0] = indexval; //llfi index
+      args[1] = fi_reg; // target register
+      args[2] = ConstantInt::get(i32type, fi_inst->getOpcode()); // opcode in i32
+      args[3] = ConstantInt::get(i32type, reg_index); // reg_index not reg_pos
+      args[4] = ConstantInt::get(i32type, total_reg_num); // total_reg_num
+      //======== Add reg_pos QINING @DEC 23rd ==========
+      args[5] = ConstantInt::get(i32type, *reg_pos_it+1); // dstreg->0, operand0->1, operand1->2 ...
+      //================================================
       //======== Add opcode_str QINING @MAR 11th========
       std::string opcode_str = fi_inst->getOpcodeName();
       GlobalVariable* opcode_str_gv = findOrCreateGlobalNameString(M, opcode_str);
@@ -110,7 +116,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
       indices_for_gep[1] = ConstantInt::get(Type::getInt32Ty(context),0);
       ArrayRef<Constant*> indices_for_gep_array_ref(indices_for_gep);
       Constant* gep_expr = ConstantExpr::getGetElementPtr(opcode_str_gv, indices_for_gep_array_ref, true);
-      args.push_back(gep_expr);
+      args[6] = gep_expr; // opcode in string
       //================================================
 
       // LLVM 3.3 Upgrade
@@ -179,10 +185,10 @@ void FaultInjectionPass::createInjectionFuncforType(
   new StoreInst(args[1], tmploc, entryblock);
 
   std::vector<Value*> pre_fi_args(4);
-  pre_fi_args[0] = args[0]; //LLFI Number
-  pre_fi_args[1] = args[2];
-  pre_fi_args[2] = args[3];
-  pre_fi_args[3] = args[4];
+  pre_fi_args[0] = args[0]; //LLFI index
+  pre_fi_args[1] = args[2]; //opcode in i32
+  pre_fi_args[2] = args[3]; //reg_index, not reg_pos!
+  pre_fi_args[3] = args[4]; //total_reg_target_num
 
   // LLVM 3.3 Upgrade
   ArrayRef<Value*> pre_fi_args_array_ref(pre_fi_args);
@@ -195,17 +201,20 @@ void FaultInjectionPass::createInjectionFuncforType(
   BranchInst::Create(fiblock, exitblock, prefuncval, entryblock);		
   BranchInst *fi2exit_branch = BranchInst::Create(exitblock, fiblock);
 
-  std::vector<Value*> fi_args(4);
-  fi_args[0] = args[0]; //LLFI Number
+  std::vector<Value*> fi_args(6);
+  fi_args[0] = args[0]; //LLFI index
   DataLayout &td = getAnalysis<DataLayout>();
   int size = td.getTypeSizeInBits(fitype);
-  fi_args[1] = ConstantInt::get(Type::getInt32Ty(context), size); 
+  fi_args[1] = ConstantInt::get(Type::getInt32Ty(context), size); //size
   fi_args[2] = new BitCastInst(tmploc, 
                     PointerType::get(Type::getInt8Ty(context), 0),
-                    "tmploc_cast", fi2exit_branch);
-  fi_args[3] = args[3];
+                    "tmploc_cast", fi2exit_branch); //pointer to target memory
+  fi_args[3] = args[3]; //reg_index not reg_pos!
+  //======== Add reg_pos QINING @DEC 23rd ==========
+  fi_args[4] = args[5]; // dstreg->0, operand0->1, operand1->2 ...
+  //================================================
   //======== Add opcode_str QINING @MAR 11th========
-  fi_args.push_back(args[5]);
+  fi_args[5] = args[6]; //opcode in string
   //================================================
   ArrayRef<Value*> fi_args_array_ref(fi_args);
 	

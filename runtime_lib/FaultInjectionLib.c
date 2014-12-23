@@ -189,7 +189,7 @@ bool preFunc(long llfi_index, unsigned opcode, unsigned my_reg_index,
 }
 
 void injectFunc(long llfi_index, unsigned size, 
-                char *buf, unsigned my_reg_index, char* opcode_str) {
+                char *buf, unsigned my_reg_index, unsigned reg_pos, char* opcode_str) {
   fprintf(stderr, "MSG: injectFunc() has being called\n");
   if (! fiFlag) return;
   start_tracing_flag = TRACING_FI_RUN_FAULT_INSERTED; //Tell instTraceLib that we have injected a fault
@@ -226,8 +226,8 @@ void injectFunc(long llfi_index, unsigned size,
 	  //======== Add opcode_str QINING @MAR 11th========
 	  fprintf(injectedfaultsFile, 
           "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
-          "fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type,
-          llfi_index, config.fi_cycle, my_reg_index, size, fi_bit, opcode_str);
+          "fi_reg_pos=%u, fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type,
+          llfi_index, config.fi_cycle, my_reg_index, reg_pos, size, fi_bit, opcode_str);
  	  fflush(injectedfaultsFile); 
 	  //================================================
 	  
