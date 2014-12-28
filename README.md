@@ -50,7 +50,7 @@ Dependencies:
 Building:
   
   Run `./setup --help` for build instructions.
-  ```
+```
   $ ./setup --help
 
   Usage: setup OPTIONS
@@ -67,59 +67,50 @@ Building:
 
   --help(-h): show help information
   --no_gui: Add this option if you do not want GUI.
-  ```
+```
+
   Here is a sample build command if `clang` and `javac` are already in $PATH:
-  ```
+```
   ./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4
-  ```
+```
 
-GUI
+Build without GUI:
+To build LLFI without GUI, just add option: `--no_gui` in the command line for setup, for example:
+```
+./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4 --no_gui
+```
 
-The GUI is built by the setup-script in LLFI_BUILD_ROOT/LLFI-GUI. Make sure the llfi-gui.jar file exists in that directory. 
-
-Environment variable setup  
-  1. Set the ’PYTHONPATH’ environment variable with the path of the installed Python yaml file.
-     – setenv PYTHONPATH  usr/Python 2.7/site-packages/
-  2. Create an environment variable "llfibuild" with the path of the llfi build directory.
-     – setenv llfibuild LLFI_BUILD_ROOT
-  3. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
-     – setenv COMPARE Path of SDC LLFI_SRC_ROOT/LLFI-GUI/SdcScript.sh
-
-Running the GUI
-  1. Go to any directory where you want to save the outputs
-  2. Execute the jar file: java -jar LLFI_BUILD_ROOT/LLFI-GUI/llfi_gui.jar
 
 Running
 -------
-You can use example programs in the *test_programs* directory to test LLFI, including: 
-  * `min`: find the minimum number from five input numbers
-  * `factorial`: compute the factorial of 6
-  * `sum`: compute the sum of positive integers between 1 and N
-
+You can use test programs in the *test_suite/PROGRAMS/* directory to test LLFI.
+####Command line
 Example program: `factorial`
-  1. Go to *test_programs/. 
-  2. Build a single IR file with the LLFI tool `compiletoIR`
-
+  1. Copy the *factorial/* directory from *test_suite/PROGRAMS/* to your project directory. 
+  2. Change to your *factorial* directory Build a single IR file with the LLFI tool `GenerateMakefile`
       ```
-      <LLFI_BUILD_ROOT>/tools/compiletoIR --readable -o factorial/factorial.ll factorial/factorial.c
+      <LLFI_BUILD_ROOT>/tools/GenerateMakefile --readable --all -o factorial.ll
       ```
      Alternatively, you can build your own IR file with `clang`.
   3. Instrument factorial with calls to LLFI libraries and create executables under *llfi* directory
-
       ```
-      <LLFI_BUILD_ROOT>/bin/instrument --readable factorial/factorial.ll
+      <LLFI_BUILD_ROOT>/bin/instrument --readable factorial.ll
       ```
   4. Run factorial executable with profiling functions instrumented
-
       ```
-      <LLFI_BUILD_ROOT>/bin/profile factorial/llfi/factorial-profiling.exe 6
+      <LLFI_BUILD_ROOT>/bin/profile ./llfi/factorial-profiling.exe 6
       ```
      In file *llfi/baseline/golden_std_output*, you should be able to see 720
   5. Run `factorial` executable with fault injection functions instrumented
+      ```
+      <LLFI_BUILD_ROOT>/bin/injectfault ./llfi/factorial-faultinjection.exe 6
+      ```
 
-      ```
-      <LLFI_BUILD_ROOT>/bin/injectfault factorial/llfi/factorial-faultinjection.exe 6
-      ```
+####GUI
+To run the **GUI** of LLFI, use `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the GUI.
+```
+<LLFI_BUILD_ROOT>/bin/llfi-gui
+```
 
 Results
 -------
