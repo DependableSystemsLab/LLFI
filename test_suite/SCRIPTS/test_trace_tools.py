@@ -121,7 +121,7 @@ def test_trace_tools(*test_list):
 
 	work_dict = {}
 	for test in suite["Traces"]:
-		if len(test_list) == 0 or test in test_list or "all" in prog_list:
+		if len(test_list) == 0 or test in test_list or "all" in test_list:
 			work_dict["./Traces/"+test] = suite["Traces"][test]
 
 	result_list = []
