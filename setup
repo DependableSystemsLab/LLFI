@@ -11,7 +11,7 @@ List of options:
 -LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
     You don't need to set it if it is in system path
 -JAVA_HOME_DIR <java home directory for oracle jdk 7 or higher> (optional):
-    You don't need to set it if your default jdk is oracle jdk 7 or higher
+    You don't need to set it if your default jdk is oracle jdk 7 or higher and in system path
 
 
 --help(-h): show help information

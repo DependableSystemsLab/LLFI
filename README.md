@@ -39,16 +39,13 @@ Dependencies:
   
   1. 32/64 bit Linux or OS X
   2. CMake (minimum v2.8)
-  3. Python 2.7 and above
+  3. Python 3 and above
   4. Python YAML library (PyYAML)
   5. Clang v3.4
   6. LLVM v3.4, built with CMake
     * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
-  7. Java7 with JavaFX (For GUI)
-  8. Apache Ant and JDK (For GUI)
-  9. tcsh
-  10. GraphViz package (for visualizing error propagation)
+  7. Oracle JDK7 with JavaFX (For GUI)
 
 Building:
   
@@ -58,16 +55,20 @@ Building:
 
   Usage: setup OPTIONS
   List of options:
-    -LLVM_DST_ROOT <LLVM CMake build root dir>:
-        Make sure you build LLVM with CMake and pass build root directory here
-    -LLVM_SRC_ROOT <LLVM source root dir>
-    -LLVM_GXX_BIN_DIR <clang's parent dir> (optional):
-        You don't need to set it if it is in system path
-    -LLFI_BUILD_ROOT <path where you want to build LLFI>
+  -LLVM_DST_ROOT <LLVM CMake build root dir>:
+      Make sure you build LLVM with CMake and pass build root directory here
+  -LLVM_SRC_ROOT <LLVM source root dir>
+  -LLFI_BUILD_ROOT <path where you want to build LLFI>
+  -LLVM_GXX_BIN_DIR <llvm-gcc/g++'s parent dir> (optional):
+      You don't need to set it if it is in system path
+  -JAVA_HOME_DIR <java home directory for oracle jdk 7 or higher> (optional):
+    You don't need to set it if your default jdk is oracle jdk 7 or higher and in system path
+
 
   --help(-h): show help information
+  --no_gui: Add this option if you do not want GUI.
   ```
-  Here is a sample build command if `clang` is already in $PATH:
+  Here is a sample build command if `clang` and `javac` are already in $PATH:
   ```
   ./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4
   ```
