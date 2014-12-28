@@ -4,34 +4,32 @@ LLVM Fault Injector - LLFI
 ======
 Pre-requisites
   1. CMake installed 
-  2. LLVM version 2.9, built with CMake
-  3. Python
+  2. LLVM version 3.4, built with CMake
+  3. Python 3
   4. Python YAML library installed (PyYAML)
-  5. llvm-gcc 4.2.1 ( frontend for llvm 2.9 )
+  5. clang-3.4 ( frontend for llvm 3.4 )
   6. Machines with 64/32 bit Linux/OS X.
 
 ======
 Installation
   A. Install CMake, Python, PyYAML library
 
-  B. Install llvm-2.9 and llvm-gcc 4.2.1
-    1. Go to "http://llvm.org/releases/download.html#2.9" to download LLVM source code and LLVM-GCC 4.2 Front End Binaries for your system.
-    2. Build llvm-gcc 4.2 for your system. Access "http://llvm.org/releases/2.9/docs/GettingStarted.html#installcf" for instructions.
-    3. Build llvm-2.9 *** WITH CMAKE ***. Access "http://llvm.org/docs/CMake.html" for instructions.
+  B. Install llvm-3.4 and clang 3.4
+    1. Go to "http://llvm.org/releases/download.html#3.4" to download LLVM source code and clang source code/binaries for your system.
+    2. If building clang from source code, copy the source code under tools/. Access "http://llvm.org/releases/3.4/docs/GettingStarted.html#installcf" for instructions.
+    2. Build llvm-3.4 ***WITH CMAKE*** 'using flag -DLLVM_REQUIRES_RTTI=1'. Access "http://llvm.org/docs/CMake.html" for instructions.
 	
   C. Build LLFI
     1. Extract the code from LLFI archive (/LLFI)
     2. Go to /LLFI directory and run './setup --help' to see how to build LLFI to a different directory
 	
   D. Testing LLFI
-    You can use example programs in /LLFI/test_programs folder to test LLFI, including: 
-      "min"--find the minimum number from five input numbers
-      "factorial" --compute the factorial of 6
+    You can use example programs in /LLFI/test_suite/PROGRAMS/factorial to test LLFI.
 
     Example program: factorial
-      1. Go to test_programs/factorial. 
+      1. Copy test_suite/factorial/ to your project directory and change to that directory. 
       2. Build a single IR file with LLFI tool compiletoIR
-          <LLFI_BUILD_ROOT>/tools/compiletoIR --readable -o factorial.ll factorial.c
+          <LLFI_BUILD_ROOT>/tools/GenerateMakefile --readable -o factorial.ll --all
       3. Instrument factorial with calls to LLFI libraries and create executables under llfi/
           <LLFI_BUILD_ROOT>/bin/instrument --readable factorial.ll
       4. Run factorial executable with profiling functions instrumented
