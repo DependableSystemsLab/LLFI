@@ -14,10 +14,10 @@ List of options:
 --enable_tracing: enable tracing
 --enable_forward_injection: enable injection on the forward slice of the selected injection point
 --enable_backward_injection: enable injection on the backward slice of the selected injection point
+--no_input_yaml: do not generate an master input.yaml automatically.
+--help: print this message.
 
 """
-
-# this script creates a text file ; Applicable-Failure-Modes.txt
 
 
 import os
@@ -47,10 +47,13 @@ run_num_dict = {'numOfRuns': 1}
 tracing_dict = {'tracingPropagation':False, 'tracingPropagationOption':{'generateCDFG':False}}
 trace_injection_dict = {'includeInjectionTrace':[]}
 
+no_input_yaml_flag = False
+
 def parseArgs(args):
    global basedir
    global options
    global filename
+   global no_input_yaml_flag
    
    cwd = os.getcwd()
    for i, arg in enumerate(args):
@@ -71,6 +74,8 @@ def parseArgs(args):
            trace_injection_dict['includeInjectionTrace'].append('forward')
        elif arg == "--enable_forward_injection":
            trace_injection_dict['includeInjectionTrace'].append('backward')
+       elif arg == "--no_input_yaml":
+           no_input_yaml_flag = True
    os.chdir(basedir)
 
 def usage(msg = None):
@@ -101,8 +106,8 @@ def generateInputYaml():
     global filename
     selector_list = []
     with open(os.path.join(basedir, filename)) as f:
-        for line in f.readlines():
-            selector_list.append(line.strip())
+        for line in f.readlines()[1:]:
+            selector_list.append(line.split('-')[-1].strip())
     customInstselector_dict = {'customInstselector':{'include':selector_list}}
     yaml_dict = {
                     'compileOption':{
@@ -124,11 +129,20 @@ def generateInputYaml():
         f.write(yaml_text)
     return 0
 
+def cleanDir():
+    global basedir
+    stale_config_file_path = os.path.join(basedir, 'llfi.config.compiletime.txt')
+    if os.path.isfile(stale_config_file_path):
+      os.remove(stale_config_file_path)
 
 def main(args):
+    global no_input_yaml_flag
+
     parseArgs(args)
     r = runAutoScan(options)
-    s = generateInputYaml()
+    if no_input_yaml_flag == False:
+      s = generateInputYaml()
+    cleanDir()
     return 0
 
 if __name__ == "__main__":

@@ -32,6 +32,7 @@ namespace llfi{
         SoftwareFailureAutoScanPass():ModulePass(ID){}
         virtual bool runOnModule(Module &M){
             selector_record_file.open(std::string(outputpath).c_str(), std::ofstream::out);
+            selector_record_file<<"instSelMethod:"<<"\n";
 
             FICustomInstSelectorManager *im = FICustomInstSelectorManager::getCustomInstSelectorManager();
             FICustomRegSelectorManager *rm = FICustomRegSelectorManager::getCustomRegSelectorManager();
@@ -80,7 +81,7 @@ namespace llfi{
                 selector_record_file.close();
                 return;
             }
-            selector_record_file<<selector_name<<"\n";
+            selector_record_file<<"    - "<<selector_name<<"\n";
             return;
         }
     };
