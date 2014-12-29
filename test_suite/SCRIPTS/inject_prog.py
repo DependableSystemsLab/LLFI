@@ -129,15 +129,15 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 		print ("ERROR: Unable to change directory to:", work_dir)
 		return -1, None
 
-	if 'SoftwareFailureAutoscan' in os.path.basename(work_dir):
-		with open("llfi.test.log.SoftwareFailureAutoscan.txt", 'w', buffering=1) as log:
+	if 'SoftwareFailureAutoScan' in os.path.basename(work_dir):
+		with open("llfi.test.log.SoftwareFailureAutoScan.txt", 'w', buffering=1) as log:
 			p = subprocess.Popen([autoscan_script, target_IR], stdout=log, stderr=log)
 			p.wait()
 			if p.returncode != 0:
-				print ("ERROR: SoftwareFailureAutoscan failed for:", work_dir, target_IR)
+				print ("ERROR: SoftwareFailureAutoScan failed for:", work_dir, target_IR)
 				return -1, None
 			else:
-				print ("MSG: SoftwareFailureAutoscan successed for:", work_dir, target_IR)
+				print ("MSG: SoftwareFailureAutoScan successed for:", work_dir, target_IR)
 
 	with open("llfi.test.log.instrument.txt", 'w', buffering=1) as log:
 		p = subprocess.Popen([batchinstrument_script, "--readable", "-lpthread", target_IR], stdout=log, stderr=log)
