@@ -95,6 +95,8 @@ def check_injection(*prog_list):
 				result = checkLLFIDir(subdir, inject_prog, inject_input)
 				if result != "PASS":
 					break
+			if len(models) == 0:
+				result = "subdirectories for failure modes not found!"
 		else:
 			result = checkLLFIDir(inject_dir, inject_prog, inject_input)
 		if result != "PASS":
