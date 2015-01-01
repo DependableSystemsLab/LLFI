@@ -106,6 +106,8 @@ Example program: `factorial`
       <LLFI_BUILD_ROOT>/bin/injectfault ./llfi/factorial-faultinjection.exe 6
       ```
 
+  For complete test of whole of LLFI, please use LLFI test suite and refer to wiki page: [[Test suite for regression test|https://github.com/DependableSystemsLab/LLFI/wiki/Test-Suite-for-Regression-Test]] for details.
+
 ####GUI
 To run the **GUI** of LLFI, use `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the GUI.
 ```
