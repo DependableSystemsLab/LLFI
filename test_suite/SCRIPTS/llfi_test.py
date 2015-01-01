@@ -41,6 +41,7 @@ options = {
 }
 
 prog = os.path.basename(sys.argv[0])
+verbose = False
 
 def verbosePrint(msg):
 	global verbose
