@@ -98,7 +98,7 @@ def parseArgs(args):
 		elif arg == "--help" or arg == "-h":
 			usage()
 
-		elif arg == "verbose":
+		elif arg == "--verbose":
 			verbose = True
 
 		argid += 1
@@ -152,7 +152,7 @@ def startTestRoutine():
 			print("Deploy test programs successfully.")
 
 		## start fault injection
-		execlist = ['python3', '-u', inject_prog_script, options['threads']]
+		execlist = ['python3', '-u', inject_prog_script, str(options['threads'])]
 		if options['all_batchmode']:
 			execlist.append('BatchMode')
 		elif options['all_software_faults']:
