@@ -72,7 +72,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 			print ("ERROR: instrument failed for:", work_dir, target_IR)
 			return -1, None
 		else:
-			print ("MSG: instrument successed for:", work_dir, target_IR)
+			print ("MSG: instrument succeed for:", work_dir, target_IR)
 
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
@@ -94,7 +94,7 @@ def callLLFI(work_dir, target_IR, prog_input):
 			print ("ERROR: profile failed for:", work_dir, target_IR)
 			return -1, None
 		else:
-			print ("MSG: profile successed for:", work_dir, target_IR, prog_input)
+			print ("MSG: profile succeed for:", work_dir, target_IR, prog_input)
 
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
@@ -137,7 +137,7 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 				print ("ERROR: SoftwareFailureAutoScan failed for:", work_dir, target_IR)
 				return -1, None
 			else:
-				print ("MSG: SoftwareFailureAutoScan successed for:", work_dir, target_IR)
+				print ("MSG: SoftwareFailureAutoScan succeed for:", work_dir, target_IR)
 
 	with open("llfi.test.log.instrument.txt", 'w', buffering=1) as log:
 		p = subprocess.Popen([batchinstrument_script, "--readable", "-lpthread", target_IR], stdout=log, stderr=log)
@@ -146,7 +146,7 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 			print ("ERROR: batchInstrument failed for:", work_dir, target_IR)
 			return -1, None
 		else:
-			print ("MSG: batchInstrument successed for:", work_dir, target_IR)
+			print ("MSG: batchInstrument succeed for:", work_dir, target_IR)
 
 	with open("llfi.test.log.profile.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":
@@ -167,7 +167,7 @@ def callBatchLLFI(work_dir, target_IR, prog_input):
 			print ("ERROR: profile failed for:", work_dir, target_IR)
 			return -1, None
 		else:
-			print ("MSG: profile successed for:", work_dir, target_IR, prog_input)
+			print ("MSG: profile succeed for:", work_dir, target_IR, prog_input)
 
 	with open("llfi.test.log.injectFault.txt", 'w', buffering=1) as log:
 		if target_IR == "echoClient.ll":

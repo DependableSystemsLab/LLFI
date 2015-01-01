@@ -142,7 +142,7 @@ def callInstrument(model_list):
 			num_failed += 1
 		else:
 			print (o.decode())
-			print ("instrumenting:", model, " successed!")
+			print ("instrumenting:", model, " succeed!")
 		os.chdir(basedir)
 	return num_failed
 

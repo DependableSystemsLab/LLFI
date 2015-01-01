@@ -89,7 +89,7 @@ def callInjectfault(model_list, *argv):
 			num_failed += 1
 		else:
 			print (o.decode())
-			print ("injectfault:", model, " successed!")
+			print ("injectfault:", model, " succeed!")
 		os.chdir(basedir)
 	return num_failed
 

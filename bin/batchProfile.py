@@ -90,7 +90,7 @@ def callProfile(model_list, *argv):
 			num_failed += 1
 		else:
 			print (o.decode())
-			print ("profiling:", model, " successed!")
+			print ("profiling:", model, " succeed!")
 		os.chdir(basedir)
 	return num_failed
 
