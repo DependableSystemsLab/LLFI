@@ -81,7 +81,7 @@ def parseArgs(args):
 			
 		elif arg == "--test_cases":
 			argid += 1
-			while(args[argid][0] != '-'):
+			while(args[argid][0] != '-' and argid < len(args)):
 				options['test_cases'].append(str(args[argid]))
 				argid += 1
 
