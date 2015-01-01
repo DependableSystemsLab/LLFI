@@ -39,6 +39,8 @@ Installation
           <LLFI_BUILD_ROOT>/bin/injectfault llfi/factorial-faultinjection.exe 6
          You should be able to see result files in llfi/std_output/, fault injection stats in llfi/prog_output/, failure report (crash/hang) in llfi/error_output/
 
+    For complete test of whole of LLFI, please use LLFI test suite and refer to wiki page: 'https://github.com/DependableSystemsLab/LLFI/wiki/Test-Suite-for-Regression-Test' for details.
+
 ======
 Running LLFI on your target applications
   You can follow the same flow as the Step D of Installation (Testing LLFI). For more details, you can follow the instructions on https://github.com/DependableSystemsLab/LLFI/wiki.
