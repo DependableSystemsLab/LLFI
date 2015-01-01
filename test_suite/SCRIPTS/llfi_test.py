@@ -34,7 +34,7 @@ options = {
 	'all_software_faults':False,
 	'all_hardware_faults':False,
 	'all_batchmode':False,
-	'all_trace_tools_tests':True,
+	'all_trace_tools_tests':False,
 	'test_cases':[],
 	'threads':1,
 	'clean_after_test':False,
