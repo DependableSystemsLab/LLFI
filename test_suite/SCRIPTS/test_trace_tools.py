@@ -134,12 +134,12 @@ def test_trace_tools(*test_list):
 		record = {"name": test_path, "result": result}
 		result_list.append(record)
 
+	return r, result_list
+
+if __name__ == "__main__":
+	r, result_list = test_trace_tools(*sys.argv[1:])
 	print ("=============== Result ===============")
 	for record in result_list:
 		print(record["name"], "\t\t", record["result"])
 
-	return r
-
-if __name__ == "__main__":
-	r = test_trace_tools(*sys.argv[1:])
 	sys.exit(r)

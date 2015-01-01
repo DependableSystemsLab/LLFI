@@ -96,7 +96,7 @@ def check_injection(*prog_list):
 				if result != "PASS":
 					break
 			if len(models) == 0:
-				result = "subdirectories for failure modes not found!"
+				result = "Subdirectories for failure modes not found!"
 		else:
 			result = checkLLFIDir(inject_dir, inject_prog, inject_input)
 		if result != "PASS":
@@ -104,12 +104,11 @@ def check_injection(*prog_list):
 		record = {"name":test_path, "result":result}
 		result_list.append(record)
 
+	return r, result_list
+
+if __name__ == "__main__":
+	r, result_list = check_injection(*sys.argv[1:])
 	print ("=============== Result ===============")
 	for record in result_list:
 		print(record["name"], "\t\t", record["result"])
-
-	return r
-
-if __name__ == "__main__":
-	r = check_injection(*sys.argv[1:])
 	sys.exit(r)
