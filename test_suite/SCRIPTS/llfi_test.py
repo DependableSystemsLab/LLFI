@@ -114,6 +114,9 @@ def startTestRoutine():
 	test_trace_tools_script = os.path.join(script_dir, 'test_trace_tools.py')
 	clear_all_script = os.path.join(script_dir, 'clear_all.py')
 
+	injection_result_list = []
+	trace_result_list = []
+
 	if options['all'] or options['all_batchmode'] or options['all_hardware_faults']\
 	or options['all_software_faults'] or options['all_fault_injections']\
 	or options['test_cases'] != []:
@@ -202,18 +205,20 @@ def startTestRoutine():
 	## collect the results
 	total = 0
 	passed = 0
-	print ("==== Check Injection Result ====")
-	for record in injection_result_list:
-		print(record["name"], "\t\t", record["result"])
-		total += 1
-		if record['result'] == 'PASS':
-			passed += 1
-	print ("==== Test Trace Tools Result ====")
-	for record in trace_result_list:
-		print(record["name"], "\t\t", record["result"])
-		total += 1
-		if record['result'] == 'PASS':
-			passed += 1
+	if len(injection_result_list) > 0:
+		print ("==== Check Injection Result ====")
+		for record in injection_result_list:
+			print(record["name"], "\t\t", record["result"])
+			total += 1
+			if record['result'] == 'PASS':
+				passed += 1
+	if len(trace_result_list) > 0:
+		print ("==== Test Trace Tools Result ====")
+		for record in trace_result_list:
+			print(record["name"], "\t\t", record["result"])
+			total += 1
+			if record['result'] == 'PASS':
+				passed += 1
 
 	print("=== Overall Counts ====")
 	print("Total tests:\t", total)
