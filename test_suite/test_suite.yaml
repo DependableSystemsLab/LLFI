@@ -27,6 +27,7 @@ INPUTS:
     deadlock:
     sudoku2:
     bfs: -i graph_input.dat -o output.dat
+    sad: '-i frame.bin,reference.bin -o output.dat'
 
 HardwareFaults:
     funcname: mcf
@@ -112,3 +113,11 @@ BatchMode:
     SoftwareFailureAutoScan: memcpy1
 
 MakefileGeneration:
+    normal_IR:
+        prog: 'sad'
+        makefile_generation_args: '--all -o sad.bc'
+        inputs: '-i frame.bin,reference.bin -o output.dat'
+    readable_IR:
+        prog: mcf
+        makefile_generation_args: '--all --readable -o mcf.ll'
+        inputs: inp.in

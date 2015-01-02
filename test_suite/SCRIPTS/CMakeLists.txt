@@ -13,5 +13,6 @@ copy(deploy_prog.py deploy_prog.py)
 copy(inject_prog.py inject_prog.py)
 copy(test_trace_tools.py test_trace_tools.py)
 copy(llfi_test.py llfi_test)
+copy(test_generate_makefile.py test_generate_makefile.py)
 
 genCopy()

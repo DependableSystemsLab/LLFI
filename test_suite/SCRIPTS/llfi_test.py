@@ -15,6 +15,7 @@ List of options:
 --all_hardware_faults: Test all the test cases of HardwareFaults.
 --all_batchmode: Test all the test cases of BatchMode fault injections.
 --all_trace_tools_tests: Test all the tests for trace analysis tools.
+--all_makefile_generation: Test all the tests for makefile generation script.
 --test_cases [test case names]: Test only specified test case.
 --clean_after_test: Clean all the generate files after testing.
 
@@ -35,6 +36,7 @@ options = {
 	'all_hardware_faults':False,
 	'all_batchmode':False,
 	'all_trace_tools_tests':False,
+	'all_makefile_generation':False,
 	'test_cases':[],
 	'threads':1,
 	'clean_after_test':False,
@@ -92,6 +94,9 @@ def parseArgs(args):
 		elif arg == "--all_trace_tools_tests":
 			options['all_trace_tools_tests'] = True
 
+		elif arg == "--all_makefile_generation":
+			options['all_makefile_generation'] = True
+
 		elif arg == "--clean_after_test":
 			options['clean_after_test'] = True
 
@@ -112,10 +117,12 @@ def startTestRoutine():
 	inject_prog_script = os.path.join(script_dir, 'inject_prog.py')
 	check_injection_script = os.path.join(script_dir, 'check_injection.py')
 	test_trace_tools_script = os.path.join(script_dir, 'test_trace_tools.py')
+	test_generate_makefile_script = os.path.join(script_dir, 'test_generate_makefile_script.py')
 	clear_all_script = os.path.join(script_dir, 'clear_all.py')
 
 	injection_result_list = []
 	trace_result_list = []
+	generate_makefile_result_list = []
 
 	if options['all'] or options['all_batchmode'] or options['all_hardware_faults']\
 	or options['all_software_faults'] or options['all_fault_injections']\
@@ -202,6 +209,17 @@ def startTestRoutine():
 		verbosePrint('Calling: test_trace_tools.test_trace_tools(' + ' '.join(prog_list) + ')')
 		test_trace_tools_returncode, trace_result_list = test_trace_tools.test_trace_tools(*prog_list)
 
+	## run MakefileGeneration tests
+	if options['all_makefile_generation'] or options['all'] or options['test_cases'] != []:
+		import test_generate_makefile
+		prog_list = []
+		if options['test_cases'] != []:
+			prog_list.extend(options['test_cases'])
+		elif options['all_makefile_generation'] or options['all']:
+			pass
+		verbosePrint('Calling: test_generate_makefile.test_generate_makefile(' + ' '.join(prog_list) + ')')
+		test_generate_makefile_returncode, generate_makefile_result_list = test_generate_makefile.test_generate_makefile(*prog_list)
+
 	## collect the results
 	total = 0
 	passed = 0
@@ -220,6 +238,14 @@ def startTestRoutine():
 			if record['result'] == 'PASS':
 				passed += 1
 
+	if len(generate_makefile_result_list) > 0:
+		print("==== Test MakefileGeneration Tool Result ====")
+		for record in generate_makefile_result_list:
+			print(record["name"], '\t\t', record["result"])
+			total += 1
+			if record['result'] == 'PASS':
+				passed += 1
+
 	print("=== Overall Counts ====")
 	print("Total tests:\t", total)
 	print("Passed tests:\t", passed)
@@ -232,6 +258,14 @@ def startTestRoutine():
 		p.wait()
 		os.chdir(os.path.join(script_dir, os.pardir, 'PROGRAMS'))
 		os.system('make clean')
+		dirs = [d for d in os.listdir(os.path.join(script_dir, os.pardir, 'MakefileGeneration')) 
+		if os.path.isdir(os.path.join(script_dir, os.pardir, 'MakefileGeneration',d))]
+		print(dirs)
+		for d in dirs:
+			p = os.path.join(script_dir, os.pardir, 'MakefileGeneration', d)
+			os.chdir(p)
+			os.system('make clean')
+
 
 	return 0
 
