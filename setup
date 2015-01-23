@@ -190,8 +190,9 @@ def build():
       usage("Invalid ORACLE_JAVA_HOME: bin/java not found!")
       sys.exit(1)
   
-    if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/jfxrt.jar')):
-      usage("Invalid ORACLE_JAVA_HOME: jre/lib/jfxrt.jar not found! \
+    if not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/jfxrt.jar')) \
+    and not os.path.isfile(os.path.join(ORACLE_JAVA_HOME, './jre/lib/ext/jfxrt.jar')): #java8
+      usage("Invalid ORACLE_JAVA_HOME: jre/lib/jfxrt.jar or jre/lib/ext/jfxrt.jar not found! \
       Please use Oracle JDK 7 or higher version.")
       sys.exit(1)
   
