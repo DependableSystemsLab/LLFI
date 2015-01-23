@@ -39,3 +39,6 @@ build/
 
 #.gitingore itself
 #.gitignore
+
+# eclipse
+.project
