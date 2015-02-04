@@ -230,7 +230,7 @@ public class Controller implements Initializable {
 			errorString = new ArrayList<>();
 			//System.out.println("inputString;"+inputString);
 
-			String execName = "bin/profile --GUI  "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString;
+			String execName = "bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString;
 			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath + execName);
 			console.add("$ "+llfibuildPath + execName + "\n");
 

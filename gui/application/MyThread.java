@@ -14,6 +14,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * The Fault Injection Thread. Called by the ProgressBarController class
+ */
 public class MyThread extends Thread
 {
 	
@@ -32,7 +35,7 @@ public class MyThread extends Thread
 	   try{
 		   Controller.console = new ArrayList<String>(); 
 		   
-		   String execName = "bin/injectfault --GUI "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString;	
+		   String execName = "bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString;	
 
 		   ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath + execName);
 		   Controller.console.add("$ "+Controller.llfibuildPath + execName+ "\n");
