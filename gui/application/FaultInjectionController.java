@@ -706,7 +706,7 @@ public class FaultInjectionController implements Initializable{
 	public void initialize(URL url, ResourceBundle rb) {
 		FileReader inputFile;
 		try{
-			buildPath=Controller.llfibuildPath+"LLFI-GUI/";
+			buildPath=Controller.llfibuildPath+"gui/config/";
 			currentFolderName = Controller.currentProgramFolder;
 			runNumberLabel.setText("run1");
 		inputFile = new FileReader("llfi.stat.totalindex.txt");

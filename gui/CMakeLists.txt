@@ -36,4 +36,11 @@ copy(application/Profiling.fxml application/Profiling.fxml)
 copy(application/ProgressWindow.fxml application/ProgressWindow.fxml)
 copy(application/Sample.fxml application/Sample.fxml)
 
+copy(config/customInstruction_list.txt config/customInstruction_list.txt)
+copy(config/customRegister_list.txt config/customRegister_list.txt)
+copy(config/fault_type.txt config/fault_type.txt)
+copy(config/instruction_list.txt config/instruction_list.txt)
+copy(config/register_list.txt config/register_list.txt)
+
 compileGUI()
+

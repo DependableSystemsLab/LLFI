@@ -1033,7 +1033,7 @@ public class InstrumentController implements Initializable {
 		FileReader inputFile;
 		FileReader inputFile1;
 		// The location of the llfibuild
-		buildPath=Controller.llfibuildPath+"LLFI-GUI/";
+		buildPath=Controller.llfibuildPath+"gui/config/";
 
 		//try {
 		selectProfileFlag = false;
