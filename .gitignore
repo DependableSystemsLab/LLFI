@@ -41,4 +41,11 @@ build/
 #.gitignore
 
 # eclipse
-.project
+gui/.project
+gui/.settings/
+gui/.classpath
+
+# test builds - gui branch
+gui/factorial/
+gui/llfi.*
+
