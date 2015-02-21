@@ -47,5 +47,4 @@ gui/.classpath
 
 # test builds - gui branch
 gui/factorial/
-gui/llfi.*
 
