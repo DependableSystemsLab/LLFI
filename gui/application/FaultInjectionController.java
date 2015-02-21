@@ -709,7 +709,7 @@ public class FaultInjectionController implements Initializable{
 			buildPath=Controller.llfibuildPath+"gui/config/";
 			currentFolderName = Controller.currentProgramFolder;
 			runNumberLabel.setText("run1");
-		inputFile = new FileReader("llfi.stat.totalindex.txt");
+		inputFile = new FileReader(Controller.currentProgramFolder + "/llfi.stat.totalindex.txt");
 		BufferedReader bufferReader = new BufferedReader(inputFile);
         
        
@@ -724,7 +724,7 @@ public class FaultInjectionController implements Initializable{
         fiIndexSlider.setMajorTickUnit(Double.parseDouble(indexBound));
         //regCombo.getItems().removeAll(true);
         
-        inputFile = new FileReader("llfi.stat.prof.txt");
+        inputFile = new FileReader(Controller.currentProgramFolder + "/llfi.stat.prof.txt");
 		bufferReader = new BufferedReader(inputFile);
         
        

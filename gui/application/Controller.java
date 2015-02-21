@@ -252,7 +252,7 @@ public class Controller implements Initializable {
 			pr.waitFor();
 			in1.close();
 
-			inputFile = new FileReader("llfi.stat.totalindex.txt");
+			inputFile = new FileReader(currentProgramFolder + "/llfi.stat.totalindex.txt");
 			BufferedReader bufferReader = new BufferedReader(inputFile);
 
 
@@ -264,7 +264,7 @@ public class Controller implements Initializable {
 			}
 
 			bufferReader.close();
-			inputFile = new FileReader("llfi.stat.prof.txt");
+			inputFile = new FileReader(currentProgramFolder + "/llfi.stat.prof.txt");
 			bufferReader = new BufferedReader(inputFile);
 
 
@@ -866,7 +866,7 @@ public class Controller implements Initializable {
 				pr.destroy();
 
 				// Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh", "-c", Controller.llfibuildPath + "tools/traceontograph " + Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./" + Controller.currentProgramFolder + "/llfi/trace_report_output/TraceGraph.dot");
+				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh", "-c", Controller.llfibuildPath + "tools/traceontograph " + Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" " +currentProgramFolder+ "/llfi.stat.graph.dot" + " > ./" + Controller.currentProgramFolder + "/llfi/trace_report_output/TraceGraph.dot");
 				TraceGraph.redirectErrorStream(true);
 				Process pr2 = TraceGraph.start();
 				pr2.waitFor();
@@ -887,7 +887,7 @@ public class Controller implements Initializable {
 					}
 				}
 				//Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+				ProcessBuilder TraceGraph = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+currentProgramFolder + "/llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 				
 				TraceGraph.redirectErrorStream(true);
 				Process pr2 = TraceGraph.start();
@@ -1012,7 +1012,7 @@ public class Controller implements Initializable {
 			System.out.println(e);
 			e.printStackTrace();
 		}
-		//System.out.println("exec: " + Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ "llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
+		//System.out.println("exec: " + Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ currentProgramFolder + "/llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 	}
 	@FXML
 	private void generateFaultSummaryGraph(){
