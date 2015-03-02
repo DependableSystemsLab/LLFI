@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane disable="false" prefHeight="569.0" prefWidth="742.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="application.InstrumentController">
+<AnchorPane disable="false" prefHeight="569.0" prefWidth="742.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.InstrumentController">
   <!-- TODO Add Nodes -->
   <children>
     <Label alignment="TOP_LEFT" contentDisplay="LEFT" graphicTextGap="8.0" layoutX="28.0" layoutY="10.0" prefHeight="26.6015625" prefWidth="302.0" text="LLFI Configuration Parameters">
@@ -45,14 +45,14 @@
         <FXCollections fx:factory="observableArrayList" />
       </items>
     </ListView>
-    <Label font="$x1" layoutY="331.0" text="Register Selection Method" AnchorPane.leftAnchor="47.0" />
+    <Label fx:id="registerSelectionMethodLabel" font="$x1" layoutY="331.0" text="Register Selection Method" AnchorPane.leftAnchor="47.0" />
     <Label font="$x1" layoutX="47.0" layoutY="429.0" text="Injection Trace" />
     <Label layoutX="28.0" layoutY="41.0" text="Compile Option :">
       <font>
         <Font name="System Bold Italic" size="15.0" />
       </font>
     </Label>
-    <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" text="Forward" selected="true" AnchorPane.leftAnchor="409.0" />
+    <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" selected="true" text="Forward" AnchorPane.leftAnchor="409.0" />
     <CheckBox fx:id="backwardCheckbox" font="$x1" layoutX="409.0" layoutY="458.0" mnemonicParsing="false" selected="true" text="Backward" />
     <RadioButton fx:id="regTypeRadio" font="$x1" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="true" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="331.0">
       <toggleGroup>
@@ -60,7 +60,7 @@
       </toggleGroup>
     </RadioButton>
     <RadioButton fx:id="customRegTypeRadio" disable="false" font="$x1" layoutX="469.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="false" text="Custom Register Selector" toggleGroup="$regSelection" AnchorPane.topAnchor="331.0" />
-    <Separator layoutX="45.0" layoutY="322.0" prefWidth="664.0" />
+    <Separator fx:id="separator" layoutX="45.0" layoutY="322.0" prefWidth="664.0" />
     <Separator layoutX="43.0" layoutY="408.0" prefWidth="657.0" />
     <Button alignment="BOTTOM_CENTER" font="$x1" layoutX="342.0" layoutY="529.0" mnemonicParsing="false" onAction="#onClickGenerateYamlFile" text="Instrument" />
     <Button fx:id="instIncludeButton" layoutX="458.0" layoutY="200.0" mnemonicParsing="false" onAction="#onClickInstructionInclude" prefWidth="50.0" text="&gt;&gt;" />
@@ -107,6 +107,14 @@
       </font>
     </Button>
     <Button fx:id="createNewProfileButton" disable="true" font="$x3" layoutX="543.0" layoutY="32.0" mnemonicParsing="false" onAction="#onClickCreateNewProfile" prefWidth="155.0" text="Create New Profile" />
-    <CheckBox fx:id="allCheckBox" layoutX="649.0" layoutY="123.0" mnemonicParsing="false" text="All" onAction="#onClickAll"/>
+    <CheckBox fx:id="allCheckBox" layoutX="649.0" layoutY="123.0" mnemonicParsing="false" onAction="#onClickAll" text="All" />
+    <ComboBox fx:id="injectionType" layoutX="545.0" layoutY="4.0" prefWidth="150.0" value="Hardware Fault">
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+          <String fx:value="Hardware Fault" />
+          <String fx:value="Software Fault" />
+        </FXCollections>
+      </items>
+    </ComboBox>
   </children>
 </AnchorPane>

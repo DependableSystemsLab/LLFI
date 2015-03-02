@@ -217,6 +217,11 @@ public class Controller implements Initializable {
 	@FXML
 	ObservableList<String> row = FXCollections.observableArrayList();
 	public ArrayList<String> parameter = new ArrayList<>();
+	
+	// #SFIT
+	static public boolean isHardwareInjection = true;
+	
+	
 	@FXML
 	private void onClickProfiling(ActionEvent event){
 		Parent root;

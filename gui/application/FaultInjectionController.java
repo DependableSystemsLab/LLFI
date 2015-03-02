@@ -121,6 +121,18 @@ public class FaultInjectionController implements Initializable{
 	int profileCount = 0;
 	@FXML
 	ObservableList<String> items;
+	
+	// #SFIT
+	// used for making these boxes disappear if Software Injection is selected
+	@FXML
+	private Node faulInjectionTypeLabel;
+	@FXML
+	private Node faulInjectionTypeAsterisk;
+	@FXML
+	private Node fiRegIndexLabel;
+	@FXML
+	private Node fiBitLabel;
+	
 	@FXML
 	private void onClickDeleteRun(ActionEvent event)
 	{
@@ -919,7 +931,19 @@ public class FaultInjectionController implements Initializable{
 			// TODO Auto-generated catch block
 			 e.printStackTrace();
 		}
-	    // TODO
+	    
+		// #SFIT
+		// makes these boxes disappear if Software Injection is selected
+		if (!Controller.isHardwareInjection) {
+			faulInjectionTypeCombo.setVisible(false);
+			faulInjectionTypeLabel.setVisible(false);
+			faulInjectionTypeAsterisk.setVisible(false);
+			
+			fiRegIndex.setVisible(false);
+			fiRegIndexLabel.setVisible(false);
+			
+			fiBitText.setVisible(false);
+			fiBitLabel.setVisible(false);
+		}
 	}
-
 }

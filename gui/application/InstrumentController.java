@@ -22,6 +22,8 @@ import java.util.ResourceBundle;
 
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -121,6 +123,16 @@ public class InstrumentController implements Initializable {
 	public String folderName;
 	public String fileName;
 	File theDirectory;
+	
+	// #SFIT
+	// used for selection software injection
+	@FXML
+	private ComboBox<String> injectionType;
+	@FXML
+	private Node registerSelectionMethodLabel;
+	@FXML
+	private Node separator;
+	
 	//	Controller controller = new Controller();
 	//Model model = new Model();
 	@FXML
@@ -1125,6 +1137,43 @@ public class InstrumentController implements Initializable {
 		//	e.printStackTrace();
 		//}
 
-		// TODO
+		
+		// #SFIT
+		injectionType.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>(){
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				if (newValue.equals("Software Fault")) {
+					Controller.isHardwareInjection = false; // set state
+					
+					// makes these boxes disappear
+					customRegTypeRadio.setVisible(false);
+					registerSelectionMethodLabel.setVisible(false);
+					separator.setVisible(false);
+					regTypeRadio.setVisible(false);
+					regCombo.setVisible(false);
+					customRegCombo.setVisible(false);
+					
+					// FIXME: check what software injection was selected
+				} else {
+					Controller.isHardwareInjection = true; // set state
+					
+					// make these boxes appear
+					customRegTypeRadio.setVisible(true);
+					registerSelectionMethodLabel.setVisible(true);
+					separator.setVisible(true);
+					regTypeRadio.setVisible(true);
+					regCombo.setVisible(true);
+					customRegCombo.setVisible(true);
+				}
+			}
+			
+		});
+		// sets the value of the ComboBox depending on what was selected initially
+		if (Controller.isHardwareInjection) {
+			injectionType.setValue("Hardware Fault");
+		} else {
+			injectionType.setValue("Software Fault");
+		}
 	} 
 }
