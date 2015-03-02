@@ -1349,7 +1349,29 @@ public class Controller implements Initializable {
 			System.out.println(e.getMessage());
 		}
 
-
+		// #SFIT
+		// find out which software faults are applicable (which one can be injected)
+		// and dump it into <folder>/llfi.applicable.software.failures.txt
+		String cmd = Controller.llfibuildPath 
+				+ "bin/SoftwareFailureAutoScan --no_input_yaml " 
+				+ currentProgramFolder + "/" + currentProgramFolder + ".ll";
+		ProcessBuilder softwareFailureAutoScan = new ProcessBuilder("/bin/tcsh", "-c", cmd);
+		Process p;
+		try {
+			p = softwareFailureAutoScan.start();
+			p.waitFor();
+			
+			// route the output of the process to the GUI's console
+			console.add("\n$ " + cmd);
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((line = in.readLine()) != null) {
+				console.add(line);
+			}
+			in.close();
+		} catch (IOException | InterruptedException e) {
+			System.err.println("Controller: Unable to SoftwareFailureAutoScan!");
+			e.printStackTrace();
+		} 
 	}
 	@FXML
 	private void onClickOkHandler(ActionEvent event){

@@ -230,7 +230,12 @@ public class FaultInjectionController implements Initializable{
 				runNumberContent = runNumberLabel.getText();
 				newList = new ArrayList<String>();
 				newList.add(noOfRunsText.getText());
-				newList.add(faulInjectionTypeCombo.getValue().toString());
+				if (Controller.isHardwareInjection) {
+					newList.add(faulInjectionTypeCombo.getValue().toString());
+	    		} else {
+	    			// #SFIT
+	    			newList.add("AutoInjection");
+	    		}
 				newList.add(fiRegIndex.getText());
 				newList.add(fiCycleLabel.getText());
 				newList.add(fiBitText.getText());

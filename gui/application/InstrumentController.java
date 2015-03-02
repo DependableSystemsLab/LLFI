@@ -110,6 +110,9 @@ public class InstrumentController implements Initializable {
 	private String forward = "forward";
 	private String backward = "backward";
 	static public boolean selectProfileFlag = false;
+	/**
+	 * If input file already exists, read it in do not create it.
+	 */
 	static public boolean existingInputFileFlag = false;
 	@FXML
 	ObservableList<String> items;
@@ -141,224 +144,232 @@ public class InstrumentController implements Initializable {
 		try {
 			Controller.console = new ArrayList<String>();
 			folderName = Controller.currentProgramFolder;
-			theDirectory = new File(folderName+"/llfi");
-			String cmd1 = "rm -rf "+Controller.currentProgramFolder+"/llfi";
-			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c",cmd1);
+			theDirectory = new File(folderName + "/llfi");
+			String cmd1 = "rm -rf " + Controller.currentProgramFolder + "/llfi";
+			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh", "-c", cmd1);
 
 			p1.redirectErrorStream(true);
 			Process pr1 = p1.start();
-			BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
+			BufferedReader in2 = new BufferedReader(new InputStreamReader(
+					pr1.getInputStream()));
 			String line1;
 			Controller.errorString = new ArrayList<>();
 			while ((line1 = in2.readLine()) != null) {
-				/*if(line1.contains("Sucess"))
-		    		Controller.errorString = new ArrayList<>();
-		    	else*/
+				/*
+				 * if(line1.contains("Sucess")) Controller.errorString = new
+				 * ArrayList<>(); else
+				 */
 				Controller.errorString.add(line1);
 
-				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+				if (line1.contains("error") || line1.contains("Error")
+						|| line1.contains("ERROR"))
 					errorFlag = true;
-
 			}
 			pr1.waitFor();
 			in2.close();
-			//delete(theDirectory);
+			// delete(theDirectory);
 
-			if(instTypeRadio.isSelected() ==true ){
+			// #SFIT
+			if (instTypeRadio.isSelected() && Controller.isHardwareInjection) {
 				selectedInstSelectionMethod = "insttype";
-			}else
-				selectedInstSelectionMethod = "custominstselector";
-			if(regTypeRadio.isSelected() == true)
-			{
+			} else {
+				selectedInstSelectionMethod = "customInstselector";
+			}
+			if (regTypeRadio.isSelected() && Controller.isHardwareInjection) {
 				selectedRegSelectionMethod = "regloc";
-			}else
+			} else {
 				selectedRegSelectionMethod = "customregselector";
-
-			if(noTraceRadio.isSelected() == true)
+			}
+			
+			if (noTraceRadio.isSelected() == true)
 				selectedTraceMethod = noTraceRadio.getText();
-			else if(fullTraceRadio.isSelected() == true)
+			else if (fullTraceRadio.isSelected() == true)
 				selectedTraceMethod = fullTraceRadio.getText();
 			else
 				selectedTraceMethod = limitTraceRadio.getText();
 
-			//What ever the yamlFile path is.
-
+			// What ever the yamlFile path is.
 
 			fileName = Controller.currentFileName;
-			File yamlFile = new File(folderName+"/input.yaml");
+			File yamlFile = new File(folderName + "/input.yaml");
 			FileOutputStream is = new FileOutputStream(yamlFile);
-			OutputStreamWriter osw = new OutputStreamWriter(is);    
+			OutputStreamWriter osw = new OutputStreamWriter(is);
 			Writer w = new BufferedWriter(osw);
 			w.write("kernelOption:");
 			w.write("\n    - forceRun");
 
-			//w.write("\n\ntimeOut: 1000");
+			// w.write("\n\ntimeOut: 1000");
 
 			w.write("\n\ncompileOption:");
-			w.write("\n    "+"instSelMethod:");
-			w.write("\n      - "+selectedInstSelectionMethod+":");
-			if(selectedInstSelectionMethod.equalsIgnoreCase("insttype"))
-			{
-				w.write("\n          "+"include: ");
-				if(allCheckBox.isSelected())
-				{
-					w.write("\n            "+"- all");
-				}
-				else
-				{
-					for(int i = 0; i< instIncludeListView.getItems().size(); i++)
-					{
-						w.write("\n            "+"- "+instIncludeListView.getItems().get(i).toString().split("-")[0]);
+			w.write("\n    " + "instSelMethod:");
+			w.write("\n      - " + selectedInstSelectionMethod + ":");
+			// #SFIT
+			// always 'custominstselector'
+			if (selectedInstSelectionMethod.equalsIgnoreCase("insttype") || !Controller.isHardwareInjection) {
+				w.write("\n          " + "include: ");
+				if (allCheckBox.isSelected()) {
+					w.write("\n            " + "- all");
+				} else {
+					for (int i = 0; i < instIncludeListView.getItems().size(); i++) {
+						w.write("\n            "
+								+ "- "
+								+ instIncludeListView.getItems().get(i)
+										.toString().split("-")[0]);
 					}
 				}
-				if(instExcludeListView.getItems().size()>0 && (allCheckBox.isSelected()))
-				{
-					w.write("\n          "+"exclude: ");
-					for(int i = 0; i< instExcludeListView.getItems().size(); i++)
-					{
-						w.write("\n            "+"- "+instExcludeListView.getItems().get(i).toString().split("-")[0]);
+				if (instExcludeListView.getItems().size() > 0
+						&& (allCheckBox.isSelected())) {
+					w.write("\n          " + "exclude: ");
+					for (int i = 0; i < instExcludeListView.getItems().size(); i++) {
+						w.write("\n            "
+								+ "- "
+								+ instExcludeListView.getItems().get(i)
+										.toString().split("-")[0]);
 					}
 				}
 
-			}
-			else
-			{
-				w.write("\n    customInstSelector: "+customInstCombo.getValue().toString().split("-")[0]);
-			}
-
-			w.write("\n\n    "+"regSelMethod: "+selectedRegSelectionMethod);
-			if(selectedRegSelectionMethod.equalsIgnoreCase("regloc"))
-			{
-				w.write("\n    "+selectedRegSelectionMethod+": "+regCombo.getValue().toString().split("-")[0]);
-			}
-			else
-			{
-				w.write("\n    customRegSelector: "+customRegCombo.getValue().toString().split("-")[0]);
-			}
-
-
-
-			/* for(int i = 0; i< regIncludeListView.getItems().size(traceCountText); i++)
-					        {
-					        	 w.write("\n\t\t"+"- "+regIncludeListView.getItems().get(i));
-					        }*/
-
-			//File+selectedTraceMethod);
-			if(fullTraceRadio.isSelected() == true || limitTraceRadio.isSelected() == true)
-			{
-				w.write("\n\n    "+"includeInjectionTrace:");
-				if(forwardCheckbox.isSelected() == true)
-
-					w.write("\n        "+"- "+forward);
-				if(backwardCheckbox.isSelected() == true)
-					w.write("\n        "+"- "+backward);
-				w.write("\n\n    "+"tracingPropagation:"+" True");
-				w.write("\n\n    "+"tracingPropagationOption:");
-				w.write("\n        "+"debugTrace: True/False");
-				w.write("\n        "+"generateCDFG: True");
-
+			} else {
+				w.write("\n    customInstSelector: "
+						+ customInstCombo.getValue().toString().split("-")[0]);
 
 			}
-			if(limitTraceRadio.isSelected() == true)
-			{
 
-				w.write("\n        "+"maxTrace: "+traceCountText.getText());
+			w.write("\n\n    " + "regSelMethod: " + selectedRegSelectionMethod);
+			if (Controller.isHardwareInjection) {
+				if (selectedRegSelectionMethod.equalsIgnoreCase("regloc")) {
+					w.write("\n    " + selectedRegSelectionMethod + ": "
+							+ regCombo.getValue().toString().split("-")[0]);
+				} else {
+					w.write("\n    customRegSelector: "
+							+ customRegCombo.getValue().toString().split("-")[0]);
+				}
+			} else {
+				// #SFIT
+			    w.write("\n    customRegSelector: Automatic");
 			}
 
-			if(selectProfileFlag == true || existingInputFileFlag ==true)
-			{
-				for(int i = 0; i<fileContent.size();i++)
-				{
+			/*
+			 * for(int i = 0; i<
+			 * regIncludeListView.getItems().size(traceCountText); i++) {
+			 * w.write("\n\t\t"+"- "+regIncludeListView.getItems().get(i)); }
+			 */
+
+			// File+selectedTraceMethod);
+			if (fullTraceRadio.isSelected() == true
+					|| limitTraceRadio.isSelected() == true) {
+				w.write("\n\n    " + "includeInjectionTrace:");
+				if (forwardCheckbox.isSelected() == true)
+
+					w.write("\n        " + "- " + forward);
+				if (backwardCheckbox.isSelected() == true)
+					w.write("\n        " + "- " + backward);
+				w.write("\n\n    " + "tracingPropagation:" + " True");
+				w.write("\n\n    " + "tracingPropagationOption:");
+				w.write("\n        " + "debugTrace: True/False");
+				w.write("\n        " + "generateCDFG: True");
+
+			}
+			if (limitTraceRadio.isSelected() == true) {
+
+				w.write("\n        " + "maxTrace: " + traceCountText.getText());
+			}
+
+			if (selectProfileFlag == true || existingInputFileFlag == true) {
+				for (int i = 0; i < fileContent.size(); i++) {
 					w.write(fileContent.get(i));
 				}
 			}
 
 			w.close();
 
-			String cmd = Controller.llfibuildPath+"bin/instrument -lpthread --readable "+folderName+"/"+folderName+".ll";
-			ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",cmd);
-			Controller.console.add("$ "+cmd+"\n");
+			String cmd = Controller.llfibuildPath
+					+ "bin/instrument -lpthread --readable " + folderName + "/"
+					+ folderName + ".ll";
+			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c", cmd);
+			Controller.console.add("$ " + cmd + "\n");
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+			BufferedReader in1 = new BufferedReader(new InputStreamReader(
+					pr.getInputStream()));
 
 			Controller.errorString = new ArrayList<>();
 			while ((line1 = in1.readLine()) != null) {
-				/*if(line1.contains("Sucess"))
-						    		Controller.errorString = new ArrayList<>();
-						    	else*/
-				Controller.console.add(line1+"\n");
+				/*
+				 * if(line1.contains("Sucess")) Controller.errorString = new
+				 * ArrayList<>(); else
+				 */
+				Controller.console.add(line1 + "\n");
 				Controller.errorString.add(line1);
 
-				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
+				if (line1.contains("error") || line1.contains("Error")
+						|| line1.contains("ERROR"))
 					errorFlag = true;
 
 			}
 			pr.waitFor();
 			in1.close();
 
-			if(errorFlag == true)
-			{
+			if (errorFlag == true) {
 				errorFlag = false;
-				Node  source = (Node)  event.getSource(); 
-				Stage stage  = (Stage) source.getScene().getWindow();
+				Node source = (Node) event.getSource();
+				Stage stage = (Stage) source.getScene().getWindow();
 				stage.close();
 
-				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+				root = FXMLLoader.load(getClass().getClassLoader().getResource(
+						"application/ErrorDisplay.fxml"));
 				stage = new Stage();
 				stage.setTitle("Error");
 				stage.setScene(new Scene(root, 450, 100));
 				stage.show();
 
-			}
-			else
-			{
-				//Generate the LLFI .ll file with index labelled.
+			} else {
+				// Generate the LLFI .ll file with index labelled.
+				// use for the indexed injection
 				fileContent = new ArrayList<>();
 				String line;
-				FileReader inputIndexFile = new FileReader(Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-llfi_index.ll");
+				FileReader inputIndexFile = new FileReader(
+						Controller.currentProgramFolder + "/llfi/"
+								+ Controller.currentProgramFolder
+								+ "-llfi_index.ll");
 				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
-				//Read file contents
-				while ((line = bufferReader.readLine()) != null)   {
-					fileContent.add(line+"\n");      
+				// Read file contents
+				while ((line = bufferReader.readLine()) != null) {
+					fileContent.add(line + "\n");
 				}
 				bufferReader.close();
-				File outputIndexFile = new File(Controller.currentProgramFolder +"/llfi/"+Controller.currentProgramFolder+"-llfi_displayIndex.ll");
-				BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputIndexFile));
-				for(int i = 0 ; i < fileContent.size(); i++)
-				{
+				File outputIndexFile = new File(Controller.currentProgramFolder
+						+ "/llfi/" + Controller.currentProgramFolder
+						+ "-llfi_displayIndex.ll");
+				BufferedWriter outputFile = new BufferedWriter(new FileWriter(
+						outputIndexFile));
+				for (int i = 0; i < fileContent.size(); i++) {
 
 					if (fileContent.get(i).contains("!llfi_index !"))
-						outputFile.write(fileContent.get(i).substring(fileContent.get(i).indexOf("!llfi_index !")+13,fileContent.get(i).lastIndexOf("\n"))+"\t\t"+fileContent.get(i).substring(0,fileContent.get(i).indexOf("!llfi_index !"))+"\n");
+						outputFile.write(fileContent.get(i)
+								.substring(
+										fileContent.get(i).indexOf(
+												"!llfi_index !") + 13,
+										fileContent.get(i).lastIndexOf("\n"))
+								+ "\t\t"
+								+ fileContent.get(i).substring(
+										0,
+										fileContent.get(i).indexOf(
+												"!llfi_index !")) + "\n");
 					else if (!fileContent.get(i).contains("= metadata !"))
-						outputFile.write("\t\t"+fileContent.get(i));
+						outputFile.write("\t\t" + fileContent.get(i));
 				}
 				outputFile.close();
 
 				Controller.errorString = new ArrayList<>();
-				Node  source = (Node)  event.getSource(); 
-				Stage stage  = (Stage) source.getScene().getWindow();
+				Node source = (Node) event.getSource();
+				Stage stage = (Stage) source.getScene().getWindow();
 				stage.close();
 			}
 
+			// Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
 
-
-
-
-
-
-
-
-
-			//Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
-
-
-
-
-
-
-		}catch (IOException e) {
+		} catch (IOException e) {
 			System.err.println("Problem writing to the file statsTest.txt");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -928,9 +939,13 @@ public class InstrumentController implements Initializable {
 	}
 	private void resetAllOptions()
 	{
+		// reset the include list
+		instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
+		
 		FileReader inputFile;
 		FileReader inputFile1;
 		try{
+			// read in register list
 			inputFile = new FileReader(buildPath+"register_list.txt");
 			BufferedReader bufferReader = new BufferedReader(inputFile);
 
@@ -947,19 +962,52 @@ public class InstrumentController implements Initializable {
 			regCombo.setItems(items);
 			regCombo.setPromptText("-- Select --");
 
-			inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-			BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-
-			instructionList = new ArrayList<String>();
-
-			while ((line = bufferReader1.readLine()) != null)   {
-				instructionList.add(line);
-
+			// read in instruction list
+			if (Controller.isHardwareInjection) {
+				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
+				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+	
+				instructionList = new ArrayList<String>();
+	
+				while ((line = bufferReader1.readLine()) != null)   {
+					instructionList.add(line);
+	
+				}
+				bufferReader1.close();
+				items =FXCollections.observableArrayList (instructionList);
+	
+				instExcludeListView.setItems(items);
+			} else {
+				// #SFIT
+				// opens llfi.applicable.software.failures.txt and read it into the list
+				FileReader applicableSoftwareFailure = null;
+				String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
+				try {
+					applicableSoftwareFailure = new FileReader(folderName + "/llfi.applicable.software.failures.txt");
+				} catch (FileNotFoundException e) {
+					System.err.println("InstrumentController: Unable to open " + inputLocation);
+					e.printStackTrace();
+				}
+				BufferedReader bufferedReader = new BufferedReader(applicableSoftwareFailure);
+				ArrayList<String> softwareFailure = new ArrayList<String>();
+				
+				try {
+					// discard first line, as it is not a software failure
+					bufferedReader.readLine();
+					
+					// read in all software failure, discarding everything before the dash
+					while ((line = bufferedReader.readLine()) != null)   {
+						softwareFailure.add(line.substring(line.indexOf("-") + 2));
+					}
+					bufferedReader.close();
+				} catch (IOException e) {
+					System.err.println("InstrumentController: Unable to read " + inputLocation);
+					e.printStackTrace();
+				} 
+				
+				// display the list
+				instExcludeListView.setItems(FXCollections.observableArrayList(softwareFailure));
 			}
-			bufferReader1.close();
-			items =FXCollections.observableArrayList (instructionList);
-
-			instExcludeListView.setItems(items);
 
 			if(customInstTypeRadio.isSelected() == true){
 				customInstCombo.setDisable(false);
@@ -1044,7 +1092,8 @@ public class InstrumentController implements Initializable {
 	public void initialize(URL url, ResourceBundle rb) {
 		FileReader inputFile;
 		FileReader inputFile1;
-		// The location of the llfibuild
+		
+		// location of all the config files
 		buildPath=Controller.llfibuildPath+"gui/config/";
 
 		//try {
@@ -1153,8 +1202,6 @@ public class InstrumentController implements Initializable {
 					regTypeRadio.setVisible(false);
 					regCombo.setVisible(false);
 					customRegCombo.setVisible(false);
-					
-					// FIXME: check what software injection was selected
 				} else {
 					Controller.isHardwareInjection = true; // set state
 					
@@ -1166,8 +1213,8 @@ public class InstrumentController implements Initializable {
 					regCombo.setVisible(true);
 					customRegCombo.setVisible(true);
 				}
+				resetAllOptions();
 			}
-			
 		});
 		// sets the value of the ComboBox depending on what was selected initially
 		if (Controller.isHardwareInjection) {
