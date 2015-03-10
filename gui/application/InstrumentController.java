@@ -282,9 +282,20 @@ public class InstrumentController implements Initializable {
 
 			w.close();
 
+			
+			// #SFIT
+			String scriptToCall;
+			ObservableList<String> numFaultTypes = instIncludeListView.getItems();
+			if (Controller.isHardwareInjection || numFaultTypes.size() == 1) {
+				scriptToCall = "bin/instrument -lpthread --readable ";
+			} else {
+				// run batch instrument instead
+				scriptToCall = "bin/batchInstrument --readable ";
+			}
 			String cmd = Controller.llfibuildPath
-					+ "bin/instrument -lpthread --readable " + folderName + "/"
+					+ scriptToCall + folderName + "/"
 					+ folderName + ".ll";
+			
 			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c", cmd);
 			Controller.console.add("$ " + cmd + "\n");
 
@@ -326,41 +337,69 @@ public class InstrumentController implements Initializable {
 			} else {
 				// Generate the LLFI .ll file with index labelled.
 				// use for the indexed injection
-				fileContent = new ArrayList<>();
-				String line;
-				FileReader inputIndexFile = new FileReader(
-						Controller.currentProgramFolder + "/llfi/"
-								+ Controller.currentProgramFolder
-								+ "-llfi_index.ll");
-				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
-				// Read file contents
-				while ((line = bufferReader.readLine()) != null) {
-					fileContent.add(line + "\n");
+				// #SFIT
+				int runs;
+				if (Controller.isHardwareInjection) {
+					runs = 1;
+				} else {
+					runs = numFaultTypes.size();
 				}
-				bufferReader.close();
-				File outputIndexFile = new File(Controller.currentProgramFolder
-						+ "/llfi/" + Controller.currentProgramFolder
-						+ "-llfi_displayIndex.ll");
-				BufferedWriter outputFile = new BufferedWriter(new FileWriter(
-						outputIndexFile));
-				for (int i = 0; i < fileContent.size(); i++) {
-
-					if (fileContent.get(i).contains("!llfi_index !"))
-						outputFile.write(fileContent.get(i)
-								.substring(
-										fileContent.get(i).indexOf(
-												"!llfi_index !") + 13,
-										fileContent.get(i).lastIndexOf("\n"))
-								+ "\t\t"
-								+ fileContent.get(i).substring(
-										0,
-										fileContent.get(i).indexOf(
-												"!llfi_index !")) + "\n");
-					else if (!fileContent.get(i).contains("= metadata !"))
-						outputFile.write("\t\t" + fileContent.get(i));
+				for (int j = 0; j < runs; j++) {
+					fileContent = new ArrayList<>();
+					String line;
+					FileReader inputIndexFile;
+					File outputIndexFile;
+					if (runs == 1) {
+						inputIndexFile = new FileReader(
+								Controller.currentProgramFolder + "/llfi/"
+										+ Controller.currentProgramFolder
+										+ "-llfi_index.ll");
+						outputIndexFile = new File(
+								Controller.currentProgramFolder + "/llfi/" 
+										+ Controller.currentProgramFolder
+										+ "-llfi_displayIndex.ll");
+					} else {
+						inputIndexFile = new FileReader(
+								Controller.currentProgramFolder + "/llfi-"
+										+ numFaultTypes.get(j) + "/llfi/"
+										+ Controller.currentProgramFolder
+										+ "-llfi_index.ll");
+						outputIndexFile = new File(
+								Controller.currentProgramFolder + "/llfi-" 
+										+ numFaultTypes.get(j) + "/llfi/"
+										+ Controller.currentProgramFolder
+										+ "-llfi_displayIndex.ll");
+					}
+							
+					BufferedReader bufferReader = new BufferedReader(inputIndexFile);
+					// Read file contents
+					while ((line = bufferReader.readLine()) != null) {
+						fileContent.add(line + "\n");
+					}
+					bufferReader.close();
+			
+					BufferedWriter outputFile = new BufferedWriter(new FileWriter(
+							outputIndexFile));
+					for (int i = 0; i < fileContent.size(); i++) {
+	
+						if (fileContent.get(i).contains("!llfi_index !"))
+							outputFile.write(fileContent.get(i)
+									.substring(
+											fileContent.get(i).indexOf(
+													"!llfi_index !") + 13,
+											fileContent.get(i).lastIndexOf("\n"))
+									+ "\t\t"
+									+ fileContent.get(i).substring(
+											0,
+											fileContent.get(i).indexOf(
+													"!llfi_index !")) + "\n");
+						else if (!fileContent.get(i).contains("= metadata !"))
+							outputFile.write("\t\t" + fileContent.get(i));
+					}
+					outputFile.close();
 				}
-				outputFile.close();
-
+	
+				
 				Controller.errorString = new ArrayList<>();
 				Node source = (Node) event.getSource();
 				Stage stage = (Stage) source.getScene().getWindow();
@@ -370,6 +409,7 @@ public class InstrumentController implements Initializable {
 			// Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			System.err.println("Problem writing to the file statsTest.txt");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
