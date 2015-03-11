@@ -51,6 +51,7 @@ public class ProgressBarController implements Initializable {
 			BufferedReader bufferReader = new BufferedReader(inputFile);
 			String line;
 
+			// get the runCount to display
 			while ((line = bufferReader.readLine()) != null) {
 				if (line.contains("numOfRuns")) {
 					totalRunCount = totalRunCount
@@ -80,6 +81,8 @@ public class ProgressBarController implements Initializable {
 			// indicator.setProgress(-1);
 			// progressBar.setProgress(-1);
 			Task<Void> task = new Task<Void>() {
+				
+				// I think this updates the progress bar
 				@Override
 				public Void call() {
 
@@ -153,6 +156,7 @@ public class ProgressBarController implements Initializable {
 				}
 			};
 
+			// do fault injection
 			MyThread t1 = new MyThread();
 
 			t1.start();
