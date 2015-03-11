@@ -208,7 +208,7 @@ public class Controller implements Initializable {
 	private int fileCount = 0;
 	private boolean errorFlag;
 	private LinkedHashMap<String, List<String>> fileSelecMap = new LinkedHashMap<>();
-	static public List<String> errorString;
+	static public List<String> errorString = new ArrayList<String>();
 	static public String inputString;
 
 	public ArrayList<String> rowCount = new ArrayList<>();
@@ -262,7 +262,7 @@ public class Controller implements Initializable {
 			}
 
 			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath + execName);
-			console.add("$ "+llfibuildPath + execName + "\n");
+			console.add("$ "+llfibuildPath + execName);
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
@@ -270,7 +270,7 @@ public class Controller implements Initializable {
 			String line1;
 			while ((line1 = in1.readLine()) != null) {
 				//System.out.printl
-				console.add(line1+"\n");
+				console.add(line1);
 				errorString.add(line1+"\n");
 				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
 					errorFlag= true;
@@ -399,8 +399,10 @@ public class Controller implements Initializable {
 		Parent root;
 		try{
 			tabBottom.getSelectionModel().select(profilingTab);
-			flag = 1;
+			flag = 1; // what is this for?
 			ObservableList<ResultTable> data;
+			
+			// read output folder(s), if exist delete them
 			final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
 			if(folder.exists())
 				deleteFilesInFolder(folder);
@@ -414,6 +416,8 @@ public class Controller implements Initializable {
 			if(outputFolder.exists())
 				deleteFilesInFolder(outputFolder);
 			// }
+			
+			// runs ProgressBarController.java
 			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ProgressWindow.fxml"));
 			Stage stage = new Stage();                               
 
@@ -1283,14 +1287,14 @@ public class Controller implements Initializable {
 			//System.out.println(System.getenv());
 
 			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
-			console.add("$ "+command+"\n");
+			console.add("$ "+command);
 			Process p = Runtime.getRuntime().exec(command);
 			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			errorTextArea.clear();
 			errorString = new ArrayList<>();
 			while ((line = in1.readLine()) != null) {
-				console.add(line+"\n");
-				errorString.add(line+"\n");
+				console.add(line);
+				errorString.add(line);
 
 			}
 			in1.close();
