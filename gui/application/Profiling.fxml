@@ -27,8 +27,8 @@
         <FXCollections fx:factory="observableArrayList" />
       </items>
     </ComboBox>
-    <Label font="$x1" layoutX="103.0" layoutY="193.0" text="Fault Injection Cycles" />
-    <Label font="$x1" layoutX="103.0" layoutY="238.0" text="Fault Injection Index" />
+    <Label fx:id="faultInjectionCyclesLabel" font="$x1" layoutX="103.0" layoutY="193.0" text="Fault Injection Cycles" />
+    <Label fx:id="faultInjectionIndexLabel" font="$x1" layoutX="103.0" layoutY="238.0" text="Fault Injection Index" />
     <Label fx:id="fiRegIndexLabel" font="$x1" layoutY="285.0" text="Fault Injection Register Index" AnchorPane.leftAnchor="103.0" />
     <Label fx:id="fiBitLabel" font="$x1" layoutY="326.0" text="Fault Injection Bit" AnchorPane.leftAnchor="103.0" />
     <Label layoutX="76.0" layoutY="35.0" prefWidth="281.0" text="Fault Injection Configuration">
