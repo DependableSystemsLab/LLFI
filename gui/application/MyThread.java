@@ -33,15 +33,25 @@ public class MyThread extends Thread {
 		try {
 			Controller.console = new ArrayList<String>();
 
-			String execName = "bin/injectfault "
-					+ Controller.currentProgramFolder + "/llfi/"
-					+ Controller.currentProgramFolder + "-faultinjection.exe "
-					+ Controller.inputString;
-
+			// #SFIT
+			// changes how injection is done if we are in batch mode
+			String execName;
+			if (!Controller.isBatchMode) {
+				execName = "bin/injectfault "
+						+ Controller.currentProgramFolder + "/llfi/"
+						+ Controller.currentProgramFolder + "-faultinjection.exe "
+						+ Controller.inputString;
+			} else {
+				execName = "bin/batchInjectfault "
+						+ Controller.currentProgramFolder + "/"
+						+ Controller.currentProgramFolder + ".ll "
+						+ Controller.inputString;
+			}
+			
 			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c",
 					Controller.llfibuildPath + execName);
-			Controller.console.add("$ " + Controller.llfibuildPath + execName
-					+ "\n");
+			// add the log to the GUI console
+			Controller.console.add("$ " + Controller.llfibuildPath + execName);
 			p.redirectErrorStream(true);
 			Process pr = p.start();
 
@@ -49,8 +59,8 @@ public class MyThread extends Thread {
 					pr.getInputStream()));
 			String line1;
 			while ((line1 = in1.readLine()) != null) {
-				Controller.console.add(line1 + "\n");
-				Controller.errorString.add(line1 + "\n");
+				Controller.console.add(line1);
+				Controller.errorString.add(line1);
 				if (line1.contains("error") || line1.contains("Error")
 						|| line1.contains("ERROR"))
 					errorFlag = true;
