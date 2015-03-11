@@ -41,6 +41,7 @@ copy(config/customRegister_list.txt config/customRegister_list.txt)
 copy(config/fault_type.txt config/fault_type.txt)
 copy(config/instruction_list.txt config/instruction_list.txt)
 copy(config/register_list.txt config/register_list.txt)
+copy(config/customSoftwareFault_list.txt config/customSoftwareFault_list.txt)
 
 compileGUI()
 
