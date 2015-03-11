@@ -302,7 +302,7 @@ public class InstrumentController implements Initializable {
 					+ folderName + ".ll";
 			
 			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c", cmd);
-			Controller.console.add("$ " + cmd + "\n");
+			Controller.console.add("$ " + cmd);
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
@@ -315,7 +315,7 @@ public class InstrumentController implements Initializable {
 				 * if(line1.contains("Sucess")) Controller.errorString = new
 				 * ArrayList<>(); else
 				 */
-				Controller.console.add(line1 + "\n");
+				Controller.console.add(line1);
 				Controller.errorString.add(line1);
 
 				if (line1.contains("error") || line1.contains("Error")
