@@ -84,6 +84,8 @@ public class Controller implements Initializable {
 	@FXML
 	private TableColumn<Table,Integer> cycleCount;
 	@FXML
+	private TableColumn<Table, String> failureType;
+	@FXML
 	private TableView<ResultTable> resultTable;
 	@FXML
 	private TableColumn<ResultTable,Integer> tFiRun;
@@ -219,7 +221,17 @@ public class Controller implements Initializable {
 	public ArrayList<String> parameter = new ArrayList<>();
 	
 	// #SFIT
+	/**
+	 * Indicates whether we are doing hardware fault or software fault injection. This affects 
+	 * how certain options/results are displayed, as well as how the input.yaml is generated.
+	 */
 	static public boolean isHardwareInjection = true;
+	/**
+	 * Only affects software fault injection. This is true when we are selecting more than 1
+	 * software fault and the batch mode script will be called instead.
+	 */
+	static public boolean isBatchMode = false;
+	static public List<String> selectedSoftwareFailures;
 	
 	
 	@FXML
@@ -237,8 +249,18 @@ public class Controller implements Initializable {
 			//programInputText.setEditable(false);
 			errorString = new ArrayList<>();
 			//System.out.println("inputString;"+inputString);
+			
+			// #SFIT
+			String execName;
+			if (!Controller.isBatchMode) {
+				execName = "bin/profile " + currentProgramFolder+"/llfi/" + currentProgramFolder + "-profiling.exe " + inputString;
+			} else {
+				// #SFIT 
+				// call batch instrument instead if we have more than 1 software fault
+				execName = "bin/batchProfile " + currentProgramFolder + "/" + currentProgramFolder
+								+ ".ll " + inputString;
+			}
 
-			String execName = "bin/profile "+currentProgramFolder+"/llfi/"+currentProgramFolder+"-profiling.exe "+inputString;
 			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath + execName);
 			console.add("$ "+llfibuildPath + execName + "\n");
 
@@ -256,39 +278,55 @@ public class Controller implements Initializable {
 			}
 			pr.waitFor();
 			in1.close();
-
-			inputFile = new FileReader(currentProgramFolder + "/llfi.stat.totalindex.txt");
+			
+			// gets the number of index
+			inputFile = new FileReader(currentProgramFolder
+					+ "/llfi.stat.totalindex.txt");
 			BufferedReader bufferReader = new BufferedReader(inputFile);
-
-
 			String line;
-
-			while ((line = bufferReader.readLine()) != null)   {
+			while ((line = bufferReader.readLine()) != null) {
 				indexBound = line.split("=")[1];
-
 			}
-
-			bufferReader.close();
-			inputFile = new FileReader(currentProgramFolder + "/llfi.stat.prof.txt");
-			bufferReader = new BufferedReader(inputFile);
-
-
-			while ((line = bufferReader.readLine()) != null)   {
-				if(line.contains("="))
-					cycleBound = line.split("=")[1];
-
-			}
-
 			bufferReader.close();
 
-			ObservableList<Table> data =
-					FXCollections.observableArrayList(
-							new Table(Integer.parseInt(indexBound),Integer.parseInt(cycleBound)));
-
+			// #SFIT
+			// if we are doing multiple software failure injection, we have to 
+			// get all the different cycles for each failure
+			ArrayList<Table> profileResult = new ArrayList<Table>();
+			int num = isBatchMode ? selectedSoftwareFailures.size() : 1;
+			for (int i = 0; i < num; i++) {
+				String failureName;
+				if (isHardwareInjection) {
+					failureName = "Hardware Fault(s)";
+				} else {
+					failureName = selectedSoftwareFailures.get(i);
+				}
+				if (!isBatchMode) {
+					inputFile = new FileReader(currentProgramFolder
+							+ "/llfi.stat.prof.txt");
+				} else {
+					inputFile = new FileReader(currentProgramFolder + "/llfi-"
+							+ selectedSoftwareFailures.get(i) + "/llfi.stat.prof.txt");
+				}
+				bufferReader = new BufferedReader(inputFile);
+				while ((line = bufferReader.readLine()) != null) {
+					if (line.contains("="))
+						cycleBound = line.split("=")[1];
+				}
+				bufferReader.close();
+				
+				profileResult.add(new Table(failureName, Integer.parseInt(indexBound), 
+						Integer.parseInt(cycleBound)));
+			}
+			
+			ObservableList<Table> data = FXCollections.observableArrayList(profileResult);
+			
+			failureType.setCellValueFactory(new PropertyValueFactory<Table, String>("failureType"));
 			indexCount.setCellValueFactory(new PropertyValueFactory<Table, Integer>("noIndex"));
 			cycleCount.setCellValueFactory(new PropertyValueFactory<Table, Integer>("noCycles"));
+			
 			profilingTable.setItems(data);
-
+			
 			if(errorFlag == true)
 			{
 				errorFlag = false;
@@ -318,14 +356,14 @@ public class Controller implements Initializable {
 					injectfaultButton.setDisable(false);
 				else
 					injectfaultButton.setDisable(true);
-
 			}
+			
 			//Display index file in Text area
 			//Clear the Text area
 			programTextArea.clear();
 			// Clear fileContent
 			fileContent = new ArrayList<>();
-			FileReader indexFile = new FileReader(currentProgramFolder+"/llfi/"+currentProgramFolder+"-llfi_displayIndex.ll");
+			FileReader indexFile = new FileReader(currentProgramFolder + "/" + currentProgramFolder + "-llfi_displayIndex.ll");
 			bufferReader = new BufferedReader(indexFile);
 			//Read file contents
 			while ((line = bufferReader.readLine()) != null)   {

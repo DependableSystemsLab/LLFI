@@ -6,13 +6,14 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class Table {
 
+	SimpleStringProperty failureType;
     SimpleIntegerProperty noIndex;
     SimpleIntegerProperty noCycles;
 
-    public Table(int noIndex, int noCycles) {
+    public Table(String failureType, int noIndex, int noCycles) {
         this.noIndex = new SimpleIntegerProperty(noIndex);
         this.noCycles = new SimpleIntegerProperty(noCycles);
-        
+        this.failureType = new SimpleStringProperty(failureType);
     } 
 
     public Integer getNoIndex() {
@@ -28,8 +29,14 @@ public class Table {
 	}
 
 	public void setNoCycles(Integer d) {
-		this.noCycles.set(d);;
+		this.noCycles.set(d);
+	}
+	
+	public void setFailureType(String failureType) {
+		this.failureType.set(failureType);
 	}
 
-	
+	public String getFailureType() {
+		return this.failureType.get();
+	}
 }

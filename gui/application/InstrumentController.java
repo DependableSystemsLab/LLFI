@@ -16,6 +16,7 @@ import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -284,13 +285,17 @@ public class InstrumentController implements Initializable {
 
 			
 			// #SFIT
+			// calls the correct script if the user selected more than 1 software fault
 			String scriptToCall;
 			ObservableList<String> numFaultTypes = instIncludeListView.getItems();
+			Controller.selectedSoftwareFailures = numFaultTypes;
 			if (Controller.isHardwareInjection || numFaultTypes.size() == 1) {
 				scriptToCall = "bin/instrument -lpthread --readable ";
+				Controller.isBatchMode = false;
 			} else {
 				// run batch instrument instead
 				scriptToCall = "bin/batchInstrument --readable ";
+				Controller.isBatchMode = true;
 			}
 			String cmd = Controller.llfibuildPath
 					+ scriptToCall + folderName + "/"
@@ -337,67 +342,63 @@ public class InstrumentController implements Initializable {
 			} else {
 				// Generate the LLFI .ll file with index labelled.
 				// use for the indexed injection
+				
 				// #SFIT
-				int runs;
-				if (Controller.isHardwareInjection) {
-					runs = 1;
+				// if batch mode, we need to go into one of the generated folder
+				// to generated the indexed .ll file
+				fileContent = new ArrayList<>();
+				String line;
+				FileReader inputIndexFile;
+				File outputIndexFile = new File(
+						Controller.currentProgramFolder + "/"
+						+ Controller.currentProgramFolder
+						+ "-llfi_displayIndex.ll");
+				if (!Controller.isBatchMode) {
+					inputIndexFile = new FileReader(
+							Controller.currentProgramFolder + "/llfi/"
+									+ Controller.currentProgramFolder
+									+ "-llfi_index.ll");
 				} else {
-					runs = numFaultTypes.size();
+					// if we are in software batch more, the location of the
+					// files changes
+					inputIndexFile = new FileReader(
+							Controller.currentProgramFolder + "/llfi-"
+									+ numFaultTypes.get(0) + "/llfi/"
+									+ Controller.currentProgramFolder
+									+ "-llfi_index.ll");
+					// also copy the llfi.stat.totalindex.txt file out of (one of) the inner folder
+					Files.copy(
+							Paths.get(Controller.currentProgramFolder + "/llfi-" + numFaultTypes.get(0) + "/llfi.stat.totalindex.txt"),
+							Paths.get(Controller.currentProgramFolder + "/llfi.stat.totalindex.txt"));
 				}
-				for (int j = 0; j < runs; j++) {
-					fileContent = new ArrayList<>();
-					String line;
-					FileReader inputIndexFile;
-					File outputIndexFile;
-					if (runs == 1) {
-						inputIndexFile = new FileReader(
-								Controller.currentProgramFolder + "/llfi/"
-										+ Controller.currentProgramFolder
-										+ "-llfi_index.ll");
-						outputIndexFile = new File(
-								Controller.currentProgramFolder + "/llfi/" 
-										+ Controller.currentProgramFolder
-										+ "-llfi_displayIndex.ll");
-					} else {
-						inputIndexFile = new FileReader(
-								Controller.currentProgramFolder + "/llfi-"
-										+ numFaultTypes.get(j) + "/llfi/"
-										+ Controller.currentProgramFolder
-										+ "-llfi_index.ll");
-						outputIndexFile = new File(
-								Controller.currentProgramFolder + "/llfi-" 
-										+ numFaultTypes.get(j) + "/llfi/"
-										+ Controller.currentProgramFolder
-										+ "-llfi_displayIndex.ll");
-					}
-							
-					BufferedReader bufferReader = new BufferedReader(inputIndexFile);
-					// Read file contents
-					while ((line = bufferReader.readLine()) != null) {
-						fileContent.add(line + "\n");
-					}
-					bufferReader.close();
-			
-					BufferedWriter outputFile = new BufferedWriter(new FileWriter(
-							outputIndexFile));
-					for (int i = 0; i < fileContent.size(); i++) {
-	
-						if (fileContent.get(i).contains("!llfi_index !"))
-							outputFile.write(fileContent.get(i)
-									.substring(
-											fileContent.get(i).indexOf(
-													"!llfi_index !") + 13,
-											fileContent.get(i).lastIndexOf("\n"))
-									+ "\t\t"
-									+ fileContent.get(i).substring(
-											0,
-											fileContent.get(i).indexOf(
-													"!llfi_index !")) + "\n");
-						else if (!fileContent.get(i).contains("= metadata !"))
-							outputFile.write("\t\t" + fileContent.get(i));
-					}
-					outputFile.close();
+						
+				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
+				// Read file contents
+				while ((line = bufferReader.readLine()) != null) {
+					fileContent.add(line + "\n");
 				}
+				bufferReader.close();
+		
+				BufferedWriter outputFile = new BufferedWriter(new FileWriter(
+						outputIndexFile));
+				for (int i = 0; i < fileContent.size(); i++) {
+
+					if (fileContent.get(i).contains("!llfi_index !"))
+						outputFile.write(fileContent.get(i)
+								.substring(
+										fileContent.get(i).indexOf(
+												"!llfi_index !") + 13,
+										fileContent.get(i).lastIndexOf("\n"))
+								+ "\t\t"
+								+ fileContent.get(i).substring(
+										0,
+										fileContent.get(i).indexOf(
+												"!llfi_index !")) + "\n");
+					else if (!fileContent.get(i).contains("= metadata !"))
+						outputFile.write("\t\t" + fileContent.get(i));
+				}
+				outputFile.close();
+				
 	
 				
 				Controller.errorString = new ArrayList<>();

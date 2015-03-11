@@ -185,12 +185,13 @@
                                                       <children>
                                                         <TableView fx:id="profilingTable" prefHeight="340.0" prefWidth="1037.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                           <columns>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="164.0" text="No.of.Index" fx:id="indexCount">
+                                                            <TableColumn fx:id="failureType" prefWidth="210.0" text="Failure Type" />
+                                                            <TableColumn fx:id="indexCount" maxWidth="5000.0" minWidth="10.0" prefWidth="110.0" text="No.of.Index">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="indexCount" />
                                                               </cellValueFactory>
                                                             </TableColumn>
-                                                            <TableColumn maxWidth="5000.0" minWidth="10.0" prefWidth="150.0" text="No.of.Cycle" fx:id="cycleCount">
+                                                            <TableColumn fx:id="cycleCount" maxWidth="5000.0" minWidth="10.0" prefWidth="110.0" text="No.of.Cycle">
                                                               <cellValueFactory>
                                                                 <PropertyValueFactory property="cycleCount" />
                                                               </cellValueFactory>
