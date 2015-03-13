@@ -14,7 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import application.Controller;
 
-
+@Deprecated
 public class ProfilingController implements Initializable{
 	
 	@FXML 

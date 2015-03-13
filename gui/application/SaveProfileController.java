@@ -21,7 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import application.Controller;
 
-
+@Deprecated
 public class SaveProfileController implements Initializable{
 	
 	@FXML 

@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 
+@Deprecated
 public class ClosePopupController implements Initializable {
 	@FXML
 	private void onClickOkHandler(ActionEvent event){

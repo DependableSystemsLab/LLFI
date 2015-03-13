@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 /**
  * The Fault Injection Thread. Called by the ProgressBarController class
  */
+@Deprecated
 public class MyThread extends Thread {
 
 	private int startIdx, nThreads, maxIdx;
