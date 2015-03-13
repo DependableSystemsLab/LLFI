@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.*?>
+<?import javafx.collections.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -303,6 +304,13 @@
                                                 </Tab>
                                               </tabs>
                                             </TabPane>
+                                            <ComboBox fx:id="fiResultDisplay" prefWidth="150.0" value="All" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.0">
+                                              <items>
+                                                <FXCollections fx:factory="observableArrayList">
+                                                  <String fx:value="All" />
+                                                </FXCollections>
+                                              </items>
+                                            </ComboBox>
                                           </children>
                                         </AnchorPane>
                                       </items>
