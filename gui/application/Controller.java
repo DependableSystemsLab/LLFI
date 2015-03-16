@@ -60,6 +60,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import application.InstrumentController;
@@ -163,6 +164,7 @@ public class Controller implements Initializable {
 	public boolean checkFlag = true;
 	public boolean indexStates =false;
 	static public List<String> console;
+	static public File currentFilePath=null;
 
 
 	public ArrayList<String> fileNameLists = new ArrayList<>();
@@ -1239,22 +1241,54 @@ public class Controller implements Initializable {
 			tabBottom.getSelectionModel().select(profilingTab);
 			String cmd = "echo $llfibuild";
 			//System.out.println(System.getenv());
+			// Delete the old .ll file
+			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/"+currentFileName+".ll");
+			Process delete = deleteCmd.start();
+			delete.waitFor();
+			delete.destroy();
+			
+			if (currentFileName.equals("Makefile"))
+			{
+				String command = "make";
+				File folder = currentFilePath;
+				try {
+					Process p = Runtime.getRuntime().exec(command,null,folder);;
+					BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+					errorTextArea.clear();
+					errorString = new ArrayList<>();
+					while ((line = in1.readLine()) != null) {
+						console.add(line+"\n");
+						errorString.add(line+"\n");
 
-			String command = llfibuildPath+"tools/compiletoIR --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
-			console.add("$ "+command+"\n");
-			Process p = Runtime.getRuntime().exec(command);
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			errorTextArea.clear();
-			errorString = new ArrayList<>();
-			while ((line = in1.readLine()) != null) {
-				console.add(line+"\n");
-				errorString.add(line+"\n");
+					}
+					in1.close();
+					p.waitFor();
 
+					p.destroy();
+				}
+				catch (Exception e)
+				{
+					System.out.println(e);
+				}
 			}
-			in1.close();
-			p.waitFor();
+			else
+			{
+				String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
+				console.add("$ "+command+"\n");
+				Process p = Runtime.getRuntime().exec(command);
+				BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+				errorTextArea.clear();
+				errorString = new ArrayList<>();
+				while ((line = in1.readLine()) != null) {
+					console.add(line+"\n");
+					errorString.add(line+"\n");
 
-			p.destroy();
+				}
+				in1.close();
+				p.waitFor();
+
+				p.destroy();
+			}
 
 			if(errorString.size()==0)
 			{
@@ -1445,6 +1479,57 @@ public class Controller implements Initializable {
 
 	}
 
+	@FXML
+	private void onClickOpenProject(ActionEvent event) {
+		Parent root;
+		fileCount=0;
+		Stage stage = new Stage();
+		DirectoryChooser dirChooser = new DirectoryChooser();
+		dirChooser.setTitle("Open Project Folder");
+		File folder = dirChooser.showDialog(stage);
+		if (folder != null) {
+			System.out.println(folder);
+			currentFilePath	= folder.getAbsoluteFile();
+			//currentProgramFolder = currentFilePath.getAbsolutePath();
+			System.out.println("currentProgramFolder: " + folder);
+	
+			String command = llfibuildPath+"tools/GenerateMakefile --readable --all -o " + folder + "/" + folder.getName() + ".ll";			
+			try {			
+				System.out.println(command);				
+				Process p = Runtime.getRuntime().exec(command,null,folder);;
+				p.waitFor();
+				p.destroy();
+			}
+			catch(Exception e)
+			{
+				System.out.println(e);
+			}
+			File[] list = folder.listFiles();
+
+			for (File file : list) {
+			    String ext = getFileExtension(file);
+			    System.out.println(file.getName());
+			    if (file.getName().equals("Makefile"))
+			    {			
+				openFile(file);
+				System.out.println("Absolute Path: " + file.getAbsolutePath());
+			    }
+			    else if (ext.equals("c") || ext.equals("cpp") ) {
+				openFile(file);
+			    }
+			}
+		}
+
+
+	}
+
+	private static String getFileExtension(File file) {
+		String fileName = file.getName();
+		if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0)
+		return fileName.substring(fileName.lastIndexOf(".")+1);
+		else return "";
+    	}
+
 	private static void configureFileChooser(
 			final FileChooser fileChooser) {      
 
@@ -1497,7 +1582,7 @@ public class Controller implements Initializable {
 			programInputText.clear();
 			boolean flag =false;
 			fileContent = new ArrayList<>();
-			Path path = file.toPath();
+			Path path = file.toPath().toAbsolutePath();
 			String fileInfo =path.toString(); 
 			FileReader inputFile = new FileReader(fileInfo);
 			BufferedReader bufferReader = new BufferedReader(inputFile);
@@ -1527,10 +1612,23 @@ public class Controller implements Initializable {
 			fileList.setItems(items);
 			//Variable to hold the one line data
 			String line;
+			
+			//Variable to hold the folder name.
+			String folderName;
+			boolean Makefile = false;	
+			
+			if (fileName.equals("Makefile"))
+			{
+				folderName = file.getAbsolutePath().split("Makefile")[0]; 
+				Makefile = true;
+			}
+			else
+			{
+				folderName = fileName.split("\\.")[0];
+			}
 
-			String folderName = fileName.split("\\.")[0]; 
 			File  theDirectory = new File(folderName);
-			if(theDirectory.exists())
+			if(theDirectory.exists() && !Makefile)
 			{
 				delete(theDirectory);
 
@@ -1572,7 +1670,7 @@ public class Controller implements Initializable {
 
 					programTextArea.appendText(fileContent.get(i));
 				}
-				if(fileName.split("\\.")[1].equalsIgnoreCase("ll"))
+				if(fileName.equals("Makefile") || fileName.split("\\.")[1].equalsIgnoreCase("ll"))
 				{
 
 					compiletoIrButton.setDisable(true);
@@ -1627,7 +1725,7 @@ public class Controller implements Initializable {
 			programTextArea.appendText(fileContent.get(i));
 		}
 
-		if(currentFileName.split("\\.")[1].equalsIgnoreCase("ll"))
+		if(!currentFileName.equals("Makefile") && currentFileName.split("\\.")[1].equalsIgnoreCase("ll"))
 		{
 
 			compiletoIrButton.setDisable(true);
