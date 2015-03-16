@@ -185,7 +185,10 @@ public class Controller implements Initializable {
 	public int runCount = 0;
 	public int totalRunCount = 0;
 	public int currentCount = 0;
-	public int flag = 0;
+	/**
+	 * Flag that fault injection is complete.
+	 */
+	public int faultInjectionCompleted = 0;
 	public int crashedCount = 0;
 	public int hangedCount = 0;
 	public int sdcCount = 0;
@@ -232,6 +235,7 @@ public class Controller implements Initializable {
 	 */
 	static public boolean isBatchMode = false;
 	static public List<String> selectedSoftwareFailures;
+	static public ComboBox<String> fiResultDisplay;
 	
 	
 	@FXML
@@ -399,7 +403,7 @@ public class Controller implements Initializable {
 		Parent root;
 		try{
 			tabBottom.getSelectionModel().select(profilingTab);
-			flag = 1; // what is this for?
+			faultInjectionCompleted = 1; 
 			ObservableList<ResultTable> data;
 			
 			// read output folder(s), if exist delete them
@@ -449,353 +453,314 @@ public class Controller implements Initializable {
 
 
 	}
+
+	/**
+	 * Generates the 'Fault Injection Status' tab
+	 */
 	@FXML
-	public void onGeneratingResultTable(){
-		try{
-			String runEntry;
+	public void onGeneratingResultTable() {
+		try {
 			sdcCount = 0;
-			int entryCount = 0;
-			data1 =  FXCollections.observableArrayList() ;
-			resultList = new ArrayList<String>();
-			resultErrorFileNameLists = new ArrayList<String>();
-			resultOutputFileNameLists = new ArrayList<String>();
-			final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
-			listFilesForFolder(folder);
-			final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
-			listFilesForErrorFolder(errorFolder);
-			final File outputFolder = new File(currentProgramFolder+"/llfi/std_output");
-			listFilesForOtputFolder(outputFolder);	
-
-
 			runCount = 0;
-			/*FileReader inFile = new FileReader(currentProgramFolder+"/llfi/gui_config.txt");
-		BufferedReader bReader = new BufferedReader(inFile);
-		  while ((line = bReader.readLine()) != null)   {
-			  faultEntryList.add(line);
+			data1 = FXCollections.observableArrayList();
+			
+			// Generate trace_report_output folder to hold TraceDiffReport files
+			ProcessBuilder deleteTraceReportFolder = new ProcessBuilder(
+					"/bin/tcsh", "-c", "rm -rf "
+							+ Controller.currentProgramFolder
+							+ "/llfi/trace_report_output");
+			deleteTraceReportFolder.start().waitFor();
 
-		      }
-		  bReader.close();*/
-			//Generate  trace_report_output folder to hold TraceDiffReport files
-
-			ProcessBuilder deleteTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","rm -rf "+Controller.currentProgramFolder+"/llfi/trace_report_output");
-			Process deleteFolder = deleteTraceReportFolder.start();
-			deleteFolder.waitFor();
-			deleteFolder.destroy();
-
-			ProcessBuilder makeTraceReportFolder = new  ProcessBuilder("/bin/tcsh","-c","mkdir "+Controller.currentProgramFolder+"/llfi/trace_report_output");
-			Process makeFolder = makeTraceReportFolder.start();
-			makeFolder.waitFor();
-			makeFolder.destroy();
-
-			//DiffFile.redirectErrorStream(true);
-
-			for(int i = 0; i < resultFileNameLists.size();i++)                                
-
-			{
-
-
-				if(resultFileNameLists.get(i).contains("trace"))
-				{
-					// Generate diff report file using tracediff
-					ProcessBuilder DiffFile = new  ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/tracediff "+Controller.currentProgramFolder+"/llfi/baseline/llfi.stat.trace.prof.txt"+" "+ Controller.currentProgramFolder+"/llfi/llfi_stat_output/"+  resultFileNameLists.get(i)+" " + "> ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+"TraceDiffReportFile"+resultFileNameLists.get(i).substring(15));
-					DiffFile.redirectErrorStream(true); 
-					Process pr2 = DiffFile.start();
-					pr2.waitFor();
-					pr2.destroy();
-
+			ProcessBuilder makeTraceReportFolder = new ProcessBuilder(
+					"/bin/tcsh", "-c", "mkdir -p " 
+							+ Controller.currentProgramFolder
+							+ "/llfi/trace_report_output");
+			makeTraceReportFolder.start().waitFor();
+			
+			
+			// #SFIT
+			// get the fault the display
+			// if we are doing single injection this does not matter
+			String selectedFault = fiResultDisplay.getSelectionModel().getSelectedItem();
+			
+			// for batch mode, if the user selected all we need to loop through all the 
+			// inner folders
+			int faultFolderNum;
+			if (isBatchMode && selectedFault == "All") {
+				faultFolderNum = selectedSoftwareFailures.size();
+			} else {
+				faultFolderNum = 1;
+			}
+			
+			// loop through each inner folder when doing batch injection
+			for (int it = 0; it < faultFolderNum; it++) {
+				/**
+				 * Name of TraceDiff files needs to change if we are doing batch mode
+				 * as we are copying all the TraceDiff files to one location ("llfi/trace_report_output")
+				 */
+				String diff;
+				String fault;
+				// fault name changes through each loop iteration
+				if (isBatchMode && selectedFault == "All") {
+					fault = selectedSoftwareFailures.get(it);
+					diff = fault + "-";
+				} else {
+					fault = selectedFault;
+					diff = "";
 				}
-				else
-				{
-
-					/*
-				 runEntry = faultEntryList.get(entryCount);
-				 entryCount++;
-				 s = runEntry.split(",");
-
-				 for(int j = 0; j < s.length;j++)
-				  {
-
-					 faultResultList.add(s[j].split("=")[1]);
-
-				  }*/
+				
+				// changes path accordingly if we are doing batch software injection
+				String folderPath, errorFolderPath, outputFolderPath, goldenStdOutputPath, statTraceProfPath;
+				if (!isBatchMode) {
+					folderPath = currentProgramFolder
+							+ "/llfi/llfi_stat_output/";
+					errorFolderPath = currentProgramFolder
+							+ "/llfi/error_output/";
+					outputFolderPath = currentProgramFolder 
+							+ "/llfi/std_output/";
+					goldenStdOutputPath = currentProgramFolder
+							+ "/llfi/baseline/golden_std_output";
+					statTraceProfPath = Controller.currentProgramFolder
+							+ "/llfi/baseline/llfi.stat.trace.prof.txt";
+				} else {
+					folderPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/llfi_stat_output/";
+					errorFolderPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/error_output/";
+					outputFolderPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/std_output/";
+					goldenStdOutputPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/baseline/golden_std_output";
+					statTraceProfPath = Controller.currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/baseline/llfi.stat.trace.prof.txt";
+				}
+				
+				listFilesForFolder(new File(folderPath));
+				listFilesForErrorFolder(new File(errorFolderPath));
+				listFilesForOtputFolder(new File(outputFolderPath));
+	
+				for (int i = 0; i < resultFileNameLists.size(); i++) {
+					// get run_config and run_number from the file name
+					String fileName = resultFileNameLists.get(i);
+					String[] split = fileName.split("\\.");
+					String runNum = split[split.length - 2];
+					/**
+					 * Used for generating the 'TraceDiffReportFile'
+					 * as well as finding it later. Get the last 8 character
+					 * of fileName as that is the run_config# - run#
+					 */
+					String traceDiffName = diff + "TraceDiffReportFile."
+							+ runNum + ".txt";
+					if (fileName.contains("trace")) {
+						// Generate diff report file using tracediff
+						ProcessBuilder DiffFile = new ProcessBuilder("/bin/tcsh",
+								"-c", Controller.llfibuildPath + "tools/tracediff '"
+										+ statTraceProfPath
+										+ "' '" + folderPath
+										+ fileName + "' > './"
+										+ Controller.currentProgramFolder
+										+ "/llfi/trace_report_output/" + traceDiffName + "'");
+						DiffFile.redirectErrorStream(true).start().waitFor();
+						continue;
+					} 
 					resultList = new ArrayList<String>();
 					runCount++;
-
-
-					inputFile = new FileReader(currentProgramFolder+"/llfi/llfi_stat_output/"+resultFileNameLists.get(i));
+	
+					inputFile = new FileReader(folderPath + fileName);
 					BufferedReader bufferReader = new BufferedReader(inputFile);
-					while ((line = bufferReader.readLine()) != null)   {
-
+					while ((line = bufferReader.readLine()) != null) {
 						str = line.split(":")[1];
-
+	
 						subStr = str.split(",");
-						for(int j = 0; j < subStr.length;j++)
-						{
-
+						for (int j = 0; j < subStr.length; j++) {
 							resultList.add(subStr[j].split("=")[1]);
-
 						}
-
 					}
 					bufferReader.close();
-					if(resultErrorFileNameLists.size()>0){
-						for(int k = 0;k< resultErrorFileNameLists.size();k++)
-						{
-
-
-							if(resultErrorFileNameLists.get(k).substring(14).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
-							{
+					
+					if (resultErrorFileNameLists.size() > 0) {
+						for (int k = 0; k < resultErrorFileNameLists.size(); k++) {
+							if (resultErrorFileNameLists
+									.get(k)
+									.substring(14)
+									.equalsIgnoreCase(
+											resultFileNameLists.get(i)
+													.substring(28).split("\\.")[0])) {
 								result = "";
 								status = "Injected";
-								errorFile = new FileReader(currentProgramFolder+"/llfi/error_output/"+resultErrorFileNameLists.get(k));
-								BufferedReader bufferReader1 = new BufferedReader(errorFile);
-								while ((line = bufferReader1.readLine()) != null)   {
-
-
-
-									result = result+line+";";
-
+								errorFile = new FileReader(errorFolderPath
+										+ resultErrorFileNameLists.get(k));
+								BufferedReader bufferReader1 = new BufferedReader(
+										errorFile);
+								while ((line = bufferReader1.readLine()) != null) {
+									result = result + line + ";";
 								}
 								bufferReader1.close();
 								break;
-
-							}
-							else
-							{
+							} else {
 								status = "Not Injected ";
-								result ="Nil";
+								result = "Nil";
 							}
 						}
-
-
-
-					}
-					else
-					{
+					} else {
 						status = "Not Injected ";
-						result ="Nil";
+						result = "Nil";
 					}
+	
 					boolean tmpFlag = false;
-					if(resultOutputFileNameLists.size()>0)
-					{
-						FileReader baseline = new FileReader(currentProgramFolder+"/llfi/baseline/golden_std_output");
-						BufferedReader bufferReader1 = new BufferedReader(baseline);
-						String stdValue="";
-						String progValue="";
-						while ((line = bufferReader1.readLine()) != null)   {
-
-							stdValue += line;						      	
-						}
-
-						bufferReader1.close();
-						for(int k = 0;k< resultOutputFileNameLists.size();k++)
-						{
-
-							for(int l = 0;l<resultErrorFileNameLists.size();l++)
-							{
-								if((resultErrorFileNameLists.get(l).substring(14).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0])))
-								{
+					if (resultOutputFileNameLists.size() > 0) {
+						for (int k = 0; k < resultOutputFileNameLists.size(); k++) {
+							for (int l = 0; l < resultErrorFileNameLists.size(); l++) {
+								if ((resultErrorFileNameLists.get(l).substring(14)
+										.equalsIgnoreCase(resultFileNameLists
+												.get(i).substring(28).split("\\.")[0]))) {
 									sdc = "Not Occured";
 									tmpFlag = true;
 									break;
 								}
 							}
-							if(tmpFlag)
+	
+							if (tmpFlag) {
 								break;
-							else
-							{
-								if(resultOutputFileNameLists.get(k).substring(19).equalsIgnoreCase(resultFileNameLists.get(i).substring(28).split("\\.")[0]))
-								{
-
-
-									ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $COMPARE");
-
-									p1.redirectErrorStream(true);
-									Process pr1 = p1.start();
-									BufferedReader in2 = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-									String line1;
-									String comparePath = null;
-									while ((line1 = in2.readLine()) != null) {
-
-										Controller.errorString.add(line1+"\n");
-										if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR") || line1.contains("Undefined variable"))
-											errorFlag= true;
-										else
-											comparePath = line1;
-
-
-									}
-
-									pr1.waitFor();
-									in2.close();
-									pr1.destroy();
-									if(!(comparePath == null))
-									{
-										ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh","-c","sh "+comparePath+" "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
-												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
-
-										p2.redirectErrorStream(true);
-										Process pr2 = p2.start();
-										BufferedReader in3 = new BufferedReader(new InputStreamReader(pr2.getInputStream()));
-
-										while ((line1 = in3.readLine()) != null) {
-
-											Controller.errorString.add(line1+"\n");
-											if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-												errorFlag= true;
-											else
-											{
-												if(line1.equalsIgnoreCase("Not Identical"))
-												{
-													sdc = "Not Occured";
-												}
-												else
-												{
-													// if(status.equalsIgnoreCase("Injected"))
-													// sdc = "Not Occured";
-													// else
-													// {
-													sdcCount++;
-													sdc = "Occured";
-													status = "Injected";
-													// }
-												}
-											}
-
-
-										}
-										pr2.waitFor();
-										in3.close();
-									}
-									else
-									{
-
-										ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh","-c","diff "+currentProgramFolder+"/llfi/baseline/golden_std_output"+" "+
-												currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
-
-										p3.redirectErrorStream(true);
-										Process pr3 = p3.start();
-										BufferedReader in4 = new BufferedReader(new InputStreamReader(pr3.getInputStream()));
-										if((line1 = in4.readLine()) == null)
-										{
-											sdc = "Not Occured"; 
-											status = "Injected";
-										}
-										else
-										{
-											while ((line1 = in4.readLine()) != null) {
-
-												Controller.errorString.add(line1+"\n");
-												if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-													errorFlag= true;
-												else
-												{
-													//if(line1.equalsIgnoreCase(""))
-													//{
-													// sdc = "Not Occured";
-													//}
-													//else
-													//{
-													// if(status.equalsIgnoreCase("Injected"))
-													//  sdc = "Not Occured";
-													// else
-													//  {
-													sdcCount++;
-													sdc = "Occured";
-													status = "Injected";
-													break;
-													// }
-													//}
-												}
-
-
-											}
-										}
-
-										pr3.waitFor();
-										in4.close();
-									}
-
-
-
-
-									/*  FileReader progOutputFile= new FileReader(currentProgramFolder+"/llfi/std_output/"+resultOutputFileNameLists.get(k));
-								  BufferedReader bufferReader2 = new BufferedReader(progOutputFile);
-								  while ((line = bufferReader2.readLine()) != null)   {
-
-									  progValue += line;						      	
-								      }
-
-								  bufferReader2.close();
-								  if(stdValue.equalsIgnoreCase(progValue))
-								  {
-
-
-									  sdc = "Not Occured";
-								  }
-								  else
-								  {
-									  if(status.equalsIgnoreCase("Injected"))
-										  sdc = "Not Occured";
-									  else
-									  {
-										  sdcCount++;
-										  sdc = "Occured";
-									  }
-
-								  }*/
+							}
+	
+							if (!resultOutputFileNameLists
+									.get(k)
+									.substring(19)
+									.equalsIgnoreCase(
+											resultFileNameLists.get(i)
+													.substring(28).split("\\.")[0])) {
+								continue;
+							}
+	
+							// i dont think the code below does anything 
+							ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh",
+									"-c", "echo $COMPARE");
+							p1.redirectErrorStream(true);
+							Process pr1 = p1.start();
+							BufferedReader in2 = new BufferedReader(
+									new InputStreamReader(pr1.getInputStream()));
+							String line1;
+							String comparePath = null;
+							while ((line1 = in2.readLine()) != null) {
+								Controller.errorString.add(line1 + "\n");
+								if (line1.contains("error")
+										|| line1.contains("Error")
+										|| line1.contains("ERROR")
+										|| line1.contains("Undefined variable")) {
+									errorFlag = true;
+								} else {
+									comparePath = line1;
 								}
 							}
-
-
+							pr1.waitFor();
+							in2.close();
+	
+							// I dont think the if below ever runs, only the else ever runs
+							if (comparePath != null) {
+								ProcessBuilder p2 = new ProcessBuilder("/bin/tcsh",
+										"-c", "sh " + comparePath + " '"
+												+ goldenStdOutputPath + "' '"
+												+ outputFolderPath
+												+ resultOutputFileNameLists.get(k) + "'");
+	
+								p2.redirectErrorStream(true);
+								Process pr2 = p2.start();
+								BufferedReader in3 = new BufferedReader(
+										new InputStreamReader(pr2.getInputStream()));
+	
+								while ((line1 = in3.readLine()) != null) {
+	
+									Controller.errorString.add(line1 + "\n");
+									if (line1.contains("error")
+											|| line1.contains("Error")
+											|| line1.contains("ERROR")) {
+										errorFlag = true;
+									} else {
+										if (line1.equalsIgnoreCase("Not Identical")) {
+											sdc = "Not Occured";
+										} else {
+											sdcCount++;
+											sdc = "Occured";
+											status = "Injected";
+										}
+									}
+								}
+								pr2.waitFor();
+								in3.close();
+							} else {
+								// #SFIT
+								// '(' and ')' need to be escaped or encapsulated in a '...'
+								// eg. diff 'factorial/llfi-CPUHog(Res)/llfi/baseline/golden_std_output' 'factorial/llfi-CPUHog(Res)/llfi/std_output/std_outputfile-run-0-1'
+								// or it wont work in a diff
+								String cmd = "diff '" + goldenStdOutputPath + "' '"
+										+ outputFolderPath
+										+ resultOutputFileNameLists.get(k) + "'";
+								ProcessBuilder p3 = new ProcessBuilder("/bin/tcsh",
+										"-c", cmd);
+								p3.redirectErrorStream(true);
+								Process pr3 = p3.start();
+								BufferedReader in4 = new BufferedReader(
+										new InputStreamReader(pr3.getInputStream()));
+								if ((line1 = in4.readLine()) == null) {
+									sdc = "Not Occured";
+									status = "Injected";
+								} else {
+									while ((line1 = in4.readLine()) != null) {
+										Controller.errorString.add(line1 + "\n");
+										if (line1.contains("error")
+												|| line1.contains("Error")
+												|| line1.contains("ERROR")) {
+											errorFlag = true;
+										} else {
+											sdcCount++;
+											sdc = "Occured";
+											status = "Injected";
+											break;
+										}
+									}
+								}
+								pr3.waitFor();
+								in4.close();
+							}
 						}
-					}
-					else
-					{
+					} else {
 						sdc = "NA";
 					}
-					/* System.out.println("\nrunCount : "+runCount);
-				  System.out.println("\nresultList.get(0) : "+resultList.get(0));
-				  System.out.println("\nInteger.parseInt(resultList.get(1)) : "+Integer.parseInt(resultList.get(1)));
-				  System.out.println("\nInteger.parseInt(resultList.get(2)) : "+Integer.parseInt(resultList.get(2)));
-				  System.out.println("\nInteger.parseInt(resultList.get(3)) : "+Integer.parseInt(resultList.get(3)));
-				  System.out.println("\nInteger.parseInt(resultList.get(4)) : "+Integer.parseInt(resultList.get(4)));
-				  System.out.println("\nsdc : "+sdc);
-				  System.out.println("\nstatus : "+status);
-				  System.out.println("\result : "+result);*/
-					trace =false;
-					data1.add(new ResultTable(runCount,resultList.get(0),Integer.parseInt(resultList.get(1)),Integer.parseInt(resultList.get(2)),
-							Integer.parseInt(resultList.get(4)),sdc,status,result,trace));
-
-
+	
+					trace = false;
+					data1.add(new ResultTable(runCount, resultList.get(0), Integer
+							.parseInt(resultList.get(1)), Integer
+							.parseInt(resultList.get(2)), Integer
+							.parseInt(resultList.get(4)), sdc, status, result,
+							trace, traceDiffName));
 				}
-
-
 			}
 
-
-
-
-
-
-
-			tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("noOfRuns"));
-			tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("FaultInjectionType"));
-			tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("index"));
-			tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("cycle"));
-			//tFiRegIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("regIndex"));
-			tFiBit.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>("bit"));
-			tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("sdc"));
-			tFiStatus.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("status"));
-			tFiResult.setCellValueFactory(new PropertyValueFactory<ResultTable, String>("result"));
-
-			tFiTrace.setCellValueFactory( new PropertyValueFactory<ResultTable, Boolean>("trace"));
+			tFiRun.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>(
+					"noOfRuns"));
+			tFiType.setCellValueFactory(new PropertyValueFactory<ResultTable, String>(
+					"FaultInjectionType"));
+			tFiIndex.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>(
+					"index"));
+			tFiCycle.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>(
+					"cycle"));
+			tFiBit.setCellValueFactory(new PropertyValueFactory<ResultTable, Integer>(
+					"bit"));
+			tFiSdc.setCellValueFactory(new PropertyValueFactory<ResultTable, String>(
+					"sdc"));
+			tFiStatus
+					.setCellValueFactory(new PropertyValueFactory<ResultTable, String>(
+							"status"));
+			tFiResult
+					.setCellValueFactory(new PropertyValueFactory<ResultTable, String>(
+							"result"));
+			tFiTrace.setCellValueFactory(new PropertyValueFactory<ResultTable, Boolean>(
+					"trace"));
 			tFiTrace.setCellFactory(new Callback<TableColumn<ResultTable, Boolean>, TableCell<ResultTable, Boolean>>() {
-
-				public TableCell<ResultTable, Boolean> call(TableColumn<ResultTable, Boolean> p) {
-
+				public TableCell<ResultTable, Boolean> call(
+						TableColumn<ResultTable, Boolean> p) {
 					return new CheckBoxTableCell<ResultTable, Boolean>();
-
 				}
 			});
 			tFiTrace.setEditable(true);
@@ -808,26 +773,22 @@ public class Controller implements Initializable {
 			// Header CheckBox for select all
 			HBox box = new HBox();
 			Label text = new Label("Trace");
-			CheckBox cb = new CheckBox();  
-			cb.setUserData(this.tFiTrace); 
-			cb.setText("Select All"); 
-			cb.setOnAction(handleSelectAllCheckbox());  
+			CheckBox cb = new CheckBox();
+			cb.setUserData(this.tFiTrace);
+			cb.setText("Select All");
+			cb.setOnAction(handleSelectAllCheckbox());
 			box.getChildren().addAll(text, cb);
 			box.setSpacing(5);
 			this.tFiTrace.setGraphic(box);
-		}
-		catch(IOException e)
-		{
+		} catch (IOException e) {
+			System.err.println("ERROR: ioexception");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}catch (InterruptedException e) {
-			System.out.println(e);
-			// TODO Auto-generated catch block
+		} catch (InterruptedException e) {
+			System.err.println("ERROR: interrupted");
 			e.printStackTrace();
 		}
-
-
 	}
+	
 	private EventHandler<ActionEvent> handleSelectAllCheckbox() {  
 		return new EventHandler<ActionEvent>() {  
 			@Override  
@@ -869,10 +830,12 @@ public class Controller implements Initializable {
 			if(UnitedDiffReportFile.exists()) {
 				delete(UnitedDiffReportFile);
 			}
+			
 			File TraceGraphDot = new File(currentProgramFolder + "/llfi/trace_report_output/TraceGraph.dot");
 			if(TraceGraphDot.exists()) {
 				delete(TraceGraphDot);
 			}
+			
 			File TraceGraphPs = new File(currentProgramFolder + "/llfi/trace_report_output/TraceGraph.ps");
 			if(TraceGraphPs.exists()) {
 				delete(TraceGraphPs);
@@ -880,70 +843,65 @@ public class Controller implements Initializable {
 
 			String TraceUnionCmd = Controller.llfibuildPath + "tools/traceunion";
 			int found = 0;
+			String traceFileName = "";
 			for (ResultTable resultTableRow : resultTable.getItems()) {
+				// if checkBox is ticked, then use this file
 				if (resultTableRow.getTrace() == true) {
 					for (int i = 0; i < TraceDiffReportFileNameLists.size(); i++) {
-						//Get the trace file index
-						String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
-						if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
-						{
-							TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
-							//				System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
+						// see if trace file exist (trace file does not exist if the fault injection
+						// caused the program to crash)
+						traceFileName = TraceDiffReportFileNameLists.get(i);
+						System.out.println(traceFileName + " " + resultTableRow.getTraceFileName());
+						if (resultTableRow.getTraceFileName().equals(traceFileName)) {
+							TraceUnionCmd += " './"
+									+ Controller.currentProgramFolder
+									+ "/llfi/trace_report_output/" + traceFileName
+									+ "'";
 							found++;
+							break;
 						}
 					}
 				}
 			}
-			//	          System.out.println("found="+found);
-			//		for ( int i =0; i < TraceDiffReportFileNameLists.size(); i++)
-			//		{
-			//		TraceUnionCmd += " ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/"+ TraceDiffReportFileNameLists.get(i);
 
-			//		}
-
-			TraceUnionCmd += "> ./" + Controller.currentProgramFolder + "/llfi/trace_report_output/UnionedDiffReportFile.txt";
-			String traceFileName = "";
+			TraceUnionCmd += "> ./" + Controller.currentProgramFolder
+					+ "/llfi/trace_report_output/UnionedDiffReportFile.txt";
 			if (found > 1) {
-				// System.out.println(TraceUnionCmd);
 				ProcessBuilder UnionTraceDiffReportFile = new ProcessBuilder(
 						"/bin/tcsh", "-c", TraceUnionCmd);
-				UnionTraceDiffReportFile.redirectErrorStream(true);
-				Process pr = UnionTraceDiffReportFile.start();
-				pr.waitFor();
-				pr.destroy();
+				UnionTraceDiffReportFile.redirectErrorStream(true).start()
+						.waitFor();
 
 				// Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new  ProcessBuilder("/bin/tcsh", "-c", Controller.llfibuildPath + "tools/traceontograph " + Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" " +currentProgramFolder+ "/llfi.stat.graph.dot" + " > ./" + Controller.currentProgramFolder + "/llfi/trace_report_output/TraceGraph.dot");
-				TraceGraph.redirectErrorStream(true);
-				Process pr2 = TraceGraph.start();
-				pr2.waitFor();
-				pr2.destroy();
+				ProcessBuilder TraceGraph = new ProcessBuilder(
+						"/bin/tcsh",
+						"-c",
+						Controller.llfibuildPath
+								+ "tools/traceontograph "
+								+ Controller.currentProgramFolder
+								+ "/llfi/trace_report_output/UnionedDiffReportFile.txt"
+								+ " " + currentProgramFolder
+								+ "/llfi.stat.graph.dot" + " > ./"
+								+ Controller.currentProgramFolder
+								+ "/llfi/trace_report_output/TraceGraph.dot");
+				TraceGraph.redirectErrorStream(true).start().waitFor();
 			} else if (found == 1) {
-				for (ResultTable resultTableRow : resultTable.getItems()) {
-					if (resultTableRow.getTrace() == true) {
-						for (int i = 0; i < TraceDiffReportFileNameLists.size(); i++) {
-							//Get the trace file index
-							String name = TraceDiffReportFileNameLists.get(i).substring(TraceDiffReportFileNameLists.get(i).indexOf("-")+1,TraceDiffReportFileNameLists.get(i).lastIndexOf("."));
-							if (Integer.toString(resultTableRow.getNoOfRuns()-1).equals(name))
-							{
-								traceFileName = TraceDiffReportFileNameLists.get(i);
-								//					System.out.println("Found, name:"+TraceDiffReportFileNameLists.get(i));
-								break;
-							}
-						}
-					}
-				}
-				//Generate .dot graph file using traceontograph
-				ProcessBuilder TraceGraph = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/"+traceFileName+" "+currentProgramFolder + "/llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
-				
-				TraceGraph.redirectErrorStream(true);
-				Process pr2 = TraceGraph.start();
-				pr2.waitFor();
-				pr2.destroy();
+				// Generate .dot graph file using traceontograph
+				ProcessBuilder TraceGraph = new ProcessBuilder("/bin/tcsh",
+						"-c", Controller.llfibuildPath
+								+ "tools/traceontograph '"
+								+ Controller.currentProgramFolder
+								+ "/llfi/trace_report_output/" + traceFileName
+								+ "' " + currentProgramFolder
+								+ "/llfi.stat.graph.dot" + " > ./"
+								+ Controller.currentProgramFolder
+								+ "/llfi/trace_report_output/TraceGraph.dot");
+				TraceGraph.redirectErrorStream(true).start().waitFor();
 			} else { // found == 0
 				// When cannot find trace files, inform users about the error.
-				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/TracingErrorDisplay.fxml"));
-				Stage stage = new Stage();                               
+				root = FXMLLoader.load(getClass().getClassLoader().getResource(
+						"application/TracingErrorDisplay.fxml"));
+				Stage stage = new Stage();
 
 				stage.setTitle("Error");
 				stage.setScene(new Scene(root, 500, 118));
@@ -963,23 +921,20 @@ public class Controller implements Initializable {
 					fileOpener = "xdg-open ";
 				}
 				
-				String fileName = fileOpener + Controller.currentProgramFolder + "/llfi/trace_report_output/";
+				String fileName = fileOpener + "'" + Controller.currentProgramFolder + "/llfi/trace_report_output/";
 				if (found > 1) {
-					fileName += "UnionedDiffReportFile.txt";
+					fileName += "UnionedDiffReportFile.txt'";
 				} else {
-					fileName += traceFileName;
+					fileName += traceFileName + "'";
 				}
 				ProcessBuilder openFile = new ProcessBuilder("/bin/tcsh", "-c", fileName);
-				openFile.redirectErrorStream(true); 
-				Process pr = openFile.start();
+				openFile.redirectErrorStream(true).start();
 			}
 
 			// Covert traceontograph to pdf format using Graphviz
 			ProcessBuilder ConvertToPs = new  ProcessBuilder("/bin/tcsh","-c","dot -Tps "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot -o "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
 			ConvertToPs.redirectErrorStream(true);
-			Process pr3 = ConvertToPs.start();
-			pr3.waitFor();
-			pr3.destroy();
+			ConvertToPs.start().waitFor();
 			
 			// if zgrviewer path has not been set/not installed, we will open the pdf instead
 			if (zgrviewerPath.contains("Undefined")) {
@@ -1043,14 +998,11 @@ public class Controller implements Initializable {
 					//Open the trace graph file
 					ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",psOpenner+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.ps");
 					openGraph.redirectErrorStream(true);
-					Process pr4 = openGraph.start();
-					pr4.waitFor();
-					pr4.destroy();
+					openGraph.start().waitFor();
 				}
 			} else {
 				ProcessBuilder openGraph = new  ProcessBuilder("/bin/tcsh","-c",zgrviewerPath+"run.sh "+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
-				openGraph.redirectErrorStream(true);
-				Process pr4 = openGraph.start();
+				openGraph.redirectErrorStream(true).start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1059,94 +1011,127 @@ public class Controller implements Initializable {
 			System.out.println(e);
 			e.printStackTrace();
 		}
-		//System.out.println("exec: " + Controller.llfibuildPath+"tools/traceontograph "+Controller.currentProgramFolder+"/llfi/trace_report_output/UnionedDiffReportFile.txt"+" "+ currentProgramFolder + "/llfi.stat.graph.dot" + " > ./"+Controller.currentProgramFolder+"/llfi/trace_report_output/TraceGraph.dot");
 	}
+	
+	/**
+	 * Generates the 'Fault Summary' tab
+	 */
 	@FXML
-	private void generateFaultSummaryGraph(){
-		//resultSummary.setVisible(true);
-		int faultCount =0;
+	private void generateFaultSummaryGraph() {
+		// sets all counts to zero
+		int faultCount = 0;
 		hangedCount = 0;
 		crashedCount = 0;
-		try{
-			resultList = new ArrayList<String>();
-			final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
-
-			listFilesForFolder(folder);
-			final File errorFolder = new File(currentProgramFolder+"/llfi/error_output");
-			listFilesForErrorFolder(errorFolder);
-			for(int k = 0;k< resultErrorFileNameLists.size();k++)
-			{
-				errorFile = new FileReader(currentProgramFolder+"/llfi/error_output/"+resultErrorFileNameLists.get(k));
-				BufferedReader bufferReader1 = new BufferedReader(errorFile);
-				while ((line = bufferReader1.readLine()) != null)   {
-					if(line.contains("crashed"))
-						crashedCount++;
-					else if(line.contains("hanged"))
-						hangedCount++;
-				}
+		resultList = new ArrayList<String>(); // this is not used here?
+		
+		try {
+			// #SFIT
+			// get the fault the display
+			// if we are doing single injection this does not matter
+			String selectedFault = fiResultDisplay.getSelectionModel().getSelectedItem();
+			
+			// for batch mode, if the user selected all we need to loop through all the 
+			// inner folders
+			int faultFolderNum;
+			if (isBatchMode && selectedFault == "All") {
+				faultFolderNum = selectedSoftwareFailures.size();
+			} else {
+				faultFolderNum = 1;
 			}
+			
+			// loop through each inner folder when doing batch injection
+			for (int it = 0; it < faultFolderNum; it++) {
+				String errorFolderPath;
+				String folderPath;
+				String fault;
+				
+				// are we in batch mode or single?
+				if (isBatchMode && selectedFault == "All") {
+					fault = selectedSoftwareFailures.get(it);
+				} else {
+					fault = selectedFault;
+				}
+				
+				// go into inner folder if we are in batch mode
+				if (!isBatchMode) {
+					folderPath = currentProgramFolder
+							+ "/llfi/llfi_stat_output/";
+					errorFolderPath = currentProgramFolder
+							+ "/llfi/error_output/";
+				} else {
+					folderPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/llfi_stat_output/";
+					errorFolderPath = currentProgramFolder + "/llfi-" + fault
+							+ "/llfi/error_output/";
+				}
+				
+				// list out the files in these folder in a member variable
+				listFilesForFolder(new File(folderPath));
+				listFilesForErrorFolder(new File(errorFolderPath));
+				
+				// read all files from error folder for 'crashed' or 'hanged'
+				for (int k = 0; k < resultErrorFileNameLists.size(); k++) {
+					errorFile = new FileReader(errorFolderPath
+							+ resultErrorFileNameLists.get(k));
+					BufferedReader bufferReader1 = new BufferedReader(errorFile);
+					while ((line = bufferReader1.readLine()) != null) {
+						if (line.contains("crashed")) {
+							crashedCount++;
+						} else if (line.contains("hanged")) {
+							hangedCount++;
+						}
+					}
+				}
+				
+				// get fault count
+				if (resultFileNameLists.size() > 0) {
+					for (int i = 0; i < resultFileNameLists.size(); i++) {
+						if (resultFileNameLists.get(i).contains("trace")) {
 
+						} else {
+							faultCount++;
+						}
+					}
+				}
+			} 
 
+			String[] params = { "Crashed", "Hanged", "SDC" };
 
-			String[] params = {"Crashed","Hanged","SDC"};                               
-
-			// Convert it to a list and add iUTILITYt to our ObservableList of months.
-			// row.addAll(Arrays.asList(params));
+			// Convert it to a list and add iUTILITYt to our ObservableList of
+			// months.
 			resultSummary.getData().clear();
 
-			//row = FXCollections.observableArrayList(parameter);
 			xAxis.setLabel("Parameters");
-			yAxis.setLabel("Total.No.Of.Fault Injections"); 
-			xAxis.setCategories(FXCollections.<String>observableArrayList(Arrays.asList(params)));
+			yAxis.setLabel("Total.No.Of.Fault Injections");
+			xAxis.setCategories(FXCollections
+					.<String> observableArrayList(Arrays.asList(params)));
 			xAxis.setAutoRanging(false);
 			xAxis.invalidateRange(Arrays.asList(params));
 
 			yAxis.setAutoRanging(false);
 			yAxis.setLowerBound(0);
-			if(resultFileNameLists.size()>0)
-			{
-				faultCount =0;
-				for(int i = 0;i <resultFileNameLists.size();i++)
-				{
-					if(resultFileNameLists.get(i).contains("trace"))
-					{
-
-					}
-					else
-					{
-						faultCount++;
-					}
-				}
-			}
-			//System.out.println("sdcCount = "+sdcCount);
+			
 			yAxis.setUpperBound(faultCount);
 			yAxis.setTickUnit(1);
 
-			series = new XYChart.Series<Integer,String>();
-			//XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer,String>(resultErrorFileNameLists.size(),"Faults Injected");
-			//series.getData().add(faultData);
+			series = new XYChart.Series<Integer, String>();
 
-
-			XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer,String>(crashedCount,"Crashed");
+			XYChart.Data<Integer, String> faultData = new XYChart.Data<Integer, String>(
+					crashedCount, "Crashed");
 			series.getData().add(faultData);
 
-			faultData = new XYChart.Data<Integer,String>(hangedCount,"Hanged");
+			faultData = new XYChart.Data<Integer, String>(hangedCount, "Hanged");
 			series.getData().add(faultData);
 
-			faultData = new XYChart.Data<Integer,String>(sdcCount,"SDC");
+			faultData = new XYChart.Data<Integer, String>(sdcCount, "SDC");
 			series.getData().add(faultData);
 
-			// XYChart.Series<String, Integer> series = createMonthDataSeries(monthCounter);
 			resultSummary.getData().add(series);
 
-
-		}catch(IOException e)
-		{
+		} catch (IOException e) {
+			System.err.println("ERROR: cannot generate Fault Summary!");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
-
-
 	}
 
 	public void listFilesForErrorFolder(final File folder) {
@@ -1722,13 +1707,7 @@ public class Controller implements Initializable {
 	private void onTabChange(){
 		if(faultStatus.isSelected() || faultSummaryTab.isSelected())
 		{
-			if(flag == 1 )
-			{
-				//programInputText.setEditable(true);
-				onGeneratingResultTable();
-				generateFaultSummaryGraph();
-				flag = 0;
-			}
+			generateInjectionResult(false);
 		}
 		else if(errorTab.isSelected())
 		{
@@ -1959,14 +1938,34 @@ public class Controller implements Initializable {
 			System.out.println(e);
 		}
 
-		// TODO
-
-
-
-
+		// #SFIT
+		fiResultDisplay.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>(){
+			@Override
+			public void changed(ObservableValue<? extends String> observable,
+					String oldValue, String newValue) {
+				if (oldValue == null || newValue == null) {
+					return;
+				}
+				if (!oldValue.equals(newValue)) {
+					generateInjectionResult(true);
+				}
+			}
+		});
+		// so that the user can't play with with UNTIL
+		// they have selected batch mode
+		fiResultDisplay.setVisible(false);
 	}
-
-
-
+	
+	/**
+	 * Updates the 'Fault Injection Status' and the 'Fault Summary' tab
+	 * with the output data from the injection.
+	 * @param forceUpdate - forces the two tab to update, even if nothing has changed
+	 */
+	private void generateInjectionResult(boolean forceUpdate) {
+		if (faultInjectionCompleted == 1 || forceUpdate) {
+			onGeneratingResultTable();
+			generateFaultSummaryGraph();
+			faultInjectionCompleted = 0;
+		} 
+	}
 }
-

@@ -51,7 +51,7 @@ public class InstrumentController implements Initializable {
 	@FXML
 	private ListView instExcludeListView;
 	@FXML
-	private ListView instIncludeListView;
+	private ListView<String> instIncludeListView;
 	@FXML
 	private RadioButton instTypeRadio;
 	@FXML
@@ -204,6 +204,7 @@ public class InstrumentController implements Initializable {
 			w.write("\n\ncompileOption:");
 			w.write("\n    " + "instSelMethod:");
 			w.write("\n      - " + selectedInstSelectionMethod + ":");
+			
 			// #SFIT
 			// always 'custominstselector'
 			if (selectedInstSelectionMethod.equalsIgnoreCase("insttype") || !Controller.isHardwareInjection) {
@@ -297,6 +298,19 @@ public class InstrumentController implements Initializable {
 				scriptToCall = "bin/batchInstrument --readable ";
 				Controller.isBatchMode = true;
 			}
+			
+			// sets the ComboBox so that the user can select which result to display
+			// when fault injection has completed
+			if (Controller.isBatchMode) {
+				ObservableList<String> displayedFaultResult = FXCollections.observableArrayList(numFaultTypes);
+				displayedFaultResult.add(0, "All");
+				Controller.fiResultDisplay.setItems(displayedFaultResult);
+				Controller.fiResultDisplay.setValue("All");
+				
+				Controller.fiResultDisplay.setVisible(true);
+			} else {
+				Controller.fiResultDisplay.setVisible(false);
+			}
 			String cmd = Controller.llfibuildPath
 					+ scriptToCall + folderName + "/"
 					+ folderName + ".ll";
@@ -360,7 +374,8 @@ public class InstrumentController implements Initializable {
 									+ "-llfi_index.ll");
 				} else {
 					// if we are in software batch more, the location of the
-					// files changes
+					// files changes, so we need to copy files and move the location
+					// of some files
 					inputIndexFile = new FileReader(
 							Controller.currentProgramFolder + "/llfi-"
 									+ numFaultTypes.get(0) + "/llfi/"
@@ -370,6 +385,10 @@ public class InstrumentController implements Initializable {
 					Files.copy(
 							Paths.get(Controller.currentProgramFolder + "/llfi-" + numFaultTypes.get(0) + "/llfi.stat.totalindex.txt"),
 							Paths.get(Controller.currentProgramFolder + "/llfi.stat.totalindex.txt"));
+					// also the dot file for batch trace graph
+					Files.copy(
+							Paths.get(Controller.currentProgramFolder + "/llfi-" + numFaultTypes.get(0) + "/llfi.stat.graph.dot"),
+							Paths.get(Controller.currentProgramFolder + "/llfi.stat.graph.dot"));
 				}
 						
 				BufferedReader bufferReader = new BufferedReader(inputIndexFile);

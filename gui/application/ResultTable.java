@@ -21,12 +21,15 @@ public class ResultTable {
     SimpleStringProperty status;
     SimpleStringProperty result;
     SimpleBooleanProperty trace;
+    
+    
+    String traceFileName;
 
 
 
 
     public ResultTable(int noOfRuns,String FaultInjectionType,int index,int cycle,int bit,
-    		String sdc,String status,String result,Boolean trace) {
+    		String sdc,String status,String result,Boolean trace, String traceFileName) {
         this.noOfRuns = new SimpleIntegerProperty(noOfRuns);
         
         this.FaultInjectionType = new SimpleStringProperty(FaultInjectionType);
@@ -39,6 +42,8 @@ public class ResultTable {
         this.status = new SimpleStringProperty(status);
         this.result = new SimpleStringProperty(result);
         this.trace = new SimpleBooleanProperty(trace);
+        
+        this.traceFileName = traceFileName;
 
 //         this.trace.addListener(new ChangeListener<Boolean>() {
 
@@ -129,6 +134,12 @@ public class ResultTable {
 		this.trace.set(e);
 	}
 
-	
-
+	/**
+	 * Gets the trace file name for this run.
+	 * However, the trace may not exist if the program crashed due to injection.
+	 * @return the trace file name
+	 */
+	public String getTraceFileName() {
+		return traceFileName;
+	}
 }
