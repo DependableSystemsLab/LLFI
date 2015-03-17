@@ -43,5 +43,7 @@ copy(config/instruction_list.txt config/instruction_list.txt)
 copy(config/register_list.txt config/register_list.txt)
 copy(config/customSoftwareFault_list.txt config/customSoftwareFault_list.txt)
 
+copy(application/lib/snakeyaml-1.15.jar application/lib/snakeyaml-1.15.jar)
+
 compileGUI()
 
