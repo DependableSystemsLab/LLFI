@@ -1,11 +1,13 @@
 package application;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -22,6 +24,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import application.Controller;
+import application.InputYaml.RuntimeOption;
 
 /**
  * Does the fault injection as well as updating the progress bar
@@ -47,23 +50,12 @@ public class ProgressBarController implements Initializable {
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		try {
-			// read the input.yaml file
-			// TODO use a parser
-			FileReader inputFile = new FileReader(
-					Controller.currentProgramFolder + "/input.yaml");
-			BufferedReader bufferedReader = new BufferedReader(inputFile);
-			String line;
+		InputYaml input = new InputYaml();
+		input.load(new File(Controller.currentProgramFolder + "/input.yaml"));
+		List<RuntimeOption> list = input.getRuntimeOptions();
 
-			// get the runCount to display
-			while ((line = bufferedReader.readLine()) != null) {
-				if (line.contains("numOfRuns")) {
-					totalRunCount += Integer.parseInt(line.split(":")[1].trim());
-				}
-			}
-			bufferedReader.close();
-		} catch (IOException e) {
-			System.err.println("ERROR: unable to read input.yaml");
+		for (RuntimeOption r : list) {
+			totalRunCount += r.numOfRuns;
 		}
 
 		// #SFIT

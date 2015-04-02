@@ -15,23 +15,23 @@
         <Font name="System Bold" size="17.0" />
       </font>
     </Label>
-    <Label id="instSelMethodLabel" layoutY="68.0" text="Instruction Selection Method" AnchorPane.leftAnchor="47.0">
+    <Label id="instSelMethodLabel" layoutX="47.0" layoutY="88.0" text="Instruction Selection Method" AnchorPane.leftAnchor="47.0">
       <font>
         <Font size="15.0" fx:id="x1" />
       </font>
     </Label>
-    <RadioButton fx:id="instTypeRadio" font="$x1" layoutX="277.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="true" text="Instruction Type">
+    <RadioButton fx:id="instTypeRadio" font="$x1" layoutX="277.0" layoutY="88.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="true" text="Instruction Type">
       <toggleGroup>
         <ToggleGroup fx:id="instSelection" />
       </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="customInstTypeRadio" disable="false" font="$x1" layoutX="465.0" layoutY="68.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="false" text="Custom Instruction Selector" toggleGroup="$instSelection" />
-    <Label fx:id="includeLabel" layoutX="516.0" layoutY="122.0" prefWidth="66.0" text="Include :">
+    <RadioButton fx:id="customInstTypeRadio" disable="false" font="$x1" layoutX="465.0" layoutY="88.0" mnemonicParsing="false" onAction="#onSelectInstSelectRadio" selected="false" text="Custom Instruction Selector" toggleGroup="$instSelection" />
+    <Label fx:id="includeLabel" layoutX="516.0" layoutY="142.0" prefWidth="66.0" text="Include :">
       <font>
         <Font name="System Italic" size="15.0" fx:id="x2" />
       </font>
     </Label>
-    <ListView fx:id="instExcludeListView" layoutX="277.0" onMouseClicked="#enableExcludeMultipleSelection" prefHeight="169.9998779296875" prefWidth="174.0" AnchorPane.topAnchor="143.0">
+    <ListView fx:id="instExcludeListView" layoutX="277.0" layoutY="163.0" onMouseClicked="#enableExcludeMultipleSelection" prefHeight="169.9998779296875" prefWidth="174.0" AnchorPane.topAnchor="163.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -40,31 +40,31 @@
         </FXCollections>
       </items>
     </ListView>
-    <ListView fx:id="instIncludeListView" layoutX="515.0" onMouseClicked="#enableIncludeMultipleSelection" prefHeight="170.0" prefWidth="173.0" AnchorPane.topAnchor="143.0">
+    <ListView fx:id="instIncludeListView" layoutX="515.0" layoutY="163.0" onMouseClicked="#enableIncludeMultipleSelection" prefHeight="170.0" prefWidth="173.0" AnchorPane.topAnchor="163.0">
       <items>
         <FXCollections fx:factory="observableArrayList" />
       </items>
     </ListView>
-    <Label fx:id="registerSelectionMethodLabel" font="$x1" layoutY="331.0" text="Register Selection Method" AnchorPane.leftAnchor="47.0" />
+    <Label fx:id="registerSelectionMethodLabel" font="$x1" layoutX="47.0" layoutY="352.0" text="Register Selection Method" AnchorPane.leftAnchor="47.0" />
     <Label font="$x1" layoutX="47.0" layoutY="429.0" text="Injection Trace" />
-    <Label layoutX="28.0" layoutY="41.0" text="Compile Option :">
+    <Label layoutX="28.0" layoutY="61.0" text="Compile Option :">
       <font>
         <Font name="System Bold Italic" size="15.0" />
       </font>
     </Label>
     <CheckBox fx:id="forwardCheckbox" font="$x1" layoutY="486.0" mnemonicParsing="false" selected="true" text="Forward" AnchorPane.leftAnchor="409.0" />
     <CheckBox fx:id="backwardCheckbox" font="$x1" layoutX="409.0" layoutY="458.0" mnemonicParsing="false" selected="true" text="Backward" />
-    <RadioButton fx:id="regTypeRadio" font="$x1" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="true" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="331.0">
+    <RadioButton fx:id="regTypeRadio" font="$x1" layoutX="272.0" layoutY="352.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="true" text="Register Location" AnchorPane.leftAnchor="272.0" AnchorPane.topAnchor="352.0">
       <toggleGroup>
         <ToggleGroup fx:id="regSelection" />
       </toggleGroup>
     </RadioButton>
-    <RadioButton fx:id="customRegTypeRadio" disable="false" font="$x1" layoutX="469.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="false" text="Custom Register Selector" toggleGroup="$regSelection" AnchorPane.topAnchor="331.0" />
-    <Separator fx:id="separator" layoutX="45.0" layoutY="322.0" prefWidth="664.0" />
-    <Separator layoutX="43.0" layoutY="408.0" prefWidth="657.0" />
+    <RadioButton fx:id="customRegTypeRadio" disable="false" font="$x1" layoutX="469.0" layoutY="352.0" mnemonicParsing="false" onAction="#onSelectRegSelectRadio" selected="false" text="Custom Register Selector" toggleGroup="$regSelection" AnchorPane.topAnchor="352.0" />
+    <Separator fx:id="separator" layoutX="45.0" layoutY="340.0" prefWidth="664.0" />
+    <Separator layoutX="43.0" layoutY="419.0" prefWidth="657.0" />
     <Button alignment="BOTTOM_CENTER" font="$x1" layoutX="342.0" layoutY="529.0" mnemonicParsing="false" onAction="#onClickGenerateYamlFile" text="Instrument" />
-    <Button fx:id="instIncludeButton" layoutX="458.0" layoutY="200.0" mnemonicParsing="false" onAction="#onClickInstructionInclude" prefWidth="50.0" text="&gt;&gt;" />
-    <Button fx:id="instExcludeButton" layoutX="458.0" layoutY="234.0" mnemonicParsing="false" onAction="#onClickInstructionExclude" prefWidth="50.0" text="&lt;&lt;" />
+    <Button fx:id="instIncludeButton" layoutX="458.0" layoutY="220.0" mnemonicParsing="false" onAction="#onClickInstructionInclude" prefWidth="50.0" text="&gt;&gt;" />
+    <Button fx:id="instExcludeButton" layoutX="458.0" layoutY="254.0" mnemonicParsing="false" onAction="#onClickInstructionExclude" prefWidth="50.0" text="&lt;&lt;" />
     <RadioButton fx:id="noTraceRadio" font="$x1" layoutX="272.0" layoutY="429.0" mnemonicParsing="false" onAction="#onClickTraceOption" text="No Trace">
       <toggleGroup>
         <ToggleGroup fx:id="trace" />
@@ -72,7 +72,7 @@
     </RadioButton>
     <RadioButton fx:id="fullTraceRadio" font="$x1" layoutX="385.0" layoutY="429.0" mnemonicParsing="false" onAction="#onClickTraceOption" selected="true" text="Full Trace" toggleGroup="$trace" />
     <RadioButton fx:id="limitTraceRadio" font="$x1" layoutX="513.0" layoutY="429.0" mnemonicParsing="false" onAction="#onClickTraceOption" text="Limited Trace" toggleGroup="$trace" />
-    <ComboBox fx:id="regCombo" layoutX="277.0" layoutY="364.0" prefWidth="174.0">
+    <ComboBox fx:id="regCombo" layoutX="277.0" layoutY="385.0" prefWidth="174.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -82,8 +82,8 @@
       </items>
     </ComboBox>
     <TextField fx:id="traceCountText" disable="true" layoutX="655.0" layoutY="456.0" opacity="1.0" prefWidth="66.0" />
-    <Label font="$x1" layoutX="526.0" layoutY="458.0" text="Max Trace Count" />
-    <ComboBox fx:id="customInstCombo" disable="true" layoutX="475.0" layoutY="96.0" prefWidth="223.0">
+    <Label fx:id="traceCountLabel" font="$x1" layoutX="526.0" layoutY="458.0" text="Max Trace Count" />
+    <ComboBox fx:id="customInstCombo" disable="true" layoutX="475.0" layoutY="116.0" prefWidth="223.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -92,7 +92,7 @@
         </FXCollections>
       </items>
     </ComboBox>
-    <ComboBox fx:id="customRegCombo" disable="true" layoutX="483.0" layoutY="364.0" prefWidth="216.0">
+    <ComboBox fx:id="customRegCombo" disable="true" layoutX="483.0" layoutY="385.0" prefWidth="216.0">
       <items>
         <FXCollections fx:factory="observableArrayList">
           <String fx:value="Item 1" />
@@ -101,20 +101,30 @@
         </FXCollections>
       </items>
     </ComboBox>
-    <Button layoutX="408.0" layoutY="31.0" mnemonicParsing="false" onAction="#onClickSelectProfile" prefWidth="127.0" text="Select Profile...">
+    <Button layoutX="569.0" layoutY="10.0" mnemonicParsing="false" onAction="#onClickSelectProfile" prefWidth="127.0" text="Select Profile...">
       <font>
         <Font size="13.0" fx:id="x3" />
       </font>
     </Button>
-    <Button fx:id="createNewProfileButton" disable="true" font="$x3" layoutX="543.0" layoutY="32.0" mnemonicParsing="false" onAction="#onClickCreateNewProfile" prefWidth="155.0" text="Create New Profile" />
-    <CheckBox fx:id="allCheckBox" layoutX="649.0" layoutY="123.0" mnemonicParsing="false" onAction="#onClickAll" text="All" />
-    <ComboBox fx:id="injectionType" layoutX="545.0" layoutY="4.0" prefWidth="150.0" value="Hardware Fault">
-      <items>
-        <FXCollections fx:factory="observableArrayList">
-          <String fx:value="Hardware Fault" />
-          <String fx:value="Software Fault" />
-        </FXCollections>
-      </items>
-    </ComboBox>
+    <Button fx:id="createNewProfileButton" disable="true" font="$x3" layoutX="542.0" layoutY="39.0" mnemonicParsing="false" onAction="#onClickCreateNewProfile" prefWidth="155.0" text="Reset Profile" />
+    <CheckBox fx:id="allCheckBox" layoutX="649.0" layoutY="143.0" mnemonicParsing="false" onAction="#onClickAll" text="All" />
+      <RadioButton fx:id="software" layoutX="356.0" layoutY="37.0" mnemonicParsing="false" onAction="#onClickChangeInjectionType" text="Software Injection">
+         <toggleGroup>
+            <ToggleGroup fx:id="injectionType" />
+         </toggleGroup>
+         <font>
+            <Font size="15.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="hardware" layoutX="179.0" layoutY="38.0" mnemonicParsing="false" onAction="#onClickChangeInjectionType" selected="true" text="Hardware Injection" toggleGroup="$injectionType">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </RadioButton>
+      <Label layoutX="28.0" layoutY="38.0" text="Injection Type :">
+         <font>
+            <Font name="System Bold Italic" size="15.0" />
+         </font>
+      </Label>
   </children>
 </AnchorPane>

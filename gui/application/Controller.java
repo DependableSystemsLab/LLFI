@@ -237,12 +237,18 @@ public class Controller implements Initializable {
 	static public List<String> selectedSoftwareFailures;
 	static public ComboBox<String> fiResultDisplay;
 	
+	static public ConfigReader configReader;
+	
+	// making later changes to how states are kept
+	public CurrentState cs = new CurrentState(State.IMPORT_FILE);
+	
 	
 	@FXML
 	private void onClickProfiling(ActionEvent event){
 		Parent root;
 		FileReader inputFile;
 		ProcessBuilder p;
+		errorFlag = false;
 		try{
 			tabBottom.getSelectionModel().select(profilingTab);
 
@@ -1306,7 +1312,7 @@ public class Controller implements Initializable {
 				while ((line = bufferReader.readLine()) != null)   {
 					fileContent.add(line+"\n");      
 				}
-				programInputText.clear();
+				
 				//Clear the Text area
 				programTextArea.clear();
 				// Write file contents to Text Area
@@ -1396,7 +1402,7 @@ public class Controller implements Initializable {
 			}
 			in.close();
 		} catch (IOException | InterruptedException e) {
-			System.err.println("Controller: Unable to SoftwareFailureAutoScan!");
+			System.err.println("ERROR: SoftwareFailureAutoScan failed!");
 			e.printStackTrace();
 		} 
 	}
@@ -1548,7 +1554,7 @@ public class Controller implements Initializable {
 	}
 	private void openFile(File file) {
 		try{
-			programInputText.clear();
+			
 			boolean flag =false;
 			fileContent = new ArrayList<>();
 			Path path = file.toPath();
@@ -1659,7 +1665,7 @@ public class Controller implements Initializable {
 	}
 	@FXML
 	private void onFileSelection(MouseEvent event){
-		programInputText.clear();
+		
 		fileContent = new ArrayList<>();
 		data = FXCollections.observableArrayList();
 		profilingTable.setItems(data);
@@ -1937,6 +1943,8 @@ public class Controller implements Initializable {
 		{
 			System.out.println(e);
 		}
+		
+		configReader = new ConfigReader();
 
 		// #SFIT
 		fiResultDisplay.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>(){
@@ -1967,5 +1975,42 @@ public class Controller implements Initializable {
 			generateFaultSummaryGraph();
 			faultInjectionCompleted = 0;
 		} 
+	}
+	
+	public class CurrentState {
+		public CurrentState(State s) {
+			changeStateTo(s);
+		}
+		
+		public void changeStateTo(State s) {
+			switch (s) {
+			case COMPILE_COMPLETED:
+				break;
+			case IMPORT_FILE:
+				break;
+			case IMPORT_FILE_COMPLETED:
+				break;
+			case INJECT_FAULT_COMPLETED:
+				break;
+			case INSTRUMENT_COMPLETED:
+				break;
+			case PROFILING_COMPLETED:
+				break;
+			case RUNTIME_OPTIONS_COMPLETED:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	
+	public enum State {
+		IMPORT_FILE,
+		IMPORT_FILE_COMPLETED,
+		COMPILE_COMPLETED,
+		INSTRUMENT_COMPLETED,
+		PROFILING_COMPLETED,
+		RUNTIME_OPTIONS_COMPLETED,
+		INJECT_FAULT_COMPLETED;
 	}
 }

@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.Semaphore;
 
 import com.sun.javafx.scene.control.skin.ListViewSkin;
 
@@ -28,6 +29,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -46,10 +48,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import application.Controller;
+import application.InputYaml.InstrumentOption;
+import application.InputYaml.RuntimeOption;
 public class InstrumentController implements Initializable {
 
 	@FXML
-	private ListView instExcludeListView;
+	private ListView<String> instExcludeListView;
 	@FXML
 	private ListView<String> instIncludeListView;
 	@FXML
@@ -57,7 +61,7 @@ public class InstrumentController implements Initializable {
 	@FXML
 	private RadioButton customInstTypeRadio;
 	@FXML
-	private ComboBox regCombo;
+	private ComboBox<String> regCombo;
 	@FXML
 	private RadioButton regTypeRadio;
 	@FXML
@@ -87,30 +91,33 @@ public class InstrumentController implements Initializable {
 	@FXML
 	private TextField traceCountText;
 	@FXML
-	private ComboBox customInstCombo;
+	private Node traceCountLabel;
 	@FXML
-	private ComboBox customRegCombo;
+	private ComboBox<String> customInstCombo;
+	@FXML
+	private ComboBox<String> customRegCombo;
 	@FXML
 	private Button createNewProfileButton;
 	@FXML
 	private CheckBox allCheckBox;
+	
 	private String buildPath;
 	private List<String> fileContent;
 	private String selectedInstSelectionMethod;
 	private String selectedRegSelectionMethod;
-	private String selectedTraceMethod;
-	private ArrayList<String> includeInstList;
-	private ArrayList<String> excludeInstList;
-	private ArrayList<String> removeList;
-	private ArrayList<String> includeRegList;
-	private ArrayList<String> excludeRegList;
-	private ArrayList<String> registerList;
-	private ArrayList<String> customInstList;
-	private ArrayList<String> customRegList;
-	private ArrayList<String> instructionList;
+	private List<String> includeInstList;
+	private List<String> excludeInstList;
+	private List<String> removeList;
+	private List<String> includeRegList;
+	private List<String> excludeRegList;
+	private List<String> registerList;
+	private List<String> customInstList;
+	private List<String> customRegList;
+	private List<String> instructionList;
 	private String forward = "forward";
 	private String backward = "backward";
 	static public boolean selectProfileFlag = false;
+	
 	/**
 	 * If input file already exists, read it in do not create it.
 	 */
@@ -131,159 +138,78 @@ public class InstrumentController implements Initializable {
 	// #SFIT
 	// used for selection software injection
 	@FXML
-	private ComboBox<String> injectionType;
+	private RadioButton software;
+	@FXML
+	private RadioButton hardware;
+	
 	@FXML
 	private Node registerSelectionMethodLabel;
 	@FXML
 	private Node separator;
 	
-	//	Controller controller = new Controller();
-	//Model model = new Model();
+	// for determining if the previous runtime option should be kept
+	private InstrumentOption previousInstrumentOption;
+	private List<RuntimeOption> previousRuntimeOption;
+	
 	@FXML
 	private void onClickGenerateYamlFile(ActionEvent event) {
 		Parent root;
+		Controller.console = new ArrayList<String>();
+		
 		try {
-			Controller.console = new ArrayList<String>();
-			folderName = Controller.currentProgramFolder;
-			theDirectory = new File(folderName + "/llfi");
+			// delete old /llfi folder
 			String cmd1 = "rm -rf " + Controller.currentProgramFolder + "/llfi";
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh", "-c", cmd1);
-
-			p1.redirectErrorStream(true);
-			Process pr1 = p1.start();
-			BufferedReader in2 = new BufferedReader(new InputStreamReader(
-					pr1.getInputStream()));
-			String line1;
-			Controller.errorString = new ArrayList<>();
-			while ((line1 = in2.readLine()) != null) {
-				/*
-				 * if(line1.contains("Sucess")) Controller.errorString = new
-				 * ArrayList<>(); else
-				 */
-				Controller.errorString.add(line1);
-
-				if (line1.contains("error") || line1.contains("Error")
-						|| line1.contains("ERROR"))
-					errorFlag = true;
-			}
-			pr1.waitFor();
-			in2.close();
-			// delete(theDirectory);
-
-			// #SFIT
-			if (instTypeRadio.isSelected() && Controller.isHardwareInjection) {
-				selectedInstSelectionMethod = "insttype";
-			} else {
-				selectedInstSelectionMethod = "customInstselector";
-			}
-			if (regTypeRadio.isSelected() && Controller.isHardwareInjection) {
-				selectedRegSelectionMethod = "regloc";
-			} else {
-				selectedRegSelectionMethod = "customregselector";
-			}
+			p1.start().waitFor();
 			
-			if (noTraceRadio.isSelected() == true)
-				selectedTraceMethod = noTraceRadio.getText();
-			else if (fullTraceRadio.isSelected() == true)
-				selectedTraceMethod = fullTraceRadio.getText();
-			else
-				selectedTraceMethod = limitTraceRadio.getText();
+			InstrumentOption option = new InstrumentOption();
 
-			// What ever the yamlFile path is.
-
-			fileName = Controller.currentFileName;
-			File yamlFile = new File(folderName + "/input.yaml");
-			FileOutputStream is = new FileOutputStream(yamlFile);
-			OutputStreamWriter osw = new OutputStreamWriter(is);
-			Writer w = new BufferedWriter(osw);
-			w.write("kernelOption:");
-			w.write("\n    - forceRun");
-
-			// w.write("\n\ntimeOut: 1000");
-
-			w.write("\n\ncompileOption:");
-			w.write("\n    " + "instSelMethod:");
-			w.write("\n      - " + selectedInstSelectionMethod + ":");
-			
-			// #SFIT
-			// always 'custominstselector'
-			if (selectedInstSelectionMethod.equalsIgnoreCase("insttype") || !Controller.isHardwareInjection) {
-				w.write("\n          " + "include: ");
-				if (allCheckBox.isSelected()) {
-					w.write("\n            " + "- all");
-				} else {
-					for (int i = 0; i < instIncludeListView.getItems().size(); i++) {
-						w.write("\n            "
-								+ "- "
-								+ instIncludeListView.getItems().get(i)
-										.toString().split("-")[0]);
-					}
-				}
-				if (instExcludeListView.getItems().size() > 0
-						&& (allCheckBox.isSelected())) {
-					w.write("\n          " + "exclude: ");
-					for (int i = 0; i < instExcludeListView.getItems().size(); i++) {
-						w.write("\n            "
-								+ "- "
-								+ instExcludeListView.getItems().get(i)
-										.toString().split("-")[0]);
-					}
-				}
-
-			} else {
-				w.write("\n    customInstSelector: "
-						+ customInstCombo.getValue().toString().split("-")[0]);
-
-			}
-
-			w.write("\n\n    " + "regSelMethod: " + selectedRegSelectionMethod);
+			// see what type of injection we're doing
 			if (Controller.isHardwareInjection) {
-				if (selectedRegSelectionMethod.equalsIgnoreCase("regloc")) {
-					w.write("\n    " + selectedRegSelectionMethod + ": "
-							+ regCombo.getValue().toString().split("-")[0]);
+				option.isHardwareFault = true;
+				
+				// set regloc_OR_customRegSelector
+				// does not matter for software injection
+				if (regTypeRadio.isSelected()) {
+					option.regloc_OR_customRegSelector = regCombo.getValue().toString().split("-")[0];
+					option.customRegister = false;
 				} else {
-					w.write("\n    customRegSelector: "
-							+ customRegCombo.getValue().toString().split("-")[0]);
+					option.regloc_OR_customRegSelector = customRegCombo.getValue().toString();
+					option.customRegister = true;
 				}
 			} else {
-				// #SFIT
-			    w.write("\n    customRegSelector: Automatic");
+				option.isHardwareFault = false;
 			}
 
-			/*
-			 * for(int i = 0; i<
-			 * regIncludeListView.getItems().size(traceCountText); i++) {
-			 * w.write("\n\t\t"+"- "+regIncludeListView.getItems().get(i)); }
-			 */
-
-			// File+selectedTraceMethod);
-			if (fullTraceRadio.isSelected() == true
-					|| limitTraceRadio.isSelected() == true) {
-				w.write("\n\n    " + "includeInjectionTrace:");
-				if (forwardCheckbox.isSelected() == true)
-
-					w.write("\n        " + "- " + forward);
-				if (backwardCheckbox.isSelected() == true)
-					w.write("\n        " + "- " + backward);
-				w.write("\n\n    " + "tracingPropagation:" + " True");
-				w.write("\n\n    " + "tracingPropagationOption:");
-				w.write("\n        " + "debugTrace: True/False");
-				w.write("\n        " + "generateCDFG: True");
-
-			}
-			if (limitTraceRadio.isSelected() == true) {
-
-				w.write("\n        " + "maxTrace: " + traceCountText.getText());
-			}
-
-			if (selectProfileFlag == true || existingInputFileFlag == true) {
-				for (int i = 0; i < fileContent.size(); i++) {
-					w.write(fileContent.get(i));
+			// see if we are doing custom injection
+			if (instTypeRadio.isSelected()) {
+				option.customInstruction = false;
+				
+				ArrayList<String> formattedList = new ArrayList<String>();
+				for (String s: instIncludeListView.getItems()) {
+					formattedList.add(s.split("-")[0]);
 				}
+				
+				option.includedInstruction = formattedList;
+			} else {
+				option.customInstruction = true;
+				option.includedInstruction = new ArrayList<String>();
+				option.includedInstruction.add(customInstCombo.getValue().toString().split("-")[0]);
 			}
 
-			w.close();
-
+			// set tracing options
+			if (fullTraceRadio.isSelected() || limitTraceRadio.isSelected()) {
+				option.tracingEnabled = true;
+				option.forwardTrace = forwardCheckbox.isSelected();
+				option.backwardTrace = backwardCheckbox.isSelected();
+			} else {
+				option.tracingEnabled = false;
+			}
+			if (limitTraceRadio.isSelected()) {
+				option.maxTrace = Integer.parseInt(traceCountText.getText());
+			} else {
+				option.maxTrace = null;
+			}
 			
 			// #SFIT
 			// calls the correct script if the user selected more than 1 software fault
@@ -299,6 +225,16 @@ public class InstrumentController implements Initializable {
 				Controller.isBatchMode = true;
 			}
 			
+			InputYaml input = new InputYaml();
+			
+			// if injection mode did not change, keep the same runtime option
+			if (!injectionModeChanged()) {
+				input.setRuntimeOption(previousRuntimeOption);
+			}
+			
+			input.setInstrumentOption(option);
+			input.writeChanges(Controller.currentProgramFolder + "/input.yaml");
+			
 			// sets the ComboBox so that the user can select which result to display
 			// when fault injection has completed
 			if (Controller.isBatchMode) {
@@ -311,6 +247,7 @@ public class InstrumentController implements Initializable {
 			} else {
 				Controller.fiResultDisplay.setVisible(false);
 			}
+			
 			String cmd = Controller.llfibuildPath
 					+ scriptToCall + folderName + "/"
 					+ folderName + ".ll";
@@ -324,6 +261,7 @@ public class InstrumentController implements Initializable {
 					pr.getInputStream()));
 
 			Controller.errorString = new ArrayList<>();
+			String line1;
 			while ((line1 = in1.readLine()) != null) {
 				/*
 				 * if(line1.contains("Sucess")) Controller.errorString = new
@@ -425,76 +363,54 @@ public class InstrumentController implements Initializable {
 				Stage stage = (Stage) source.getScene().getWindow();
 				stage.close();
 			}
-
-			// Files.createFile(C:\\Nithya\\sample_files\\input.txt, null)
-
 		} catch (IOException e) {
+			System.err.println("ERROR: instrumentation failed!");
 			e.printStackTrace();
-			System.err.println("Problem writing to the file statsTest.txt");
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			System.err.println("ERROR: instrumentation failed!");
 			e.printStackTrace();
 
 		}
 	}
-
-	public static void delete(File file)
-			throws IOException{
-
-		if(file.isDirectory()){
-
-			//directory is empty, then delete it
-			if(file.list().length==0){
-
-				file.delete();
-
-
-			}else{
-
-				//list all the directory contents
-				String files[] = file.list();
-
-				for (String temp : files) {
-					//construct the file structure
-					File fileDelete = new File(file, temp);
-
-					//recursive delete
-					delete(fileDelete);
-				}
-
-				//check the directory again, if empty then delete it
-				if(file.list().length==0){
-					file.delete();
-
-				}
-			}
-
-		}else{
-			//if file, then delete it
-			file.delete();
-
-		}
+	
+	private static enum InjectionType {
+		HARDWARE, SOFTWARE, SOFTWARE_BATCH;
 	}
 
-
-
-	/*public static boolean deleteDirectory(File directory) {
-		System.out.println("diret == "+directory.toString());
-	    if(directory.exists()){
-	        File[] files = directory.listFiles();
-	        if(null!=files){
-	            for(int i=0; i<files.length; i++) {
-	                if(files[i].isDirectory()) {
-	                    deleteDirectory(files[i]);
-	                }
-	                else {
-	                    files[i].delete();
-	                }
-	            }
-	        }
-	    }
-	    return(directory.delete());
-	}*/
+	private boolean injectionModeChanged() {
+		InjectionType current, previous;
+		
+		// first time doing instrument
+		if (previousInstrumentOption == null) {
+			return true;
+		}
+		
+		// compute current mode
+		if (Controller.isHardwareInjection) {
+			current = InjectionType.HARDWARE;
+		} else if (Controller.isBatchMode) {
+			current = InjectionType.SOFTWARE_BATCH;
+		} else {
+			current = InjectionType.SOFTWARE;
+		}
+		
+		// compute previous mode
+		if (previousInstrumentOption.isHardwareFault) {
+			previous = InjectionType.HARDWARE;
+		} else {
+			if (previousInstrumentOption.includedInstruction.size() > 1) {
+				previous = InjectionType.SOFTWARE_BATCH;
+			} else {
+				previous = InjectionType.SOFTWARE;
+			}
+		}
+		
+		if (current == previous) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 
 	@FXML
 	private void onClickInstructionInclude(ActionEvent event) {
@@ -574,713 +490,353 @@ public class InstrumentController implements Initializable {
 
 	@FXML
 	private void onSelectInstSelectRadio(ActionEvent event){
-		FileReader inputFile;
-		try{
-			if(customInstTypeRadio.isSelected() == true){
+		if (customInstTypeRadio.isSelected()) {
+			customInstCombo.setDisable(false);
+			includeLabel.setDisable(true);
 
-				customInstCombo.setDisable(false);
-				includeLabel.setDisable(true);
-
-				instIncludeListView.setDisable(true);
-				instExcludeListView.setDisable(true);
-				instIncludeButton.setDisable(true);
-				instExcludeButton.setDisable(true);
-				inputFile = new FileReader(buildPath+"customInstruction_list.txt");
-				BufferedReader bufferReader = new BufferedReader(inputFile);
-
-				customInstList = new ArrayList<String>();
-				String line;
-
-				while ((line = bufferReader.readLine()) != null)   {
-					customInstList.add(line);
-
-				}
-				bufferReader.close();
-				items =FXCollections.observableArrayList (customInstList);
-				//regCombo.getItems().removeAll(true);
-				customInstCombo.setItems(items);
-				customInstCombo.setPromptText("-- Select --");
-
-
-			}
-			else{
-				includeLabel.setDisable(false);
-				customInstCombo.setDisable(true);
-				instIncludeListView.setDisable(false);
-				instExcludeListView.setDisable(false);
-				instIncludeButton.setDisable(false);
-				instExcludeButton.setDisable(false);
-			}
+			instIncludeListView.setDisable(true);
+			instExcludeListView.setDisable(true);
+			instIncludeButton.setDisable(true);
+			instExcludeButton.setDisable(true);
+			
+			allCheckBox.setDisable(true);
+		} else {
+			customInstCombo.setDisable(true);
+			includeLabel.setDisable(false);
+			
+			instIncludeListView.setDisable(false);
+			instExcludeListView.setDisable(false);
+			instIncludeButton.setDisable(false);
+			instExcludeButton.setDisable(false);
+			
+			allCheckBox.setDisable(false);
 		}
-
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();String line;
-		}
-
-
 	}
 
 	@FXML
-	private void onSelectRegSelectRadio(ActionEvent event){
-		FileReader inputFile;
-		try
-		{
-			if(customRegTypeRadio.isSelected() == true){
-				regCombo.setDisable(true);
-				customRegCombo.setDisable(false);
-				inputFile = new FileReader(buildPath+"customRegister_list.txt");
-				BufferedReader bufferReader = new BufferedReader(inputFile);
-
-				customRegList = new ArrayList<String>();
-				String line;
-
-				while ((line = bufferReader.readLine()) != null)   {
-					customRegList.add(line);
-
-				}
-				bufferReader.close();
-				items =FXCollections.observableArrayList (customRegList);
-				//regCombo.getItems().removeAll(true);
-				customRegCombo.setItems(items);
-				customRegCombo.setPromptText("-- Select --");
-
-			}
-			else{
-				regCombo.setDisable(false);
-				customRegCombo.setDisable(true);
-
-			}
+	private void onSelectRegSelectRadio(ActionEvent event) {
+		if (customRegTypeRadio.isSelected() == true) {
+			regCombo.setDisable(true);
+			customRegCombo.setDisable(false);
+		} else {
+			regCombo.setDisable(false);
+			customRegCombo.setDisable(true);
 		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-
 	}
 
 	@FXML
-	private void onClickTraceOption(ActionEvent event){
-		if(noTraceRadio.isSelected() == true)
-		{
+	private void onClickTraceOption(ActionEvent event) {
+		traceCountText.clear();
+		if (noTraceRadio.isSelected()) {
 			forwardCheckbox.setDisable(true);
 			backwardCheckbox.setDisable(true);
-
-		}
-		else if(limitTraceRadio.isSelected() == true){
+			traceCountText.setDisable(true);
+			traceCountLabel.setDisable(true);
+		} else if (limitTraceRadio.isSelected()) {
+			forwardCheckbox.setDisable(false);
+			backwardCheckbox.setDisable(false);
 			traceCountText.setDisable(false);
-		}
-
-		else
-		{
+			traceCountLabel.setDisable(false);
+		} else { // full trace
 			forwardCheckbox.setDisable(false);
 			backwardCheckbox.setDisable(false);
 			traceCountText.setDisable(true);
+			traceCountLabel.setDisable(true);
 		}
-
 	}
+	
 	@FXML
 	private void onClickSelectProfile(ActionEvent event){
-		Parent root;
-		//fileCount=0;
-
 		Stage stage = new Stage();
+		
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open Resource File");
-		configureFileChooser(fileChooser); 
-		List<File> list = fileChooser.showOpenMultipleDialog(stage);
-		if (list != null) {
-			for (File file : list) {
-				openFile(file);
-			}
+		fileChooser.setTitle("Open an input.yaml file");
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("YAML", "*.yaml"));
+		
+		File file = fileChooser.showOpenDialog(stage);
+		if (file != null) {
+			loadProfile(file);
 		}
 	}
-	private static void configureFileChooser(
-			final FileChooser fileChooser) {      
 
-		fileChooser.getExtensionFilters().addAll(
-
-				new FileChooser.ExtensionFilter("YAML", "*.yaml")
-				);
-	}
-
-	private void openFile(File file) {
-		try{
-			tempItems=FXCollections.observableArrayList();
-			tempItems1=FXCollections.observableArrayList();
-			selectProfileFlag = true;
-			String line;
-			String customInst;
-			String customReg;
-			String regloc;
-			String includeInst;
-			String excludeInst;
-			String tmpString = null;
-			boolean includeFlag = false;
-			boolean excludeFlag = false;
-			fileContent = new ArrayList<>();
-			Path path = file.toPath();
-
-			String fileInfo =path.toString();
-
-			FileReader inputFile = new FileReader(fileInfo);
-			BufferedReader bufferReader = new BufferedReader(inputFile);
-			while ((line = bufferReader.readLine()) != null)   {
-				if(line.contains("instSelMethod"))
-				{
-					if(line.contains("customInstSelector"))
-					{
-						customInstTypeRadio.setSelected(true);
-						customInstCombo.setDisable(false);
-						includeLabel.setDisable(true);    				
-						instIncludeListView.setDisable(true);
-						instExcludeListView.setDisable(true);
-						instIncludeButton.setDisable(true);
-						instExcludeButton.setDisable(true);
-
-					}
-
-
-				}
-				else if(line.contains("insttype"))
-				{
-					customInstTypeRadio.setSelected(false);
-					customInstCombo.setDisable(true);
-					includeLabel.setDisable(false);    				
-					instIncludeListView.setDisable(false);
-					instExcludeListView.setDisable(false);
-					instIncludeButton.setDisable(false);
-					instExcludeButton.setDisable(false);
-				}
-				else if (line.contains("customInstSelector"))
-				{
-					customInst = line.split(":")[1].trim();
-					customInstCombo.setValue(customInst);
-
-				}
-				else if(line.contains("include:"))
-				{
-					includeFlag = true;
-
-				}
-				else if(line.contains("-") && includeFlag)
-				{
-					if(line.contains("all"))
-					{
-						allCheckBox.setSelected(true);
-						onClickAllMethod();
-
-						includeFlag = false;
-					}
-					else
-					{
-						includeInst = line.split("-")[1].trim();
-						for(int i = 0;i<instExcludeListView.getItems().size();i++)
-						{
-							if(instExcludeListView.getItems().get(i).toString().contains(includeInst))
-							{
-								tmpString = instExcludeListView.getItems().get(i).toString();
-								instExcludeListView.getItems().remove(i);
-							}
-						}
-						tempItems.add(tmpString); 
-						instIncludeListView.setItems(tempItems);
-					}
-				}
-				else if(line.contains("exclude"))
-				{
-					includeFlag = false;
-					excludeFlag = true;
-				}
-				else if(line.contains("-") && excludeFlag)
-				{
-					excludeInst = line.split("-")[1].trim();
-					for(int i = 0;i<instIncludeListView.getItems().size();i++)
-					{
-						if(instIncludeListView.getItems().get(i).toString().contains(excludeInst))
-						{
-							tmpString = instIncludeListView.getItems().get(i).toString();
-							instIncludeListView.getItems().remove(i);
-						}
-					}
-					tempItems1.add(tmpString); 
-					instExcludeListView.setItems(tempItems1);
-				}
-				else if(line.contains("regSelMethod"))
-				{
-					includeFlag = false;
-					excludeFlag = false;
-					if(line.split(":")[1].equalsIgnoreCase("customregselector"))
-					{
-						customRegTypeRadio.setSelected(true);
-						regCombo.setDisable(true);
-						customRegCombo.setDisable(false);
-					}
-					else
-					{
-						customRegTypeRadio.setSelected(false);
-						regCombo.setDisable(false);
-						customRegCombo.setDisable(true);
-					}
-
-				}
-				else if (line.contains("customRegSelector"))
-				{
-					customReg = line.split(":")[1].trim();
-					customRegCombo.setValue(customReg);
-
-				}
-				else if (line.contains("regloc"))
-				{
-					regloc = line.split(":")[1].trim();
-					for(int i = 0;i<regCombo.getItems().size();i++)
-					{
-						if(regCombo.getItems().get(i).toString().contains(regloc))
-						{
-							regCombo.setValue(regCombo.getItems().get(i).toString());
-						}
-					}
-
-
-				}
-				else if(line.contains("includeInjectionTrace"))
-				{
-					fullTraceRadio.setSelected(true);
-				}
-				else if(line.contains("backward"))
-				{
-					backwardCheckbox.setSelected(true);
-				}
-				else if(line.contains("forward"))
-				{
-					forwardCheckbox.setSelected(true);
-				}
-				else if(line.contains("maxTrace"))
-				{
-					limitTraceRadio.setSelected(true);
-					traceCountText.setText(line.split(":")[1].trim());
-				}
-				if(line.contains("runOption"))
-				{
-					fileContent.add("\n\n"+line);
-					while ((line = bufferReader.readLine()) != null)   {
-						fileContent.add("\n"+line);
-					}
-				}
-
-
-
-
+	private void loadProfile(File file) {
+		InputYaml parser = new InputYaml();
+		parser.load(file);
+		InstrumentOption option = parser.getInstrumentOption();
+		
+		// runtime option stays the same if
+		// injection mode did not change
+		previousInstrumentOption = option;
+		previousRuntimeOption = parser.getRuntimeOptions();
+		
+		// set if hardware fault or not
+		if (option.isHardwareFault) {
+			Controller.isHardwareInjection = true;
+		} else {
+			Controller.isHardwareInjection = false;
+		}
+		
+		// reset options to the correct ones
+		resetAllOptions();
+		
+		if (option.isHardwareFault) {
+			// set register
+			if (option.customRegister) {
+				regTypeRadio.setSelected(true);
+				regCombo.setValue(option.regloc_OR_customRegSelector);
+			} else {
+				customRegTypeRadio.setSelected(true);
+				customRegCombo.setValue(option.regloc_OR_customRegSelector);
 			}
-		}catch(IOException e){
-			System.out.println("Error while reading file line by line:" 
-					+ e.getMessage());                      
-		} 
+			onSelectRegSelectRadio(null);
+		}
+		
+		// set selected instruction
+		if (option.customInstruction) {
+			// set state
+			customInstTypeRadio.setSelected(true);
+			
+			// set value
+			customInstCombo.setValue(option.includedInstruction.get(0));
+		} else {
+			// set state
+			instTypeRadio.setSelected(true);
+			
+			// set included list
+			instIncludeListView.setItems(FXCollections.observableArrayList(option.includedInstruction));
+			
+			// find what the new excluded list is
+			List<String> newExcludedList;
+			if (Controller.isHardwareInjection) {
+				newExcludedList = Controller.configReader.getInstruction();
+			} else {
+				newExcludedList = getApplicableSoftwareFailures();
+			}
+			for (String exclude: instExcludeListView.getItems()) {
+				for (String include: option.includedInstruction) {
+					if (exclude.contains(include)) {
+						newExcludedList.remove(exclude);
+						break;
+					}
+				}
+			}
+			
+			instExcludeListView.setItems(FXCollections.observableArrayList(newExcludedList));
+		}
+		onSelectInstSelectRadio(null);
+		
+		// reset all checkbox #TODO does this run the allcheckbox function???
+		allCheckBox.setSelected(false);
+
+		// reset trace state
+		if (option.maxTrace != null) {
+			limitTraceRadio.setSelected(true);
+			traceCountText.setText("" + option.maxTrace.intValue());
+		} else if (option.tracingEnabled) {
+			fullTraceRadio.setSelected(true);
+		} else {
+			noTraceRadio.setSelected(true);
+		}
+		onClickTraceOption(null);
 	}
 
+	/**
+	 * Should be called 'reset profile' instead
+	 * @param event
+	 */
 	@FXML
 	private void onClickCreateNewProfile(ActionEvent event)
 	{
-
-
-		File yFile= new File(folderName+"/input.yaml");
+		File yFile = new File(folderName+"/input.yaml");
 		yFile.delete();
 		resetAllOptions();
 		existingInputFileFlag = false;
-
 	}
 
 	@FXML
-	public void onClickAll(ActionEvent e)
-	{
-		try{
-			FileReader inputFile1;
-			String line;
-			if(allCheckBox.isSelected())
-			{
-				/*ArrayList<String> templist = new ArrayList<>();
-
-		templist.addAll(instExcludeListView.getItems());
-		includeItems = FXCollections.observableArrayList (templist);
-		instIncludeListView.setItems(includeItems);
-		for(int i=0;i<includeItems.size();i++)
-		{
-			instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-		}*/
-
-				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-
-				instructionList = new ArrayList<String>();
-
-				while ((line = bufferReader1.readLine()) != null)   {
-					instructionList.add(line);
-
-				}
-				bufferReader1.close();
-				items =FXCollections.observableArrayList (instructionList);
-				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-				instIncludeListView.setItems(items);
-			}
-			else{
-				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-
-				instructionList = new ArrayList<String>();
-
-				while ((line = bufferReader1.readLine()) != null)   {
-					instructionList.add(line);
-
-				}
-				bufferReader1.close();
-				items =FXCollections.observableArrayList (instructionList);
-				instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
-				instExcludeListView.setItems(items);	
-			}
-		}catch(IOException ex)
-		{
-			System.out.println(ex);
-		}
-
-
+	public void onClickAll(ActionEvent e) {
+		resetInstList(allCheckBox.isSelected());
 	}
-	public void onClickAllMethod()
-	{
-		try{
-			FileReader inputFile1;
-			String line;
 
-			if(allCheckBox.isSelected())
-			{
-				/*ArrayList<String> templist = new ArrayList<>();
+	/**
+	 * Reset selection boxes to all software or hardware fault, depending on state of
+	 * @param isSelectAll - this variable
+	 */
+	private void resetInstList(boolean isSelectAll) {
+		List<String> allApplicableFaults;
+		if (Controller.isHardwareInjection) {
+			allApplicableFaults = Controller.configReader.getInstruction();
+		} else {
+			allApplicableFaults = getApplicableSoftwareFailures();
+		}
+		items = FXCollections.observableArrayList(allApplicableFaults);
+		ObservableList<String> blankList = FXCollections
+				.observableArrayList(new ArrayList<String>());
 
-			templist.addAll(instExcludeListView.getItems());
-			includeItems = FXCollections.observableArrayList (templist);
-			instIncludeListView.setItems(includeItems);
-			for(int i=0;i<includeItems.size();i++)
-			{
-				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-			}*/
-				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-
-				instructionList = new ArrayList<String>();
-
-				while ((line = bufferReader1.readLine()) != null)   {
-					instructionList.add(line);
-
-				}
-				bufferReader1.close();
-				items =FXCollections.observableArrayList (instructionList);
-				instExcludeListView.getItems().removeAll(instExcludeListView.getItems());
-				instIncludeListView.setItems(items);
-			}
-			else{
-				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
-
-				instructionList = new ArrayList<String>();
-
-				while ((line = bufferReader1.readLine()) != null)   {
-					instructionList.add(line);
-
-				}
-				bufferReader1.close();
-				items =FXCollections.observableArrayList (instructionList);
-				instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
-				instExcludeListView.setItems(items);	
-			}
-		}catch(IOException ex)
-		{
-			System.out.println(ex);
+		if (isSelectAll) {
+			instExcludeListView.setItems(blankList);
+			instIncludeListView.setItems(items);
+		} else {
+			instIncludeListView.setItems(blankList);
+			instExcludeListView.setItems(items);
 		}
 	}
-	private void resetAllOptions()
-	{
-		// reset the include list
-		instIncludeListView.getItems().removeAll(instIncludeListView.getItems());
+	
+	/**
+	 * Reset the InstrumentOption to reflect hardware or software injection.
+	 */
+	private void resetAllOptions() {
+		// RESETS / REREADS ALL FILES
 		
-		FileReader inputFile;
-		FileReader inputFile1;
-		try{
-			// read in register list
-			inputFile = new FileReader(buildPath+"register_list.txt");
-			BufferedReader bufferReader = new BufferedReader(inputFile);
-
-			registerList = new ArrayList<String>();
-			String line;
-
-			while ((line = bufferReader.readLine()) != null)   {
-				registerList.add(line);
-
-			}
-			bufferReader.close();
-			items =FXCollections.observableArrayList (registerList);
-			//regCombo.getItems().removeAll(true);
-			regCombo.setItems(items);
-			regCombo.setPromptText("-- Select --");
-
-			// read in instruction list
-			if (Controller.isHardwareInjection) {
-				inputFile1 = new FileReader(buildPath+"instruction_list.txt");
-				BufferedReader bufferReader1 = new BufferedReader(inputFile1);
+		// reset register list
+		registerList = Controller.configReader.getRegister();
+		regCombo.setItems(FXCollections.observableArrayList(registerList));
+		regCombo.setPromptText("-- Select --");
+		
+		// reset custom register list
+		customRegList = Controller.configReader.getCustomRegister();
+		customRegCombo.setItems(FXCollections.observableArrayList(customRegList));
+		customRegCombo.setPromptText("-- Select --");
+		
+		// reset the included/excluded instruction list
+		resetInstList(false);
+		
+		// reset custom instruction list
+		if (Controller.isHardwareInjection) {
+			customInstList = Controller.configReader.getCustomInstruction();
+		} else {
+			customInstList = Controller.configReader.getCustomSoftwareFault();
+		}
+		customInstCombo.setItems(FXCollections.observableArrayList(customInstList));
+		customInstCombo.setPromptText("-- Select --");
+		
+		// RESET STATES
+		
+		// reset all checkbox
+		allCheckBox.setSelected(false);
+		
+		// reset included / excluded inst
+		instTypeRadio.setSelected(true);
+		onSelectInstSelectRadio(null);
 	
-				instructionList = new ArrayList<String>();
+		// reset register selection state
+		regTypeRadio.setSelected(true);
+		onSelectRegSelectRadio(null);
+
+		// reset trace state
+		fullTraceRadio.setSelected(true);
+		onClickTraceOption(null);
+		
+		// switch display between hardware/software injection
+		changeInjectionDisplay(Controller.isHardwareInjection);
+	}
 	
-				while ((line = bufferReader1.readLine()) != null)   {
-					instructionList.add(line);
-	
-				}
-				bufferReader1.close();
-				items =FXCollections.observableArrayList (instructionList);
-	
-				instExcludeListView.setItems(items);
-			} else {
-				// #SFIT
-				// opens llfi.applicable.software.failures.txt and read it into the list
-				FileReader applicableSoftwareFailure = null;
-				String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
-				try {
-					applicableSoftwareFailure = new FileReader(folderName + "/llfi.applicable.software.failures.txt");
-				} catch (FileNotFoundException e) {
-					System.err.println("InstrumentController: Unable to open " + inputLocation);
-					e.printStackTrace();
-				}
-				BufferedReader bufferedReader = new BufferedReader(applicableSoftwareFailure);
-				ArrayList<String> softwareFailure = new ArrayList<String>();
-				
-				try {
-					// discard first line, as it is not a software failure
-					bufferedReader.readLine();
-					
-					// read in all software failure, discarding everything before the dash
-					while ((line = bufferedReader.readLine()) != null)   {
-						softwareFailure.add(line.substring(line.indexOf("-") + 2));
-					}
-					bufferedReader.close();
-				} catch (IOException e) {
-					System.err.println("InstrumentController: Unable to read " + inputLocation);
-					e.printStackTrace();
-				} 
-				
-				// display the list
-				instExcludeListView.setItems(FXCollections.observableArrayList(softwareFailure));
-			}
-
-			if(customInstTypeRadio.isSelected() == true){
-				customInstCombo.setDisable(false);
-				includeLabel.setDisable(true);
-
-				instIncludeListView.setDisable(true);
-				instExcludeListView.setDisable(true);
-				instIncludeButton.setDisable(true);
-				instExcludeButton.setDisable(true);
-				inputFile = new FileReader(buildPath+"customInstruction_list.txt");
-				bufferReader = new BufferedReader(inputFile);
-
-				customInstList = new ArrayList<String>();
-
-
-				while ((line = bufferReader.readLine()) != null)   {
-					customInstList.add(line);
-
-				}
-				bufferReader.close();
-				items =FXCollections.observableArrayList (customInstList);
-				//regCombo.getItems().removeAll(true);
-				customInstCombo.setItems(items);
-				customInstCombo.setPromptText("-- Select --");
-
-
-			}
-			else{
-				includeLabel.setDisable(false);
-				customInstCombo.setDisable(true);
-				instIncludeListView.setDisable(false);
-				instExcludeListView.setDisable(false);
-				instIncludeButton.setDisable(false);
-				instExcludeButton.setDisable(false);
-			}
-			if(customRegTypeRadio.isSelected() == true){
-				regCombo.setDisable(true);
-				customRegCombo.setDisable(false);
-				inputFile = new FileReader(buildPath+"customRegister_list.txt");
-				bufferReader = new BufferedReader(inputFile);
-
-				customRegList = new ArrayList<String>();
-
-
-				while ((line = bufferReader.readLine()) != null)   {
-					customRegList.add(line);
-
-				}
-				bufferReader.close();
-				items =FXCollections.observableArrayList (customRegList);
-				//regCombo.getItems().removeAll(true);
-				customRegCombo.setItems(items);
-				customRegCombo.setPromptText("-- Select --");
-
-			}
-			else{
-				regCombo.setDisable(false);
-				customRegCombo.setDisable(true);
-
-			}
-			if(limitTraceRadio.isSelected() == true)
-			{
-				traceCountText.setDisable(false);
-			}
-			else if(fullTraceRadio.isSelected() == true)
-			{
-				traceCountText.setDisable(true);
-			}
-			else if(noTraceRadio.isSelected() == true)
-			{
-				traceCountText.setDisable(true);
-				forwardCheckbox.setDisable(true);
-				backwardCheckbox.setDisable(true);
-			}
-		}catch (IOException e) {
-			// TODO Auto-generated catch block
+	/**
+	 * #SFIT opens llfi.applicable.software.failures.txt and read it into the list
+	 * @return - the list of applicable software failures
+	 */
+	private List<String> getApplicableSoftwareFailures() {
+		FileReader applicableSoftwareFailure = null;
+		String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
+		try {
+			applicableSoftwareFailure = new FileReader(folderName + "/llfi.applicable.software.failures.txt");
+		} catch (FileNotFoundException e) {
+			System.err.println("ERROR: Unable to open " + inputLocation);
 			e.printStackTrace();
 		}
-
+		
+		String line;
+		BufferedReader bufferedReader = new BufferedReader(applicableSoftwareFailure);
+		ArrayList<String> softwareFailure = new ArrayList<String>();
+		
+		try {
+			// discard first line, as it is not a software failure
+			bufferedReader.readLine();
+			
+			// read in all software failure, discarding everything before the dash
+			while ((line = bufferedReader.readLine()) != null)   {
+				softwareFailure.add(line.substring(line.indexOf("-") + 2));
+			}
+			bufferedReader.close();
+		} catch (IOException e) {
+			System.err.println("InstrumentController: Unable to read " + inputLocation);
+			e.printStackTrace();
+		} 
+		
+		return softwareFailure;
 	}
+	
+	/**
+	 * Change GUI state to Hardware Fault Injection
+	 * @param e
+	 */
+	@FXML
+	private void onClickChangeInjectionType(ActionEvent e) {
+		if (hardware.isSelected()) {
+			Controller.isHardwareInjection = true;
+		} else {
+			Controller.isHardwareInjection = false;
+		}
+		resetAllOptions();
+	}
+	
+	private void changeInjectionDisplay(boolean isHardwareInjection) {
+		if (!isHardwareInjection) {
+			software.setSelected(true);
+			
+			// makes these boxes disappear
+			customRegTypeRadio.setVisible(false);
+			registerSelectionMethodLabel.setVisible(false);
+			separator.setVisible(false);
+			regTypeRadio.setVisible(false);
+			regCombo.setVisible(false);
+			customRegCombo.setVisible(false);
+		} else {
+			hardware.setSelected(true);
+			
+			// make these boxes appear
+			customRegTypeRadio.setVisible(true);
+			registerSelectionMethodLabel.setVisible(true);
+			separator.setVisible(true);
+			regTypeRadio.setVisible(true);
+			regCombo.setVisible(true);
+			customRegCombo.setVisible(true);
+		}
+	}
+	
+	private void deletePreviousResults() {
+		File folder = new File(Controller.currentProgramFolder);
+		for (File file : folder.listFiles()) {
+			fileName = file.getName();
+			if (fileName.equals("llfi.stat.totalindex.txt") || fileName.equals("llfi.stat.graph.dot")) {
+				file.delete();
+			} 
+		}
+	}
+	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		FileReader inputFile;
-		FileReader inputFile1;
-		
 		// location of all the config files
-		buildPath=Controller.llfibuildPath+"gui/config/";
+		buildPath = Controller.llfibuildPath + "gui/config/";
 
-		//try {
 		selectProfileFlag = false;
 		existingInputFileFlag = false;
 		folderName = Controller.currentProgramFolder;
-
-		String line;
-		resetAllOptions();
-		String customInst;
-		String customReg;
-		File f = new File(Controller.currentProgramFolder+"/input.yaml");
-
+		
+		// delete all certain files if reinstrumenting
+		deletePreviousResults();
+		
+		// load profile if exist (user is re-instrumenting)
+		File f = new File(Controller.currentProgramFolder + "/input.yaml");
+		
 		if(f.exists()) {
 			createNewProfileButton.setDisable(false);
 			existingInputFileFlag = true;
 			fileContent = new ArrayList<>();
 
-			//File iFile = new File(Controller.currentProgramFolder+"/input.yaml");
-			openFile(f);
-			/*BufferedReader bufferReader2 = new BufferedReader(iFile);
-	             while ((line = bufferReader2.readLine()) != null)   {
-	             	if(line.contains("instSelMethod"))
-	             	{
-	             		if(line.split(":")[1].equalsIgnoreCase("custominstselector"))
-	             		{
-	             			customInstTypeRadio.setSelected(true);
-	             			customInstCombo.setDisable(false);
-	             			includeLabel.setDisable(true);    				
-	         				instIncludeListView.setDisable(true);
-	         				instExcludeListView.setDisable(true);
-	         				instIncludeButton.setDisable(true);
-	         				instExcludeButton.setDisable(true);
-
-	             		}
-
-	             	}
-	             	else if (line.contains("customInstSelector"))
-	             	{
-	             		customInst = line.split(":")[1].trim();
-	             		customInstCombo.setValue(customInst);
-
-	             	}
-	             	else if(line.contains("regSelMethod"))
-	             	{
-	             		if(line.split(":")[1].equalsIgnoreCase("customregselector"))
-	             		{
-	             			customRegTypeRadio.setSelected(true);
-	             			regCombo.setDisable(true);
-	             			customRegCombo.setDisable(false);
-	             		}
-
-	             	}
-	             	else if (line.contains("customRegSelector"))
-	             	{
-	             		customReg = line.split(":")[1].trim();
-	             		customRegCombo.setValue(customReg);
-
-	             	}
-	             	else if(line.contains("includeInjectionTrace"))
-	             	{
-	             		fullTraceRadio.setSelected(true);
-	             	}
-	             	else if(line.contains("backward"))
-	             	{
-	             		backwardCheckbox.setSelected(true);
-	             	}
-	             	else if(line.contains("forward"))
-	             	{
-	             		forwardCheckbox.setSelected(true);
-	             	}
-	             	else if(line.contains("maxTrace"))
-	             	{
-	             		limitTraceRadio.setSelected(true);
-	             		traceCountText.setText(line.split(":")[1].trim());
-	             	}
-	             	if(line.contains("runOption"))
-	             	{
-	             		fileContent.add("\n\n"+line);
-	             		while ((line = bufferReader2.readLine()) != null)   {
-	             			fileContent.add("\n"+line);
-	             		}
-	             	}
-	        }*/
-		}
-
-
-		//} catch (IOException e) {
-		// TODO Auto-generated catch block
-		//	e.printStackTrace();
-		//}
-
-		
-		// #SFIT
-		injectionType.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>(){
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
-				if (newValue.equals("Software Fault")) {
-					Controller.isHardwareInjection = false; // set state
-					
-					// makes these boxes disappear
-					customRegTypeRadio.setVisible(false);
-					registerSelectionMethodLabel.setVisible(false);
-					separator.setVisible(false);
-					regTypeRadio.setVisible(false);
-					regCombo.setVisible(false);
-					customRegCombo.setVisible(false);
-				} else {
-					Controller.isHardwareInjection = true; // set state
-					
-					// make these boxes appear
-					customRegTypeRadio.setVisible(true);
-					registerSelectionMethodLabel.setVisible(true);
-					separator.setVisible(true);
-					regTypeRadio.setVisible(true);
-					regCombo.setVisible(true);
-					customRegCombo.setVisible(true);
-				}
-				resetAllOptions();
-			}
-		});
-		// sets the value of the ComboBox depending on what was selected initially
-		if (Controller.isHardwareInjection) {
-			injectionType.setValue("Hardware Fault");
+			loadProfile(f);
 		} else {
-			injectionType.setValue("Software Fault");
+			resetAllOptions();
 		}
 	} 
 }

@@ -1,38 +1,19 @@
 package application;
 
-
-import java.awt.Dialog;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.plaf.basic.BasicSplitPaneUI.KeyboardEndHandler;
-
-import com.sun.javafx.collections.MappingChange.Map;
-
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -41,21 +22,15 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import application.Controller;
+import application.InputYaml.RuntimeOption;
 import javafx.scene.control.Button;
 
-public class FaultInjectionController implements Initializable{
-	
+public class FaultInjectionController implements Initializable {
 	@FXML
 	private TextField noOfRunsText;
 	@FXML
@@ -75,7 +50,7 @@ public class FaultInjectionController implements Initializable{
 	@FXML
 	private Slider fiCycleSlider;
 	@FXML
-	private ComboBox faulInjectionTypeCombo;
+	private ComboBox<String> faulInjectionTypeCombo;
 	@FXML
 	private Label runCountLabel;
 	@FXML
@@ -86,45 +61,17 @@ public class FaultInjectionController implements Initializable{
 	private CheckBox saveProfileCheckBox;
 	@FXML
 	private TextField profileNameText;
+
 	/**
-	 * No longer the build path, it is actually <buildpath>/gui/config
+	 * Folder name or name of the project
 	 */
-	private String buildPath;
-	private String runCountString;
-	private String noOfRuns;
-	private String fiType;
-	private String fiCycle;
-	private String fiIndex;
-	private ArrayList<String> faultTypeList;
-	private ArrayList<String> fileNameLists;
-	private ArrayList<String> resultList;
-	private String fiBit;
-	private boolean errorFlag;
-	private String indexBound;
-	private  boolean profileLoadFlag = false;
-	FileReader inputFile;
-	String str;
-	String line;
-	String subStr[];
-	String fiTypefault;
-	int index;
-	int cycle;
-	int regIndex;
-	int bit;
-	String status;
-	String result;
-	public String currentFolderName = null;
-	private List<String> runContent = new ArrayList<String>();
-	public int runCount = 0;
-	String profName = null;
-	public ArrayList<String> singleRunOption = new ArrayList<String>();
-	public ArrayList<HashMap<String, ArrayList<String>>> profileListRunOption =  new ArrayList<HashMap<String, ArrayList<String>>>();
-	public HashMap<String, ArrayList<String>> runOptionMap = new HashMap<>();
-	int runNumber = 1;
-	int profileCount = 0;
-	@FXML
-	ObservableList<String> items;
-	
+	private String currentFolderName;
+	private int currentRun;
+	/**
+	 * Entered or parsed runtime options list
+	 */
+	private List<RuntimeOption> runtimeOptions;
+
 	// #SFIT
 	// used for making these boxes disappear if Software Injection is selected
 	@FXML
@@ -135,266 +82,62 @@ public class FaultInjectionController implements Initializable{
 	private Node fiRegIndexLabel;
 	@FXML
 	private Node fiBitLabel;
+
 	// for batch mode even less options are available
 	@FXML
 	private Node faultInjectionCyclesLabel;
 	@FXML
 	private Node faultInjectionIndexLabel;
-	
+
 	@FXML
-	private void onClickDeleteRun(ActionEvent event)
-	{
-		boolean delFlag = false;
-		Iterator it = runOptionMap.entrySet().iterator();
-		String key;
-		
-		String currentKey;
-		ArrayList<String> tempList = new ArrayList<String>();
-		runOptionMap.remove(runNumberLabel.getText());
-		currentKey = runNumberLabel.getText().substring(3);
-		 it = runOptionMap.entrySet().iterator();
-		 while (it.hasNext()) {
-			java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-	    		tempList = new ArrayList<String>();
-	    		tempList = (ArrayList<String>)pairs.getValue();
-	    		key = (String)pairs.getKey();
-	    		if(Integer.parseInt(key.substring(3)) == Integer.parseInt(currentKey)+1)
-	    		{
-	    			runOptionMap.remove(key);
-	    			delFlag = true;
-				runOptionMap.put("run"+currentKey, tempList);
-	    			noOfRunsText.setText(tempList.get(0));
-				if(!tempList.get(1).equalsIgnoreCase(""))
-					faulInjectionTypeCombo.setValue(tempList.get(1));;
-				fiRegIndex.setText(tempList.get(2));
-				if(!tempList.get(3).equalsIgnoreCase(""))
-					fiCycleLabel.setText(tempList.get(3));
-				else
-					fiCycleLabel.setText("0");
-				fiBitText.setText(tempList.get(4));
-				if(!tempList.get(5).equalsIgnoreCase(""))
-					fiIndexLabel.setText(tempList.get(5));
-				else
-					fiIndexLabel.setText("0");
-				randomSeed.setText(tempList.get(6));
-				timeOut.setText(tempList.get(7));
-				if(!tempList.get(3).equalsIgnoreCase(""))
-					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
-				if(!tempList.get(5).equalsIgnoreCase(""))
-					fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
-				runNumberLabel.setText("run"+runNumber);
-	    		}
-	    	
-	    	
-	    	
-	      }
-		 it = runOptionMap.entrySet().iterator();
-		 while (it.hasNext()) {
-			java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-		    	tempList = new ArrayList<String>();
-		    	tempList = (ArrayList<String>)pairs.getValue();
-		    	key = (String)pairs.getKey();
-		    	if(Integer.parseInt(key.substring(3)) > Integer.parseInt(currentKey))
-		    	{
-		    		runOptionMap.remove(key);
-		    		runOptionMap.put("run"+(Integer.parseInt(key.substring(3))-1), tempList);
-		    	}
-		 }
-		 if(!delFlag)
-		 {
-			 noOfRunsText.setText("");
-			 faulInjectionTypeCombo.setValue("-- Select --");
-			 fiRegIndex.setPromptText("null");
-			 fiCycleLabel.setText("0");
-			 fiCycleSlider.setValue(0);
-			 fiBitText.setPromptText("null");
-			 fiIndexLabel.setText("0");
-			 fiIndexSlider.setValue(0);
-			 randomSeed.setPromptText("null");
-			 timeOut.setPromptText("null");
-		 }
-		
+	private void onClickDeleteRun(ActionEvent event) {
+		runtimeOptions.remove(currentRun);
+		changeDisplayedRunOption();
 	}
 
 	@FXML
 	private void onClickAddRunOption(ActionEvent event) {
-		currentFolderName = Controller.currentProgramFolder;
-		FileReader inputFile;
-		String line;
-		String fileContent = "";
-		boolean runFlag = false;
-		String runNumberContent;
-		HashMap<String, ArrayList<String>> tempMap;
-		ArrayList<String> tempList = new ArrayList<String>();
-		ArrayList<String> newList = new ArrayList<String>();
-		boolean nextElementChkFlag = false;
-		Parent root;
+		saveCurrentRunOption();
+		
+		if (runtimeOptions.size() == 0) {
+			displayError();
+			return;
+		}
+		
 		try {
-			Iterator it = runOptionMap.entrySet().iterator();
-			while (it.hasNext()) {
-				java.util.Map.Entry pairs = (java.util.Map.Entry) it.next();
-			}
-			if (!noOfRunsText.getText().contentEquals("")) {
-				runNumberContent = runNumberLabel.getText();
-				newList = new ArrayList<String>();
-				newList.add(noOfRunsText.getText());
-				if (Controller.isHardwareInjection) {
-					newList.add(faulInjectionTypeCombo.getValue().toString());
-				} else {
-					// #SFIT
-					// always autoinjection for software injection
-					newList.add("AutoInjection");
-				}
-				newList.add(fiRegIndex.getText());
-				newList.add(fiCycleLabel.getText());
-				newList.add(fiBitText.getText());
-				newList.add(fiIndexLabel.getText());
-				newList.add(randomSeed.getText());
-				newList.add(timeOut.getText());
-				runOptionMap.put(runNumberContent, newList);
-			}
-			it = runOptionMap.entrySet().iterator();
-			while (it.hasNext()) {
+			// read in the input.yaml then dump the current configurations
+			InputYaml input = new InputYaml();
+			input.load(new File(currentFolderName + "/input.yaml"));
+			input.setRuntimeOption(runtimeOptions);
+			input.writeChanges(currentFolderName + "/input.yaml");
 
-				java.util.Map.Entry pairs = (java.util.Map.Entry) it.next();
-				tempList = new ArrayList<String>();
-				tempList = (ArrayList<String>) pairs.getValue();
-
-			}
-			inputFile = new FileReader(currentFolderName + "/input.yaml");
-			BufferedReader bufferReader = new BufferedReader(inputFile);
-			while ((line = bufferReader.readLine()) != null) {
-				if (line.contains("runOption:")) {
-					runFlag = true;
-					break;
-				} else {
-					fileContent += line + "\n";
-				}
-
-			}
-
-			File yamlFile = new File(currentFolderName + "/input.yaml");
-			FileOutputStream is = new FileOutputStream(yamlFile);
-			OutputStreamWriter osw = new OutputStreamWriter(is);
-			Writer w = new BufferedWriter(osw);
-			w.write(fileContent);
-			if (runFlag) {
-				w.write("runOption:");
-				runFlag = false;
-			}
-
-			else
-				w.write("\nrunOption:");
-			it = runOptionMap.entrySet().iterator();
-			while (it.hasNext()) {
-				// Write the run options out to the yaml file
-
-				java.util.Map.Entry pairs = (java.util.Map.Entry) it.next();
-				tempList = new ArrayList<String>();
-				tempList = (ArrayList<String>) pairs.getValue();
-				w.write("\n    - run:");
-				w.write("\n        numOfRuns: " + tempList.get(0));
-				w.write("\n        fi_type: "
-						+ tempList.get(1).toString().split("-")[0]);
-				if (!tempList.get(2).equalsIgnoreCase(""))
-					w.write("\n        fi_reg_index: " + tempList.get(2));
-				if (!tempList.get(3).equalsIgnoreCase("0")
-						&& !tempList.get(3).equalsIgnoreCase(""))
-					w.write("\n        fi_cycle: " + tempList.get(3));
-				if (!tempList.get(4).equalsIgnoreCase("")) {
-					w.write("\n        fi_bit: " + tempList.get(4));
-					if (tempList.get(2).equalsIgnoreCase(""))
-						w.write("\n        fi_reg_index: " + "0");
-					if (tempList.get(3).equalsIgnoreCase("0"))
-						w.write("\n        fi_cycle: " + tempList.get(3));
-					if (tempList.get(5).equalsIgnoreCase("0"))
-						w.write("\n        fi_index: " + tempList.get(5));
-				}
-				if (!tempList.get(5).equalsIgnoreCase("0")
-						&& !tempList.get(5).equalsIgnoreCase(""))
-					w.write("\n        fi_index: " + tempList.get(5));
-				if (!tempList.get(6).equalsIgnoreCase(""))
-					w.write("\n        fi_random_seed: " + tempList.get(6));
-				if (!tempList.get(7).equalsIgnoreCase(""))
-					w.write("\n        timeOut: " + tempList.get(7));
-			}
-			w.close();
-			
 			// #SFIT
 			// the above options generated needs to be copied over
 			if (Controller.isBatchMode) {
-				copyRunOptionsToSubfolders();
+				input.copyRunOptionsToSubfolders();
 			}
 
-			if (errorFlag == true) {
-				errorFlag = false;
-				Node source = (Node) event.getSource();
-				Stage stage = (Stage) source.getScene().getWindow();
-				stage.close();
+			// clear error box
+			Controller.errorString = new ArrayList<>();
+			Node source = (Node) event.getSource();
+			Stage stage = (Stage) source.getScene().getWindow();
+			stage.close();
 
-				root = FXMLLoader.load(getClass().getClassLoader().getResource(
-						"application/ErrorDisplay.fxml"));
-				stage = new Stage();
-				stage.setTitle("Error");
-				stage.setScene(new Scene(root, 450, 100));
-				stage.show();
+			// save the input.yaml in another location as well
+			if (saveProfileCheckBox.isSelected()) {
+				FileChooser fileChooser = new FileChooser();
 
-			} else {
-				Controller.errorString = new ArrayList<>();
-				Node source = (Node) event.getSource();
-				Stage stage = (Stage) source.getScene().getWindow();
-				stage.close();
-				if (saveProfileCheckBox.isSelected())
+				// Set extension filter
+				FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+						"(*.yaml)", "*.yaml");
+				fileChooser.getExtensionFilters().add(extFilter);
 
-				{
+				// Show save file dialog
+				File file = fileChooser.showSaveDialog(stage);
 
-					FileChooser fileChooser = new FileChooser();
-
-					// Set extension filter
-					FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
-							"(*.yaml)", "*.yaml");
-					fileChooser.getExtensionFilters().add(extFilter);
-
-					// Show save file dialog
-					File file = fileChooser.showSaveDialog(stage);
-
-					if (file != null) {
-						String profileName;
-						String fileContent1 = "";
-						FileReader actualFile;
-						String line1;
-
-						actualFile = new FileReader(
-								Controller.currentProgramFolder + "/input.yaml");
-
-						BufferedReader bufferReader1 = new BufferedReader(
-								actualFile);
-						// profileName = checkFileName(profileCount);
-						// profileName = profileNameText.getText();
-
-						File profileFile = new File(file + ".yaml");
-						FileOutputStream is1 = new FileOutputStream(profileFile);
-						OutputStreamWriter osw1 = new OutputStreamWriter(is1);
-						Writer w1 = new BufferedWriter(osw1);
-
-						while ((line1 = bufferReader1.readLine()) != null) {
-							fileContent1 = line1 + "\n";
-							w1.write(fileContent1);
-
-						}
-
-						w1.close();
-
-						// SaveFile(Santa_Claus_Is_Coming_To_Town, file);
-					}
-					/*
-					 * root =
-					 * FXMLLoader.load(getClass().getClassLoader().getResource
-					 * ("application/ProfileName.fxml")); stage = new Stage();
-					 * stage.setTitle("Profile Name"); stage.setScene(new
-					 * Scene(root, 400, 100)); stage.show();
-					 */
-
+				// user actually selected something
+				if (file != null) {
+					input.writeChanges(file + ".yaml");
 				}
 			}
 		} catch (IOException e) {
@@ -402,606 +145,320 @@ public class FaultInjectionController implements Initializable{
 					.println("Exception Occured in writing to the input.yaml file");
 			e.printStackTrace();
 		}
-		System.out.println("Run Option Map: " + runOptionMap);
-
-	}
-	
-	/**
-	 * Copy generated run options to all the sub-folders for batch software
-	 * injection. #SFIT
-	 * @throws IOException 
-	 */
-	private void copyRunOptionsToSubfolders() throws IOException {
-		FileReader inputFile = new FileReader(currentFolderName + "/input.yaml");
-		BufferedReader bufferReader = new BufferedReader(inputFile);
-		String runOption = "";
-		
-		// discards all lines before 'runOption:'
-		while ((line = bufferReader.readLine()) != null) {
-			if (line.contains("runOption:")) {
-				break;
-			}
-		}
-		// add everything after that
-		do {
-			runOption += line + "\n";
-		} while((line = bufferReader.readLine()) != null);
-
-		// append to the end of input.yaml in all sub-folders
-		for (int i = 0; i < Controller.selectedSoftwareFailures.size(); i++) {
-			File yamlFile = new File(currentFolderName + "/llfi-"
-					+ Controller.selectedSoftwareFailures.get(i) 
-					+ "/input.yaml");
-			
-			Writer w = new BufferedWriter(new FileWriter(yamlFile, true));
-			w.write(runOption);	
-			w.close();
-		}	
 	}
 
-	public String checkFileName(int profCount)
-	{
-		
-		
-		File f = new File(currentFolderName+"/profile_"+profCount+".yaml");
-    	if(f.exists()) {
-    		profCount++;
-    		profName = checkFileName(profCount);
-    	}
-    	else
-    	{
-    		profName = "profile_"+profCount;
-    		
-    	}
-    	return profName;
-	}
 	@FXML
-	private void onClickFaultInjection(ActionEvent event) {
-		Parent root;
-		try{
-			 ObservableList<ResultTable> data;
-			 final File folder = new File(Controller.currentProgramFolder+"/llfi/llfi_stat_output");
-			 if(folder.exists())
-			  deleteFilesInFolder(folder);
-			  final File errorFolder = new File(Controller.currentProgramFolder+"/llfi/error_output");
-			  if(errorFolder.exists())
-			  deleteFilesInFolder(errorFolder);
-			//runCount++;
-			//faultCount.setVisible(true);
-			//faultCount.setText("No.Of Fault Injections Added: "+runCount);
-			
-		    ProcessBuilder p = new ProcessBuilder("/bin/tcsh","-c",Controller.llfibuildPath+"bin/injectfault "+Controller.currentProgramFolder+"/llfi/"+Controller.currentProgramFolder+"-faultinjection.exe "+Controller.inputString);
-		    
-		    p.redirectErrorStream(true);
-		    Process pr = p.start();
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-		    String line1;
-		    while ((line1 = in1.readLine()) != null) {
-		    	Controller.errorString.add(line1+"\n");
-		    	if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-		    		errorFlag= true;
-		    	
-		        
-		    }
-		    pr.waitFor();
-		   in1.close();
-		   
-		   
-		   /*
-		   root = FXMLLoader.load(getClass().getClassLoader().getResource("application/InjectFaultResult.fxml"));
-	        Stage stage = new Stage();
-	        stage.setTitle("Profiling");
-	        stage.setScene(new Scene(root, 400, 100));
-	        stage.show();*/
-	        
-		   //controller.flag =1;
-		  // controller.onGeneratingResultTable();
-		   if(errorFlag == true)
-			  {
-				  errorFlag = false;
-				  Node  source = (Node)  event.getSource(); 
-				  Stage stage  = (Stage) source.getScene().getWindow();
-				  stage.close();
-				  
-				  root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
-			        stage = new Stage();
-			        stage.setTitle("Error");
-			        stage.setScene(new Scene(root, 450, 100));
-			        stage.show();
-			        
-			  }
-			  else
-			  {
-				  Controller.errorString = new ArrayList<>();
-				  Node  source = (Node)  event.getSource(); 
-				  Stage stage  = (Stage) source.getScene().getWindow();
-				  stage.close();
-			  }
-		  
-	     
-	      
-			
-		    
-			
-		}
-		catch (IOException e) {
-	        System.err.println("Problem writing to the file statsTest.txt");
-	    } catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public void deleteFilesInFolder(final File folder) {
-		//resultFileNameLists = new ArrayList<String>();
-	    for (final File fileEntry : folder.listFiles()) {
-	    	
-	        if (fileEntry.isDirectory()) {
-	        	deleteFilesInFolder(fileEntry);
-	        } else {
-	        	fileEntry.delete();
-	        }
-	    }
-	}
-	
-	
-	
-	
-	@FXML
-	private void onChangeIndexSlider(MouseEvent e){
-		
-		int slideValue = (int)Math.round(fiIndexSlider.getValue());
-		
+	private void onChangeIndexSlider(MouseEvent e) {
+		int slideValue = (int) Math.round(fiIndexSlider.getValue());
 		fiIndexLabel.setText(String.valueOf(slideValue));
 	}
-	
+
 	@FXML
-	private void onChangeRegIndexSlider(MouseEvent e){
-		
-		int slideValue1 = (int)Math.round(fiCycleSlider.getValue());
-		
+	private void onChangeRegIndexSlider(MouseEvent e) {
+		int slideValue1 = (int) Math.round(fiCycleSlider.getValue());
 		fiCycleLabel.setText(String.valueOf(slideValue1));
 	}
-	
+
 	@FXML
-	private void checkForNumberRuns(KeyEvent event){
+	private void checkForNumberRuns(KeyEvent event) {
 		String regex = "\\d+";
-		if(noOfRunsText.getText().matches(regex))
-		{
-			//noOfRunsText.setText(noOfRunsText.getText());
-		}
-		else
-		{
-			noOfRunsText.setText("");
-		}
-	}
-	
-	@FXML
-	private void checkForNumberRegister(KeyEvent event){
-		String regex = "\\d+";
-		if(fiRegIndex.getText().matches(regex))
-		{
-			//noOfRunsText.setText(noOfRunsText.getText());
-		}
-		else
-		{
-			fiRegIndex.setText("");
-		}
-	}
-	@FXML
-	private void checkForNumberBit(KeyEvent event){
-		String regex = "\\d+";
-		if(fiBitText.getText().matches(regex))
-		{
-			//noOfRunsText.setText(noOfRunsText.getText());
-		}
-		else
-		{
-			fiBitText.setText("");
-		}
-	}
-	@FXML
-	private void checkForNumberSeed(KeyEvent event){
-		String regex = "\\d+";
-		if(randomSeed.getText().matches(regex))
-		{
-			//noOfRunsText.setText(noOfRunsText.getText());
-		}
-		else
-		{
+		if (!randomSeed.getText().matches(regex)) {
 			randomSeed.setText("");
 		}
 	}
+
 	@FXML
-	private void checkForNumberTimeOut(KeyEvent event){
+	private void checkForNumberRegister(KeyEvent event) {
 		String regex = "\\d+";
-		if(timeOut.getText().matches(regex))
-		{
-			//noOfRunsText.setText(noOfRunsText.getText());
+		if (!randomSeed.getText().matches(regex)) {
+			randomSeed.setText("");
 		}
-		else
-		{
+	}
+
+	@FXML
+	private void checkForNumberBit(KeyEvent event) {
+		String regex = "\\d+";
+		if (!randomSeed.getText().matches(regex)) {
+			randomSeed.setText("");
+		}
+	}
+
+	@FXML
+	private void checkForNumberSeed(KeyEvent event) {
+		String regex = "\\d+";
+		if (!randomSeed.getText().matches(regex)) {
+			randomSeed.setText("");
+		}
+	}
+
+	@FXML
+	private void checkForNumberTimeOut(KeyEvent event) {
+		String regex = "\\d+";
+		if (!timeOut.getText().matches(regex)) {
 			timeOut.setText("null");
 		}
 	}
-	@FXML
-	private void onClickNextRunOption(ActionEvent event){
-		boolean nextElementChkFlag = false;
-		HashMap<String, ArrayList<String>> tempMap;
-		ArrayList<String> tempList = new ArrayList<String>();
-		//System.out.println("content ="+noOfRunsText.getText());
-		if(noOfRunsText.getText().contentEquals(""))		{
-			Parent root;
-			try {
-				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/NextRunOptionPopup.fxml"));
-				Stage stage = new Stage();
-		        stage.setTitle("Error");
-		        stage.setScene(new Scene(root, 400, 100));
-		        stage.show();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        
+	
+	/**
+	 * Displays an error window when the user tries to leave a
+	 * run option blank
+	 */
+	private void displayError() {
+		Parent root;
+		try {
+			root = FXMLLoader.load(getClass().getClassLoader().getResource(
+					"application/NextRunOptionPopup.fxml"));
+			Stage stage = new Stage();
+			stage.setTitle("Error");
+			stage.setScene(new Scene(root, 400, 100));
+			stage.show();
+		} catch (IOException e) {
+			System.err.println("ERROR: error displaying error!");
+			e.printStackTrace();
 		}
-		else
-		{
-			//runNumber++;
-			runCountString= "run"+Integer.toString(runNumber);
-			runNumberLabel.setText(runCountString);
-			singleRunOption = new ArrayList<>();
-			singleRunOption.add(noOfRunsText.getText());
-			singleRunOption.add(faulInjectionTypeCombo.getValue().toString());
-			singleRunOption.add(fiRegIndex.getText());
-			singleRunOption.add(fiCycleLabel.getText());
-			singleRunOption.add(fiBitText.getText());
-			singleRunOption.add(fiIndexLabel.getText());
-			singleRunOption.add(randomSeed.getText());
-			singleRunOption.add(timeOut.getText());
-	    		System.out.println("Adding single run option " + singleRunOption);
-			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
-			//profileListRunOption.add(runOptionMap);
-			prevRunOption.setDisable(false);
-			runNumber++;
-			Iterator it = runOptionMap.entrySet().iterator();
-			while (it.hasNext()) {
-			    java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-				
-				if(pairs.getKey().toString().contentEquals("run"+runNumber))
-				{
-					nextElementChkFlag = true;
-					tempList =(ArrayList<String>) pairs.getValue();
-					noOfRunsText.setText(tempList.get(0));
-					if(!tempList.get(1).equalsIgnoreCase(""))
-						faulInjectionTypeCombo.setValue(tempList.get(1));;
-					
-					fiRegIndex.setText(tempList.get(2));
-					if(!tempList.get(3).equalsIgnoreCase(""))
-					fiCycleLabel.setText(tempList.get(3));
-					else
-						fiCycleLabel.setText("0");
-					fiBitText.setText(tempList.get(4));
-					if(!tempList.get(5).equalsIgnoreCase(""))
-					fiIndexLabel.setText(tempList.get(5));
-					else
-						fiIndexLabel.setText("0");
-					randomSeed.setText(tempList.get(6));
-					timeOut.setText(tempList.get(7));
-					if(!tempList.get(3).equalsIgnoreCase(""))
-					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
-					if(!tempList.get(5).equalsIgnoreCase(""))
-					fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
-					runNumberLabel.setText("run"+runNumber);
-				}
+	}
+
+	@FXML
+	private void onClickNextRunOption(ActionEvent event) {
+		// display error if user leaves 'numbers of runs' blank or
+		// when fi_type is invalid during hardware fault injection
+		if (!isRunOptionValid()) {
+			displayError();
+		} else {
+			// sets the run options
+			saveCurrentRunOption();
+			// increase the state
+			currentRun++;
+			// reflect the change in state
+			changeDisplayedRunOption();
+		}
+	}
+
+	@FXML
+	private void onClickPrevRunOption(ActionEvent event) {
+		// saves current option
+		saveCurrentRunOption();
+		// decrease the state
+		currentRun--;
+		// reflect the change in state
+		changeDisplayedRunOption();
+	}
+	
+	private boolean isRunOptionValid() {
+		return !noOfRunsBlank() && isValidFiType();
+	}
+	
+	private boolean noOfRunsBlank() {
+		return noOfRunsText.getText().contentEquals("");
+	}
+	
+	private boolean isValidFiType() {
+		if (faulInjectionTypeCombo.getSelectionModel().getSelectedIndex() == 0
+				&& Controller.isHardwareInjection) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Saves the current run options into a list.
+	 */
+	private void saveCurrentRunOption() {
+		// check if the current run option is valid, otherwise do not save
+		if (isRunOptionValid()) {
+			RuntimeOption r = new RuntimeOption();
+
+			// options below are required
+			r.numOfRuns = Integer.parseInt(noOfRunsText.getText());
+			if (Controller.isHardwareInjection) {
+				// only exists in hardware injection
+				r.fi_type = faulInjectionTypeCombo.getValue();
+			} else {
+				// #SFIT always autoinjection for software injection
+				r.fi_type = "AutoInjection";
 			}
 			
-			if(nextElementChkFlag == false)
-			{
-				noOfRunsText.setText("");
-				faulInjectionTypeCombo.setValue("--Select--");
-				fiRegIndex.setText("");
-				fiRegIndex.setPromptText("null");
-				fiBitText.setText("");
-				fiBitText.setPromptText("null");
-				randomSeed.setText("");
-				randomSeed.setPromptText("null");
-				timeOut.setText("null");
-				timeOut.setPromptText("null");
-				fiCycleLabel.setText("0");
-				fiIndexLabel.setText("0");
+			// options below are not required
+			
+			if (!"".equals(fiRegIndex.getText())) {
+				r.fi_reg_index = Integer.parseInt(fiRegIndex.getText());
+			}
+			// if fi_cycle is zero we ignore it
+			if (!"0".equals(fiCycleLabel.getText())) {
+				r.fi_cycle = Integer.parseInt(fiCycleLabel.getText());
+			}
+			if (!"".equals(fiBitText.getText())) {
+				r.fi_bit = Integer.parseInt(fiBitText.getText());
+			}
+			// if fi_index is zero we ignore it
+			if (!"0".equals(fiIndexLabel.getText())) {
+				r.fi_index = Integer.parseInt(fiIndexLabel.getText());
+			}
+			if (!"".equals(randomSeed.getText())) {
+				r.randomSeed = Integer.parseInt(randomSeed.getText());
+			}
+
+			if (!"".equals(timeOut.getText())) {
+				r.timeOut = Integer.parseInt(timeOut.getText());
+			}
+
+			// are we replacing some run option or are we creating a new one?
+			if (currentRun >= runtimeOptions.size()) {
+				runtimeOptions.add(r);
+			} else {
+				runtimeOptions.set(currentRun, r);
+			}
+		}
+	}
+
+	/**
+	 * When 'currentRun' changes, reflect the change in the GUI
+	 */
+	private void changeDisplayedRunOption() {
+		// set label
+		runNumberLabel.setText("run" + currentRun);
+
+		// are we loading some run option or are we displaying a blank one
+		if (currentRun < runtimeOptions.size()) {
+			// get first run settings
+			RuntimeOption run = runtimeOptions.get(currentRun);
+
+			noOfRunsText.setText(String.valueOf(run.numOfRuns));
+
+			if (run.fi_type != null) {
+				faulInjectionTypeCombo.setValue(run.fi_type);
+			}
+			if (run.fi_reg_index != null) {
+				fiRegIndex.setText(run.fi_reg_index.toString());
+			}
+			if (run.fi_cycle != null) {
+				fiCycleLabel.setText(run.fi_cycle.toString());
+				fiCycleSlider.setValue(run.fi_cycle);
+			}
+			if (run.fi_bit != null) {
+				fiBitText.setText(run.fi_bit.toString());
+			}
+			if (run.fi_index != null) {
+				fiIndexLabel.setText(run.fi_index.toString());
+				fiIndexSlider.setValue(run.fi_index);
+			} else {
 				fiIndexSlider.setValue(0);
-				fiCycleSlider.setValue(0);
-				
-				runNumberLabel.setText("run"+runNumber);
+				fiIndexLabel.setText("0");
 			}
-			
-			
-		}
-	}
-	@FXML
-	private void onClickPrevRunOption(ActionEvent event){
-		if(!noOfRunsText.getText().contentEquals("") && (faulInjectionTypeCombo.getSelectionModel().getSelectedIndex() == 0))		{
-			//runCountString= "run"+Integer.toString(runNumber);
-			runCountString = runNumberLabel.getText();
-			singleRunOption = new ArrayList<>();
-			singleRunOption.add(noOfRunsText.getText());
-			singleRunOption.add(faulInjectionTypeCombo.getValue().toString());
-			singleRunOption.add(fiRegIndex.getText());
-			singleRunOption.add(fiCycleLabel.getText());
-			singleRunOption.add(fiBitText.getText());
-			singleRunOption.add(fiIndexLabel.getText());
-			singleRunOption.add(randomSeed.getText());
-			singleRunOption.add(timeOut.getText());
-	    		System.out.println("Adding single run option " + singleRunOption);
-			runOptionMap.put(runNumberLabel.getText(), singleRunOption);
-			profileListRunOption.add(runOptionMap);
-		}
-		
-		HashMap<String, ArrayList<String>> tempMap;
-		ArrayList<String> tempList = new ArrayList<String>();
-		runNumber--;
-		String prevRun = "run"+runNumber;
-		//if(runCountLabel.getText().contentEquals(""))
-		//{
-		Iterator it = runOptionMap.entrySet().iterator();
-		while (it.hasNext()) {
-		    java.util.Map.Entry pairs = (java.util.Map.Entry)it.next();
-			
-			if(pairs.getKey().toString().contentEquals("run"+runNumber))
-			{
-			
-					tempList = (ArrayList<String>) pairs.getValue();
-					noOfRunsText.setText(tempList.get(0));
-					faulInjectionTypeCombo.setValue(tempList.get(1));
-					fiRegIndex.setText(tempList.get(2));
-					fiCycleLabel.setText(tempList.get(3));
-					fiBitText.setText(tempList.get(4));
-					fiIndexLabel.setText(tempList.get(5));
-					randomSeed.setText(tempList.get(6));
-					timeOut.setText(tempList.get(7));
-					fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
-					fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
-					runNumberLabel.setText(prevRun);
-				}
+			if (run.randomSeed != null) {
+				randomSeed.setText(run.randomSeed.toString());
 			}
-		//}
-		if(runNumber == 1)
+			if (run.timeOut != null) {
+				timeOut.setText(run.timeOut.toString());
+			}
+		} else {
+			// blank run options
+			noOfRunsText.setText("");
+			faulInjectionTypeCombo.setValue("--Select--");
+			fiRegIndex.setText("");
+			fiRegIndex.setPromptText("null");
+			fiBitText.setText("");
+			fiBitText.setPromptText("null");
+			randomSeed.setText("");
+			randomSeed.setPromptText("null");
+			timeOut.setText("");
+			timeOut.setPromptText("null");
+			fiCycleLabel.setText("0");
+			fiIndexLabel.setText("0");
+			fiIndexSlider.setValue(0);
+			fiCycleSlider.setValue(0);
+		}
+
+		// user cannot click on 'back' if we are already on the
+		// very first run
+		if (currentRun == 0) {
 			prevRunOption.setDisable(true);
+		} else {
+			prevRunOption.setDisable(false);
+		}
 	}
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		FileReader inputFile;
-		try{
-			buildPath=Controller.llfibuildPath+"gui/config/";
-			currentFolderName = Controller.currentProgramFolder;
-			runNumberLabel.setText("run1");
-			
-			// #SFIT
-			// no need to set these fields in batch mode as they are not displayed or used
-			if (!Controller.isBatchMode) {
-				inputFile = new FileReader(Controller.currentProgramFolder + "/llfi.stat.totalindex.txt");
+		// set path variables
+		currentFolderName = Controller.currentProgramFolder;
+
+		// #SFIT
+		// no need to set these fields in batch mode as they are not
+		// displayed or used
+		if (!Controller.isBatchMode) {
+			try {
+				FileReader inputFile;
+				String line;
+
+				// get max fi_index
+				inputFile = new FileReader(Controller.currentProgramFolder
+						+ "/llfi.stat.totalindex.txt");
 				BufferedReader bufferReader = new BufferedReader(inputFile);
-		        
-		       
-		        String line;
-		        
-		        while ((line = bufferReader.readLine()) != null)   {
-		        	indexBound = line.split("=")[1];
-		        	
-		        }
-		        bufferReader.close();
-		        fiIndexSlider.setMax(Double.parseDouble(indexBound));
-		        fiIndexSlider.setMajorTickUnit(Double.parseDouble(indexBound));
-		        //regCombo.getItems().removeAll(true);
-		        
-		        inputFile = new FileReader(Controller.currentProgramFolder + "/llfi.stat.prof.txt");
+
+				String indexBound = "";
+				while ((line = bufferReader.readLine()) != null) {
+					indexBound = line.split("=")[1];
+				}
+				bufferReader.close();
+
+				fiIndexSlider.setMax(Double.parseDouble(indexBound));
+				fiIndexSlider.setMajorTickUnit(Double.parseDouble(indexBound));
+
+				// get max fi_cycle
+				inputFile = new FileReader(Controller.currentProgramFolder
+						+ "/llfi.stat.prof.txt");
 				bufferReader = new BufferedReader(inputFile);
-		        
-		       
-		        while ((line = bufferReader.readLine()) != null)   {
-		        	if(line.contains("="))
-		        	indexBound = line.split("=")[1];
-		        	
-		        }
-		        bufferReader.close();
-		        if(indexBound.equalsIgnoreCase("0"))
-		        {
-		        	indexBound="-1";
-		        	fiCycleSlider.setDisable(true);
-		        }
-		        	
-		        
-		        fiCycleSlider.setMax(Double.parseDouble(indexBound));
-		        fiCycleSlider.setMajorTickUnit(Double.parseDouble(indexBound));
+
+				while ((line = bufferReader.readLine()) != null) {
+					if (line.contains("=")) {
+						indexBound = line.split("=")[1];
+					}
+				}
+				bufferReader.close();
+
+				if (indexBound.equalsIgnoreCase("0")) {
+					indexBound = "-1";
+					fiCycleSlider.setDisable(true);
+				}
+
+				fiCycleSlider.setMax(Double.parseDouble(indexBound));
+				fiCycleSlider.setMajorTickUnit(Double.parseDouble(indexBound));
+			} catch (IOException e) {
+				System.err
+						.println("ERROR: files (llfi.stat.totalindex.txt or llfi.stat.prof.txt) not found!");
+				e.printStackTrace();
 			}
-	        
-	        inputFile = new FileReader(buildPath+"fault_type.txt");
-	        BufferedReader bufferReader = new BufferedReader(inputFile);
-	        
-			faultTypeList = new ArrayList<String>();
-	       // String line;
-	        
-	        while ((line = bufferReader.readLine()) != null)   {
-	        	faultTypeList.add(line);
-	        	
-	        }
-	        bufferReader.close();
-	        items =FXCollections.observableArrayList (faultTypeList);
-	        //regCombo.getItems().removeAll(true);
-	        faulInjectionTypeCombo.setItems(items);
-	        faulInjectionTypeCombo.setPromptText("-- Select --");
-	        FileReader existingFile = new FileReader(currentFolderName+"/input.yaml");
-	        BufferedReader bufferReader1 = new BufferedReader(existingFile);
-	        ArrayList<String> runOptionList = new ArrayList<String>();
-	        runOptionList.add("numOfRuns");
-	        runOptionList.add("fi_type");
-	        runOptionList.add("fi_reg_index");
-	        runOptionList.add("fi_cycle");
-	        runOptionList.add("fi_bit");
-	        runOptionList.add("fi_index");
-	        runOptionList.add("fi_random_seed");
-	        runOptionList.add("timeOut");
-	       
-	        boolean runOptionChkFlag = false;
-	        boolean firstItemChk = false;
-	        int runCountfromProfile = 1;
-		    while ((line = bufferReader1.readLine()) != null)   {
-	      	if(line.contains("runOption:"))
-	      	{
-	      		 
-	      			profileLoadFlag = true;
-	      			 
-	      				
-	      				//runContent = new ArrayList<>();
-	      				singleRunOption = new ArrayList<String>();
-	      				
-	      				while ((line = bufferReader1.readLine()) != null)
-	      				{
-	      					
-	      					/*if(line.contains("run") && )
-	      							runCountfromProfile++;	*/	
-	      							
-	      					if((line.contains("run") && firstItemChk == true) )
-	      					{
-	      						singleRunOption = new ArrayList<String>();
-	      						for(int i = 0;i<runOptionList.size();i++)
-	      	      				{
-	      							runOptionChkFlag = false;
-	      	      					for(int k = 0;k <runContent.size();k++)
-	      	          				{
-	      	      					
-	      	      						
-	      	          					if(runContent.get(k).contains(runOptionList.get(i)))
-	      	          					{
-	      	          						
-	      	          						singleRunOption.add(runContent.get(k).split(":")[1].trim());
-	      	          						runOptionChkFlag = true;
-	      	          						break;
-	      	          					}						
-	      	          				}
-	      	          				if(runOptionChkFlag == false)
-	      	          				{
-	      	          				
-	      	          				//if(runOptionList.get(i).equalsIgnoreCase("fi_cycle"))
-	      	          				
-	      	          					runOptionChkFlag = false;
-	      	          					singleRunOption.add("");
-	      	          				}
-	      	          				
-	      	      				}
-	      	      				runOptionMap.put("run"+runCountfromProfile, singleRunOption);
-	      	      				runCountfromProfile++;
-	      						
-	      						
-	      				//bufferReader1.mark(1);
-	      						//break;
-	      						runContent = new ArrayList<>();
-	      					}
-	      					
-	      					else
-	      					{
-	      						firstItemChk = true;
-	      						runContent.add(line);
-	      					}
-	      											
-	      						
-	      				}
-	      				singleRunOption = new ArrayList<String>();
-							for(int i = 0;i<runOptionList.size();i++)
-		      				{
-								runOptionChkFlag = false;
-		      					for(int k = 0;k <runContent.size();k++)
-		          				{
-		      						
-		          					if(runContent.get(k).contains(runOptionList.get(i)))
-		          					{
-		          						singleRunOption.add(runContent.get(k).split(":")[1].trim());
-		          						runOptionChkFlag = true;
-		          						break;
-		          					}						
-		          				}
-		          				if(runOptionChkFlag == false)
-		          				{
-		          				
-		          					runOptionChkFlag = false;
-		          					singleRunOption.add("");
-		          				}
-		          				
-		      				}
-		      				runOptionMap.put("run"+runCountfromProfile, singleRunOption);
-		      				runCountfromProfile++;
-	      				
-	      				
-	      				
-	      				
-	      				
-	      			 
-	      		 
-	      		
-	      	}
-		    }
-		    if(profileLoadFlag == true)
-		    {
-		    	ArrayList<String> tempList = runOptionMap.get("run1");
-		
-		    	runNumberLabel.setText("run1");
-		    	noOfRunsText.setText(tempList.get(0));
-		    	
-	  		if(!tempList.get(1).equalsIgnoreCase(""))
-		    	faulInjectionTypeCombo.setValue(tempList.get(1));;
-		    	
-			if(!tempList.get(2).equalsIgnoreCase(""))
-		    	fiRegIndex.setText(tempList.get(2));	    		
-		    	
-			if(!tempList.get(3).equalsIgnoreCase(""))
-		    	{
-		    		fiCycleLabel.setText(tempList.get(3));
-		    		fiCycleSlider.setValue(Integer.parseInt(tempList.get(3)));
-		    	}
-		    	else
-		    	{
-		    		fiCycleSlider.setValue(0);
-		    		fiCycleLabel.setText("0");
-		    	}
-	
-		    	if(!tempList.get(4).equalsIgnoreCase(""))
-			    	fiBitText.setText(tempList.get(4));	
-		    	
-			if(!tempList.get(5).equalsIgnoreCase(""))
-		    	{
-		    		fiIndexLabel.setText(tempList.get(5));
-		    		fiIndexSlider.setValue(Integer.parseInt(tempList.get(5)));
-		    	}
-		    	else
-		    	{
-		    		fiIndexSlider.setValue(0);
-		    		fiIndexLabel.setText("0");
-		    	}
-	
-		    	if(!tempList.get(6).equalsIgnoreCase(""))
-			    	randomSeed.setText(tempList.get(6));	
-		    	if(!tempList.get(7).equalsIgnoreCase(""))
-			    	timeOut.setText(tempList.get(7));	
-		    	
-		    	
-		    }
-	    
-		}catch (IOException e) {
-			// TODO Auto-generated catch block
-			 e.printStackTrace();
 		}
-	    
+
+		// set possible fault injection types
+		faulInjectionTypeCombo.setItems(FXCollections
+				.observableArrayList(Controller.configReader.getFaultType()));
+		faulInjectionTypeCombo.setPromptText("-- Select --");
+
+		// load current profile
+		File input = new File(currentFolderName + "/input.yaml");
+		InputYaml parser = new InputYaml();
+		parser.load(input);
+
+		// get all runtime options from the file
+		runtimeOptions = parser.getRuntimeOptions();
+
+		// show the first run option
+		currentRun = 0;
+		changeDisplayedRunOption();
+
 		// #SFIT
 		// makes these boxes disappear if Software Injection is selected
 		if (!Controller.isHardwareInjection) {
 			faulInjectionTypeCombo.setVisible(false);
 			faulInjectionTypeLabel.setVisible(false);
 			faulInjectionTypeAsterisk.setVisible(false);
-			
+
 			fiRegIndex.setVisible(false);
 			fiRegIndexLabel.setVisible(false);
-			
+
 			fiBitText.setVisible(false);
 			fiBitLabel.setVisible(false);
 		}
@@ -1010,7 +467,7 @@ public class FaultInjectionController implements Initializable{
 			faultInjectionCyclesLabel.setVisible(false);
 			fiCycleSlider.setVisible(false);
 			fiCycleLabel.setVisible(false);
-			
+
 			faultInjectionIndexLabel.setVisible(false);
 			fiIndexSlider.setVisible(false);
 			fiIndexLabel.setVisible(false);
