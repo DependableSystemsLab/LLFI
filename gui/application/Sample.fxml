@@ -31,6 +31,7 @@
                         <MenuItem mnemonicParsing="false" text="Close" />
                         <MenuItem mnemonicParsing="false" onAction="#onClickOpenFile" text="Open File" />
                         <MenuItem mnemonicParsing="false" text="Import" />
+                        <MenuItem mnemonicParsing="false" onAction="#onClickOpenProject" text="Import Project" />
                         <MenuItem mnemonicParsing="false" text="Exit" />
                       </items>
                     </Menu>
