@@ -47,4 +47,7 @@ gui/.classpath
 
 # test builds - gui branch
 gui/factorial/
+gui/fib/
+gui/memcpy1/
+gui/sad/
 
