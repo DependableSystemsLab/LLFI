@@ -631,6 +631,8 @@ public class InstrumentController implements Initializable {
 		// reset trace state
 		if (option.maxTrace != null) {
 			limitTraceRadio.setSelected(true);
+			//#TODO this doesnt work
+			System.out.println(option.maxTrace.intValue());
 			traceCountText.setText("" + option.maxTrace.intValue());
 		} else if (option.tracingEnabled) {
 			fullTraceRadio.setSelected(true);
@@ -808,9 +810,11 @@ public class InstrumentController implements Initializable {
 		File folder = new File(Controller.currentProgramFolder);
 		for (File file : folder.listFiles()) {
 			fileName = file.getName();
-			if (fileName.equals("llfi.stat.totalindex.txt") || fileName.equals("llfi.stat.graph.dot")) {
+			if (fileName.equals("llfi.stat.totalindex.txt")
+					|| fileName.equals("llfi.stat.graph.dot")
+					|| fileName.equals("llfi.stat.prof.txt")) {
 				file.delete();
-			} 
+			}
 		}
 	}
 	

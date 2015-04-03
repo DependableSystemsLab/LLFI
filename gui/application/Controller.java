@@ -1,36 +1,27 @@
 package application;
 
-
 import java.util.List;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.glass.ui.View;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -44,20 +35,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Slider;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableCell;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.stage.FileChooser;
@@ -66,7 +53,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import application.InstrumentController;
 import javafx.stage.Stage;
-import javafx.event.ActionEvent;  
 import javafx.event.EventHandler;
 public class Controller implements Initializable {
 
@@ -75,7 +61,7 @@ public class Controller implements Initializable {
 	@FXML
 	private TextArea programTextArea;
 	@FXML
-	private ListView fileList;
+	private ListView<String> fileList;
 	@FXML
 	ObservableList<String> items;
 	@FXML
@@ -161,25 +147,23 @@ public class Controller implements Initializable {
 	@FXML
 	private ProgressIndicator progressIndicator;
 	XYChart.Series<Integer, String> series = new XYChart.Series<Integer,String>();
+	/**
+	 * Program folder as well as the .ll filename.
+	 */
 	static public String currentProgramFolder;
 	static public String llfibuildPath=null;
 	static public String zgrviewerPath =null;
 	static public String psViewer=null;
-	static public String currentFileName;
 	public boolean checkFlag = true;
 	public boolean indexStates =false;
 	static public List<String> console;
-	static public File currentFilePath=null;
-
 
 	public ArrayList<String> fileNameLists = new ArrayList<>();
-	public ArrayList<String> CompiledllFileNameLists = new ArrayList<>();
 	public ArrayList<String> registerList = new ArrayList<>();
 	private ArrayList<String> resultFileNameLists;
 	private ArrayList<String> resultErrorFileNameLists;
 	private ArrayList<String> resultOutputFileNameLists;
 	private ArrayList<String> resultList;
-	private ArrayList<String> TraceFileNameLists;
 	private ArrayList<String> TraceDiffReportFileNameLists;
 
 	private String indexBound;
@@ -208,9 +192,7 @@ public class Controller implements Initializable {
 	String result ="";
 	String sdc = "";
 	Boolean trace = false;
-	private List<List<String>> FileLists;
 	private List<String> fileContent;
-	private int fileCount = 0;
 	private boolean errorFlag;
 	private LinkedHashMap<String, List<String>> fileSelecMap = new LinkedHashMap<>();
 	static public List<String> errorString = new ArrayList<String>();
@@ -1271,149 +1253,88 @@ public class Controller implements Initializable {
 
 	@FXML
 	private void onClickCompileToIr(ActionEvent event){
-		Parent root;	
-		try{
-			boolean flag =false;
+		Parent root;
+		try {
 			console = new ArrayList<String>();
 			tabBottom.getSelectionModel().select(profilingTab);
-			String cmd = "echo $llfibuild";
-			//System.out.println(System.getenv());
+
 			// Delete the old .ll file
-			ProcessBuilder deleteCmd = new  ProcessBuilder("/bin/tcsh","-c","rm " + currentProgramFolder+"/"+currentFileName+".ll");
-			Process delete = deleteCmd.start();
-			delete.waitFor();
-			delete.destroy();
-			
-			if (currentFileName.equals("Makefile"))
-			{
-				String command = "make";
-				File folder = currentFilePath;
-				try {
-					Process p = Runtime.getRuntime().exec(command,null,folder);;
-					BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-					errorTextArea.clear();
-					errorString = new ArrayList<>();
-					while ((line = in1.readLine()) != null) {
-						console.add(line+"\n");
-						errorString.add(line+"\n");
-					}
-					in1.close();
-					p.waitFor();
+			ProcessBuilder deleteCmd = new ProcessBuilder("/bin/tcsh", "-c", "rm " + currentProgramFolder + "/" + currentProgramFolder + ".ll");
+			deleteCmd.start().waitFor();
 
+			//TODO change how error is handled
+			String command = "make";
+			console.add("$ " + command + "\n");
+			Process p = Runtime.getRuntime().exec(command, null, new File(currentProgramFolder));
 
-					p.destroy();
-				}
-				catch (Exception e)
-				{
-					System.out.println(e);
-				}
+			BufferedReader in1 = new BufferedReader(new InputStreamReader(
+					p.getErrorStream()));
+			errorTextArea.clear();
+			errorString = new ArrayList<>();
+			while ((line = in1.readLine()) != null) {
+				console.add(line);
+				errorString.add(line);
 			}
-			else
-			{
-				String command = llfibuildPath+"tools/compiletoIR --debug --readable -o "+currentProgramFolder+"/"+currentProgramFolder+".ll  "+currentProgramFolder+"/"+currentFileName;
-				console.add("$ "+command+"\n");
-				Process p = Runtime.getRuntime().exec(command);
-				BufferedReader in1 = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-				errorTextArea.clear();
-				errorString = new ArrayList<>();
-				while ((line = in1.readLine()) != null) {
-					console.add(line+"\n");
-					errorString.add(line+"\n");
+			in1.close();
+			p.waitFor();
 
-				}
-				in1.close();
-				p.waitFor();
-
-				p.destroy();
-			}
-
-			if(errorString.size()==0)
-			{
+			if(errorString.isEmpty()) {
+				// display success
 				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/compileToIR.fxml"));
 				Stage stage = new Stage();
 				stage.setTitle("Compiling To IR Result");
 				stage.setScene(new Scene(root, 500, 150));
 				stage.show();
 
-
-
 				// Clear fileContent
 				fileContent = new ArrayList<>();
 				String line;
-				FileReader inputFile = new FileReader(currentProgramFolder+"/"+currentProgramFolder+".ll");
-				BufferedReader bufferReader = new BufferedReader(inputFile);
-				//Read file contents
-				while ((line = bufferReader.readLine()) != null)   {
-					fileContent.add(line+"\n");      
-				}
 				
-				//Clear the Text area
-				programTextArea.clear();
-				// Write file contents to Text Area
-				for(int i = 0 ; i < fileContent.size(); i++)
-				{
+				FileReader inputFile = new FileReader(currentProgramFolder + "/" + currentProgramFolder + ".ll");
+				BufferedReader bufferReader = new BufferedReader(inputFile);
+				
+				// Read file contents
+				while ((line = bufferReader.readLine()) != null) {
+					fileContent.add(line + "\n");
+				}
+				bufferReader.close();
 
+				// Clear the Text area
+				programTextArea.clear();
+				
+				// Write file contents to Text Area
+				for (int i = 0; i < fileContent.size(); i++) {
 					programTextArea.appendText(fileContent.get(i));
 				}
-				File file = new File(currentProgramFolder+"/"+currentProgramFolder+".ll");
-				Path path = file.toPath();
-				String fileName = path.getFileName().toString();
-				for(int n =0;n<fileNameLists.size();n++)
-				{
-					if(fileNameLists.get(n).equalsIgnoreCase(fileName))
-					{
-						fileNameLists.remove(n);
-						fileNameLists.add(fileName);
-						flag =true;
-						break;
-					}
-					else
-					{
-
-					}
-				}
-				if(!flag)
-				{
+				
+				// add the generated .ll file if it doesnt exist already
+				File file = new File(currentProgramFolder + "/"
+						+ currentProgramFolder + ".ll");
+				String fileName = file.getName();
+				if (!fileSelecMap.containsKey(fileName)) {
 					fileNameLists.add(fileName);
-					flag = false;
+					fileList.setItems(FXCollections
+							.observableArrayList(fileNameLists));
+					fileSelecMap.put(fileName, fileContent);
 				}
-				items =FXCollections.observableArrayList (fileNameLists);
-				fileList.setItems(items);
-				fileSelecMap.put(fileName, fileContent);
-				//Add file name to compiledfileNameList
-				CompiledllFileNameLists.add(currentProgramFolder+".c");
+				
 				instrumentButton.setDisable(false);
 				profilingButton.setDisable(true);
 				runtimeButton.setDisable(true);
 				injectfaultButton.setDisable(true);
 				tracegraphButton.setDisable(true);
 				showTraceOutputText.setVisible(false);
-
-
-			}
-			else
-			{
+			} else {
+				// show error
 				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
 				Stage stage = new Stage();
 				stage.setTitle("Error");
 				stage.setScene(new Scene(root, 450, 100));
 				stage.show();
 			}
-
-
-
-
-
-			// System.out.println(line1);
-
-		}
-		catch(IOException e){
-			e.printStackTrace();  
-			System.out.println(e);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException | InterruptedException e) {
+			System.err.println("ERROR: failed to generate .ll file");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 
 		// #SFIT
@@ -1425,7 +1346,7 @@ public class Controller implements Initializable {
 		ProcessBuilder softwareFailureAutoScan = new ProcessBuilder("/bin/tcsh", "-c", cmd);
 		Process p;
 		try {
-			p = softwareFailureAutoScan.start();
+			p = softwareFailureAutoScan.redirectErrorStream(true).start();
 			p.waitFor();
 			
 			// route the output of the process to the GUI's console
@@ -1440,6 +1361,7 @@ public class Controller implements Initializable {
 			e.printStackTrace();
 		} 
 	}
+	
 	@FXML
 	private void onClickOkHandler(ActionEvent event){
 
@@ -1448,6 +1370,7 @@ public class Controller implements Initializable {
 		Stage stage  = (Stage) source.getScene().getWindow();
 		stage.close();
 	}
+	
 	@FXML
 	private void onClickInstrument(ActionEvent event) {
 		Parent root;
@@ -1523,72 +1446,35 @@ public class Controller implements Initializable {
 	}
 	@FXML
 	private void onClickOpenFile(ActionEvent event) {
-		Parent root;
-		fileCount=0;
 		Stage stage = new Stage();
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Resource File");
 		configureFileChooser(fileChooser); 
-		List<File> list = fileChooser.showOpenMultipleDialog(stage);
-		if (list != null) {
-			for (File file : list) {
-				openFile(file);
-			}
+		File f = fileChooser.showOpenDialog(stage);
+		if (f != null) {
+			// clear previous file list
+			fileNameLists.clear();
+			fileSelecMap.clear();
+			
+			openFile(f);
 		}
-
-
 	}
 
 	@FXML
 	private void onClickOpenProject(ActionEvent event) {
-		Parent root;
-		fileCount=0;
 		Stage stage = new Stage();
 		DirectoryChooser dirChooser = new DirectoryChooser();
 		dirChooser.setTitle("Open Project Folder");
 		File folder = dirChooser.showDialog(stage);
 		if (folder != null) {
-			System.out.println(folder);
-			currentFilePath	= folder.getAbsoluteFile();
-			//currentProgramFolder = currentFilePath.getAbsolutePath();
-			System.out.println("currentProgramFolder: " + folder);
-	
-			String command = llfibuildPath+"tools/GenerateMakefile --readable --all -o " + folder + "/" + folder.getName() + ".ll";			
-			try {			
-				System.out.println(command);				
-				Process p = Runtime.getRuntime().exec(command,null,folder);;
-				p.waitFor();
-				p.destroy();
-			}
-			catch(Exception e)
-			{
-				System.out.println(e);
-			}
-			File[] list = folder.listFiles();
+			// clear previous file list
+			fileNameLists.clear();
+			fileSelecMap.clear();
 
-			for (File file : list) {
-			    String ext = getFileExtension(file);
-			    System.out.println(file.getName());
-			    if (file.getName().equals("Makefile"))
-			    {			
-				openFile(file);
-				System.out.println("Absolute Path: " + file.getAbsolutePath());
-			    }
-			    else if (ext.equals("c") || ext.equals("cpp") ) {
-				openFile(file);
-			    }
-			}
+			openDirectory(folder);
 		}
-
-
 	}
 
-	private static String getFileExtension(File file) {
-		String fileName = file.getName();
-		if(fileName.lastIndexOf(".") != -1 && fileName.lastIndexOf(".") != 0)
-		return fileName.substring(fileName.lastIndexOf(".")+1);
-		else return "";
-    	}
 
 	private static void configureFileChooser(
 			final FileChooser fileChooser) {      
@@ -1600,9 +1486,15 @@ public class Controller implements Initializable {
 				new FileChooser.ExtensionFilter("ll", "*.ll")
 				);
 	}
+	
+	/**
+	 * Delete a file or a directory (if it is a directory, the delete runs recursively)
+	 * @param file - file or directory to be deleted
+	 * @throws IOException
+	 */
 	public static void delete(File file)
 			throws IOException{
-
+		
 		if(file.isDirectory()){
 
 			//directory is empty, then delete it
@@ -1637,176 +1529,177 @@ public class Controller implements Initializable {
 
 		}
 	}
+	
+	
+	private void addDirectory(File dir) throws IOException {
+		// change currentProgramFolder to reflect a change in folder
+		currentProgramFolder = dir.getName();
+		// generate the makefile for the directory
+		generateMakeFile(dir);
+		
+		// load all the relevant (Makefile, .c, .cpp) files into the gui and
+		// display them
+		for (File f : dir.listFiles()) {
+			String fileName = f.getName();
+			if (fileName.equals("Makefile") || fileName.endsWith(".c") || fileName.endsWith(".cpp") || fileName.endsWith(".ll")) {
+				fileSelecMap.put(fileName, parseFile(f));
+				fileNameLists.add(fileName);
+			}
+		}
+		fileList.setItems(FXCollections.observableArrayList(fileNameLists));
+
+		// display the Makefile
+		selectFile("Makefile");
+	}
+	
+	/**
+	 * Opens a directory/project folder
+	 * @param directory
+	 */
+	private void openDirectory(File directory) {
+		try {
+			// check if the directory to be copied in is already in the working directory
+			File dir = new File(directory.getName());
+			if (!dir.getCanonicalPath().equals(directory.getCanonicalPath())) {
+				// delete old directory if exist and not the same as the new one
+				if (dir.exists()) {
+					delete(dir);
+				}
+				// copy
+				ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c",
+						"cp -r '" + directory.getAbsolutePath() + "' '"
+								+ directory.getName() + "'");
+				p.start().waitFor();
+			}
+
+			addDirectory(dir);
+		} catch (IOException | InterruptedException e) {
+			System.err.println("ERROR: cannot open/read/move file!");
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Opens a single file 
+	 * @param file
+	 */
 	private void openFile(File file) {
 		try{
+			String fileName = file.getName();
+			String fileNameNoExtension = fileName.split("\\.")[0];
+			String newFilePath = fileNameNoExtension + "/" + fileName;
 			
-			boolean flag =false;
-			fileContent = new ArrayList<>();
-			Path path = file.toPath().toAbsolutePath();
-			String fileInfo =path.toString(); 
-			FileReader inputFile = new FileReader(fileInfo);
-			BufferedReader bufferReader = new BufferedReader(inputFile);
-
-			String fileName = path.getFileName().toString();
-			for(int n =0;n<fileNameLists.size();n++)
-			{
-				if(fileNameLists.get(n).equalsIgnoreCase(fileName))
-				{
-					fileNameLists.remove(n);
-					fileNameLists.add(fileName);
-					flag =true;
-					break;
-				}
-				else
-				{
-
-				}
-			}
-			if(!flag)
-			{
-				fileNameLists.add(fileName);
-				flag = false;
-			}
-
-			items =FXCollections.observableArrayList (fileNameLists);
-			fileList.setItems(items);
-			//Variable to hold the one line data
-			String line;
+			// check if the file to be copied in is already in the working directory
+			File dirFile = new File(newFilePath);
+			File dir = new File(fileNameNoExtension);
+			System.out.println(fileNameNoExtension);
+			System.out.println(fileName);
 			
-			//Variable to hold the folder name.
-			String folderName;
-			boolean Makefile = false;	
+			System.out.println(newFilePath);
+			System.out.println(file.getAbsolutePath());
 			
-			if (fileName.equals("Makefile"))
-			{
-				folderName = file.getAbsolutePath().split("Makefile")[0]; 
-				Makefile = true;
-			}
-			else
-			{
-				folderName = fileName.split("\\.")[0];
-			}
-
-			File  theDirectory = new File(folderName);
-			if(theDirectory.exists() && !Makefile)
-			{
-				delete(theDirectory);
-
-			}
-
-			new File(folderName).mkdir();
-			// programTextArea.clear();
-			// Read file line by line and print on the console
-
-			while ((line = bufferReader.readLine()) != null)   {
-				fileContent.add(line+"\n");
-			}
-			File actualFile = new File(folderName+"/"+fileName);
-			BufferedWriter outputFile = new BufferedWriter(new FileWriter(actualFile));
-			for(int i = 0 ; i < fileContent.size(); i++)
-			{
-				outputFile.write(fileContent.get(i));
-			}
-			outputFile.close();
-			fileSelecMap.put(fileName, fileContent);
-			if(fileCount == 0)
-			{
-				data = FXCollections.observableArrayList();
-				profilingTable.setItems(data);
-				data1=FXCollections.observableArrayList();
-				resultTable.setItems(data1);
-				resultSummary.getData().clear();
-				//resultSummary.setVisible(false);
-				/*series = new XYChart.Series<Integer,String>();
-
-        		resultSummary.getData().add(series);*/
-				currentProgramFolder = folderName;
-				//fileList.sgetSelectionModel().select(currentFileName);
-				currentFileName = fileName;
-
-				for(int i = 0 ; i < fileContent.size(); i++)
-				{
-					// ProgramTextArea displays the files contents in GUI text console. 
-
-					programTextArea.appendText(fileContent.get(i));
+			System.out.println(dirFile.getAbsolutePath());
+			// move in the file if it is in another location
+			if (!dirFile.getCanonicalPath().equals(file.getCanonicalPath())) {
+				// delete old directory if exist and not the same as the new one
+				if (dir.exists()) {
+					delete(dir);
 				}
-				if(fileName.equals("Makefile") || fileName.split("\\.")[1].equalsIgnoreCase("ll"))
-				{
-
-					compiletoIrButton.setDisable(true);
-					instrumentButton.setDisable(false);
-					profilingButton.setDisable(true);
-					runtimeButton.setDisable(true);
-					injectfaultButton.setDisable(true);
-
-				}
-				else
-				{
-
-					compiletoIrButton.setDisable(false);
-					instrumentButton.setDisable(true);
-					profilingButton.setDisable(true);
-					runtimeButton.setDisable(true);
-					injectfaultButton.setDisable(true);
-				}
-
+				// mkdir
+				ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c",
+						"mkdir " + fileNameNoExtension);
+				p.start().waitFor();
+				// copy
+				p = new ProcessBuilder("/bin/tcsh", "-c",
+						"cp -r '" + file.getAbsolutePath() + "' '"
+								+ newFilePath + "'");
+				p.start().waitFor();
 			}
-
-			fileCount++;
-			UploadLabel.setVisible(false);
-			// compiletoIrButton.setDisable(false);
-			bufferReader.close();
-		}catch(IOException e){
-			System.out.println("Error while reading file line by line:" 
-					+ e.getMessage());                      
-		}    
+			
+			addDirectory(dir);
+		} catch (IOException | InterruptedException e) {
+			System.err.println("ERROR: cannot open/read/move file!");
+			e.printStackTrace();
+		}
 	}
+	
+	/**
+	 * Generates the Makefile in the specified directory.
+	 * @param directory
+	 */
+	private void generateMakeFile(File directory) {
+		String command = llfibuildPath
+				+ "tools/GenerateMakefile --readable --all -o "
+				+ currentProgramFolder + ".ll";
+		try {
+			System.out.println(command);
+			Process p = Runtime.getRuntime().exec(command, null, directory);
+			p.waitFor();
+		} catch (Exception e) {
+			System.err.println("ERROR: unable to generate makefile!");
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Opens a file f and loads it into a list of strings
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
+	private List<String> parseFile(File f) throws IOException {
+		String line;
+		ArrayList<String> fileContent = new ArrayList<>();
+		BufferedReader bufferReader = new BufferedReader(new FileReader(f));
+		while ((line = bufferReader.readLine()) != null) {
+			fileContent.add(line + "\n");
+		}
+		bufferReader.close();
+		return fileContent;
+	}
+	
 	@FXML
 	private void onFileSelection(MouseEvent event){
-		
+		selectFile(fileList.getSelectionModel().getSelectedItem());
+	}
+	
+	private void selectFile(String selectedFile) {
+		// reset displayed file
 		fileContent = new ArrayList<>();
+
+		// reset table and chart
 		data = FXCollections.observableArrayList();
 		profilingTable.setItems(data);
-		data1=FXCollections.observableArrayList();
+		data1 = FXCollections.observableArrayList();
 		resultTable.setItems(data1);
 		resultSummary.getData().clear();
-		//programInputText.setEditable(true);
-		//resultSummary.setVisible(false);
-		/*series = new XYChart.Series<Integer,String>();
-	resultSummary.getData().add(series);*/
-		String selectedFile = fileList.getSelectionModel().getSelectedItem().toString();
-		currentProgramFolder = selectedFile.split("\\.")[0];
-		currentFileName = selectedFile;
+
 		fileContent = fileSelecMap.get(selectedFile);
 		programTextArea.clear();
-		for(int i = 0 ; i < fileContent.size(); i++)
-		{
-
+		for (int i = 0; i < fileContent.size(); i++) {
 			programTextArea.appendText(fileContent.get(i));
 		}
 
-		if(!currentFileName.equals("Makefile") && currentFileName.split("\\.")[1].equalsIgnoreCase("ll"))
-		{
-
+		// change status of the buttons, if an .ll file is selected
+		//TODO where should this be?
+		if (selectedFile.endsWith(".ll")) {
 			compiletoIrButton.setDisable(true);
 			instrumentButton.setDisable(false);
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
-		}
-		else
-		{
-
-
+		} else {
 			compiletoIrButton.setDisable(false);
 			instrumentButton.setDisable(true);
 			profilingButton.setDisable(true);
 			runtimeButton.setDisable(true);
 			injectfaultButton.setDisable(true);
 		}
-
-
+		
+		// remove glowing 'please select file' red text
+		UploadLabel.setVisible(false);
 	}
+	
 	@FXML
 	private void onTabChange(){
 		if(faultStatus.isSelected() || faultSummaryTab.isSelected())
@@ -1848,12 +1741,6 @@ public class Controller implements Initializable {
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		try{
-			//progressBar.setVisible(false);
-			File f = new File("."); // current directory
-
-			File[] files = f.listFiles();
-			int i;
-			boolean signFalg = false;
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
 
 			p1.redirectErrorStream(true);
@@ -1897,142 +1784,6 @@ public class Controller implements Initializable {
 			pr3.waitFor();
 			pr3.destroy();
 			in3.close();
-			
-			/*for (final File fileEntry : files) {
-	    	fileContent = new ArrayList<>();
-	        if (fileEntry.isDirectory()) {
-	        	i = 0;ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();
-
-
-
-	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
-	                BufferedReader inputFile = new BufferedReader(actualFile);
-	                while ((line = inputFile.readLine()) != null)   {
-	                    fileContent.add(line+"\n");
-
-	                }
-
-	                inputFile.close();
-	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
-	                fileNameLists.add(fileEntry.getName()+".c");
-	                items =FXCollections.observableArrayList (fileNameLists);
-	                fileList.setItems(items);
-	                if(i == 0 && signFalg == false)
-		        	{
-	                	//fileList.getSelectionModel().select(0);
-	                	signFalg = true;
-	                	//System.out.println("inside if");
-		        		currentProgramFolder = fileEntry.getName();
-		        		currentFileName = fileEntry.getName()+".c";
-		        		programTextArea.clear();
-		        		for(int j = 0 ; j < fileContent.size(); j++)
-		        		{
-
-		        			programTextArea.appendText(fileContent.get(j));
-		        		}
-		        		compiletoIrButton.setDisable(false);
-		        		 instrumentButton.setDisable(true);
-		        		 profilingButton.setDisable(true);
-		        		 runtimeButton.setDisable(true);
-		        		 injectfaultButton.setDisable(true);
-		        		PProcessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();rocessBuilder p1 = new ProcessBuilder("/bin/tcsh","-c","echo $llfibuild");
-
-	    p1.redirectErrorStream(true);
-	    Process pr1 = p1.start();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pr1.getInputStream()));
-	    String line;
-	    while ((line = in.readLine()) != null) {
-
-	        llfibuildPath = line;
-	    }
-	    pr1.waitFor();
-	    pr1.destroy();
-		in.close();
-		        	}
-
-	                i++;
-
-	        } else {
-
-
-	        }
-
-	 for (final File fileEntry : files) {
-	    	fileContent = new ArrayList<>();
-	        if (fileEntry.isDirectory()) {
-	        	i = 0;
-
-
-
-	        		FileReader actualFile = new FileReader(fileEntry.getName()+"/"+fileEntry.getName()+".c");
-	                BufferedReader inputFile = new BufferedReader(actualFile);
-	                while ((line = inputFile.readLine()) != null)   {
-	                    fileContent.add(line+"\n");
-
-	                }
-
-	                inputFile.close();
-	                fileSelecMap.put(fileEntry.getName()+".c", fileContent);
-	                fileNameLists.add(fileEntry.getName()+".c");
-	                items =FXCollections.observableArrayList (fileNameLists);
-	                fileList.setItems(items);
-	                if(i == 0 && signFalg == false)
-		        	{
-	                	//fileList.getSelectionModel().select(0);
-	                	signFalg = true;
-	                	//System.out.println("inside if");
-		        		currentProgramFolder = fileEntry.getName();
-		        		currentFileName = fileEntry.getName()+".c";
-		        		programTextArea.clear();
-		        		for(int j = 0 ; j < fileContent.size(); j++)
-		        		{
-
-		        			programTextArea.appendText(fileContent.get(j));
-		        		}
-		        		compiletoIrButton.setDisable(false);
-		        		 instrumentButton.setDisable(true);
-		        		 profilingButton.setDisable(true);
-		     compiletoIrButton.setDisable(false);
-	 instrumentButton.setDisable(true);
-	 profilingButton.setDisable(true);
-	 runtimeButton.setDisable(true);
-	 injectfaultButton.setDisable(true);   		 runtimeButton.setDisable(true);
-		        		 injectfaultButton.setDisable(true);
-
-		        	}
-
-	                i++;
-
-	        } else {
-
-
-	        }
-
-	    }   }*/
 		}
 		catch(IOException e)
 		{
