@@ -20,6 +20,8 @@ add_java_src(application/ResultTable.java)
 add_java_src(application/SaveProfileController.java)
 add_java_src(application/Table.java)
 add_java_src(application/TraceController.java)
+add_java_src(application/InputYaml.java)
+add_java_src(application/ConfigReader.java)
 
 copy(application/TraceOpenError.fxml application/TraceOpenError.fxml)
 copy(application/TracingErrorDisplay.fxml application/TracingErrorDisplay.fxml)

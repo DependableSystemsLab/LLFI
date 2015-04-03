@@ -40,9 +40,10 @@ def parseArgs(args):
         usage()
 
 def startGUI():
+	lib_path = os.path.join(script_path, os.pardir, 'gui/application/lib/*')
 	class_path = os.path.join(script_path, os.pardir, 'gui')
 	execlist = [java_paths.JAVA_EXECUTABLE, '-classpath', 
-				java_paths.CMAKE_JAVA_INCLUDE_PATH+':'+class_path, 
+				java_paths.CMAKE_JAVA_INCLUDE_PATH+':'+lib_path+':'+class_path, 
 				'application.Main']
 	print(' '.join(execlist))
 	p = subprocess.Popen(execlist)
