@@ -184,8 +184,7 @@ public class Controller implements Initializable {
 	String line;
 	String subStr[];
 	String fiTypefault;
-	int index;@FXML
-	int cycle;
+
 	int regIndex;
 	int bit;
 	String status = "";
@@ -219,7 +218,8 @@ public class Controller implements Initializable {
 	 */
 	static public boolean isBatchMode = false;
 	static public List<String> selectedSoftwareFailures;
-	static public ComboBox<String> fiResultDisplay;
+	@FXML
+	private ComboBox<String> fiResultDisplay;
 	
 	static public ConfigReader configReader;
 	
@@ -1377,7 +1377,15 @@ public class Controller implements Initializable {
 		try {
 			indexStates=false;
 			tabBottom.getSelectionModel().select(profilingTab);
-			root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Instrument.fxml"));
+			
+			// load InstrumentController and get it
+			FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("application/Instrument.fxml"));
+			root = loader.load();
+			InstrumentController ic = loader.getController();
+			
+			// pass it fiResultDisplay
+			ic.initFiResultDisplay(fiResultDisplay);
+			
 			Stage stage = new Stage();
 			stage.setTitle("Instrument");
 			stage.setScene(new Scene(root, 742, 569));

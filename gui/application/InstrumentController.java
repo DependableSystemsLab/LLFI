@@ -151,6 +151,9 @@ public class InstrumentController implements Initializable {
 	private InstrumentOption previousInstrumentOption;
 	private List<RuntimeOption> previousRuntimeOption;
 	
+	// fiResultDisplay from Controller
+	private ComboBox<String> fiResultDisplay;
+	
 	@FXML
 	private void onClickGenerateYamlFile(ActionEvent event) {
 		Parent root;
@@ -240,12 +243,12 @@ public class InstrumentController implements Initializable {
 			if (Controller.isBatchMode) {
 				ObservableList<String> displayedFaultResult = FXCollections.observableArrayList(numFaultTypes);
 				displayedFaultResult.add(0, "All");
-				Controller.fiResultDisplay.setItems(displayedFaultResult);
-				Controller.fiResultDisplay.setValue("All");
+				fiResultDisplay.setItems(displayedFaultResult);
+				fiResultDisplay.setValue("All");
 				
-				Controller.fiResultDisplay.setVisible(true);
+				fiResultDisplay.setVisible(true);
 			} else {
-				Controller.fiResultDisplay.setVisible(false);
+				fiResultDisplay.setVisible(false);
 			}
 			
 			String cmd = Controller.llfibuildPath
@@ -843,4 +846,13 @@ public class InstrumentController implements Initializable {
 			resetAllOptions();
 		}
 	} 
+	
+	/**
+	 * fiResultDisplay from Controller.class needs to be passed to this controller
+	 * after initialization. See http://stackoverflow.com/questions/14187963/passing-parameters-javafx-fxml
+	 * @param fiResultDisplay
+	 */
+	public void initFiResultDisplay(ComboBox<String> fiResultDisplay) {
+		this.fiResultDisplay = fiResultDisplay;
+	}
 }
