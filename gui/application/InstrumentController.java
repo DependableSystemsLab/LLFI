@@ -160,8 +160,8 @@ public class InstrumentController implements Initializable {
 		Controller.console = new ArrayList<String>();
 		
 		try {
-			// delete old /llfi folder
-			String cmd1 = "rm -rf " + Controller.currentProgramFolder + "/llfi";
+			// delete old folders and files from last fault injection
+			String cmd1 = "rm -rf " + Controller.currentProgramFolder + "/llfi*";
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh", "-c", cmd1);
 			p1.start().waitFor();
 			
@@ -634,15 +634,17 @@ public class InstrumentController implements Initializable {
 		// reset trace state
 		if (option.maxTrace != null) {
 			limitTraceRadio.setSelected(true);
-			//#TODO this doesnt work
-			System.out.println(option.maxTrace.intValue());
-			traceCountText.setText("" + option.maxTrace.intValue());
 		} else if (option.tracingEnabled) {
 			fullTraceRadio.setSelected(true);
 		} else {
 			noTraceRadio.setSelected(true);
 		}
 		onClickTraceOption(null);
+		
+		// set trace count if exists
+		if (option.maxTrace != null) {
+			traceCountText.setText("" + option.maxTrace.intValue());
+		}
 	}
 
 	/**
@@ -809,18 +811,6 @@ public class InstrumentController implements Initializable {
 		}
 	}
 	
-	private void deletePreviousResults() {
-		File folder = new File(Controller.currentProgramFolder);
-		for (File file : folder.listFiles()) {
-			fileName = file.getName();
-			if (fileName.equals("llfi.stat.totalindex.txt")
-					|| fileName.equals("llfi.stat.graph.dot")
-					|| fileName.equals("llfi.stat.prof.txt")) {
-				file.delete();
-			}
-		}
-	}
-	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		// location of all the config files
@@ -829,9 +819,6 @@ public class InstrumentController implements Initializable {
 		selectProfileFlag = false;
 		existingInputFileFlag = false;
 		folderName = Controller.currentProgramFolder;
-		
-		// delete all certain files if reinstrumenting
-		deletePreviousResults();
 		
 		// load profile if exist (user is re-instrumenting)
 		File f = new File(Controller.currentProgramFolder + "/input.yaml");

@@ -191,7 +191,7 @@ public class Controller implements Initializable {
 	String result ="";
 	String sdc = "";
 	Boolean trace = false;
-	private List<String> fileContent;
+
 	private boolean errorFlag;
 	private LinkedHashMap<String, List<String>> fileSelecMap = new LinkedHashMap<>();
 	static public List<String> errorString = new ArrayList<String>();
@@ -352,28 +352,10 @@ public class Controller implements Initializable {
 					injectfaultButton.setDisable(true);
 			}
 			
-			//Display index file in Text area
-			//Clear the Text area
-			programTextArea.clear();
-			// Clear fileContent
-			fileContent = new ArrayList<>();
-			FileReader indexFile = new FileReader(currentProgramFolder + "/" + currentProgramFolder + "-llfi_displayIndex.ll");
-			bufferReader = new BufferedReader(indexFile);
-			//Read file contents
-			while ((line = bufferReader.readLine()) != null)   {
-				fileContent.add(line+"\n");      
-			}
-
-			// Write file contents to Text Area
-			for(int i = 0 ; i < fileContent.size(); i++)
-			{
-
-				programTextArea.appendText(fileContent.get(i));
-			}
-
-
-
-
+			// Display index file in Text area
+			String fileName = currentProgramFolder + "-llfi_displayIndex.ll";
+			importFile(fileName);
+			setProgramTextArea(fileName);
 		}
 		catch(IOException e){
 			e.printStackTrace();  
@@ -383,8 +365,27 @@ public class Controller implements Initializable {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
-
-
+	}
+	
+	private void importFile(String fileName) throws IOException {
+		// parses file and put it into the map
+		File f = new File(currentProgramFolder + "/" + fileName);
+		fileSelecMap.put(fileName, parseFile(f));
+		
+		// add the file to the list and display if it doesn't exist
+		if (!fileSelecMap.containsKey(fileName)) {
+			fileNameLists.add(fileName);
+			
+			fileList.setItems(FXCollections.observableArrayList(fileNameLists));
+		}
+	}
+	
+	private void setProgramTextArea(String fileName) {
+		List<String> text = fileSelecMap.get(fileName);
+		programTextArea.clear();
+		for (String s : text) {
+			programTextArea.appendText(s);
+		}
 	}
 
 	@FXML
@@ -1286,37 +1287,10 @@ public class Controller implements Initializable {
 				stage.setScene(new Scene(root, 500, 150));
 				stage.show();
 
-				// Clear fileContent
-				fileContent = new ArrayList<>();
-				String line;
-				
-				FileReader inputFile = new FileReader(currentProgramFolder + "/" + currentProgramFolder + ".ll");
-				BufferedReader bufferReader = new BufferedReader(inputFile);
-				
-				// Read file contents
-				while ((line = bufferReader.readLine()) != null) {
-					fileContent.add(line + "\n");
-				}
-				bufferReader.close();
-
-				// Clear the Text area
-				programTextArea.clear();
-				
-				// Write file contents to Text Area
-				for (int i = 0; i < fileContent.size(); i++) {
-					programTextArea.appendText(fileContent.get(i));
-				}
-				
-				// add the generated .ll file if it doesnt exist already
-				File file = new File(currentProgramFolder + "/"
-						+ currentProgramFolder + ".ll");
-				String fileName = file.getName();
-				if (!fileSelecMap.containsKey(fileName)) {
-					fileNameLists.add(fileName);
-					fileList.setItems(FXCollections
-							.observableArrayList(fileNameLists));
-					fileSelecMap.put(fileName, fileContent);
-				}
+				// import .ll file and display it
+				String fileName = currentProgramFolder + ".ll";
+				importFile(fileName);
+				setProgramTextArea(fileName);
 				
 				instrumentButton.setDisable(false);
 				profilingButton.setDisable(true);
@@ -1550,11 +1524,9 @@ public class Controller implements Initializable {
 		for (File f : dir.listFiles()) {
 			String fileName = f.getName();
 			if (fileName.equals("Makefile") || fileName.endsWith(".c") || fileName.endsWith(".cpp") || fileName.endsWith(".ll")) {
-				fileSelecMap.put(fileName, parseFile(f));
-				fileNameLists.add(fileName);
+				importFile(fileName);
 			}
 		}
-		fileList.setItems(FXCollections.observableArrayList(fileNameLists));
 
 		// display the Makefile
 		selectFile("Makefile");
@@ -1600,13 +1572,7 @@ public class Controller implements Initializable {
 			// check if the file to be copied in is already in the working directory
 			File dirFile = new File(newFilePath);
 			File dir = new File(fileNameNoExtension);
-			System.out.println(fileNameNoExtension);
-			System.out.println(fileName);
 			
-			System.out.println(newFilePath);
-			System.out.println(file.getAbsolutePath());
-			
-			System.out.println(dirFile.getAbsolutePath());
 			// move in the file if it is in another location
 			if (!dirFile.getCanonicalPath().equals(file.getCanonicalPath())) {
 				// delete old directory if exist and not the same as the new one
@@ -1672,9 +1638,6 @@ public class Controller implements Initializable {
 	}
 	
 	private void selectFile(String selectedFile) {
-		// reset displayed file
-		fileContent = new ArrayList<>();
-
 		// reset table and chart
 		data = FXCollections.observableArrayList();
 		profilingTable.setItems(data);
@@ -1682,11 +1645,7 @@ public class Controller implements Initializable {
 		resultTable.setItems(data1);
 		resultSummary.getData().clear();
 
-		fileContent = fileSelecMap.get(selectedFile);
-		programTextArea.clear();
-		for (int i = 0; i < fileContent.size(); i++) {
-			programTextArea.appendText(fileContent.get(i));
-		}
+		setProgramTextArea(selectedFile);
 
 		// change status of the buttons, if an .ll file is selected
 		//TODO where should this be?
