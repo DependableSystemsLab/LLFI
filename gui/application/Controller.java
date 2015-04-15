@@ -156,7 +156,7 @@ public class Controller implements Initializable {
 	static public String psViewer=null;
 	public boolean checkFlag = true;
 	public boolean indexStates =false;
-	static public List<String> console;
+	static public List<String> console = new ArrayList<String>();
 
 	public ArrayList<String> fileNameLists = new ArrayList<>();
 	public ArrayList<String> registerList = new ArrayList<>();
@@ -368,16 +368,16 @@ public class Controller implements Initializable {
 	}
 	
 	private void importFile(String fileName) throws IOException {
-		// parses file and put it into the map
-		File f = new File(currentProgramFolder + "/" + fileName);
-		fileSelecMap.put(fileName, parseFile(f));
-		
 		// add the file to the list and display if it doesn't exist
 		if (!fileSelecMap.containsKey(fileName)) {
 			fileNameLists.add(fileName);
 			
 			fileList.setItems(FXCollections.observableArrayList(fileNameLists));
 		}
+		
+		// parses file and put it into the map
+		File f = new File(currentProgramFolder + "/" + fileName);
+		fileSelecMap.put(fileName, parseFile(f));
 	}
 	
 	private void setProgramTextArea(String fileName) {
@@ -1256,28 +1256,36 @@ public class Controller implements Initializable {
 	private void onClickCompileToIr(ActionEvent event){
 		Parent root;
 		try {
-			console = new ArrayList<String>();
+			// clear log tabs
+			console.clear();
+			errorString.clear();
+			
+			// change tab
 			tabBottom.getSelectionModel().select(profilingTab);
 
 			// Delete the old .ll file
 			ProcessBuilder deleteCmd = new ProcessBuilder("/bin/tcsh", "-c", "rm " + currentProgramFolder + "/" + currentProgramFolder + ".ll");
 			deleteCmd.start().waitFor();
 
-			//TODO change how error is handled
+			// call make
 			String command = "make";
-			console.add("$ " + command + "\n");
+			console.add("./" + currentProgramFolder + "$ " + command + "\n");
 			Process p = Runtime.getRuntime().exec(command, null, new File(currentProgramFolder));
+			p.waitFor();
 
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(
-					p.getErrorStream()));
-			errorTextArea.clear();
-			errorString = new ArrayList<>();
-			while ((line = in1.readLine()) != null) {
-				console.add(line);
+			// get error messages
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			while ((line = in.readLine()) != null) {
 				errorString.add(line);
 			}
-			in1.close();
-			p.waitFor();
+			in.close();
+			
+			// get log messages
+			in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((line = in.readLine()) != null) {
+				console.add(line);
+			}
+			in.close();
 
 			if(errorString.isEmpty()) {
 				// display success
@@ -1305,6 +1313,7 @@ public class Controller implements Initializable {
 				stage.setTitle("Error");
 				stage.setScene(new Scene(root, 450, 100));
 				stage.show();
+				return;
 			}
 		} catch (IOException | InterruptedException e) {
 			System.err.println("ERROR: failed to generate .ll file");
@@ -1324,7 +1333,7 @@ public class Controller implements Initializable {
 			p.waitFor();
 			
 			// route the output of the process to the GUI's console
-			console.add("\n$ " + cmd);
+			console.add("\n$ " + cmd + "\n");
 			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			while ((line = in.readLine()) != null) {
 				console.add(line);
@@ -1606,7 +1615,7 @@ public class Controller implements Initializable {
 				+ "tools/GenerateMakefile --readable --all -o "
 				+ currentProgramFolder + ".ll";
 		try {
-			System.out.println(command);
+			console.add("./" + currentProgramFolder + "$ " + command + "\n");
 			Process p = Runtime.getRuntime().exec(command, null, directory);
 			p.waitFor();
 		} catch (Exception e) {
@@ -1634,7 +1643,10 @@ public class Controller implements Initializable {
 	
 	@FXML
 	private void onFileSelection(MouseEvent event){
-		selectFile(fileList.getSelectionModel().getSelectedItem());
+		String selectedFile = fileList.getSelectionModel().getSelectedItem();
+		if (selectedFile != null) {
+			selectFile(fileList.getSelectionModel().getSelectedItem());
+		}
 	}
 	
 	private void selectFile(String selectedFile) {
@@ -1668,42 +1680,25 @@ public class Controller implements Initializable {
 	}
 	
 	@FXML
-	private void onTabChange(){
-		if(faultStatus.isSelected() || faultSummaryTab.isSelected())
-		{
+	private void onTabChange() {
+		if (faultStatus.isSelected() || faultSummaryTab.isSelected()) {
 			generateInjectionResult(false);
-		}
-		else if(errorTab.isSelected())
-		{
+		} else if (errorTab.isSelected()) {
 			errorTextArea.clear();
-
-			if(errorString.size()>0)
-			{
-				for(int i = 0; i < errorString.size();i++){
-					//System.out.println("TAB -"+errorString.get(i));
-					errorTextArea.appendText(errorString.get(i)+"\n");
+			if (errorString.size() > 0) {
+				for (int i = 0; i < errorString.size(); i++) {
+					errorTextArea.appendText(errorString.get(i) + "\n");
 				}
 			}
-		}
-		else if(consoleTab.isSelected())
-		{
+		} else if (consoleTab.isSelected()) {
 			consoleTextArea.clear();
-			if(console.size()>0)
-			{
-				for(int i = 0; i < console.size();i++){
-					//System.out.println("TAB -"+errorString.get(i));
-					consoleTextArea.appendText(console.get(i)+"\n");
+			if (console.size() > 0) {
+				for (int i = 0; i < console.size(); i++) {
+					consoleTextArea.appendText(console.get(i) + "\n");
 				}
 			}
 		}
-
-
-
-
-
 	}
-
-
 
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
