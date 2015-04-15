@@ -3,10 +3,12 @@ package application;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -17,7 +19,6 @@ import java.util.regex.Pattern;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -178,7 +179,7 @@ public class Controller implements Initializable {
 	public int crashedCount = 0;
 	public int hangedCount = 0;
 	public int sdcCount = 0;
-	FileReader inputFile;
+
 	FileReader errorFile;
 	String str;
 	String line;
@@ -229,20 +230,14 @@ public class Controller implements Initializable {
 	
 	@FXML
 	private void onClickProfiling(ActionEvent event){
-		Parent root;
-		FileReader inputFile;
-		ProcessBuilder p;
-		errorFlag = false;
 		try{
+			errorFlag = false;
 			tabBottom.getSelectionModel().select(profilingTab);
 
-			console = new ArrayList<String>();
-
+			console.clear();
+			errorString.clear();
 
 			inputString = programInputText.getText();
-			//programInputText.setEditable(false);
-			errorString = new ArrayList<>();
-			//System.out.println("inputString;"+inputString);
 			
 			// #SFIT
 			String execName;
@@ -254,34 +249,33 @@ public class Controller implements Initializable {
 				execName = "bin/batchProfile " + currentProgramFolder + "/" + currentProgramFolder
 								+ ".ll " + inputString;
 			}
+			
+			// delete the old llfi.stat.prof.txt
+			Files.deleteIfExists(new File(currentProgramFolder + "/llfi.stat.prof.txt").toPath());
 
-			p = new ProcessBuilder("/bin/tcsh","-c",llfibuildPath + execName);
-			console.add("$ "+llfibuildPath + execName);
+			console.add("$ "+ llfibuildPath + execName + "\n");
+			Process p = new ProcessBuilder("/bin/tcsh","-c", llfibuildPath + execName).redirectErrorStream(true).start();
+			p.waitFor();
 
-			p.redirectErrorStream(true);
-			Process pr = p.start();
-			BufferedReader in1 = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-			String line1;
-			while ((line1 = in1.readLine()) != null) {
-				//System.out.printl
-				console.add(line1);
-				errorString.add(line1+"\n");
-				if(line1.contains("error")||line1.contains("Error")||line1.contains("ERROR"))
-					errorFlag= true;
-
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				console.add(line);
+				errorString.add(line);
+				if (line.contains("error") || line.contains("Error") || line.contains("ERROR"))
+					errorFlag = true;
 			}
-			pr.waitFor();
-			in1.close();
+			in.close();
 			
 			// gets the number of index
-			inputFile = new FileReader(currentProgramFolder
+			FileReader inputFile = new FileReader(currentProgramFolder
 					+ "/llfi.stat.totalindex.txt");
-			BufferedReader bufferReader = new BufferedReader(inputFile);
-			String line;
-			while ((line = bufferReader.readLine()) != null) {
+			in = new BufferedReader(inputFile);
+
+			while ((line = in.readLine()) != null) {
 				indexBound = line.split("=")[1];
 			}
-			bufferReader.close();
+			in.close();
 
 			// #SFIT
 			// if we are doing multiple software failure injection, we have to 
@@ -302,12 +296,12 @@ public class Controller implements Initializable {
 					inputFile = new FileReader(currentProgramFolder + "/llfi-"
 							+ selectedSoftwareFailures.get(i) + "/llfi.stat.prof.txt");
 				}
-				bufferReader = new BufferedReader(inputFile);
-				while ((line = bufferReader.readLine()) != null) {
+				in = new BufferedReader(inputFile);
+				while ((line = in.readLine()) != null) {
 					if (line.contains("="))
 						cycleBound = line.split("=")[1];
 				}
-				bufferReader.close();
+				in.close();
 				
 				profileResult.add(new Table(failureName, Integer.parseInt(indexBound), 
 						Integer.parseInt(cycleBound)));
@@ -321,23 +315,20 @@ public class Controller implements Initializable {
 			
 			profilingTable.setItems(data);
 			
-			if(errorFlag == true)
+			if(errorFlag)
 			{
 				errorFlag = false;
-				Node  source = (Node)  event.getSource(); 
-				Stage stage  = (Stage) source.getScene().getWindow();
-				stage.close();
 
-				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
-				stage = new Stage();
+				Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+				Stage stage = new Stage();
 				stage.setTitle("Error");
 				stage.setScene(new Scene(root, 450, 100));
 				stage.show();
 			}
 			else
 			{
-				errorString = new ArrayList<>();
-				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Profile.fxml"));
+				errorString.clear();
+				Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("application/Profile.fxml"));
 				Stage stage = new Stage();                               
 
 				stage.setTitle("Profiling");
@@ -346,24 +337,36 @@ public class Controller implements Initializable {
 				runtimeButton.setDisable(false);
 				tracegraphButton.setDisable(true);
 				showTraceOutputText.setVisible(false);
-				if(InstrumentController.selectProfileFlag == true || InstrumentController.existingInputFileFlag ==true)
+				
+				if (InstrumentController.selectProfileFlag || InstrumentController.existingInputFileFlag) {
 					injectfaultButton.setDisable(false);
-				else
+				} else {
 					injectfaultButton.setDisable(true);
+				}
 			}
 			
 			// Display index file in Text area
 			String fileName = currentProgramFolder + "-llfi_displayIndex.ll";
 			importFile(fileName);
 			setProgramTextArea(fileName);
-		}
-		catch(IOException e){
-			e.printStackTrace();  
-			System.out.println(e);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+		} catch (FileNotFoundException e) {
+			// file not found, probably mean the user didn't enter in a command
+			errorString.add(e.getMessage());
+			errorString.add("required file not generated: did you forget to enter in a command?");
+			
+			try {
+				Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
+				Stage stage = new Stage();
+				stage.setTitle("Error");
+				stage.setScene(new Scene(root, 450, 100));
+				stage.show();
+			} catch (IOException e1) {
+				System.err.println("ERR: cannot load ErrorDisplay.fxml!");
+				e1.printStackTrace();
+			}
+		} catch (Exception e) {
+			System.err.println("ERR: profiling failed!");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 		}
 	}
 	
@@ -386,6 +389,7 @@ public class Controller implements Initializable {
 		for (String s : text) {
 			programTextArea.appendText(s);
 		}
+		programTextArea.home();
 	}
 
 	@FXML
@@ -557,7 +561,7 @@ public class Controller implements Initializable {
 					resultList = new ArrayList<String>();
 					runCount++;
 	
-					inputFile = new FileReader(folderPath + fileName);
+					FileReader inputFile = new FileReader(folderPath + fileName);
 					BufferedReader bufferReader = new BufferedReader(inputFile);
 					while ((line = bufferReader.readLine()) != null) {
 						str = line.split(":")[1];

@@ -160,8 +160,8 @@ public class InstrumentController implements Initializable {
 		Controller.console = new ArrayList<String>();
 		
 		try {
-			// delete old folders and files from last fault injection
-			String cmd1 = "rm -rf " + Controller.currentProgramFolder + "/llfi*";
+			// delete old folders and files from last fault injection excluding llfi.applicable.software.failures.txt
+			String cmd1 = "rm -rf `find ./" + Controller.currentProgramFolder + " -name 'llfi*' ! -name 'llfi.applicable.software.failures.txt'`";
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh", "-c", cmd1);
 			p1.start().waitFor();
 			
@@ -256,7 +256,7 @@ public class InstrumentController implements Initializable {
 					+ folderName + ".ll";
 			
 			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c", cmd);
-			Controller.console.add("$ " + cmd);
+			Controller.console.add("$ " + cmd + "\n");
 
 			p.redirectErrorStream(true);
 			Process pr = p.start();
