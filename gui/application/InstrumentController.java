@@ -605,11 +605,9 @@ public class InstrumentController implements Initializable {
 			// set state
 			instTypeRadio.setSelected(true);
 			
-			// set included list
-			instIncludeListView.setItems(FXCollections.observableArrayList(option.includedInstruction));
-			
 			// find what the new excluded list is
 			List<String> newExcludedList;
+			List<String> newIncludedList = new ArrayList<String>();
 			if (Controller.isHardwareInjection) {
 				newExcludedList = Controller.configReader.getInstruction();
 			} else {
@@ -619,12 +617,16 @@ public class InstrumentController implements Initializable {
 				for (String include: option.includedInstruction) {
 					if (exclude.contains(include)) {
 						newExcludedList.remove(exclude);
+						newIncludedList.add(exclude);
 						break;
 					}
 				}
 			}
 			
+			// set excluded list
 			instExcludeListView.setItems(FXCollections.observableArrayList(newExcludedList));
+			// set included list
+			instIncludeListView.setItems(FXCollections.observableArrayList(newIncludedList));
 		}
 		onSelectInstSelectRadio(null);
 		
