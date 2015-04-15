@@ -253,7 +253,7 @@ public class FaultInjectionController implements Initializable {
 	}
 	
 	private boolean isValidFiType() {
-		if (faulInjectionTypeCombo.getSelectionModel().getSelectedIndex() == 0
+		if (faulInjectionTypeCombo.getSelectionModel().isEmpty() // means nothing is selected
 				&& Controller.isHardwareInjection) {
 			return false;
 		} else {
@@ -355,7 +355,7 @@ public class FaultInjectionController implements Initializable {
 		} else {
 			// blank run options
 			noOfRunsText.setText("");
-			faulInjectionTypeCombo.setValue("--Select--");
+			faulInjectionTypeCombo.setPromptText("--Select--");
 			fiRegIndex.setText("");
 			fiRegIndex.setPromptText("null");
 			fiBitText.setText("");

@@ -96,8 +96,8 @@ public class ProgressBarController implements Initializable {
 			}
 
 			// add the log to the GUI console
-			Controller.console.add("$ " + Controller.llfibuildPath + execName);
-			Controller.errorString.add("$ " + Controller.llfibuildPath + execName);
+			Controller.console.add("$ " + Controller.llfibuildPath + execName + "\n");
+			Controller.errorString.add("$ " + Controller.llfibuildPath + execName + "\n");
 
 			try {
 				// start the fault injection script
