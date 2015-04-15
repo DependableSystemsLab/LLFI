@@ -638,7 +638,7 @@ public class Controller implements Initializable {
 							String line1;
 							String comparePath = null;
 							while ((line1 = in2.readLine()) != null) {
-								Controller.errorString.add(line1 + "\n");
+								Controller.errorString.add(line1);
 								if (line1.contains("error")
 										|| line1.contains("Error")
 										|| line1.contains("ERROR")
@@ -666,7 +666,7 @@ public class Controller implements Initializable {
 	
 								while ((line1 = in3.readLine()) != null) {
 	
-									Controller.errorString.add(line1 + "\n");
+									Controller.errorString.add(line1);
 									if (line1.contains("error")
 											|| line1.contains("Error")
 											|| line1.contains("ERROR")) {
@@ -702,7 +702,7 @@ public class Controller implements Initializable {
 									status = "Injected";
 								} else {
 									while ((line1 = in4.readLine()) != null) {
-										Controller.errorString.add(line1 + "\n");
+										Controller.errorString.add(line1);
 										if (line1.contains("error")
 												|| line1.contains("Error")
 												|| line1.contains("ERROR")) {

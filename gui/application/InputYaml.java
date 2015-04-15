@@ -129,7 +129,7 @@ public class InputYaml {
 	
 	private void writeChanges(String path, Object input) {
 		String dump = yaml.dump(input);
-		System.out.println(dump);
+		//System.out.println(dump);
 		
 		try {
 			Writer w = new BufferedWriter(new FileWriter(path, false));
