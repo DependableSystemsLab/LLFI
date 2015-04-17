@@ -25,7 +25,7 @@ run "python InstallLLFI.py -h" to see all running options/guidelines
   2. Make sure you are _not_ logged in as root
   2. Run "python InstallLLFI.py"
   3. Wait for compilation to finish
-  4. Run the GUI by executing "./LLFI-GUI"
+  4. Run the GUI by executing "./llfi-gui" under the bin/ folder
 
 About tcsh:
 
@@ -45,7 +45,7 @@ Dependencies:
   6. LLVM v3.4, built with CMake
     * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
-  7. Oracle JDK7 with JavaFX (For GUI)
+  7. Oracle JDK7 with JavaFX (For GUI) or higher
 
 Building:
   
