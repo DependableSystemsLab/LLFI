@@ -175,7 +175,6 @@ public class Controller implements Initializable {
 	/**
 	 * Flag that fault injection is complete.
 	 */
-	public int faultInjectionCompleted = 0;
 	public int crashedCount = 0;
 	public int hangedCount = 0;
 	public int sdcCount = 0;
@@ -225,7 +224,7 @@ public class Controller implements Initializable {
 	static public ConfigReader configReader;
 	
 	// making later changes to how states are kept
-	public CurrentState cs = new CurrentState(State.IMPORT_FILE);
+	public static CurrentState cs;
 	
 	
 	@FXML
@@ -334,24 +333,12 @@ public class Controller implements Initializable {
 				stage.setTitle("Profiling");
 				stage.setScene(new Scene(root, 400, 100));
 				stage.show();
-				runtimeButton.setDisable(false);
-				tracegraphButton.setDisable(true);
-				showTraceOutputText.setVisible(false);
 				
-				if (InstrumentController.selectProfileFlag || InstrumentController.existingInputFileFlag) {
-					injectfaultButton.setDisable(false);
-				} else {
-					injectfaultButton.setDisable(true);
-				}
+				cs.changeStateTo(State.PROFILING_COMPLETED);
 			}
-			
-			// Display index file in Text area
-			String fileName = currentProgramFolder + "-llfi_displayIndex.ll";
-			importFile(fileName);
-			setProgramTextArea(fileName);
 		} catch (FileNotFoundException e) {
 			// file not found, probably mean the user didn't enter in a command
-			errorString.add(e.getMessage());
+			errorString.add("\n" + e.getMessage());
 			errorString.add("required file not generated: did you forget to enter in a command?");
 			
 			try {
@@ -397,9 +384,8 @@ public class Controller implements Initializable {
 	{
 		Parent root;
 		try{
-			tabBottom.getSelectionModel().select(profilingTab);
-			faultInjectionCompleted = 1; 
-			ObservableList<ResultTable> data;
+			tabBottom.getSelectionModel().select(profilingTab); 
+			//TODO
 			
 			// read output folder(s), if exist delete them
 			final File folder = new File(currentProgramFolder+"/llfi/llfi_stat_output");
@@ -481,7 +467,7 @@ public class Controller implements Initializable {
 			// for batch mode, if the user selected all we need to loop through all the 
 			// inner folders
 			int faultFolderNum;
-			if (isBatchMode && selectedFault == "All") {
+			if (isBatchMode && "All".equals(selectedFault)) {
 				faultFolderNum = selectedSoftwareFailures.size();
 			} else {
 				faultFolderNum = 1;
@@ -496,7 +482,7 @@ public class Controller implements Initializable {
 				String diff;
 				String fault;
 				// fault name changes through each loop iteration
-				if (isBatchMode && selectedFault == "All") {
+				if (isBatchMode && "All".equals(selectedFault)) {
 					fault = selectedSoftwareFailures.get(it);
 					diff = fault + "-";
 				} else {
@@ -789,7 +775,6 @@ public class Controller implements Initializable {
 			@Override  
 			public void handle(ActionEvent event) {  
 				CheckBox cb = (CheckBox) event.getSource();  
-				TableColumn column = (TableColumn) cb.getUserData();  
 				if(cb.isSelected())
 				{
 					for (ResultTable resultTableRow : resultTable.getItems())
@@ -846,7 +831,7 @@ public class Controller implements Initializable {
 						// see if trace file exist (trace file does not exist if the fault injection
 						// caused the program to crash)
 						traceFileName = TraceDiffReportFileNameLists.get(i);
-						System.out.println(traceFileName + " " + resultTableRow.getTraceFileName());
+						// System.out.println(traceFileName + " " + resultTableRow.getTraceFileName());
 						if (resultTableRow.getTraceFileName().equals(traceFileName)) {
 							TraceUnionCmd += " './"
 									+ Controller.currentProgramFolder
@@ -936,7 +921,6 @@ public class Controller implements Initializable {
 				// Test system before opening the graph
 				String psOpenner ="";
 				boolean psError = true;
-				String psErrorMessage ="";
 				String checkExe ="";
 				String osName = System.getProperty("os.name").toLowerCase();
 				if (osName.indexOf("mac") >= 0) {
@@ -962,7 +946,7 @@ public class Controller implements Initializable {
 				if (!psError) {
 					try {
 						Runtime rt = Runtime.getRuntime();
-						Process proc = rt.exec(checkExe);
+						rt.exec(checkExe);
 						psError = false;
 					} catch (IOException e) {
 						//e.printStackTrace();  
@@ -1028,7 +1012,7 @@ public class Controller implements Initializable {
 			// for batch mode, if the user selected all we need to loop through all the 
 			// inner folders
 			int faultFolderNum;
-			if (isBatchMode && selectedFault == "All") {
+			if (isBatchMode && "All".equals(selectedFault)) {
 				faultFolderNum = selectedSoftwareFailures.size();
 			} else {
 				faultFolderNum = 1;
@@ -1041,7 +1025,7 @@ public class Controller implements Initializable {
 				String fault;
 				
 				// are we in batch mode or single?
-				if (isBatchMode && selectedFault == "All") {
+				if (isBatchMode && "All".equals(selectedFault)) {
 					fault = selectedSoftwareFailures.get(it);
 				} else {
 					fault = selectedFault;
@@ -1304,12 +1288,7 @@ public class Controller implements Initializable {
 				importFile(fileName);
 				setProgramTextArea(fileName);
 				
-				instrumentButton.setDisable(false);
-				profilingButton.setDisable(true);
-				runtimeButton.setDisable(true);
-				injectfaultButton.setDisable(true);
-				tracegraphButton.setDisable(true);
-				showTraceOutputText.setVisible(false);
+				cs.changeStateTo(State.COMPILE_COMPLETED);
 			} else {
 				// show error
 				root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));
@@ -1377,18 +1356,6 @@ public class Controller implements Initializable {
 			stage.setTitle("Instrument");
 			stage.setScene(new Scene(root, 742, 569));
 			stage.show();
-
-			//instrumentButton.setDisable(true);
-
-
-
-
-			profilingButton.setDisable(false);
-			runtimeButton.setDisable(true);
-			injectfaultButton.setDisable(true);
-			tracegraphButton.setDisable(true);
-			showTraceOutputText.setVisible(false);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -1542,7 +1509,8 @@ public class Controller implements Initializable {
 		}
 
 		// display the Makefile
-		selectFile("Makefile");
+		setProgramTextArea("Makefile");
+		cs.changeStateTo(State.IMPORT_FILE_COMPLETED);
 	}
 	
 	/**
@@ -1619,6 +1587,7 @@ public class Controller implements Initializable {
 				+ "tools/GenerateMakefile --readable --all -o "
 				+ currentProgramFolder + ".ll";
 		try {
+			console.clear();
 			console.add("./" + currentProgramFolder + "$ " + command + "\n");
 			Process p = Runtime.getRuntime().exec(command, null, directory);
 			p.waitFor();
@@ -1649,45 +1618,13 @@ public class Controller implements Initializable {
 	private void onFileSelection(MouseEvent event){
 		String selectedFile = fileList.getSelectionModel().getSelectedItem();
 		if (selectedFile != null) {
-			selectFile(fileList.getSelectionModel().getSelectedItem());
+			setProgramTextArea(selectedFile);
 		}
-	}
-	
-	private void selectFile(String selectedFile) {
-		// reset table and chart
-		data = FXCollections.observableArrayList();
-		profilingTable.setItems(data);
-		data1 = FXCollections.observableArrayList();
-		resultTable.setItems(data1);
-		resultSummary.getData().clear();
-
-		setProgramTextArea(selectedFile);
-
-		// change status of the buttons, if an .ll file is selected
-		//TODO where should this be?
-		if (selectedFile.endsWith(".ll")) {
-			compiletoIrButton.setDisable(true);
-			instrumentButton.setDisable(false);
-			profilingButton.setDisable(true);
-			runtimeButton.setDisable(true);
-			injectfaultButton.setDisable(true);
-		} else {
-			compiletoIrButton.setDisable(false);
-			instrumentButton.setDisable(true);
-			profilingButton.setDisable(true);
-			runtimeButton.setDisable(true);
-			injectfaultButton.setDisable(true);
-		}
-		
-		// remove glowing 'please select file' red text
-		UploadLabel.setVisible(false);
 	}
 	
 	@FXML
 	private void onTabChange() {
-		if (faultStatus.isSelected() || faultSummaryTab.isSelected()) {
-			generateInjectionResult(false);
-		} else if (errorTab.isSelected()) {
+		if (errorTab.isSelected()) {
 			errorTextArea.clear();
 			if (errorString.size() > 0) {
 				for (int i = 0; i < errorString.size(); i++) {
@@ -1760,6 +1697,7 @@ public class Controller implements Initializable {
 		}
 		
 		configReader = new ConfigReader();
+		cs = new CurrentState(State.INITIAL);
 
 		// #SFIT
 		fiResultDisplay.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>(){
@@ -1769,14 +1707,11 @@ public class Controller implements Initializable {
 				if (oldValue == null || newValue == null) {
 					return;
 				}
-				if (!oldValue.equals(newValue)) {
-					generateInjectionResult(true);
+				if (!oldValue.equals(newValue) && cs.getCurrentState() == State.INJECT_FAULT_COMPLETED && isBatchMode) {
+					generateInjectionResult();
 				}
 			}
 		});
-		// so that the user can't play with with UNTIL
-		// they have selected batch mode
-		fiResultDisplay.setVisible(false);
 	}
 	
 	/**
@@ -1784,43 +1719,191 @@ public class Controller implements Initializable {
 	 * with the output data from the injection.
 	 * @param forceUpdate - forces the two tab to update, even if nothing has changed
 	 */
-	private void generateInjectionResult(boolean forceUpdate) {
-		if (faultInjectionCompleted == 1 || forceUpdate) {
-			onGeneratingResultTable();
-			generateFaultSummaryGraph();
-			faultInjectionCompleted = 0;
-		} 
+	public void generateInjectionResult() {
+		onGeneratingResultTable();
+		generateFaultSummaryGraph();
 	}
 	
 	public class CurrentState {
+		private State s;
+		@SuppressWarnings("rawtypes")
+		private ObservableList emptyList = FXCollections.observableArrayList();
+		
 		public CurrentState(State s) {
 			changeStateTo(s);
 		}
 		
+		public State getCurrentState() {
+			return s;
+		}
+		
+		@SuppressWarnings("unchecked")
 		public void changeStateTo(State s) {
+			// remove glowing 'please select file' red text on first state change
+			UploadLabel.setVisible(false);
+			
 			switch (s) {
-			case COMPILE_COMPLETED:
-				break;
-			case IMPORT_FILE:
+			case INITIAL:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(true);
+				instrumentButton.setDisable(true);
+				profilingButton.setDisable(true);
+				runtimeButton.setDisable(true);
+				injectfaultButton.setDisable(true);
+				tracegraphButton.setDisable(true);
+				
+				// clear previous results
+				profilingTable.setItems(emptyList);
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
+				// so that the user can't play with with UNTIL
+				// they have selected batch mode
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
+				
 				break;
 			case IMPORT_FILE_COMPLETED:
-				break;
-			case INJECT_FAULT_COMPLETED:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(true);
+				profilingButton.setDisable(true);
+				runtimeButton.setDisable(true);
+				injectfaultButton.setDisable(true);
+				tracegraphButton.setDisable(true);
+				
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
+				
+				// clear previous results
+				profilingTable.setItems(emptyList);
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
+				boolean fileHasBeenCompiled = false;
+				for (String str : fileNameLists) {
+					if (str.endsWith(currentProgramFolder + ".ll")) {
+						fileHasBeenCompiled = true;
+						break;
+					}
+				}
+				if (!fileHasBeenCompiled) {
+					break;
+				}
+			case COMPILE_COMPLETED:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(false);
+				profilingButton.setDisable(true);
+				runtimeButton.setDisable(true);
+				injectfaultButton.setDisable(true);
+				tracegraphButton.setDisable(true);
+				
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
+				
+				// clear previous results
+				profilingTable.setItems(emptyList);
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
 				break;
 			case INSTRUMENT_COMPLETED:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(false);
+				profilingButton.setDisable(false);
+				runtimeButton.setDisable(true);
+				injectfaultButton.setDisable(true);
+				tracegraphButton.setDisable(true);
+				
+				// clear previous results
+				profilingTable.setItems(emptyList);
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
+				
+				// Display index file in Text area
+				String fileName = currentProgramFolder + "-llfi_displayIndex.ll";
+				try {
+					importFile(fileName);
+				} catch (IOException e) {
+					System.err.println("ERR: unable to import " + fileName);
+					e.printStackTrace();
+				}
+				setProgramTextArea(fileName);
+				
 				break;
 			case PROFILING_COMPLETED:
-				break;
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(false);
+				profilingButton.setDisable(false);
+				runtimeButton.setDisable(false);
+				injectfaultButton.setDisable(true);
+				tracegraphButton.setDisable(true);
+				
+				// clear previous results
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
+				
+				InputYaml input = new InputYaml();
+				input.load(new File(currentProgramFolder + "/input.yaml"));
+				if (input.getRuntimeOptions().size() == 0) {
+					break;
+				}
 			case RUNTIME_OPTIONS_COMPLETED:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(false);
+				profilingButton.setDisable(false);
+				runtimeButton.setDisable(false);
+				injectfaultButton.setDisable(false);
+				tracegraphButton.setDisable(true);
+				
+				// clear previous results
+				resultTable.setItems(emptyList);
+				resultSummary.getData().clear();
+				
+				fiResultDisplay.setVisible(false);
+				fiResultDisplay.setValue("All");
 				break;
-			default:
+			case INJECT_FAULT_COMPLETED:
+				this.s = s;
+				
+				compiletoIrButton.setDisable(false);
+				instrumentButton.setDisable(false);
+				profilingButton.setDisable(false);
+				runtimeButton.setDisable(false);
+				injectfaultButton.setDisable(false);
+				tracegraphButton.setDisable(false);
+				
+				if (isBatchMode) {
+					fiResultDisplay.setVisible(true);
+				} else {
+					fiResultDisplay.setVisible(false);
+				}
+				fiResultDisplay.setValue("All");
+				
+				generateInjectionResult();
 				break;
 			}
 		}
 	}
 	
 	public enum State {
-		IMPORT_FILE,
+		INITIAL,
 		IMPORT_FILE_COMPLETED,
 		COMPILE_COMPLETED,
 		INSTRUMENT_COMPLETED,

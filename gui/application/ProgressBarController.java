@@ -2,7 +2,6 @@ package application;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -156,6 +155,7 @@ public class ProgressBarController implements Initializable {
 							e.printStackTrace();
 						}
 					} else {
+						Controller.cs.changeStateTo(Controller.State.INJECT_FAULT_COMPLETED);
 						// reset error log
 						Controller.errorString = new ArrayList<>();
 					}

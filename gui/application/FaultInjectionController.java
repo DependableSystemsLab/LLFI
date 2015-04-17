@@ -195,7 +195,7 @@ public class FaultInjectionController implements Initializable {
 	private void checkForNumberTimeOut(KeyEvent event) {
 		String regex = "\\d+";
 		if (!timeOut.getText().matches(regex)) {
-			timeOut.setText("null");
+			timeOut.setText("");
 		}
 	}
 	
@@ -318,6 +318,8 @@ public class FaultInjectionController implements Initializable {
 	private void changeDisplayedRunOption() {
 		// set label
 		runNumberLabel.setText("run" + currentRun);
+		// blank out all options
+		blankOutOptions();
 
 		// are we loading some run option or are we displaying a blank one
 		if (currentRun < runtimeOptions.size()) {
@@ -352,22 +354,6 @@ public class FaultInjectionController implements Initializable {
 			if (run.timeOut != null) {
 				timeOut.setText(run.timeOut.toString());
 			}
-		} else {
-			// blank run options
-			noOfRunsText.setText("");
-			faulInjectionTypeCombo.setPromptText("--Select--");
-			fiRegIndex.setText("");
-			fiRegIndex.setPromptText("null");
-			fiBitText.setText("");
-			fiBitText.setPromptText("null");
-			randomSeed.setText("");
-			randomSeed.setPromptText("null");
-			timeOut.setText("");
-			timeOut.setPromptText("null");
-			fiCycleLabel.setText("0");
-			fiIndexLabel.setText("0");
-			fiIndexSlider.setValue(0);
-			fiCycleSlider.setValue(0);
 		}
 
 		// user cannot click on 'back' if we are already on the
@@ -377,6 +363,24 @@ public class FaultInjectionController implements Initializable {
 		} else {
 			prevRunOption.setDisable(false);
 		}
+	}
+	
+	private void blankOutOptions() {
+		// blank run options
+		noOfRunsText.setText("");
+		faulInjectionTypeCombo.setPromptText("--Select--");
+		fiRegIndex.setText("");
+		fiRegIndex.setPromptText("null");
+		fiBitText.setText("");
+		fiBitText.setPromptText("null");
+		randomSeed.setText("");
+		randomSeed.setPromptText("null");
+		timeOut.setText("");
+		timeOut.setPromptText("null");
+		fiCycleLabel.setText("0");
+		fiIndexLabel.setText("0");
+		fiIndexSlider.setValue(0);
+		fiCycleSlider.setValue(0);
 	}
 
 	@Override

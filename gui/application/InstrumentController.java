@@ -1,39 +1,26 @@
 package application;
-import java.awt.Checkbox;
-import java.awt.event.MouseEvent;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Semaphore;
 
-import com.sun.javafx.scene.control.skin.ListViewSkin;
-
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -48,6 +35,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import application.Controller;
+import application.Controller.State;
 import application.InputYaml.InstrumentOption;
 import application.InputYaml.RuntimeOption;
 public class InstrumentController implements Initializable {
@@ -101,27 +89,15 @@ public class InstrumentController implements Initializable {
 	@FXML
 	private CheckBox allCheckBox;
 	
-	private String buildPath;
+
 	private List<String> fileContent;
-	private String selectedInstSelectionMethod;
-	private String selectedRegSelectionMethod;
 	private List<String> includeInstList;
 	private List<String> excludeInstList;
 	private List<String> removeList;
-	private List<String> includeRegList;
-	private List<String> excludeRegList;
 	private List<String> registerList;
 	private List<String> customInstList;
 	private List<String> customRegList;
-	private List<String> instructionList;
-	private String forward = "forward";
-	private String backward = "backward";
-	static public boolean selectProfileFlag = false;
 	
-	/**
-	 * If input file already exists, read it in do not create it.
-	 */
-	static public boolean existingInputFileFlag = false;
 	@FXML
 	ObservableList<String> items;
 	@FXML
@@ -130,6 +106,7 @@ public class InstrumentController implements Initializable {
 	ObservableList<String> tempItems=FXCollections.observableArrayList();
 	@FXML
 	ObservableList<String> tempItems1=FXCollections.observableArrayList();
+	
 	private boolean errorFlag;
 	public String folderName;
 	public String fileName;
@@ -231,7 +208,7 @@ public class InstrumentController implements Initializable {
 			InputYaml input = new InputYaml();
 			
 			// if injection mode did not change, keep the same runtime option
-			if (!injectionModeChanged()) {
+			if (!injectionModeChanged() && previousRuntimeOption.size() != 0) {
 				input.setRuntimeOption(previousRuntimeOption);
 			}
 			
@@ -244,11 +221,6 @@ public class InstrumentController implements Initializable {
 				ObservableList<String> displayedFaultResult = FXCollections.observableArrayList(numFaultTypes);
 				displayedFaultResult.add(0, "All");
 				fiResultDisplay.setItems(displayedFaultResult);
-				fiResultDisplay.setValue("All");
-				
-				fiResultDisplay.setVisible(true);
-			} else {
-				fiResultDisplay.setVisible(false);
 			}
 			
 			String cmd = Controller.llfibuildPath
@@ -359,9 +331,9 @@ public class InstrumentController implements Initializable {
 				}
 				outputFile.close();
 				
-	
+				Controller.cs.changeStateTo(State.INSTRUMENT_COMPLETED);
+				Controller.errorString.clear();
 				
-				Controller.errorString = new ArrayList<>();
 				Node source = (Node) event.getSource();
 				Stage stage = (Stage) source.getScene().getWindow();
 				stage.close();
@@ -659,7 +631,7 @@ public class InstrumentController implements Initializable {
 		File yFile = new File(folderName+"/input.yaml");
 		yFile.delete();
 		resetAllOptions();
-		existingInputFileFlag = false;
+		Controller.cs.changeStateTo(State.COMPILE_COMPLETED);
 	}
 
 	@FXML
@@ -815,11 +787,6 @@ public class InstrumentController implements Initializable {
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		// location of all the config files
-		buildPath = Controller.llfibuildPath + "gui/config/";
-
-		selectProfileFlag = false;
-		existingInputFileFlag = false;
 		folderName = Controller.currentProgramFolder;
 		
 		// load profile if exist (user is re-instrumenting)
@@ -827,7 +794,6 @@ public class InstrumentController implements Initializable {
 		
 		if(f.exists()) {
 			createNewProfileButton.setDisable(false);
-			existingInputFileFlag = true;
 			fileContent = new ArrayList<>();
 
 			loadProfile(f);
