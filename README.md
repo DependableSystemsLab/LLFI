@@ -45,7 +45,8 @@ Dependencies:
   6. LLVM v3.4, built with CMake
     * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
-  7. Oracle JDK7 with JavaFX (For GUI) or higher
+  7. Oracle JDK7 with JavaFX (for GUI) or higher
+  8. tcsh (for GUI)
 
 Building:
   
@@ -109,6 +110,8 @@ Example program: `factorial`
   For complete test of whole of LLFI, please use LLFI test suite and refer to wiki page: [Test suite for regression test](https://github.com/DependableSystemsLab/LLFI/wiki/Test-Suite-for-Regression-Test) for details.
 
 ####GUI
+If you have used `./setup` to install LLFI, you need to set new environment variables for tcsh shell before running the GUI for the first time. Open ~/.tcshrc using your favourite text editor and add `setenv llfi buildroot <LLFI_BUILD_ROOT>` and `setenv zgrviewer <LLFI_BUILD_ROOT>/tools/zgrviewer` to it.
+
 To run the **GUI** of LLFI, use `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the GUI.
 ```
 <LLFI_BUILD_ROOT>/bin/llfi-gui
