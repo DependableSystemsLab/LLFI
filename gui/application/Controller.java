@@ -549,6 +549,8 @@ public class Controller implements Initializable {
 	
 					FileReader inputFile = new FileReader(folderPath + fileName);
 					BufferedReader bufferReader = new BufferedReader(inputFile);
+					
+					// this is parsing the file llfi/llfi_stat_output/llfi.stat.fi.injectedfaults.<*>-<*>.txt
 					while ((line = bufferReader.readLine()) != null) {
 						str = line.split(":")[1];
 	
@@ -713,7 +715,7 @@ public class Controller implements Initializable {
 					data1.add(new ResultTable(runCount, resultList.get(0), Integer
 							.parseInt(resultList.get(1)), Integer
 							.parseInt(resultList.get(2)), Integer
-							.parseInt(resultList.get(4)), sdc, status, result,
+							.parseInt(resultList.get(6)), sdc, status, result,
 							trace, traceDiffName));
 				}
 			}
