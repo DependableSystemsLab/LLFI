@@ -713,17 +713,25 @@ public class InstrumentController implements Initializable {
 	}
 	
 	/**
-	 * #SFIT opens llfi.applicable.software.failures.txt and read it into the list
+	 * #SFIT opens llfi.applicable.software.failures.txt and read it into the list.
+	 * If the file does not exist, it will generate one.
 	 * @return - the list of applicable software failures
 	 */
 	private List<String> getApplicableSoftwareFailures() {
 		FileReader applicableSoftwareFailure = null;
 		String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
 		try {
-			applicableSoftwareFailure = new FileReader(folderName + "/llfi.applicable.software.failures.txt");
+			applicableSoftwareFailure = new FileReader(inputLocation);
 		} catch (FileNotFoundException e) {
-			System.err.println("ERROR: Unable to open " + inputLocation);
-			e.printStackTrace();
+			// file not found, generate one
+			Controller.softwareFailureAutoScan();
+			try {
+				applicableSoftwareFailure = new FileReader(inputLocation);
+			} catch (FileNotFoundException e1) {
+				System.err.println("ERROR: Unable to read " + inputLocation);
+				e1.printStackTrace();
+				return null;
+			}
 		}
 		
 		String line;

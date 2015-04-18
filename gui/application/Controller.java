@@ -1305,14 +1305,20 @@ public class Controller implements Initializable {
 			e.printStackTrace();
 		}
 
-		// #SFIT
-		// find out which software faults are applicable (which one can be injected)
-		// and dump it into <folder>/llfi.applicable.software.failures.txt
+		softwareFailureAutoScan();
+	}
+	
+	/**
+	 * #SFIT Finds out which software faults are applicable (which one can be injected) 
+	 * and dump it into \<folder\>/llfi.applicable.software.failures.txt
+	 */
+	public static void softwareFailureAutoScan() {
 		String cmd = Controller.llfibuildPath 
 				+ "bin/SoftwareFailureAutoScan --no_input_yaml " 
 				+ currentProgramFolder + "/" + currentProgramFolder + ".ll";
 		ProcessBuilder softwareFailureAutoScan = new ProcessBuilder("/bin/tcsh", "-c", cmd);
 		Process p;
+		String line;
 		try {
 			p = softwareFailureAutoScan.redirectErrorStream(true).start();
 			p.waitFor();
@@ -1495,23 +1501,34 @@ public class Controller implements Initializable {
 	}
 	
 	
-	private void addDirectory(File dir) throws IOException {
+	private void addDirectory(File dir, boolean generateMake) throws IOException {
 		// change currentProgramFolder to reflect a change in folder
 		currentProgramFolder = dir.getName();
 		// generate the makefile for the directory
-		generateMakeFile(dir);
+		if (generateMake) {
+			generateMakeFile(dir);
+			cs.disableCompileButton(false);
+		} else {
+			cs.disableCompileButton(true);
+		}
 		
 		// load all the relevant (Makefile, .c, .cpp) files into the gui and
 		// display them
+		String lastFile = null;
 		for (File f : dir.listFiles()) {
 			String fileName = f.getName();
 			if (fileName.equals("Makefile") || fileName.endsWith(".c") || fileName.endsWith(".cpp") || fileName.endsWith(".ll")) {
 				importFile(fileName);
+				lastFile = fileName;
 			}
 		}
 
 		// display the Makefile
-		setProgramTextArea("Makefile");
+		if (generateMake) {
+			setProgramTextArea("Makefile");
+		} else {
+			setProgramTextArea(lastFile);
+		}
 		cs.changeStateTo(State.IMPORT_FILE_COMPLETED);
 	}
 	
@@ -1535,7 +1552,7 @@ public class Controller implements Initializable {
 				p.start().waitFor();
 			}
 
-			addDirectory(dir);
+			addDirectory(dir, true);
 		} catch (IOException | InterruptedException e) {
 			System.err.println("ERROR: cannot open/read/move file!");
 			e.printStackTrace();
@@ -1573,7 +1590,11 @@ public class Controller implements Initializable {
 				p.start().waitFor();
 			}
 			
-			addDirectory(dir);
+			if (fileName.endsWith(".ll")) {
+				addDirectory(dir, false);
+			} else {
+				addDirectory(dir, true);
+			}
 		} catch (IOException | InterruptedException e) {
 			System.err.println("ERROR: cannot open/read/move file!");
 			e.printStackTrace();
@@ -1730,9 +1751,18 @@ public class Controller implements Initializable {
 		private State s;
 		@SuppressWarnings("rawtypes")
 		private ObservableList emptyList = FXCollections.observableArrayList();
+		private boolean disableCompileButton = false;
 		
 		public CurrentState(State s) {
 			changeStateTo(s);
+		}
+		
+		/**
+		 * Disable the compileToIR button if the user has imported a .ll file.
+		 * @param value - true = disable
+		 */
+		public void disableCompileButton(boolean value) {
+			this.disableCompileButton = value;
 		}
 		
 		public State getCurrentState() {
@@ -1741,9 +1771,6 @@ public class Controller implements Initializable {
 		
 		@SuppressWarnings("unchecked")
 		public void changeStateTo(State s) {
-			// remove glowing 'please select file' red text on first state change
-			UploadLabel.setVisible(false);
-			
 			switch (s) {
 			case INITIAL:
 				this.s = s;
@@ -1900,6 +1927,13 @@ public class Controller implements Initializable {
 				
 				generateInjectionResult();
 				break;
+			}
+			
+			// remove glowing 'please select file' red text on first state change
+			UploadLabel.setVisible(false);
+			
+			if (disableCompileButton) {
+				compiletoIrButton.setDisable(true);
 			}
 		}
 	}
