@@ -85,7 +85,7 @@ VirtualBox Image
 -----------------
 
 If you want to quickly try out LLFI, an Ubuntu image with LLFI and its dependencies pre-installed 
-is available [here](http://1drv.ms/1ORixVX) (2.48GB). This image is built with VirtualBox v4.3.26, with Ubuntu 14.04.2 LTS, LLVM v3.4, CMake v3.4 and the current merge branch version of LLFI (as of April 24, 2015).
+is available [here](https://drive.google.com/open?id=0B5inNk8m9EfeN3A2Tk1weVdaNXc&authuser=0) (2.48GB). This image is built with VirtualBox v4.3.26, with Ubuntu 14.04.2 LTS, LLVM v3.4, CMake v3.4 and the current merge branch version of LLFI (as of April 24, 2015).
 
 user: `llfi`  
 password: `root`
