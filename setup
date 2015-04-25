@@ -200,7 +200,8 @@ def build():
       str(os.path.join(ORACLE_JAVA_HOME, './jre/lib'))+'/*'+\
       ':'+\
       str(os.path.join(ORACLE_JAVA_HOME, './jre/lib/ext'))+'/*'+\
-      ':application/lib/*'
+      ':'+\
+      str(os.path.join(script_path, './gui/application/lib/*'))
   
     cmake_File.write("set(JAVA_HOME " + ORACLE_JAVA_HOME + ")\n")
     cmake_File.write("set(JAVAC_EXECUTABLE " + ORACLE_JAVA_HOME + '/bin/javac' + ")\n")
