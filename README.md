@@ -81,6 +81,24 @@ To build LLFI without GUI, just add option: `--no_gui` in the command line for s
 ./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4 --no_gui
 ```
 
+VirtualBox Image
+-----------------
+
+If you want to quickly try out LLFI, an Ubuntu image with LLFI and its dependencies pre-installed 
+is available [here](http://1drv.ms/1ORixVX) (2.48GB). This image is built with VirtualBox v4.3.26, with Ubuntu 14.04.2 LTS, LLVM v3.4, CMake v3.4 and the current merge branch version of LLFI (as of April 24, 2015).
+
+user: `llfi`  
+password: `root`
+
+`<LLFI_SRC_ROOT>` is located under `~/Desktop/llfisrc/`.  
+`<LLFI_BUILD_ROOT>` is located under `~/Desktop/llfi/`.  
+`<LLVM_SRC_ROOT>` is located under `~/Desktop/llvmsrc/`.  
+`<LLVM_DST_ROOT>` is located under `~/Desktop/llvm/`.  
+`<LLVM_GXX_BIN_DIR >` is located under `~/Desktop/llvm/bin/`.  
+
+Sample tests can be found under `~/Desktop/test/`.
+
+To run it, open VirtualBox, select `File->Import Appliance...` and navigate to the `.ova` file.
 
 Running
 -------
