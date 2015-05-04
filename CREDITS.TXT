@@ -41,3 +41,6 @@ D: Integrated tracing functionality into GUI, many other changes to the GUI and 
 
 N: Sittipol (Phil) Tribunyatkul
 D: Added Software Fault Injection option to the GUI
+
+N: Abraham Chan
+D: Added Makefile script to support compilation of entire projects
