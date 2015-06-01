@@ -1,0 +1,1 @@
+FI stat: fi_type=bitflip, fi_index=12, fi_cycle=9, fi_reg_index=0, fi_bit=2

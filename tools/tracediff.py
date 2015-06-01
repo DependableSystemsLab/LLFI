@@ -100,3 +100,4 @@ if (__name__ == "__main__"):
     "running option: %(prog)s <golden output> <faulty output>" %{"prog": prog}), file=sys.stderr)
   else:
     traceDiff(sys.argv)
+

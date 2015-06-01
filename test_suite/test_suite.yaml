@@ -1,0 +1,123 @@
+PROGRAMS:
+    mcf: 
+        - MCF.ll
+        - inp.in
+    memcpy1: 
+        - memcpy1.ll
+        - sample.txt
+    factorial: 
+        - factorial.ll
+    mpi:
+        - echoClient.ll
+        - echoServer.exe
+        - message.txt
+    deadlock:
+        - deadlock.ll
+    sudoku2:
+        - sudoku2.ll
+    bfs:
+        - bfs.ll
+        - graph_input.dat
+
+INPUTS:
+    mcf: inp.in
+    memcpy1:
+    factorial: 6
+    mpi: 127.0.0.1
+    deadlock:
+    sudoku2:
+    bfs: -i graph_input.dat -o output.dat
+    sad: '-i frame.bin,reference.bin -o output.dat'
+
+HardwareFaults:
+    funcname: mcf
+    insttype: mcf
+    llfiindex: mcf
+    random: mcf
+    tracing: factorial
+    multiplebits: bfs
+
+SoftwareFaults:
+    BufferOverflow_API: memcpy1
+    BufferOverflowMalloc_Data: memcpy1
+    BufferOverflowMemmove_Data: memcpy1
+    BufferUnderflow_API: memcpy1
+    CPUHog_Res: mcf
+    DataCorruption_Data: mcf
+    Deadlock_Res: deadlock
+    HighFrequentEvent_Timing: mcf
+    InappropriateClose_API: memcpy1
+    IncorrectOutput_API: mcf
+    IncorrectOutput_Data: mcf
+    InvalidMessage_MPI: mpi
+    InvalidPointer_Res: mcf
+    InvalidSender_MPI: mpi
+    LowMemory_Res: mcf
+    MemoryExhaustion_Res: memcpy1
+    MemoryLeak_Res: mcf
+    NoAck_MPI: mpi
+    NoClose_API: memcpy1
+    NoDrain_MPI: mpi
+    NoMessage_MPI: mpi
+    NoOpen_API: memcpy1
+    NoOutput_API: sudoku2
+    NoOutput_Data: mcf
+    PacketStorm_MPI: mpi
+    RaceCondition_Timing: deadlock
+    StalePointer_Res: memcpy1
+    ThreadKiller_Res: deadlock
+    UnderAccumulator_Res: memcpy1
+    WrongAPI_API: mcf
+    WrongDestination_Data: memcpy1
+    WrongMode_API: memcpy1
+    WrongPointer_Data: memcpy1
+    WrongRetrievedAddress_IO: memcpy1
+    WrongRetrievedFormat_IO: memcpy1
+    WrongSavedAddress_IO: memcpy1
+    WrongSavedFormat_IO: memcpy1
+    WrongSource_Data: memcpy1
+
+Traces:
+    factorial:
+        trace_prof: llfi/baseline/llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi/llfi_stat_output/llfi.stat.trace.0-0.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-1.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-2.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-3.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot
+
+    BufferOverflow_API:
+        trace_prof: llfi/baseline/llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi/llfi_stat_output/llfi.stat.trace.0-0.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-1.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-2.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-3.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot
+
+    BufferOverflowMemmove_Data:
+        trace_prof: llfi/baseline/llfi.stat.trace.prof.txt
+        trace_inject: 
+            - llfi/llfi_stat_output/llfi.stat.trace.0-0.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-1.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-2.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-3.txt
+            - llfi/llfi_stat_output/llfi.stat.trace.0-4.txt
+        cdfg_prof: llfi.stat.graph.dot
+
+BatchMode:
+    NoOpen_API_WrongMode_API_BufferUnderflow_API: memcpy1
+    SoftwareFailureAutoScan: memcpy1
+
+MakefileGeneration:
+    normal_IR:
+        prog: 'sad'
+        makefile_generation_args: '--all -o sad.bc'
+        inputs: '-i frame.bin,reference.bin -o output.dat'
+    readable_IR:
+        prog: mcf
+        makefile_generation_args: '--all --readable -o mcf.ll'
+        inputs: inp.in

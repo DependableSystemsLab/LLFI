@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
 """
 
@@ -37,8 +37,14 @@ llcbin = os.path.join(llvm_paths.LLVM_DST_ROOT, "bin/llc")
 llvmgcc = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang")
 llvmgxx = os.path.join(llvm_paths.LLVM_GXX_BIN_DIR, "clang++")
 llfilinklib = os.path.join(script_path, "../runtime_lib")
+defaultlinklibs = ['-lpthread']
 prog = os.path.basename(sys.argv[0])
-basedir = os.getcwd()
+# basedir is assigned in parseArgs(args)
+basedir = ""
+
+# llfibd = os.path.join(basedir, "llfi")
+# if os.path.exists(llfibd):
+#   shutil.rmtree(llfibd)
 
 if sys.platform == "linux" or sys.platform == "linux2":
   llfilib = os.path.join(script_path, "../llvm_passes/llfi-passes.so")
@@ -89,7 +95,7 @@ def parseArgs(args):
         options["dir"] = args[argid].rstrip('/')
       elif arg == "-L":
         argid += 1
-        options["L"].append(os.path.join(basedir, args[argid]))
+        options["L"].append(os.path.abspath(os.path.join(os.getcwd(), args[argid])))
       elif arg.startswith("-l"):
         options["l"].append(arg[2:])
       elif arg == "--readable":
@@ -105,7 +111,11 @@ def parseArgs(args):
     else:
       if options["source"] != "":
         usage("More than one source files are specified")
-      options["source"] = os.path.join(basedir, arg)
+      options["source"] = os.path.abspath(os.path.join(os.getcwd(), arg))
+      basedir = os.path.dirname(options["source"])
+      if basedir != os.path.abspath(os.getcwd()):
+        print("Change directory to:", basedir)
+        os.chdir(basedir)
     argid += 1
 
   if options["source"] == "":
@@ -149,7 +159,7 @@ def checkInputYaml():
     print("Error: input.yaml is not formatted in proper YAML (reminder: use spaces, not tabs)")
     os.rmdir(options["dir"])
     exit(1)
-
+  
   #Check for compileOption in input.yaml
   try:
     cOpt = doc["compileOption"]
@@ -173,11 +183,11 @@ def readCompileOption():
   
   ###Instruction selection method
   if "instSelMethod" not in cOpt:  
-    print ("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n")
+    print(("\n\nERROR: Please include an 'instSelMethod' key value pair under compileOption in input.yaml.\n"))
     exit(1)
   else:
     compileOptions = []
-    validMethods = ["insttype", "funcname", "custominstselector"]
+    validMethods = ["insttype", "funcname", "customInstselector"]
     # Generate list of instruction selection methods
     # TODO: Generalize and document
     instSelMethod = cOpt["instSelMethod"]
@@ -186,45 +196,57 @@ def readCompileOption():
       if methodName not in validMethods:
         print ("\n\nERROR: Unknown instruction selection method in input.yaml.\n")
         exit(1)
-      if methodName != "custominstselector":
-        compileOptions.append("-%s" % (str(methodName)))
-      else:
-        compileOptions.append('-custominstselector')
-        compileOptions.append('-fiinstselectorname='+method[methodName])
-        if "customInstSelectorOption" in cOpt:
-          for opt in cOpt["customInstSelectorOption"]:
-            compileOptions.append(opt)
-        continue # custom selectors don't have attributes
-      
-      # Ensure that 'include' is specified at least
-      # TODO: This isn't a very extendible way of doing this.
-      if methodName != "custominstselector" and "include" not in method[methodName]:
-        print(("\n\nERROR: An 'include' list must be present for the %s method in input.yaml.\n" % (methodName)))
-        exit(1)
 
-      # Parse all options for current method
-      for attr in list(method[methodName].keys()):
+    #Select by instruction type
+    if methodName == "insttype" or methodName == "funcname":
+        compileOptions.append("-%s" % (str(methodName)))
+    #Select by custom instruction 
+    elif methodName == "customInstselector":
+      compileOptions = ['-custominstselector']
+      
+    # Ensure that 'include' is specified at least
+    # TODO: This isn't a very extendible way of doing this.
+    if "include" not in method[methodName]:
+      print(("\n\nERROR: An 'include' list must be present for the %s method in input.yaml.\n" % (methodName)))
+      exit(1)
+
+    # Parse all options for current method
+    custom_instselector_defined = False
+    for attr in list(method[methodName].keys()):
+      if(attr == "include" or attr == "exclude"):
         prefix = "-%s" % (str(attr))
         if methodName == "insttype":
           prefix += "inst="
         elif methodName == "funcname":
           prefix += "func="
+        elif methodName == "customInstselector":
+          prefix = "-fiinstselectorname="
+          # For customInstselector, only one instruction selector is allowed
+          if custom_instselector_defined == True:
+            print("\nERROR: '\'instrument\' only support one customInstselector included in input.yaml.")
+            print("To apply a list of fault models/failure modes, please use \'batchinstrument\'")
+            exit(1)
+          else:
+            custom_instselector_defined = True
         else: # add the ability to give custom options here?
           pass
         # Generate list of options for attribute
         opts = [prefix + opt for opt in method[methodName][attr]]
         compileOptions.extend(opts)
+      elif(attr == "options"):
+        opts = [opt for opt in method[methodName]["options"]]
+        compileOptions.extend(opts)
 
   ###Register selection method
   if "regSelMethod" not in cOpt:  
-    print ("\n\nERROR: Please include an 'regSelMethod' key value pair under compileOption in input.yaml.\n")
+    print(("\n\nERROR: Please include an 'regSelMethod' key value pair under compileOption in input.yaml.\n"))
     exit(1)
   else:
     #Select by register location
     if cOpt["regSelMethod"] == 'regloc':
       compileOptions.append('-regloc')
       if "regloc" not in cOpt:
-        print ("\n\nERROR: An 'regloc' key value pair must be present for the regloc method in input.yaml.\n")
+        print(("\n\nERROR: An 'regloc' key value pair must be present for the regloc method in input.yaml.\n"))
         exit(1)
       else:
         compileOptions.append('-'+cOpt["regloc"])
@@ -233,16 +255,25 @@ def readCompileOption():
     elif cOpt["regSelMethod"]  == 'customregselector':
       compileOptions.append('-customregselector')
       if "customRegSelector" not in cOpt:  
-        print ("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n")
+        print(("\n\nERROR: An 'customRegSelector' key value pair must be present for the customregselector method in input.yaml.\n"))
         exit(1)
       else:
-          compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
+          if cOpt["customRegSelector"] == "SoftwareFault" or cOpt["customRegSelector"] == "Automatic":
+            ## replace the Automatic tag with the customInstSelector name
+            try:
+              regselectorname = cOpt["instSelMethod"][0]["customInstselector"]["include"][0]
+            except:
+              print("\n\nERROR: Cannot extract customRegSelector from instSelMethod. Please check the customInstselector field in input.yaml\n")
+            else:
+              compileOptions.append('-firegselectorname='+regselectorname)
+          else:
+            compileOptions.append('-firegselectorname='+cOpt["customRegSelector"])
           if "customRegSelectorOption" in cOpt:
             for opt in cOpt["customRegSelectorOption"]:
               compileOptions.append(opt)
 
     else:
-      print ("\n\nERROR: Unknown Register selection method in input.yaml.\n")
+      print(("\n\nERROR: Unknown Register selection method in input.yaml.\n"))
       exit(1)
 
   ###Injection Trace selection 
@@ -253,11 +284,11 @@ def readCompileOption():
       elif trace == 'backward':
         compileOptions.append('-includebackwardtrace')
       else:
-        print ("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n")
+        print(("\n\nERROR: Invalid value for trace (forward/backward allowed) in input.yaml.\n"))
         exit(1)
 
   ###Tracing Proppass
-  if "tracingPropagation" in cOpt:
+  if "tracingPropagation" in cOpt and cOpt["tracingPropagation"] == True:
     print(("\nWARNING: You enabled 'tracingPropagation' option in input.yaml. "
            "The generate executables will be able to output dynamic values for instructions. "
            "However, the executables take longer time to execute. If you don't want the trace, "
@@ -286,7 +317,7 @@ def _suffixOfIR():
     return ".bc"
 
 def compileProg():
-  global proffile, fifile, compileOptions
+  global proffile, fifile, compileOptions, defaultlinklibs
   srcbase = os.path.basename(options["source"])
   progbin = os.path.join(options["dir"], srcbase[0 : srcbase.rfind(".")])
 
@@ -323,8 +354,8 @@ def compileProg():
 
   if retcode != 0:
     print("\nERROR: there was an error during running the "\
-                         "instrumentation pass, please follow"\
-                         " the provided instructions for %s." % prog, file=sys.stderr)
+                      "instrumentation pass, please follow"\
+                      " the provided instructions for %s." % prog, file=sys.stderr)
     shutil.rmtree(options['dir'], ignore_errors = True)
     sys.exit(retcode)
 
@@ -338,7 +369,7 @@ def compileProg():
       tmpfiles.append(fifile + '.o')
       retcode = execCompilation(execlist)
 
-    liblist = []
+    liblist = list(defaultlinklibs)
     for lib_dir in options["L"]:
       liblist.extend(["-L", lib_dir])
     for lib in options["l"]:
@@ -351,7 +382,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
-        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying with " + os.path.basename(llvmgxx) + ".") 
+        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying with " + os.path.basename(llvmgxx) + ".")
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
     if retcode == 0:
@@ -359,7 +390,7 @@ def compileProg():
       execlist.extend(liblist)
       retcode = execCompilation(execlist)
       if retcode != 0:
-        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying " + os.path.basename(llvmgxx) + ".") 
+        print("...Error compiling with " + os.path.basename(llvmgcc) + ", trying " + os.path.basename(llvmgxx) + ".")
         execlist[0] = llvmgxx
         retcode = execCompilation(execlist)
 

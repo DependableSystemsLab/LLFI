@@ -1,0 +1,33 @@
+kernelOption:
+    - forceRun
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include: 
+            - all
+          exclude: 
+            - ret
+
+    regSelMethod: regloc
+    regloc: dstreg
+
+    includeInjectionTrace:
+        - forward
+        - backward
+
+    tracingPropagation: True
+
+    tracingPropagationOption:
+        debugTrace: True/False
+        generateCDFG: True
+        maxTrace: 250 # max number of instructions to trace during fault injection run
+
+runOption:
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+
+    - run:
+        numOfRuns: 1
+        fi_type: stuck_at_0

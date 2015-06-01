@@ -1,0 +1,19 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - BufferOverflowMalloc(Data)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection
+
+
+
+

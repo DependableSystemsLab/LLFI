@@ -1,0 +1,27 @@
+defaultTimeOut: 500
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - llfiindex
+          options:
+            - -injecttoindex=2293
+            - -injecttoindex=568
+
+    regSelMethod: regloc
+    regloc: dstreg
+
+    includeInjectionTrace:
+        - forward # include forward trace of the selected instructions into fault injection targets
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+
+    - run:
+        numOfRuns: 3
+        fi_type: stuck_at_1
+        timeOut: 1000

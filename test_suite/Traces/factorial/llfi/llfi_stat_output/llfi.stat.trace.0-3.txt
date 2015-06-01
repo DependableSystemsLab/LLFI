@@ -1,0 +1,12 @@
+#TraceStartInstNumber: 41
+ID: 27	OPCode: add	Value: 00020003
+ID: 28	OPCode: store	Value: 00000000
+ID: 29	OPCode: br	Value: 00000000
+ID: 17	OPCode: load	Value: 00020003
+ID: 18	OPCode: load	Value: 00000006
+ID: 19	OPCode: icmp	Value: 00
+ID: 20	OPCode: br	Value: 00000000
+ID: 30	OPCode: load	Value: 00000002
+ID: 31	OPCode: call	Value: 00000002
+ID: 32	OPCode: load	Value: 00000000
+ID: 33	OPCode: ret	Value: 00000000

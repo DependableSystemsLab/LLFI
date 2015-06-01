@@ -1,0 +1,19 @@
+defaultTimeOut: 100
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - NoOutput(API)
+
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

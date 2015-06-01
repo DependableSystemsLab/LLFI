@@ -1,34 +1,95 @@
-kernelOption:
-    - forceRun
+defaultTimeOut: 500 #customize the default timeout threshold
 
-
+## To inject faults into specific types of instructions:
+## (see all posible names in instructions.def). For include, you can also specify 'all'
 compileOption:
-    instSelMethod: custominstselector/insttype
-    include: 
-        - br         ###(see all posible names in instructions.def). For include, you can also specify 'all'
-        - sub
-        - switch
-    exclude:
-        - ret
-        - mul
-    customInstSelector: onlymain
+    instSelMethod:
+      - insttype:
+          include:
+            - add
+            - sub
+            - getelementptr
+            - alloca
+            - icmp
+            - fcmp
+            - phi
+            - call
+          exclude:
+            - ret
+            - alloca
+            - call
 
-    regSelMethod: customregselector/regloc
-    regloc: dstreg      ###(dstreg/allsrcreg/srcreg1..4)
-    customRegSelector: onlyconstint
+## To inject faults into instructions with specific llfi index:
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - llfiindex
+          options:
+            - -injecttoindex=2293
+            - -injecttoindex=568
 
+## To inject faults into instructions of specific functions:
+## For include, you can also specify 'all'
+compileOption:
+    instSelMethod:
+      - funcname:
+          include:
+            - all
+          exclude:
+            - dual_feasible
+            - main
+
+## To use a specific instruction selector to select targeting instructions:
+## ('BufferOverflow(API)' is the name of a software failure instruction 
+##  selector shipped with LLFI)
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - BufferOverflow(API)
+
+    ## To use a location-based register selector to select targeting register:
+    regSelMethod: regloc
+    ## To select the destination register
+    regloc: dstreg
+    ## To select the 1st source register
+    regloc: srcreg1
+    ## To select the 2nd source register
+    regloc: srcreg2
+    ## To select the 3rd source register
+    regloc: srcreg3
+
+
+    ## To use a custom register selector to select targeting register:
+    ## ('BufferOverflow(API)' is the name of a software failure register 
+    ##  selector shipped with LLFI)
+    regSelMethod: customregselector
+    customRegSelector: BufferOverflow(API)
+
+
+    ## To incorporate the forward slice/backward slice of the selected instructions as injection targets: 
     includeInjectionTrace: 
         - forward # include forward trace of the selected instructions into fault injection targets
         - backward # include forward trace of the selected instructions into fault injection targets
 
+    ## To turn on the tracing (or turn off)
     tracingPropagation: True # trace dynamic instruction values.
-
     tracingPropagationOption:
         maxTrace: 250 # max number of instructions to trace during fault injection run
-        debugTrace: True/False
-        generateCDFG: True # Generate a dot graph of the program instruction structure
+        debugTrace: False/True # print debug info or not
+
 
 runOption:
+    ## To inject a common hardware fault in all injection targets by random:
+    - run:
+        numOfRuns: 5 # run injection for 5 times
+        fi_type: bitflip/stuck_at_0/stuck_at_1 # specify the fault type
+        timeOut: 1000 # specify a custom timeout threashold for only this experiment
+
+    ## To inject a bitflip fault at a specified cycle, on a specified register and
+    ## a specified bit position. This can be used for reproducing an pervious injection
+    ## result.
     - run:
         numOfRuns: 3
         fi_type: bitflip
@@ -36,15 +97,30 @@ runOption:
         fi_reg_index: 3
         fi_bit: 32
         fi_reg: 2
-        fi_random_seed: 10 # Allows the random seed to be set to specific value
         verbose: True/False # prints return code summary at end of injection
         timeOut: 1000
 
+    ## To inject multiple bitflip fault on one register:
+    ## (for example, 4 bits in one register)
     - run:
         numOfRuns: 5
-        fi_type: stuck_at_0
-        fi_cycle: 342343
-        fi_index: 23
-        fi_reg_index: 5
-        timeOut: 100
+        fi_type: bitflip
+        fi_num_bits: 4
 
+    ## To inject TWO faults into two registers, specifying a maximum cycles between 
+    ## the two faults:
+    ## (for example, 4 cycles)
+    - run:
+        numOfRuns: 50
+        fi_type: bitflip
+        window_len: 10
+
+    ## To use a custom fault injector (fault type) for this experiment:
+    ## ('BufferOverflow(API)' is an fault injector for software failures 
+    ##  shipped with LLFI)
+    - run:
+        numOfRuns: 5
+        fi_type: BufferOverflow(API)
+
+kernelOption:
+    - forceRun

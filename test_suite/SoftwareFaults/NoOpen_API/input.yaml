@@ -1,0 +1,15 @@
+defaultTimeOut: 1000
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - NoOpen(API)
+
+    regSelMethod: customregselector
+    customRegSelector: NoOpen(API)
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: NoOpen(API)

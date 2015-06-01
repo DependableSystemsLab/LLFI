@@ -4,7 +4,13 @@ LLFI, please submit a patch to this file to add yourself, and it will be
 done!
 
 The list is formatted to allow easy grepping and
-beautification by scripts.  The fields are: name (N), and description (D). 
+beautification by scripts.  The fields are: name (N), and description (D).
+
+N: Nithya Narayanamurthy
+D: GUI for LLFI, prepared first release
+
+N: Maryam Raiyat
+D: Implemented API injection capability
 
 N: Anna Thomas
 D: Coding for LLFI - passes and scripts.
@@ -30,8 +36,11 @@ D: Experiments to validate the accuracy of LLFI. Ported LLFI to LLVM 3.3 and Pyt
 N: Shaden Smith
 D: Added Progress Bar to injector, multiple instruction selector, unified executable (in progress)
 
-N: Nithya Narayanamurthy
-D: GUI for LLFI, prepared first release
-
 N: Kenneth Song
 D: Integrated tracing functionality into GUI, many other changes to the GUI and tracing functionality
+
+N: Sittipol (Phil) Tribunyatkul
+D: Added Software Fault Injection option to the GUI
+
+N: Abraham Chan
+D: Added Makefile script to support compilation of entire projects

@@ -1,0 +1,15 @@
+defaultTimeOut: 100
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - InvalidSender(MPI)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: AutoInjection

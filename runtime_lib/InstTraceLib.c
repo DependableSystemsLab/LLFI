@@ -21,11 +21,12 @@ FILE* OutputFile() {
   return ofile;
 }
 
-static long instCount= 0;
+static long instCount = 0;
 static long cutOff = 0;
-void printInstTracer(long instID, int opcode, int size, double fpValue, int maxPrints, long long intValue, int flag) {
+void printInstTracer(long instID, char *opcode, int size, char* ptr, int maxPrints) {
   int i;
-  instCount ++;
+  instCount++;
+
   
   if (start_tracing_flag == TRACING_FI_RUN_FAULT_INSERTED) {
     start_tracing_flag = TRACING_FI_RUN_START_TRACING;
@@ -39,22 +40,28 @@ void printInstTracer(long instID, int opcode, int size, double fpValue, int maxP
   if ((start_tracing_flag == TRACING_GOLDEN_RUN) || 
       ((start_tracing_flag == TRACING_FI_RUN_START_TRACING) && 
        (instCount < cutOff))) {
-    fprintf(OutputFile(), "ID: %ld OPCode: %d Value: ", instID, opcode);
-
-    if (flag == 0)
-        fprintf(OutputFile(),"%lld",intValue);
-    else if(flag == 1) 
-        fprintf(OutputFile(),"%f",fpValue); 
-    else
-        fprintf(OutputFile(),"0"); 
-	
+    fprintf(OutputFile(), "ID: %ld\tOPCode: %s\tValue: ", instID, opcode);
+    
+    //Handle endian switch
+    if (isLittleEndian()) {
+      for (i = size - 1; i >= 0; i--) {
+        fprintf(OutputFile(), "%02hhx", ptr[i]);
+      }
+    } else {
+      for (i = 0; i < size; i++) {
+        fprintf(OutputFile(), "%02hhx", ptr[i]);
+      }
+    }
     fprintf(OutputFile(), "\n");
 
     fflush(OutputFile()); 
 
   }
   if ((start_tracing_flag != TRACING_GOLDEN_RUN) && instCount >= cutOff )
+  {
 	start_tracing_flag = TRACING_FI_RUN_END_TRACING;
+  }
+
 }
 
 void postTracing() {

@@ -28,7 +28,8 @@ import shutil
 optionlist = []
 prog = os.path.basename(sys.argv[0])
 
-basedir = os.getcwd()
+# basedir is assigned in parseArgs(args)
+basedir = ""
 profiling_exe = ""
 
 def usage(msg = None):
@@ -42,30 +43,10 @@ def usage(msg = None):
 
 
 def parseArgs(args):
-  global optionlist, profiling_exe
-  
-  if args[0] == "--help" or args[0] == "-h":
-    usage()
- 
-  if len(args) < 2:
-    usage("Need at least two arguments")
- 
-  env = args[0]
-  profiling_exe = os.path.realpath(args[1])
-  optionlist = args[2:]
-
-  # Ugly hack warning: We always launch the executable from the parent of the parent
-  # directory in the GUI as it's not possible to change the working directory in the GUI
-  if env=="-u" or env== "--GUI": 
-     # "program is launched from GUI"	
-     if os.path.dirname(os.path.dirname(os.path.dirname(profiling_exe))) != basedir:
-      	usage("You need to invoke %s at the parent of parent directory of profiling executable" %prog)
-  elif env=="-c" or env=="--CLI": 
-     # program is launched from CLI - this is the default
-     if os.path.dirname(os.path.dirname(profiling_exe)) != basedir:
-      	usage("You need to invoke %s at the parent directory of profiling executable" %prog)
-  else:
-        usage("You need to specify --CLI or --GUI")	
+  global optionlist, profiling_exe, env
+  profiling_exe = os.path.realpath(args[0])
+  basedir = os.path.abspath(os.path.dirname(os.path.dirname(profiling_exe)))
+  optionlist = args[1:]
 
   # remove the directory prefix for input files, this is to make it easier for the program
   # to take a snapshot
@@ -75,6 +56,10 @@ def parseArgs(args):
         usage("File %s passed through option is not under current directory" % opt)
       else:
         optionlist[index] = os.path.basename(opt)
+
+  if basedir != os.getcwd():
+    print("Change directory to:", basedir)
+    os.chdir(basedir)
 
 
 def checkInputYaml():
@@ -123,7 +108,7 @@ def execute(execlist):
   print('\t' + ' '.join(execlist))
   #get state of directory
   dirSnapshot()
-  p = subprocess.Popen(execlist, stdout = subprocess.PIPE)
+  p = subprocess.Popen(execlist, stdout=subprocess.PIPE)
   elapsetime = 0
   while True:
     elapsetime += 1
@@ -144,7 +129,15 @@ def execute(execlist):
 def storeInputFiles():
   global inputList
   inputList=[]
-  for opt in optionlist:
+  ##========Consider comma as separator of arguments ==================================
+  temp_optionlist = []
+  for item in optionlist:
+    if item.count(',') == 0:
+      temp_optionlist.append(item)
+    else:
+      temp_optionlist.extend(item.split(','))
+  ##===================================================================================
+  for opt in temp_optionlist:
     if os.path.isfile(opt):#stores all files in inputList and copy over to inputdir
       shutil.copy2(opt, os.path.join(inputdir, opt))
       inputList.append(opt)

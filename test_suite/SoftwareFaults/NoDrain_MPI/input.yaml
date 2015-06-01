@@ -1,0 +1,15 @@
+defaultTimeOut: 50
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - NoDrain(MPI)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

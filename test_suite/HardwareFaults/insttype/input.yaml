@@ -1,0 +1,27 @@
+defaultTimeOut: 500
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include:
+            - add
+            - sub
+            - getelementptr
+            - alloca
+            - icmp
+            - fcmp
+            - phi
+            - call
+          exclude:
+            - ret
+            - alloca
+            - call
+
+    regSelMethod: regloc
+    regloc: srcreg3
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        timeOut: 1000

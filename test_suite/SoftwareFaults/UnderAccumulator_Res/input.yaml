@@ -1,0 +1,19 @@
+defaultTimeOut: 1000
+
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - UnderAccumulator(Res)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+        - backward
+
+runOption:
+    - run:
+        numOfRuns: 3
+        fi_type: AutoInjection

@@ -1,0 +1,115 @@
+digraph "LLFI Program Graph" {
+llfiID_0 -> llfiID_32 [color="blue"];
+llfiID_0 -> llfiID_6 [color="blue"];
+llfiID_1 -> llfiID_7 [color="blue"];
+llfiID_2 -> llfiID_9 [color="blue"];
+llfiID_2 -> llfiID_8 [color="blue"];
+llfiID_3 -> llfiID_28 [color="blue"];
+llfiID_3 -> llfiID_26 [color="blue"];
+llfiID_3 -> llfiID_22 [color="blue"];
+llfiID_3 -> llfiID_17 [color="blue"];
+llfiID_3 -> llfiID_15 [color="blue"];
+llfiID_4 -> llfiID_30 [color="blue"];
+llfiID_4 -> llfiID_24 [color="blue"];
+llfiID_4 -> llfiID_21 [color="blue"];
+llfiID_4 -> llfiID_14 [color="blue"];
+llfiID_5 -> llfiID_18 [color="blue"];
+llfiID_5 -> llfiID_13 [color="blue"];
+llfiID_9 -> llfiID_10 [color="blue"];
+llfiID_10 -> llfiID_11 [color="blue"];
+llfiID_11 -> llfiID_12 [color="blue"];
+llfiID_12 -> llfiID_13 [color="blue"];
+llfiID_17 -> llfiID_19 [color="blue"];
+llfiID_18 -> llfiID_19 [color="blue"];
+llfiID_19 -> llfiID_20 [color="blue"];
+llfiID_21 -> llfiID_23 [color="blue"];
+llfiID_22 -> llfiID_23 [color="blue"];
+llfiID_23 -> llfiID_24 [color="blue"];
+llfiID_26 -> llfiID_27 [color="blue"];
+llfiID_27 -> llfiID_28 [color="blue"];
+llfiID_30 -> llfiID_31 [color="blue"];
+llfiID_32 -> llfiID_33 [color="blue"];
+subgraph cluster_main_ {
+label = "main_";
+llfiID_0 [shape=record,label="0\nalloca\n"];
+llfiID_1 [shape=record,label="1\nalloca\n"];
+llfiID_2 [shape=record,label="2\nalloca\n"];
+llfiID_3 [shape=record,label="3\nalloca\n"];
+llfiID_4 [shape=record,label="4\nalloca\n"];
+llfiID_5 [shape=record,label="5\nalloca\n"];
+llfiID_6 [shape=record,label="6\nstore\n"];
+llfiID_7 [shape=record,label="7\nstore\n"];
+llfiID_8 [shape=record,label="8\nstore\n"];
+llfiID_9 [shape=record,label="9\nload\n"];
+llfiID_10 [shape=record,label="10\ngetelementptr\n"];
+llfiID_11 [shape=record,label="11\nload\n"];
+llfiID_12 [shape=record,label="12\ncall\n"];
+llfiID_13 [shape=record,label="13\nstore\n"];
+llfiID_14 [shape=record,label="14\nstore\n"];
+llfiID_15 [shape=record,label="15\nstore\n"];
+llfiID_16 [shape=record,label="16\nbr\n"];
+}
+llfiID_0 -> llfiID_1;
+llfiID_1 -> llfiID_2;
+llfiID_2 -> llfiID_3;
+llfiID_3 -> llfiID_4;
+llfiID_4 -> llfiID_5;
+llfiID_5 -> llfiID_6;
+llfiID_6 -> llfiID_7;
+llfiID_7 -> llfiID_8;
+llfiID_8 -> llfiID_9;
+llfiID_9 -> llfiID_10;
+llfiID_10 -> llfiID_11;
+llfiID_11 -> llfiID_12;
+llfiID_12 -> llfiID_13;
+llfiID_13 -> llfiID_14;
+llfiID_14 -> llfiID_15;
+llfiID_15 -> llfiID_16;
+llfiID_16 -> llfiID_17;
+subgraph cluster_main_ {
+label = "main_";
+llfiID_17 [shape=record,label="17\nload\n"];
+llfiID_18 [shape=record,label="18\nload\n"];
+llfiID_19 [shape=record,label="19\nicmp\n"];
+llfiID_20 [shape=record,label="20\nbr\n"];
+}
+llfiID_17 -> llfiID_18;
+llfiID_18 -> llfiID_19;
+llfiID_19 -> llfiID_20;
+llfiID_20 -> llfiID_21;
+llfiID_20 -> llfiID_30;
+subgraph cluster_main_ {
+label = "main_";
+llfiID_21 [shape=record,label="21\nload\n"];
+llfiID_22 [shape=record,label="22\nload\n"];
+llfiID_23 [shape=record,label="23\nmul\n"];
+llfiID_24 [shape=record,label="24\nstore\n"];
+llfiID_25 [shape=record,label="25\nbr\n"];
+}
+llfiID_21 -> llfiID_22;
+llfiID_22 -> llfiID_23;
+llfiID_23 -> llfiID_24;
+llfiID_24 -> llfiID_25;
+llfiID_25 -> llfiID_26;
+subgraph cluster_main_ {
+label = "main_";
+llfiID_26 [shape=record,label="26\nload\n"];
+llfiID_27 [shape=record,label="27\nadd\n"];
+llfiID_28 [shape=record,label="28\nstore\n"];
+llfiID_29 [shape=record,label="29\nbr\n"];
+}
+llfiID_26 -> llfiID_27;
+llfiID_27 -> llfiID_28;
+llfiID_28 -> llfiID_29;
+llfiID_29 -> llfiID_17;
+subgraph cluster_main_ {
+label = "main_";
+llfiID_30 [shape=record,label="30\nload\n"];
+llfiID_31 [shape=record,label="31\ncall\n"];
+llfiID_32 [shape=record,label="32\nload\n"];
+llfiID_33 [shape=record,label="33\nret\n"];
+}
+llfiID_30 -> llfiID_31;
+llfiID_31 -> llfiID_32;
+llfiID_32 -> llfiID_33;
+{ rank = sink;Legend [shape=none, margin=0, label=<<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4"> <TR>  <TD COLSPAN="2"><B>Legend</B></TD> </TR> <TR>  <TD>Normal Control Flow</TD>  <TD><FONT COLOR="black"> solid arrow </FONT></TD> </TR> <TR>  <TD>Data Dependancy</TD>  <TD><FONT COLOR="blue"> solid arrow </FONT></TD> </TR> <TR>  <TD>Control Flow Error</TD>  <TD><FONT COLOR="red">dashed arrow </FONT></TD> </TR> <TR>  <TD>Fault Affected Instruction</TD>  <TD BGCOLOR="YELLOW"></TD> </TR> <TR>  <TD>Fault Injected Instruction</TD>  <TD><FONT COLOR="red"> red border </FONT></TD> </TR></TABLE>>];}}

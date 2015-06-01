@@ -1,0 +1,25 @@
+defaultTimeOut: 500
+
+compileOption:
+    instSelMethod:
+      - funcname:
+          include:
+            - refresh_potential
+            - flow_cost
+            - flow_org_cost
+            - primal_feasible
+            - dual_feasible
+            - main
+            - getfree
+          exclude:
+            - dual_feasible
+            - main
+
+    regSelMethod: regloc
+    regloc: allsrcreg
+
+runOption:
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        timeOut: 1000

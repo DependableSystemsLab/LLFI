@@ -10,7 +10,7 @@ namespace llfi {
 /**
  * This sample register selector only selects constant int as target
  */
-class SampleFIRegSelector: public FIRegSelector {
+class SampleFIRegSelector: public HardwareFIRegSelector {
  private:
   virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) {
     if (isa<ConstantInt>(reg))
