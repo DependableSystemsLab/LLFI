@@ -191,7 +191,7 @@ def checkDependencies(checkJava=True):
     if checkJava:
         hasAll = checkDep("Java", "java", "-version", JavaPrintParse, JavaParse, [1,7], javaMsg) and hasAll
         hasAll = checkDep("JavaC", "javac", "-version", JavaCPrintParse, JavaCParse, [1,7], javacMsg) and hasAll
-        hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
+        #hasAll = checkDep("Ant", "ant", "-version", AntPrintParse, AntParse, [1,7], antMsg) and hasAll
 
     return hasAll
 
@@ -311,7 +311,7 @@ def UpdateFlags(targets, key, value):
     newList.append(target)
   return newList
 
-def build(buildLLVM, forceMakeLLVM):
+def build(buildLLVM, forceMakeLLVM, noGUI):
   #Build LLVM
   if buildLLVM:
     CheckAndCreateDir("llvm")
@@ -333,8 +333,10 @@ def build(buildLLVM, forceMakeLLVM):
     os.chdir("..")
 
   script_path = os.getcwd()
+
   #Configure and Build LLFI
 
+  """
   llvm_paths_cmake = os.path.join(script_path, "llfisrc/config/llvm_paths.cmake")
   llvm_paths_py = os.path.join(script_path, "llfisrc/config/llvm_paths.py")
 
@@ -352,22 +354,17 @@ def build(buildLLVM, forceMakeLLVM):
   py_File.write("LLVM_SRC_ROOT = " + '"' + LLVM_SRC_ROOT + '"\n')
   py_File.write("LLVM_GXX_BIN_DIR = " + '"' + LLVM_GXX_BIN_DIR + '"\n')
   py_File.close()
+  """
 
-  CheckAndCreateDir("llfi")
-  os.chdir("llfi")
-  print("Running cmake for LLFI:")
-  p = subprocess.call(["cmake", "../llfisrc"])
-  if p != 0:
-    sys.exit(p)
-
-  print("Running make for LLFI:")
-  p = subprocess.call("make")
+  print("Running ./setup for LLFI:")
+  os.chdir("llfisrc")
+  setup = ["./setup", "-LLVM_DST_ROOT", "../llvm", "-LLVM_SRC_ROOT", "../llvmsrc", "-LLFI_BUILD_ROOT", "../llfi", "-LLVM_GXX_BIN_DIR", "../llvm/bin"]
+  if noGUI:
+    setup.append("--no_gui")
+  p = subprocess.call(setup)
   if p != 0:
     sys.exit(p)
   os.chdir("..")
-
-
-  
 
 def buildGUI():
   #Build LLFI GUI
@@ -452,14 +449,15 @@ def addEnvs():
   minorVer = versionSplit[1]
 
   pyVersion = str(majorVer) + "." + str(minorVer)
-  pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion+"/site-packages/")
+  pyPath = os.path.join(scriptPath, "pyyaml/lib/python"+pyVersion.strip("b'")+"/site-packages/")
 
   homePath = os.environ['HOME']
   tcshPath = os.path.join(homePath, ".tcshrc")
 
   with open(tcshPath, "a") as rcFile:
     rcFile.write("setenv PYTHONPATH " + pyPath + "\n")
-    rcFile.write("setenv llfibuild " + llfibuildPath + "\n") 
+    rcFile.write("setenv llfibuild " + llfibuildPath + "\n")
+    rcFile.write("setenv zgrviewer " + llfibuildPath + "tools/zgrviewer/" + "\n")
 
 parser = argparse.ArgumentParser(
     description=("Installer for UBC DependableSystemsLab's LLFI"),
@@ -528,9 +526,9 @@ if __name__ == "__main__":
   if not args.noExtract:
     ExtractSources(DOWNLOADTARGETS, DOWNLOADSDIRECTORY, LLFIROOTDIRECTORY)
   if not args.noBuild:
-    build(not args.noBuildLLVM, args.forceBuildLLVM)
-    if not args.noGUI:
-      buildGUI()
-    addEnvs()
+    build(not args.noBuildLLVM, args.forceBuildLLVM, args.noGUI)
+    #if not args.noGUI:
+    #  buildGUI()
+    addEnvs() #setenv...
     buildPyYaml(args.forceBuildPyYaml)
 

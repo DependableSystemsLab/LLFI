@@ -7,23 +7,25 @@ Please join the following Google Groups for information related to LLFI developm
 
 Auto-Installer
 --------------
-This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run "python installLLFI.py". You may run the installer with python2 or python3, but python3 is required to succesfully install and run the LLFI.
+This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run "python3 InstallLLFI.py".
   
 Dependencies:
   1. 32/64 Bit Linux or OS X
   2. Cmake (mininum v2.8)
-  3. Python 3 or above
-  4. Java Development kit 1.7 or higher (for GUI)
-  5. Apache Ant (for GUI)
-  6. tcsh (for GUI)
-  7. GraphViz package (for visualizing error propagation)
-  8. Internet Connection
+  3. Python 3 and above
+  4. tcsh (for GUI)
+  5. GraphViz package (for visualizing error propagation)
+  6. Internet Connection
+
+GUI Dependencies:
+  1. JDK7/JDK8 with JavaFX
+  2. tcsh shell
 
 Usage:
-run "python InstallLLFI.py -h" to see all running options/guidelines
+run "python3 InstallLLFI.py -h" to see all running options/guidelines
   1. Copy the InstallLLFI.py script to where you want to build the LLFI
   2. Make sure you are _not_ logged in as root
-  2. Run "python InstallLLFI.py"
+  2. Run "python3 InstallLLFI.py"
   3. Wait for compilation to finish
   4. Run the GUI by executing "./llfi-gui" under the bin/ folder
 
@@ -45,8 +47,11 @@ Dependencies:
   6. LLVM v3.4, built with CMake
     * Build llvm-3.4 **WITH CMAKE** using flag `-DLLVM_REQUIRES_RTTI=1`. [Instructions](http://llvm.org/docs/CMake.html)
     * Remember to run `make` in the llvm build directory after running `cmake`.
-  7. Oracle JDK7 with JavaFX (for GUI) or higher
-  8. tcsh (for GUI)
+  9. GraphViz package (for visualizing error propagation)
+
+GUI Dependencies:
+  1. JDK7/JDK8 with JavaFX
+  2. tcsh shell
 
 Building:
   
@@ -128,12 +133,9 @@ Example program: `factorial`
   For complete test of whole of LLFI, please use LLFI test suite and refer to wiki page: [Test suite for regression test](https://github.com/DependableSystemsLab/LLFI/wiki/Test-Suite-for-Regression-Test) for details.
 
 ####GUI
-If you have used `./setup` to install LLFI, you need to set new environment variables for tcsh shell before running the GUI for the first time. Open `~/.tcshrc` using your favourite text editor and add `setenv llfibuild <LLFI_BUILD_ROOT>/` and `setenv zgrviewer <LLFI_BUILD_ROOT>/tools/zgrviewer/` to it.
+If you have used `./setup` to install LLFI, you need to set new environment variables for tcsh shell before running the GUI for the first time. Open `~/.tcshrc` using your favourite text editor and add `setenv llfibuild <LLFI_BUILD_ROOT>/` and `setenv zgrviewer <LLFI_BUILD_ROOT>/tools/zgrviewer/` to it. [OPTIONAL] Create an environment variable "COMPARE" with the path of the SDC check script.
 
-To run the **GUI** of LLFI, use `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the GUI.
-```
-<LLFI_BUILD_ROOT>/bin/llfi-gui
-```
+Execute `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the **GUI**. The outputs will be saved in the directory where you have executed the command.
 
 Results
 -------
