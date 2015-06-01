@@ -31,14 +31,9 @@ build/
 *.swp
 
 # Java build files
-#*.fxml
 *.class
-#*.css
 *.idea
 *.iml
-
-#.gitingore itself
-#.gitignore
 
 # eclipse
 gui/.project
@@ -50,4 +45,3 @@ gui/factorial/
 gui/fib/
 gui/memcpy1/
 gui/sad/
-

@@ -142,12 +142,12 @@ Results
 After fault injection, output from LLFI and the tested application can be found
 in the *llfi* directory.
 
-|     Directory      |                 Contents                       |
-| ------------------ | ---------------------------------------------- |
-| *std_output*       | Piped STDOUT from the tested application       |
-| *llfi_stat_output* | Fault injection statistics                     |
-| *error_output*     | Failure reports (program crashes, hangs, etc.) |
-
+|     Directory         |                 Contents                       |
+| ----------------------| ---------------------------------------------- |
+| *std_output*          | Piped STDOUT from the tested application       |
+| *llfi_stat_output*    | Fault injection statistics                     |
+| *error_output*        | Failure reports (program crashes, hangs, etc.) |
+| *trace_report_output* | Faults propogation report files and graph      |
 
 
 References

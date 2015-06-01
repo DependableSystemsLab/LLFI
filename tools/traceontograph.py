@@ -36,7 +36,8 @@ def traceOntoGraph(traceFile, graphFile, output=0):
     for i in range(len(graphLines)):
       if ("llfiID_" + str(rep.faultID) + " [shape") in graphLines[i]:
         graphLines[i] = graphLines[i][:-3]
-        graphLines[i] = graphLines[i] + ", color=\""+FAULT_INJECTED_BORDER_COLOR+"\"];\n"
+        graphLines[i] = graphLines[i] + ", style=\"filled\", fillcolor=\""+FAULT_INJECTED_BORDER_COLOR +\
+          "\"];\n"
       for x in affectedInsts:
         if ("llfiID_" + str(x) + " [shape") in graphLines[i]:
           graphLines[i] = graphLines[i][:-3]
@@ -47,8 +48,7 @@ def traceOntoGraph(traceFile, graphFile, output=0):
         if summation == 2:
           if ("llfiID_" + str(s) + " -> " + "llfiID_" + str(e)+";") in graphLines[i]:
             graphLines[i] = graphLines[i][:-2]
-            graphLines[i] = graphLines[i] + " [color=\"red\"" \
-            + ", style=\"dashed\"];\n"
+            graphLines[i] = graphLines[i] + " [color=\"red\"];\n"
 
 
   print(''.join(graphLines))
@@ -65,5 +65,3 @@ if __name__ == "__main__":
   else:
     print("Error: running option: %(prog)s <trace difference report> <program dot-formatted CDFG>" %{"prog": prog}, file=sys.stderr)
     exit(1)
-
-

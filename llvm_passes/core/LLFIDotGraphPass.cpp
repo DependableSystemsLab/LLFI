@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -16,7 +17,7 @@
 #include "llvm/Support/InstIterator.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/IR/DataLayout.h"
-
+#include "llvm/DebugInfo.h"
 #include "Utils.h"
 
 #define DATADEPCOLOUR "blue"
@@ -26,7 +27,7 @@ using namespace llvm;
 namespace llfi {
 
 struct instNode {
-  std::string name, label;
+  std::string name, label; 
   Instruction *raw;
   std::string dotNode();
   instNode(Instruction *target);
@@ -37,11 +38,21 @@ instNode::instNode(Instruction *target) {
 
   long llfiID = llfi::getLLFIIndexofInst(target);
   name = "llfiID_" + longToString(llfiID);
+  FILE *outputFile = fopen("llfi.index.map.txt", "a");
 
   label = std::string(" [shape=record,label=\"") + longToString(llfiID);
   label += std::string("\\n") + target->getOpcodeName() + "\\n";
   if (target->getDebugLoc().getLine()) {
-    label += "(Line #: " + intToString(target->getDebugLoc().getLine()) + ")";
+    label += "(Line #: " + intToString(target->getDebugLoc().getLine()) + ")\\n";
+    if (MDNode *N= target->getMetadata("dbg")){
+      label += "(In File: " + DILocation (N).getFilename().str().substr(DILocation (N).getFilename().str().find_last_of("/\\")+1)+")";
+    }
+    if (outputFile)
+      fprintf(outputFile, "%s line_%s\n", name.c_str(),intToString(target->getDebugLoc().getLine()).c_str());
+  }
+  else{
+    if (outputFile)
+      fprintf(outputFile, "%s line_N/A\n", name.c_str());
   }
   label += "\"]";
 }
@@ -101,12 +112,12 @@ bool bBlockGraph::writeToStream(std::ofstream &target) {
 struct llfiDotGraph : public FunctionPass {
   static char ID;
   std::ofstream outfs;
-
   llfiDotGraph() : FunctionPass(ID) {}
 
   virtual bool doInitialization(Module &M) {
     outfs.open("llfi.stat.graph.dot", std::ios::trunc);
     outfs << "digraph \"LLFI Program Graph\" {\n";
+
     return false;
   }
 
@@ -118,7 +129,7 @@ struct llfiDotGraph : public FunctionPass {
        "  <TD COLSPAN=\"2\"><B>Legend</B></TD>"
        " </TR>"
        " <TR>"
-       "  <TD>Normal Control Flow</TD>"
+       "  <TD>Correct Control Flow</TD>"
        "  <TD><FONT COLOR=\"black\"> solid arrow </FONT></TD>"
        " </TR>"
        " <TR>"
@@ -126,16 +137,16 @@ struct llfiDotGraph : public FunctionPass {
        "  <TD><FONT COLOR=\"blue\"> solid arrow </FONT></TD>"
        " </TR>"
        " <TR>"
-       "  <TD>Control Flow Error</TD>"
-       "  <TD><FONT COLOR=\"red\">dashed arrow </FONT></TD>"
+       "  <TD>Error Propogation Flow</TD>"
+       "  <TD><FONT COLOR=\"red\">solid arrow </FONT></TD>"
        " </TR>"
        " <TR>"
-       "  <TD>Fault Affected Instruction</TD>"
+       "  <TD>The Affected Instruction(s) by Fault Injection  </TD>"
        "  <TD BGCOLOR=\"YELLOW\"></TD>"
        " </TR>"
        " <TR>"
-       "  <TD>Fault Injected Instruction</TD>"
-       "  <TD><FONT COLOR=\"red\"> red border </FONT></TD>"
+       "  <TD>The Instruction(s) LLFI Injects Faults to</TD>"
+       "  <TD BGCOLOR=\"red\"></TD>"
        " </TR>"
        "</TABLE>"
      ">];"

@@ -16,7 +16,7 @@ N: Anna Thomas
 D: Coding for LLFI - passes and scripts.
 
 N: Karthik Pattabiraman
-D: Provider of initial code and ideas 
+D: Provider of initial code and ideas
 
 N: Qining Lu
 D: Documented README file and examples, add argument-wise injection feature. 
