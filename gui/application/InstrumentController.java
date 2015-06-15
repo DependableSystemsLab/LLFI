@@ -587,7 +587,7 @@ public class InstrumentController implements Initializable {
 			}
 			for (String exclude: instExcludeListView.getItems()) {
 				for (String include: option.includedInstruction) {
-					if (exclude.contains(include)) {
+					if (include.equals(exclude.split("-")[0])) {
 						newExcludedList.remove(exclude);
 						newIncludedList.add(exclude);
 						break;

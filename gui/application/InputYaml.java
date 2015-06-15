@@ -297,11 +297,42 @@ public class InputYaml {
 			
 			// check for customInstruction
 			if (includedInstruction.size() == 1) {
-				List<String> customInstructionList = Controller.configReader.getCustomInstruction();
-				for (int i = 0; i < customInstructionList.size(); i++) {
-					if (customInstructionList.get(i).equals(includedInstruction.get(0))) {
-						customInstruction = true;
-						break;
+				// check for 'all' and 'excluded'
+				if ("all".equals(includedInstruction.get(0))) {
+					// get all possible hardware instructions
+					List<String> includeList = Controller.configReader.getInstruction();
+					
+					// discard the '-' and everything after it
+					List<String> newIncludeList = new ArrayList<String>();
+					for (String s : includeList) {
+						newIncludeList.add(s.split("-")[0]);
+					}
+					
+					// get excluded instructions
+					List<String> excludeList = insttype.get("exclude");
+					
+					// see if it's empty
+					if (excludeList != null) {
+						// compare the two list, get all the included instructions out
+						for (String exclude: excludeList) {
+							for (String include: includeList) {
+								if (exclude.equals(include.split("-")[0])) {
+									newIncludeList.remove(exclude);
+									break;
+								}
+							}
+						}
+					}
+					
+					// make the 
+					includedInstruction = newIncludeList;
+				} else {
+					List<String> customInstructionList = Controller.configReader.getCustomInstruction();
+					for (int i = 0; i < customInstructionList.size(); i++) {
+						if (customInstructionList.get(i).equals(includedInstruction.get(0))) {
+							customInstruction = true;
+							break;
+						}
 					}
 				}
 			}

@@ -1,7 +1,7 @@
 defaultTimeOut: 500 #customize the default timeout threshold
 
 ## To inject faults into specific types of instructions:
-## (see all posible names in instructions.def). For include, you can also specify 'all'
+## (see all posible names in http://llvm.org/docs/LangRef.html). For include, you can also specify 'all'
 compileOption:
     instSelMethod:
       - insttype:
