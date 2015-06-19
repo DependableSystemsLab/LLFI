@@ -237,6 +237,8 @@ public class InstrumentController implements Initializable {
 
 			Controller.errorString = new ArrayList<>();
 			String line1;
+			boolean success = false;
+			
 			while ((line1 = in1.readLine()) != null) {
 				/*
 				 * if(line1.contains("Sucess")) Controller.errorString = new
@@ -248,12 +250,18 @@ public class InstrumentController implements Initializable {
 				if (line1.contains("error") || line1.contains("Error")
 						|| line1.contains("ERROR"))
 					errorFlag = true;
+				
+				// c++ program is compiled with clang++, but the script will try clang
+				// first, which would output some error(s)
+				if (line1.contains("Success") || line1.contains("success") ) {
+					success = true;
+				}
 
 			}
 			pr.waitFor();
 			in1.close();
 
-			if (errorFlag == true) {
+			if (errorFlag && !success) {
 				errorFlag = false;
 				Node source = (Node) event.getSource();
 				Stage stage = (Stage) source.getScene().getWindow();
