@@ -107,11 +107,11 @@ To run it, open VirtualBox, select `File->Import Appliance...` and navigate to t
 
 Running
 -------
-You can use test programs in the *test_suite/PROGRAMS/* directory to test LLFI.
+You can use test programs in the directory `sample_programs/` or `test_suite/PROGRAMS/` to test LLFI. Programs in the `sample_programs` directory already contains a valid `input.yaml` file.
 ####Command line
 Example program: `factorial`
-  1. Copy the *factorial/* directory from *test_suite/PROGRAMS/* to your project directory. 
-  2. Change to your *factorial* directory Build a single IR file with the LLFI tool `GenerateMakefile`
+  1. Copy the `sample_programs/factorial/` directory to your project directory. 
+  2. Change to your `factorial` directory Build a single IR file with the LLFI tool `GenerateMakefile`
       ```
       <LLFI_BUILD_ROOT>/tools/GenerateMakefile --readable --all -o factorial.ll
       ```
