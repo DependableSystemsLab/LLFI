@@ -28,11 +28,9 @@ insertelement
 shufflevector
 extractvalue
 insertvalue
+alloca
 load-(LoadInst)
 store-(StoreInst)
-alloca
-load
-store
 fence
 cmpxchg
 atomicrmw
