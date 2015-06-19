@@ -45,3 +45,6 @@ gui/factorial/
 gui/fib/
 gui/memcpy1/
 gui/sad/
+gui/sum/
+gui/min/
+gui/bfs/
