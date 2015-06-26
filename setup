@@ -16,6 +16,7 @@ List of options:
 
 --help(-h): show help information
 --no_gui: Add this option if you do not want GUI.
+--runTests: Add this option if you want to run all regression tests after building LLFI.
 """
 
 import sys
@@ -41,6 +42,7 @@ optional_configs = {
 }
 
 gui_build_flag = True
+run_tests_flag = False
 
 def usage(msg = None):
   retval = 0
@@ -56,7 +58,7 @@ def cmd_exists(cmd):
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
 
 def parseArgs(args):
-  global required_configs, optional_configs, gui_build_flag
+  global required_configs, optional_configs, gui_build_flag, run_tests_flag
   
   argid = 0
   while argid < len(args):
@@ -72,6 +74,8 @@ def parseArgs(args):
         usage()
       elif arg == "--no_gui":
         gui_build_flag = False
+      elif arg == "--runTests":
+        run_tests_flag = True
       else:
         usage("Invalid argument: " + arg)
     else:
@@ -251,6 +255,12 @@ def build():
   os.chdir(script_path)
 
 
+def runTests():
+  print("Running all regression tests:\n")
+  LLFI_BUILD_DIR = os.path.realpath(required_configs['LLFI_BUILD_ROOT'])
+  subprocess.call(["python3", LLFI_BUILD_DIR + "/test_suite/SCRIPTS/llfi_test", "--all", "--threads", "2", "--verbose"])
+
+
 def configZGRV():
   # config zgrviewer
   script_path = os.path.realpath(os.path.dirname(__file__))
@@ -269,12 +279,17 @@ def configZGRV():
       new.write(line)
   os.chmod(new_script, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
 
+
 def main(args):
+  global run_tests_flag
+
   parseArgs(args)
   configZGRV()
   checkEnvironment()
   build()
+  if run_tests_flag:
+    runTests()
 
-	
+
 if __name__=="__main__":
   main(sys.argv[1:])

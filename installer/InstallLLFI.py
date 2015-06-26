@@ -474,6 +474,7 @@ parser.add_argument("-nGUI", "--noGUI", action='store_true', help="Do not build 
 parser.add_argument("-nBLLVM", "--noBuildLLVM", action='store_true', help="Do not compile the LLVM")
 parser.add_argument("-fBLLVM", "--forceBuildLLVM", action='store_true', help="Force recompilation of LLVM")
 parser.add_argument("-fBPyYaml", "--forceBuildPyYaml", action='store_true', help="Force recompilation of PyYaml")
+parser.add_argument("-rT", "--runTests", action='store_true', help="Run all regression tests for LLFI after installation")
 parser.add_argument("-tF", "--testFeature", action='store_true', help="LLFI installer development use only")
 
 
@@ -490,6 +491,10 @@ def testFeature():
   p = subprocess.call(["rm", "-rf", binPath])
   p = subprocess.call(["ant", "-f", antPath ], env=os.environ)
   p = subprocess.call(["ant", "-f", antPath, "jar" ], env=os.environ)
+
+def runTests():
+  LLFI_BUILD_DIR = os.path.dirname(os.path.realpath(__file__))
+  subprocess.call(["python3", LLFI_BUILD_DIR + "/llfi/test_suite/SCRIPTS/llfi_test", "--all", "--threads", "2", "--verbose"])
 
 if __name__ == "__main__":
   args = parser.parse_args(sys.argv[1:])
@@ -531,4 +536,6 @@ if __name__ == "__main__":
     #  buildGUI()
     addEnvs() #setenv...
     buildPyYaml(args.forceBuildPyYaml)
+  if args.runTests:
+    runTests()
 
