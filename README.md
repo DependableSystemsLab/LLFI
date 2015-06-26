@@ -73,6 +73,7 @@ Building:
 
   --help(-h): show help information
   --no_gui: Add this option if you do not want GUI.
+  --runTests: Add this option if you want to run all regression tests after building LLFI.
 ```
 
   Here is a sample build command if `clang` and `javac` are already in $PATH:
@@ -85,6 +86,9 @@ To build LLFI without GUI, just add option: `--no_gui` in the command line for s
 ```
 ./setup -LLFI_BUILD_ROOT $BUILD/LLFI -LLVM_SRC_ROOT $SRC/llvm-3.4 -LLVM_DST_ROOT $BUILD/llvm-3.4 --no_gui
 ```
+
+Running tests:
+Running all regression tests after installation is highly recommended. Note that you may encounter some error messages during the fault injection stage. This is normal. Once all tests have completed and they all passed, LLFI is correctly installed.
 
 VirtualBox Image
 -----------------
