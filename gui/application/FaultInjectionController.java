@@ -394,7 +394,7 @@ public class FaultInjectionController implements Initializable {
 					}
 				}
 				reader.close();
-				fiCycle.setPromptText("max:" + max);
+				fiCycle.setPromptText("max:" + (Integer.parseInt(max) - 1));
 				
 			} catch (IOException e) {
 				System.err

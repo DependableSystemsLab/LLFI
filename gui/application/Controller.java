@@ -303,7 +303,7 @@ public class Controller implements Initializable {
 				in.close();
 				
 				profileResult.add(new Table(failureName, Integer.parseInt(indexBound), 
-						Integer.parseInt(cycleBound)));
+						Integer.parseInt(cycleBound) - 1));
 			}
 			
 			ObservableList<Table> data = FXCollections.observableArrayList(profileResult);

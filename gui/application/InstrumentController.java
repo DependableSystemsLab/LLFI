@@ -311,31 +311,25 @@ public class InstrumentController implements Initializable {
 							Paths.get(Controller.currentProgramFolder + "/llfi-" + numFaultTypes.get(0) + "/llfi.stat.graph.dot"),
 							Paths.get(Controller.currentProgramFolder + "/llfi.stat.graph.dot"));
 				}
-						
+				
+				// reads llfi/<program>-llfi_index.ll
 				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
-				// Read file contents
 				while ((line = bufferReader.readLine()) != null) {
 					fileContent.add(line + "\n");
 				}
 				bufferReader.close();
 		
-				BufferedWriter outputFile = new BufferedWriter(new FileWriter(
-						outputIndexFile));
+				// writes a modified, easily readable file (<program>-llfi_displayIndex.ll)
+				BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputIndexFile));
+				long index = 0;
 				for (int i = 0; i < fileContent.size(); i++) {
+					String l = fileContent.get(i);
 
-					if (fileContent.get(i).contains("!llfi_index !"))
-						outputFile.write(fileContent.get(i)
-								.substring(
-										fileContent.get(i).indexOf(
-												"!llfi_index !") + 13,
-										fileContent.get(i).lastIndexOf("\n"))
-								+ "\t\t"
-								+ fileContent.get(i).substring(
-										0,
-										fileContent.get(i).indexOf(
-												"!llfi_index !")) + "\n");
-					else if (!fileContent.get(i).contains("= metadata !"))
-						outputFile.write("\t\t" + fileContent.get(i));
+					if (l.contains("!llfi_index !")) {
+						outputFile.write(index++ + "\t\t" + l.substring(0, l.indexOf("!llfi_index !")) + "\n");
+					} else if (!l.contains("= metadata !")) {
+						outputFile.write("\t\t" + l);
+					}
 				}
 				outputFile.close();
 				
