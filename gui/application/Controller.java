@@ -339,7 +339,7 @@ public class Controller implements Initializable {
 		} catch (FileNotFoundException e) {
 			// file not found, probably mean the user didn't enter in a command
 			errorString.add("\n" + e.getMessage());
-			errorString.add("required file not generated: did you forget to enter in a command?");
+			errorString.add("required file not generated: did you forget to enter in the program's argument(s)?");
 			
 			try {
 				Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("application/ErrorDisplay.fxml"));

@@ -20,10 +20,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import application.Controller;
@@ -42,13 +40,9 @@ public class FaultInjectionController implements Initializable {
 	@FXML
 	private TextField timeOut;
 	@FXML
-	private Label fiIndexLabel;
+	private TextField fiIndex;
 	@FXML
-	private Slider fiIndexSlider;
-	@FXML
-	private Label fiCycleLabel;
-	@FXML
-	private Slider fiCycleSlider;
+	private TextField fiCycle;
 	@FXML
 	private ComboBox<String> faulInjectionTypeCombo;
 	@FXML
@@ -145,18 +139,6 @@ public class FaultInjectionController implements Initializable {
 					.println("Exception Occured in writing to the input.yaml file");
 			e.printStackTrace();
 		}
-	}
-
-	@FXML
-	private void onChangeIndexSlider(MouseEvent e) {
-		int slideValue = (int) Math.round(fiIndexSlider.getValue());
-		fiIndexLabel.setText(String.valueOf(slideValue));
-	}
-
-	@FXML
-	private void onChangeRegIndexSlider(MouseEvent e) {
-		int slideValue1 = (int) Math.round(fiCycleSlider.getValue());
-		fiCycleLabel.setText(String.valueOf(slideValue1));
 	}
 
 	@FXML
@@ -285,15 +267,15 @@ public class FaultInjectionController implements Initializable {
 				r.fi_reg_index = Integer.parseInt(fiRegIndex.getText());
 			}
 			// if fi_cycle is zero we ignore it
-			if (!"0".equals(fiCycleLabel.getText())) {
-				r.fi_cycle = Integer.parseInt(fiCycleLabel.getText());
+			if (!"".equals(fiCycle.getText())) {
+				r.fi_cycle = Integer.parseInt(fiCycle.getText());
 			}
 			if (!"".equals(fiBitText.getText())) {
 				r.fi_bit = Integer.parseInt(fiBitText.getText());
 			}
 			// if fi_index is zero we ignore it
-			if (!"0".equals(fiIndexLabel.getText())) {
-				r.fi_index = Integer.parseInt(fiIndexLabel.getText());
+			if (!"".equals(fiIndex.getText())) {
+				r.fi_index = Integer.parseInt(fiIndex.getText());
 			}
 			if (!"".equals(randomSeed.getText())) {
 				r.randomSeed = Integer.parseInt(randomSeed.getText());
@@ -335,19 +317,14 @@ public class FaultInjectionController implements Initializable {
 				fiRegIndex.setText(run.fi_reg_index.toString());
 			}
 			if (run.fi_cycle != null) {
-				fiCycleLabel.setText(run.fi_cycle.toString());
-				fiCycleSlider.setValue(run.fi_cycle);
+				fiCycle.setText(run.fi_cycle.toString());
 			}
 			if (run.fi_bit != null) {
 				fiBitText.setText(run.fi_bit.toString());
 			}
 			if (run.fi_index != null) {
-				fiIndexLabel.setText(run.fi_index.toString());
-				fiIndexSlider.setValue(run.fi_index);
-			} else {
-				fiIndexSlider.setValue(0);
-				fiIndexLabel.setText("0");
-			}
+				fiIndex.setText(run.fi_index.toString());
+			} 
 			if (run.randomSeed != null) {
 				randomSeed.setText(run.randomSeed.toString());
 			}
@@ -369,6 +346,7 @@ public class FaultInjectionController implements Initializable {
 		// blank run options
 		noOfRunsText.setText("");
 		faulInjectionTypeCombo.setPromptText("--Select--");
+		faulInjectionTypeCombo.getSelectionModel().clearSelection();
 		fiRegIndex.setText("");
 		fiRegIndex.setPromptText("null");
 		fiBitText.setText("");
@@ -377,10 +355,8 @@ public class FaultInjectionController implements Initializable {
 		randomSeed.setPromptText("null");
 		timeOut.setText("");
 		timeOut.setPromptText("null");
-		fiCycleLabel.setText("0");
-		fiIndexLabel.setText("0");
-		fiIndexSlider.setValue(0);
-		fiCycleSlider.setValue(0);
+		fiCycle.setText("");
+		fiIndex.setText("");
 	}
 
 	@Override
@@ -394,41 +370,32 @@ public class FaultInjectionController implements Initializable {
 		if (!Controller.isBatchMode) {
 			try {
 				FileReader inputFile;
-				String line;
+				String line, max = "";
 
 				// get max fi_index
 				inputFile = new FileReader(Controller.currentProgramFolder
 						+ "/llfi.stat.totalindex.txt");
-				BufferedReader bufferReader = new BufferedReader(inputFile);
+				BufferedReader reader = new BufferedReader(inputFile);
 
-				String indexBound = "";
-				while ((line = bufferReader.readLine()) != null) {
-					indexBound = line.split("=")[1];
+				while ((line = reader.readLine()) != null) {
+					max = line.split("=")[1];
 				}
-				bufferReader.close();
-
-				fiIndexSlider.setMax(Double.parseDouble(indexBound));
-				fiIndexSlider.setMajorTickUnit(Double.parseDouble(indexBound));
+				reader.close();
+				fiIndex.setPromptText("max:" + max);
 
 				// get max fi_cycle
 				inputFile = new FileReader(Controller.currentProgramFolder
 						+ "/llfi.stat.prof.txt");
-				bufferReader = new BufferedReader(inputFile);
+				reader = new BufferedReader(inputFile);
 
-				while ((line = bufferReader.readLine()) != null) {
+				while ((line = reader.readLine()) != null) {
 					if (line.contains("=")) {
-						indexBound = line.split("=")[1];
+						max = line.split("=")[1];
 					}
 				}
-				bufferReader.close();
-
-				if (indexBound.equalsIgnoreCase("0")) {
-					indexBound = "-1";
-					fiCycleSlider.setDisable(true);
-				}
-
-				fiCycleSlider.setMax(Double.parseDouble(indexBound));
-				fiCycleSlider.setMajorTickUnit(Double.parseDouble(indexBound));
+				reader.close();
+				fiCycle.setPromptText("max:" + max);
+				
 			} catch (IOException e) {
 				System.err
 						.println("ERROR: files (llfi.stat.totalindex.txt or llfi.stat.prof.txt) not found!");
@@ -469,12 +436,10 @@ public class FaultInjectionController implements Initializable {
 		// make more boxes disappear if we are doing batch software injection
 		if (Controller.isBatchMode) {
 			faultInjectionCyclesLabel.setVisible(false);
-			fiCycleSlider.setVisible(false);
-			fiCycleLabel.setVisible(false);
+			fiCycle.setVisible(false);
 
 			faultInjectionIndexLabel.setVisible(false);
-			fiIndexSlider.setVisible(false);
-			fiIndexLabel.setVisible(false);
+			fiIndex.setVisible(false);
 		}
 	}
 }
