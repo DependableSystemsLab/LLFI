@@ -1,0 +1,22 @@
+
+Failure_Class : 
+Class1
+Failure_Mode :
+FMode1
+
+New_Failure_Mode 
+{
+Trigger:
+Call (fopen)
+Call (open)
+
+Trigger*: 
+ { 1 50 55 60 }
+Target:
+
+fopen :: dst
+open :: dst
+
+Action:
+Corrupt
+ }
