@@ -1,15 +1,23 @@
 #! /usr/bin/env python3
 
 # Everytime the contents of .fidl file is changed, this script should be run to create new passes and injectors
-# It is assumed that the script is executed in the llfisrc root
+# It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory
+
 import sys, os
 import shutil, errno
 import subprocess
+
 script_path = os.path.realpath(os.path.dirname(__file__))
 InputFIDL = os.path.basename(sys.argv[1])
-basename= os.path.splitext(InputFIDL)[0]
-#print (basename)
-basedir= os.getcwd()
+
+### PHIL @ July 12
+llfiroot = os.path.dirname(os.path.dirname(script_path))
+software_fault_injectors = os.path.join(llfiroot, 'runtime_lib/_SoftwareFaultInjectors.cpp')
+software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
+cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
+gui_software_fault_list = os.path.join(llfiroot, 'gui/config/customSoftwareFault_list.txt')
+setup_script = os.path.join(llfiroot, 'setup.py')
+
 ############################################################################
 
 def checkInputFIDL():
@@ -98,13 +106,14 @@ def FTriggerGenerator():
   
 #convert trigger and target of .fidl file into appropriate llvm passes
   #os.chdir("llfisrc/Templates/")
-  to= open ('TargetSelectorTemplate.cpp', 'r')
-               
+  to= open ('TargetSelectorTemplate.cpp', 'r')               
   PassLines0= list (to)
+  to.close
+
   # remove '/n' from all list members.
   PassLines = [el.replace('\n', '').replace("  ", '') for el in PassLines0]
   A=PassLines.index('// mark 1')
-  PassLines.insert(A+1, 'class _%s_%sInstSelector : public FIInstSelector{' %(F_Class,F_Mode)) # Trigger: "fread"
+  PassLines.insert(A+1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector{' %(F_Class,F_Mode)) # Trigger: "fread"
   B=PassLines.index('// mark 2')
   PassLines.insert(B+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode))
   X= PassLines.index('// mark 3')
@@ -119,7 +128,7 @@ def FTriggerGenerator():
   PassLines.insert(C+1, 'info["failure_class"] = "%s";'%(F_Class))
   PassLines.insert(C+2,'info["failure_mode"] = "%s";'%(F_Mode))
   F=PassLines.index('// mark 5')
-  PassLines.insert(F-2,'class _%s_%sRegSelector: public FIRegSelector{'%(F_Class,F_Mode))  
+  PassLines.insert(F-2,'class _%s_%sRegSelector: public SoftwareFIRegSelector{'%(F_Class,F_Mode))  
   PassLines.insert(F-3, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;'%(F_Class,F_Mode))
   F=PassLines.index('virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){')
   PassLines.insert(F+5, 'if( _%s_%sInstSelector::isTarget(CI, reg)) return true;'%(F_Class,F_Mode))
@@ -146,16 +155,46 @@ def FTriggerGenerator():
   for i in range (0,NumLine):
     "".join(PassLines[i].split())
   #  print (PassLines)
-# write to a file
-  with open('_%s_%sSelector.cpp'%(F_Class,F_Mode), mode='wt', encoding='utf-8') as myfile:
+
+  # write to a file
+  filename = '_%s_%sSelector.cpp'%(F_Class,F_Mode)
+  with open(os.path.join(software_failures_passes_dir, filename), mode='wt', encoding='utf-8') as myfile:
     for lines in PassLines:
       print(lines, file = myfile)
     myfile.close
   
-   # print (PassLines) 
-   
+  # modify llvm_pass/CMakeLists.txt
+  # TODO need to check if the line exist and then modify it
+  f = open(cmakelists, 'r')
+  l = list(f)
+  f.close
+  
+  try:
+    l.index('  software_failures/%s\n' % filename) 
+  except:
+    l.insert(l.index('  #FIDL\n') + 1, '  software_failures/%s\n' % filename)
 
-  to.close
+    f = open(cmakelists, 'w')
+    f.writelines(l)
+    f.close
+
+  # modify GUI's list
+  # TODO same as above
+  f = open(gui_software_fault_list, 'r')
+  l = list(f)
+  f.close
+  
+  try:
+    l.index('%s(%s)\n' % (F_Mode, F_Class))
+  except:
+    l.append('%s(%s)\n' % (F_Mode, F_Class))
+  
+    f = open(gui_software_fault_list, 'w')
+    f.writelines(l)
+    f.close
+  
+  # print (PassLines) 
+   
 ###########################################################
 
 def FInjectorGenerator():
@@ -179,7 +218,7 @@ def FInjectorGenerator():
   ko.close    
   #print (Type)     
   if Type == 'Corrupt':
-  	 InjectorLines.insert(M+1,'static RegisterFaultInjector AO"%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());'%(F_Mode, F_Class))
+  	 InjectorLines.insert(M+1,'static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());'%(F_Mode, F_Class))
   	 #print('i am in corrupt')
   	 print (" compilation successful")
   elif Type == "Freeze" :	
@@ -231,7 +270,7 @@ def FInjectorGenerator():
   	 NumLine= len (InjectorLines)
   	 for i in range (0,NumLine):
   	 	"".join(InjectorLines[i].split())
-  	 with open('_SoftwareFaultInjectors.cpp', mode='wt', encoding='utf-8') as myfile:
+  	 with open(software_fault_injectors, mode='wt', encoding='utf-8') as myfile:
   	 	for lines in InjectorLines:
   	 		print(lines, file = myfile)
   	 	myfile.close	
@@ -256,7 +295,7 @@ def AddInjector():
   NInjectorLines0=list(lo)
   NInjectorLines = [el.replace('\n', '') for el in NInjectorLines0]  	
   #Q= NInjectorLines.index(' public:') 
-  NInjectorLines.insert(2,'class %s_%sFInjector: public FaultInjector {'%(F_Class,F_Mode))
+  NInjectorLines.insert(2,'class %s_%sFInjector: public SoftwareFaultInjector {'%(F_Class,F_Mode))
   R= NInjectorLines.index('    void * Target= (void *)buf;  ' )
   for i in range (0, LOC-1):
     NInjectorLines.insert(R+1+i, codes[i]) 
@@ -276,7 +315,7 @@ def AddInjector():
   for i in range (0,NumLine):
     "".join(FinalInjector[i].split())
   
-  with open('_SoftwareFaultInjectors.cpp', mode='wt', encoding='utf-8') as myfile:
+  with open(software_fault_injectors, mode='wt', encoding='utf-8') as myfile:
     for lines in FinalInjector:
       print(lines, file = myfile)
     myfile.close 
