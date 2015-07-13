@@ -78,5 +78,6 @@ add_llvm_loadable_module(llfi-passes
   software_failures/_Timing_HighFrequentEventSelector.cpp 
   software_failures/_SoftwareFaultRegSelectors.cpp
   
+  #FIDL
   
 )
