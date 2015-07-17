@@ -7,9 +7,11 @@ FMode2
 New_Failure_Mode 
 {
 Trigger:
- Call (fread) 
-Call (fwrite)
-
+      fread 
+      fwrite
+Trigger*: 
+     { 1 50 55 60 }
+    
 
 Target:
 
