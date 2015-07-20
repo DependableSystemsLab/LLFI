@@ -195,7 +195,14 @@ public class InstrumentController implements Initializable {
 			// calls the correct script if the user selected more than 1 software fault
 			String scriptToCall;
 			ObservableList<String> numFaultTypes = instIncludeListView.getItems();
+			if (instTypeRadio.isSelected()) {
+				numFaultTypes = instIncludeListView.getItems();
+			} else {
+				// custom instruction is selected
+				numFaultTypes = FXCollections.observableArrayList(customInstCombo.getValue().toString());
+			}
 			Controller.selectedSoftwareFailures = numFaultTypes;
+			
 			if (Controller.isHardwareInjection || numFaultTypes.size() == 1) {
 				scriptToCall = "bin/instrument -lpthread --readable ";
 				Controller.isBatchMode = false;
