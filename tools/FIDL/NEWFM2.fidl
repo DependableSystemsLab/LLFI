@@ -7,7 +7,7 @@ FMode2
 New_Failure_Mode 
 {
 Trigger:
-      fread 
+      fread
       fwrite
 Trigger*: 
 { 1 50 55 60 }

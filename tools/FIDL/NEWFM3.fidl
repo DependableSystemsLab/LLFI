@@ -10,7 +10,7 @@ Trigger:
  call (fread) 
 call (fwrite)
 
-Trigger*:
+Trigger*: 
 
 Target:
 
