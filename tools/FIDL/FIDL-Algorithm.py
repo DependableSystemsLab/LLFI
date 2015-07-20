@@ -147,7 +147,7 @@ def FTriggerGenerator():
   #print (MapLines)
   M1=MapLines.index(' // probe 0')
   
-  MapLines.insert(M1+1,'class _%s_%sInstSelector : public FIInstSelector{' %(F_Class,F_Mode) )
+  MapLines.insert(M1+1,'class _%s_%sInstSelector : public SoftwareFIInstSelector{' %(F_Class,F_Mode) )
   M2=MapLines.index('// probe 1')
   MapLines.insert(M2+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode) )
   M3=MapLines.index(' // probe 2')
@@ -162,6 +162,11 @@ def FTriggerGenerator():
   	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)",  new FuncArgRegSelector( %s));}'%(F_Mode, F_Class, Reg))
   elif dst==1:
   	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   FuncDestRegSelector());}'%(F_Mode, F_Class))
+
+  AA=MapLines.index (' // probe 6')
+
+  MapLines.insert(AA+1,'long numOfSpecInsts= %s;'%(numOfSpecInsts))
+  MapLines.insert(AA+2,'long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
   
   
   to= open ('TargetSourceTemplate.cpp', 'r')
@@ -185,9 +190,7 @@ def FTriggerGenerator():
   C=PassLines.index('// mark 4')
   PassLines.insert(C+1, 'info["failure_class"] = "%s";'%(F_Class))
   PassLines.insert(C+2,'info["failure_mode"] = "%s";'%(F_Mode))
-  F=PassLines.index('// mark 5')
-  PassLines.insert(F-2,'class _%s_%sRegSelector: public SoftwareFIRegSelector{'%(F_Class,F_Mode))  
-  PassLines.insert(F-3, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;'%(F_Class,F_Mode))
+
   F=PassLines.index('virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){')
   PassLines.insert(F+5, 'if( _%s_%sInstSelector::isTarget(CI, reg)) return true;'%(F_Class,F_Mode))
   PassLines.append( 'static RegisterFIInstSelector A("%s(%s)", new   _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
@@ -200,6 +203,10 @@ def FTriggerGenerator():
 
   PassLines.insert(AA+1,'long numOfSpecInsts= %s;'%(numOfSpecInsts))
   PassLines.insert(AA+2,'long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
+
+  F=PassLines.index('// mark 8')
+  PassLines.insert(F+1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;'%(F_Class,F_Mode))
+  PassLines.insert(F+2,'class _%s_%sRegSelector: public SoftwareFIRegSelector{'%(F_Class,F_Mode))  
   
   
   
@@ -372,7 +379,7 @@ def AddInjector():
   NInjectorLines = [el.replace('\n', '') for el in NInjectorLines0]  	
   #Q= NInjectorLines.index(' public:') 
   NInjectorLines.insert(2,'class %s_%sFInjector: public SoftwareFaultInjector {'%(F_Class,F_Mode))
-  R= NInjectorLines.index('    void * Target= (void *)buf;  ' )
+  R= NInjectorLines.index('    int * Target= (int *)buf;  ' )
   for i in range (0, LOC-1):
     NInjectorLines.insert(R+1+i, codes[i]) 
   NInjectorLines.append('static RegisterFaultInjector X("%s(%s)", new %s_%sFInjector);'% (F_Mode,F_Class,F_Class,F_Mode)) 

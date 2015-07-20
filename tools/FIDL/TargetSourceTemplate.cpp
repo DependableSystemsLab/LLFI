@@ -63,7 +63,7 @@ if(funcNamesTargetArgs.find(func_name) != funcNamesTargetArgs.end())
                  for (int i=0; i<numOfSpecInsts; i++)
                  {  
                   if (llfiindex+1==IndexOfSpecInsts[i])
-                   { std::cout<< "Tainted Index is:"<<llfiindex+1<<"\n"; }
+                   { std::cout<< "Special Instruction Index is:"<<llfiindex+1<<"\n"; }
                  }
                      return true;}
 //** return true;

@@ -10,9 +10,7 @@ Trigger:
       fread 
       fwrite
 Trigger*: 
-     { 1 50 55 60 }
-    
-
+{ 1 50 55 60 }
 Target:
 
 fread :: src 2
