@@ -143,30 +143,30 @@ def FTriggerGenerator():
   xo.close
   
   # remove '/n' from all list members.
-  MapLines = [el.replace('\n', '').replace("  ", '') for el in MapLines0]
+  MapLines = [el.replace('\n', '') for el in MapLines0]
   #print (MapLines)
-  M1=MapLines.index(' // probe 0')
+  M1=MapLines.index('//fidl_1')
   
-  MapLines.insert(M1+1,'class _%s_%sInstSelector : public SoftwareFIInstSelector{' %(F_Class,F_Mode) )
-  M2=MapLines.index('// probe 1')
-  MapLines.insert(M2+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode) )
-  M3=MapLines.index(' // probe 2')
+  MapLines.insert(M1+1,'class _%s_%sInstSelector : public SoftwareFIInstSelector {' %(F_Class,F_Mode) )
+  M2=MapLines.index('//fidl_2')
+  MapLines.insert(M2+1,'    _%s_%sInstSelector() {' %(F_Class,F_Mode) )
+  M3=MapLines.index('//fidl_3')
   for i in range (0,NumInsts):
     if Insts[i]!= '':
-     MapLines.insert(M3+1, 'funcNames.insert(std::string("%s"));'%(Insts[i])) 
-  M4=MapLines.index('// probe 3')
-  MapLines.insert(M4+1,'info["failure_class"] = "%s";' %(F_Class))
-  MapLines.insert(M4+2,'info["failure_mode"] = "%s";' %(F_Mode))
-  MapLines.append( 'static RegisterFIInstSelector A("%s(%s)", new   _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
+     MapLines.insert(M3+1, '        funcNames.insert(std::string("%s"));'%(Insts[i])) 
+  M4=MapLines.index('//fidl_4')
+  MapLines.insert(M4+1,'        info["failure_class"] = "%s";' %(F_Class))
+  MapLines.insert(M4+2,'        info["failure_mode"] = "%s";' %(F_Mode))
+  MapLines.append( 'static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
   if singlesrc==1:
-  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)",  new FuncArgRegSelector( %s));}'%(F_Mode, F_Class, Reg))
+  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n'%(F_Mode, F_Class, Reg))
   elif dst==1:
-  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   FuncDestRegSelector());}'%(F_Mode, F_Class))
+  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n'%(F_Mode, F_Class))
 
-  AA=MapLines.index (' // probe 6')
+  AA=MapLines.index ('//fidl_5')
 
-  MapLines.insert(AA+1,'long numOfSpecInsts= %s;'%(numOfSpecInsts))
-  MapLines.insert(AA+2,'long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
+  MapLines.insert(AA + 1, '                long numOfSpecInsts = %s;'%(numOfSpecInsts))
+  MapLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
   
   
   to= open ('TargetSourceTemplate.cpp', 'r')
@@ -174,39 +174,39 @@ def FTriggerGenerator():
   to.close
 
   # remove '/n' from all list members.
-  PassLines = [el.replace('\n', '').replace("  ", '') for el in PassLines0]
-  A=PassLines.index('// mark 1')
-  PassLines.insert(A+1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector{' %(F_Class,F_Mode)) # Trigger: "fread"
-  B=PassLines.index('// mark 2')
-  PassLines.insert(B+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode))
-  X= PassLines.index('// mark 3')
+  PassLines = [el.replace('\n', '') for el in PassLines0]
+  A=PassLines.index('//fidl_1')
+  PassLines.insert(A+1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' %(F_Class,F_Mode)) # Trigger: "fread"
+  B=PassLines.index('//fidl_2')
+  PassLines.insert(B+1,'    _%s_%sInstSelector () {' %(F_Class,F_Mode))
+  X= PassLines.index('//fidl_3')
            
   for i in range (0,NumRegs):
     if Insts[i]!= '':
-      PassLines.insert(X+1,'funcNamesTargetArgs["%s"]= std::set<int>();'  %(Insts[i]) )
-      PassLines.insert(X+2, 'funcNamesTargetArgs["%s"].insert(%s);'%(Insts[i], Regs[i]))
+      PassLines.insert(X+1, '            funcNamesTargetArgs["%s"]= std::set<int>();'  %(Insts[i]) )
+      PassLines.insert(X+2, '            funcNamesTargetArgs["%s"].insert(%s);'%(Insts[i], Regs[i]))
      
   
-  C=PassLines.index('// mark 4')
-  PassLines.insert(C+1, 'info["failure_class"] = "%s";'%(F_Class))
-  PassLines.insert(C+2,'info["failure_mode"] = "%s";'%(F_Mode))
+  C=PassLines.index('//fidl_4')
+  PassLines.insert(C+1, '        info["failure_class"] = "%s";'%(F_Class))
+  PassLines.insert(C+2, '        info["failure_mode"] = "%s";'%(F_Mode))
 
-  F=PassLines.index('virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){')
-  PassLines.insert(F+5, 'if( _%s_%sInstSelector::isTarget(CI, reg)) return true;'%(F_Class,F_Mode))
-  PassLines.append( 'static RegisterFIInstSelector A("%s(%s)", new   _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
+  F=PassLines.index('    virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) {')
+  PassLines.insert(F+5, '        if (_%s_%sInstSelector::isTarget(CI, reg)) {\n            return true;\n        }'%(F_Class,F_Mode))
+  PassLines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
   if multisrc==1:
-  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   _%s_%sRegSelector());}'%(F_Mode, F_Class, F_Class,F_Mode))
+  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new _%s_%sRegSelector());\n\n}\n'%(F_Mode, F_Class, F_Class,F_Mode))
  # print ( PassLines)
   else: 
     print ('target is not src registers')
-  AA=PassLines.index ('//mark 6')
+  AA=PassLines.index ('//fidl_6')
 
-  PassLines.insert(AA+1,'long numOfSpecInsts= %s;'%(numOfSpecInsts))
-  PassLines.insert(AA+2,'long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
+  PassLines.insert(AA+1,'            long numOfSpecInsts= %s;'%(numOfSpecInsts))
+  PassLines.insert(AA+2,'            long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
 
-  F=PassLines.index('// mark 8')
-  PassLines.insert(F+1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;'%(F_Class,F_Mode))
-  PassLines.insert(F+2,'class _%s_%sRegSelector: public SoftwareFIRegSelector{'%(F_Class,F_Mode))  
+  F=PassLines.index('//fidl_7')
+  PassLines.insert(F+1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;\n'%(F_Class,F_Mode))
+  PassLines.insert(F+2,'class _%s_%sRegSelector: public SoftwareFIRegSelector {'%(F_Class,F_Mode))  
   
   
   
@@ -402,15 +402,17 @@ def AddInjector():
     for lines in FinalInjector:
       print(lines, file = myfile)
     myfile.close 
-###########################################################
+
+################################################################################
 
 def main(InputFIDL):
   readInputFIDL()	 
   FTriggerGenerator()
   FInjectorGenerator()
   print ('Injector module created.')
-  ################################################################################
-if __name__ == '__main__':
-        main(sys.argv[1])
 
+################################################################################
+
+if __name__ == '__main__':
+  main(sys.argv[1])
 
