@@ -378,11 +378,11 @@ def AddInjector():
   NInjectorLines0=list(lo)
   NInjectorLines = [el.replace('\n', '') for el in NInjectorLines0]  	
   #Q= NInjectorLines.index(' public:') 
-  NInjectorLines.insert(2,'class %s_%sFInjector: public SoftwareFaultInjector {'%(F_Class,F_Mode))
-  R= NInjectorLines.index('    int * Target= (int *)buf;  ' )
+  NInjectorLines.insert(0,'class %s_%sFInjector : public SoftwareFaultInjector {'%(F_Class,F_Mode))
+  R= NInjectorLines.index('        int *Target = (int *) buf;' )
   for i in range (0, LOC-1):
-    NInjectorLines.insert(R+1+i, codes[i]) 
-  NInjectorLines.append('static RegisterFaultInjector X("%s(%s)", new %s_%sFInjector);'% (F_Mode,F_Class,F_Class,F_Mode)) 
+    NInjectorLines.insert(R+1+i, "        " + codes[i]) 
+  NInjectorLines.append('\nstatic RegisterFaultInjector X("%s(%s)", new %s_%sFInjector());'% (F_Mode,F_Class,F_Class,F_Mode)) 
   #print (NInjectorLines)
   
   ko= open ('Built-in-FITemplate.cpp', 'r')

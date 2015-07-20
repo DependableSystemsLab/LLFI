@@ -233,3 +233,4 @@ class PthreadRaceConditionInjector: public SoftwareFaultInjector {
 };
 
 static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());
+

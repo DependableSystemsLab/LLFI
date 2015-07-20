@@ -18,8 +18,8 @@ fwrite :: src 0
 
 Action:
 Perturb :: CustomInjector
-  
-} 
+}
+
 CustomInjector (char*Target){    
-*Target= *Target+1000;
+*Target = *Target + 1000;
 }
