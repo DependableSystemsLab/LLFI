@@ -33,13 +33,13 @@ def checkInputFIDL():
 #############################################################################
  #read .fidl file, and calculates the number of trigger points
 def readInputFIDL():
-  global A,B,C,D,E,F,G,H,K,X,M,N,O,P,F_Class,F_Mode,NumInst,Insts,Regs,F_Injector,TaintedIndexes,numOfTainted, Type, Action, src, dst, RetVal
+  global A,B,C,D,E,F,G,H,K,X,M,N,O,P,F_Class,F_Mode,NumRegs,NumInsts,Insts,Regs,F_Injector,SpecInstsIndexes,numOfSpecInsts, Type, Action,src, singlesrc,multisrc, dst, RetVal, Reg
   fo = open(InputFIDL, 'r')
   
   FIDLObjects0=list(fo)
   # remove '/n' from all list members.
   FIDLObjects = [el.replace('\n', '').replace("  ", '') for el in FIDLObjects0]
-  print (FIDLObjects)
+  #print (FIDLObjects)
   
   PassName=FIDLObjects.index('New_Failure_Mode ') 
   Trigger= FIDLObjects.index('Trigger:')
@@ -49,51 +49,82 @@ def readInputFIDL():
   F_Class=FIDLObjects[FIDLObjects.index('Failure_Class : ')+1]
   F_Mode= FIDLObjects[FIDLObjects.index('Failure_Mode :')+1]
   Insts=FIDLObjects[Trigger+1:TriggerS]
-  NumInst=len(Insts)
-  Tainted= FIDLObjects[TriggerS+1:Target]
-  num=len(Tainted) 
+  while '' in Insts:
+    Insts.remove('')
+  #print (Insts)  
+  NumInsts=len(Insts)
+  SpecInsts= FIDLObjects[TriggerS+1:Target]
+  num=len(SpecInsts) 
   for i in range (0, num):
-    if Tainted[i] != '':
-      s= Tainted[i].split()
+    if SpecInsts[i] != '':
+      s= SpecInsts[i].split()
       
-      TaintedIndexes = [el.replace('\n', '').replace("  ", '') for el in s]
-      print (TaintedIndexes)
-      if TaintedIndexes[0] != '{' :
+      SpecInstsIndexes = [el.replace('\n', '').replace("  ", '') for el in s]
+      #print (SpecInstsIndexes)
+      if SpecInstsIndexes[0] != '{' :
         print ('Trigger* must be begun by {')
-      TaintedIndexes.remove('{')
-      TaintedIndexes.remove('}')
-      numOfTainted= len(TaintedIndexes)
-      print (numOfTainted) 
-      TaintedIndexes= (', '.join(  TaintedIndexes))
-      print (TaintedIndexes)
+      SpecInstsIndexes.remove('{')
+      SpecInstsIndexes.remove('}')
+      numOfSpecInsts= len(SpecInstsIndexes)
+      #print (numOfSpecInsts) 
+      SpecInstsIndexes= (', '.join(  SpecInstsIndexes))
+      #print (SpecInstsIndexes)
     else:
-      numOfTainted=0 
-      TaintedIndexes= ''
+      numOfSpecInsts=0 
+      SpecInstsIndexes= ''
   Regs=FIDLObjects[Target+1:Action]
   #print (Regs)
-  src =   0
+  while '' in Regs:
+    Regs.remove('')
+ # print (Regs)  
+  NumRegs= len(Regs)
+ #
+  #print (NumRegs)
+  #print (NumInsts)
+  src=0 
+  singlesrc = 0
+  multisrc=0
   dst= 0 
   RetVal=0  
-  for i in range (0, NumInst):
+  
+  for i in range (0, NumRegs):
     if Regs[i] != '':
-      s= Regs[i].split()
-      print (s)
-      Insts[i]= s[0]
-      #print (s[2])
-      if s[1] != '::':
-        print ('Target is not in proper format')
-      elif s[2]== 'src':  	
-        Regs[i]= s[3]
-        src=1
-      elif s[2]== 'dst':
-        dst=1  
-      elif s[2]== 'RetVal':
-        RetVal=1   
-      else:
-      	print (" Target is not in proper format")  
-      #print(Insts[i])
-      #print(Regs[i])
-     
+    	s= Regs[i].split()
+    	#print (s)
+    	if s[0]=='dst':
+    		dst=1
+    	elif s[0]=='src':
+    		src=1
+    		singlesrc=1
+    		Reg = s[1]
+    		Regs[i]= Reg
+    	elif s[0]=='RetVal':
+    		RetVal=1
+    	  
+    		
+    	elif s[2] == 'dst' :
+    		dst=1
+    	elif s[2] == 'src' :
+    		#dst=0
+    		src=1
+    		multisrc=1
+    		Regs[i]=s[3]
+    	elif s[2]=='RetVal' :
+    		#dst=0  
+    		#src=0 
+    		RetVal=1
+    	elif s[1]=='::':
+    		Regs[i]= s[3]
+    		Insts [i]=s[0] 
+    	else:		
+    	  print ('Target is not in proper format')
+    else:
+    	 dst=1
+    	 print (" un-defined Target is set to default")  
+           
+      
+      
+       
   #H=FIDLObjects.index('}')
   #Atype=FIDLObjects.index(Action+1)
   Type=FIDLObjects [Action+1]
@@ -106,7 +137,34 @@ def FTriggerGenerator():
   
 #convert trigger and target of .fidl file into appropriate llvm passes
   #os.chdir("llfisrc/Templates/")
-  to= open ('TargetSelectorTemplate.cpp', 'r')               
+  
+  xo= open ('TargetDestinationTemplate.cpp','r')
+  MapLines0=list(xo)
+  xo.close
+  
+  # remove '/n' from all list members.
+  MapLines = [el.replace('\n', '').replace("  ", '') for el in MapLines0]
+  #print (MapLines)
+  M1=MapLines.index(' // probe 0')
+  
+  MapLines.insert(M1+1,'class _%s_%sInstSelector : public FIInstSelector{' %(F_Class,F_Mode) )
+  M2=MapLines.index('// probe 1')
+  MapLines.insert(M2+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode) )
+  M3=MapLines.index(' // probe 2')
+  for i in range (0,NumInsts):
+    if Insts[i]!= '':
+     MapLines.insert(M3+1, 'funcNames.insert(std::string("%s"));'%(Insts[i])) 
+  M4=MapLines.index('// probe 3')
+  MapLines.insert(M4+1,'info["failure_class"] = "%s";' %(F_Class))
+  MapLines.insert(M4+2,'info["failure_mode"] = "%s";' %(F_Mode))
+  MapLines.append( 'static RegisterFIInstSelector A("%s(%s)", new   _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
+  if singlesrc==1:
+  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)",  new FuncArgRegSelector( %s));}'%(F_Mode, F_Class, Reg))
+  elif dst==1:
+  	MapLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   FuncDestRegSelector());}'%(F_Mode, F_Class))
+  
+  
+  to= open ('TargetSourceTemplate.cpp', 'r')
   PassLines0= list (to)
   to.close
 
@@ -118,7 +176,7 @@ def FTriggerGenerator():
   PassLines.insert(B+1,'_%s_%sInstSelector (){' %(F_Class,F_Mode))
   X= PassLines.index('// mark 3')
            
-  for i in range (1,NumInst):
+  for i in range (0,NumRegs):
     if Insts[i]!= '':
       PassLines.insert(X+1,'funcNamesTargetArgs["%s"]= std::set<int>();'  %(Insts[i]) )
       PassLines.insert(X+2, 'funcNamesTargetArgs["%s"].insert(%s);'%(Insts[i], Regs[i]))
@@ -133,35 +191,52 @@ def FTriggerGenerator():
   F=PassLines.index('virtual bool isRegofInstFITarget(Value *reg, Instruction *inst){')
   PassLines.insert(F+5, 'if( _%s_%sInstSelector::isTarget(CI, reg)) return true;'%(F_Class,F_Mode))
   PassLines.append( 'static RegisterFIInstSelector A("%s(%s)", new   _%s_%sInstSelector());'%(F_Mode, F_Class, F_Class,F_Mode))
+  if multisrc==1:
+  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   _%s_%sRegSelector());}'%(F_Mode, F_Class, F_Class,F_Mode))
  # print ( PassLines)
+  else: 
+    print ('target is not src registers')
   AA=PassLines.index ('//mark 6')
 
-  PassLines.insert(AA+1,'long numOfTainted= %s;'%(numOfTainted))
-  PassLines.insert(AA+2,'long IndexOfTainted[] = {%s};'%(TaintedIndexes))
+  PassLines.insert(AA+1,'long numOfSpecInsts= %s;'%(numOfSpecInsts))
+  PassLines.insert(AA+2,'long IndexOfSpecInsts[] = {%s};'%(SpecInstsIndexes))
   
-  if src==1:
-  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   _%s_%sRegSelector());}'%(F_Mode, F_Class, F_Class,F_Mode))
-  elif dst==1:
-  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   FuncDestRegSelector());}'%(F_Mode, F_Class))
-  elif RetVal==1: 
-  	PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   RetValRegSelector());}'%(F_Mode, F_Class))
+  
+  
+  
+  	
+  #elif RetVal==1: 
+  	#PassLines.append( 'static RegisterFIRegSelector B("%s(%s)", new   RetValRegSelector());}'%(F_Mode, F_Class))
   
   # complete instrumenting pass development by printing the pass content into a file.
   
+  
   filter(None, PassLines)
-  #while '' in PassLines:
-    #str_list.remove('')
   NumLine= len (PassLines)
   for i in range (0,NumLine):
     "".join(PassLines[i].split())
-  #  print (PassLines)
+    
+  filter(None, MapLines)
+  RangeLine= len (MapLines)
+  for i in range (0,RangeLine):
+    "".join(MapLines[i].split())    
+    
 
-  # write to a file
-  filename = '_%s_%sSelector.cpp'%(F_Class,F_Mode)
-  with open(os.path.join(software_failures_passes_dir, filename), mode='wt', encoding='utf-8') as myfile:
-    for lines in PassLines:
-      print(lines, file = myfile)
-    myfile.close
+  with open('_%s_%sSelector.cpp'%(F_Class,F_Mode), mode='wt', encoding='utf-8') as myfile:
+  	if multisrc==1: 
+  	  for lines in PassLines:
+  	  	print(lines, file = myfile)
+  	  print ('Instrument module created.')
+  	elif dst==1 or singlesrc==1:
+  		for lines in MapLines:
+  			print(lines, file = myfile)
+  		print ('Instrument module created.')
+  	else:
+  		print ('Check your target format!') 
+  	if dst==1 and multisrc==1:
+  		print ("Invalid trigger module (both src and dst usage not allowed)")	
+  	   
+  	myfile.close
   
   # modify llvm_pass/CMakeLists.txt
   # TODO need to check if the line exist and then modify it
@@ -193,8 +268,7 @@ def FTriggerGenerator():
     f.writelines(l)
     f.close
   
-  # print (PassLines) 
-   
+   # print (PassLines)
 ###########################################################
 
 def FInjectorGenerator():
@@ -220,51 +294,51 @@ def FInjectorGenerator():
   if Type == 'Corrupt':
   	 InjectorLines.insert(M+1,'static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());'%(F_Mode, F_Class))
   	 #print('i am in corrupt')
-  	 print (" compilation successful")
+  	 #print (" compilation successful")
   elif Type == "Freeze" :	
   	 InjectorLines.insert(N+1,'static RegisterFaultInjector CE("%s(%s)", new HangInjector());'%(F_Mode, F_Class))
   	 #print('i am in freeze')
-  	 print (" compilation successful")
+  	 #print (" compilation successful")
   elif Type== "Delay" :	 
     InjectorLines.insert(O+1,'static RegisterFaultInjector DC("%s(%s)", new SleepInjector());'%(F_Mode, F_Class))
     #print('i am in delay')
-    print (" compilation successful")
+    #print (" compilation successful")
   elif Type=="Perturb :: MemoryLeakInjector": 
     InjectorLines.insert(P+1, 'static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());'%(F_Mode, F_Class))
     #print ('i am in built-in perturb') 
-    print (" compilation successful")
+    #print (" compilation successful")
   elif Type=="Perturb :: ChangeValueInjecto":
     InjectorLines.insert(S+1, 'static RegisterFaultInjector EI("%s(%s)", new ChangeValueInjector(-40, false));'%(F_Mode, F_Class))
-    print (" compilation successful")
+    #print (" compilation successful")
   elif Type=="Perturb :: InappropriateCloseInjector":
   	 InjectorLines.insert(T+1, 'static RegisterFaultInjector FC("%s(%s)", new InappropriateCloseInjector(false));'%(F_Mode, F_Class))
-  	 print (" compilation successful")
+  	 #print (" compilation successful")
   elif Type=="Perturb :: MemoryExhaustionInjector":
   	 InjectorLines.insert(U+1,'static RegisterFaultInjector HC("%s(%s)", new MemoryExhaustionInjector(false));'  %(F_Mode, F_Class))
-  	 print (" compilation successful")
+  	# print (" compilation successful")
   elif Type=="Perturb :: WrongFormatInjector":
   	 InjectorLines.insert(V+1, 'static RegisterFaultInjector IC("%s(%s)", new WrongFormatInjector());'%(F_Mode, F_Class))
-  	 print (" compilation successful")
+  	 #print (" compilation successful")
   elif Type=="Perturb :: PthreadDeadLockInjector":
   	 InjectorLines.insert(W+1, 'static RegisterFaultInjector JB("%s(%s)", new PthreadDeadLockInjector());'%(F_Mode, F_Class))
-  	 print (" compilation successful")
+  #	 print (" compilation successful")
   elif Type=="Perturb :: PthreadThreadKillerInjector":
   	 InjectorLines.insert(X+1, 'static RegisterFaultInjector KB("%s(%s)", new PthreadThreadKillerInjector());'%(F_Mode, F_Class))
-  	 print (" compilation successful")
+  	# print (" compilation successful")
   elif Type=="Perturb :: PthreadRaceConditionInjector":
   	 InjectorLines.insert(Y+1, 'static RegisterFaultInjector LB("%s(%s)", new PthreadRaceConditionInjector());' %(F_Mode, F_Class))
-  	 print (" compilation successful")
+  	# print (" compilation successful")
     
   elif Type=='':
     InjectorLines.insert(M+1,'static RegisterFaultInjector AM("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());'%(F_Mode, F_Class)) 
     #print ('i am in un-defined')
-    print (" compilation successful")
+   # print (" compilation successful")
     
         
   if Type=="Perturb :: CustomInjector":
     AddInjector()
     #print ('i am in perturb') 
-    print (" compilation successful") 	 
+   # print (" compilation successful") 	 
   else:
   	 filter (None, InjectorLines)
   	 NumLine= len (InjectorLines)
@@ -324,7 +398,6 @@ def AddInjector():
 def main(InputFIDL):
   readInputFIDL()	 
   FTriggerGenerator()
-  print ('Instrument module created.')
   FInjectorGenerator()
   print ('Injector module created.')
   ################################################################################
