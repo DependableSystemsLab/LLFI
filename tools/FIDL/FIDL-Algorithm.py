@@ -222,7 +222,9 @@ def FTriggerGenerator():
     "".join(MapLines[i].split())    
     
 
-  with open('_%s_%sSelector.cpp'%(F_Class,F_Mode), mode='wt', encoding='utf-8') as myfile:
+  # write to a file
+  filename = '_%s_%sSelector.cpp'%(F_Class,F_Mode)
+  with open(os.path.join(software_failures_passes_dir, filename), mode='wt', encoding='utf-8') as myfile:
   	if multisrc==1: 
   	  for lines in PassLines:
   	  	print(lines, file = myfile)
