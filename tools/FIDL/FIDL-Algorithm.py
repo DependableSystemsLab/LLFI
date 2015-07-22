@@ -40,6 +40,7 @@ def readInputFIDL():
   # remove '/n' from all list members.
   FIDLObjects = [el.replace('\n', '').replace('  ', '') for el in FIDLObjects0]
   # print (FIDLObjects)
+  fo.close()
   
   PassName = FIDLObjects.index('New_Failure_Mode ') 
   Trigger= FIDLObjects.index('Trigger:')
@@ -47,7 +48,7 @@ def readInputFIDL():
   TriggerS = FIDLObjects.index('Trigger*: ')
   Action = FIDLObjects.index('Action:')
   F_Class = FIDLObjects[FIDLObjects.index('Failure_Class : ') + 1]
-  F_Mode= FIDLObjects[FIDLObjects.index('Failure_Mode :') + 1]
+  F_Mode = FIDLObjects[FIDLObjects.index('Failure_Mode :') + 1]
   Insts = FIDLObjects[Trigger + 1 : TriggerS]
   
   while '' in Insts:
@@ -131,7 +132,6 @@ def readInputFIDL():
   # Atype = FIDLObjects.index(Action + 1)
   Type = FIDLObjects[Action + 1]
   # print (Type)  
-  fo.close
 
 
 ##############################################################################
@@ -139,13 +139,8 @@ def FTriggerGenerator() :
   
   # convert trigger and target of .fidl file into appropriate llvm passes
   # os.chdir("llfisrc/Templates/")
+  MapLines = read_file('TargetDestinationTemplate.cpp')
   
-  xo= open ('TargetDestinationTemplate.cpp', 'r')
-  MapLines0 = list(xo)
-  xo.close
-  
-  # remove '/n' from all list members.
-  MapLines = [el.replace('\n', '') for el in MapLines0]
   # print(MapLines)
   M1 = MapLines.index('//fidl_1')
   
@@ -170,12 +165,8 @@ def FTriggerGenerator() :
   MapLines.insert(AA + 1, '                long numOfSpecInsts = %s;' % (numOfSpecInsts))
   MapLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
   
-  to = open ('TargetSourceTemplate.cpp', 'r')
-  PassLines0 = list(to)
-  to.close
-
-  # remove '/n' from all list members.
-  PassLines = [el.replace('\n', '') for el in PassLines0]
+  PassLines = read_file('TargetSourceTemplate.cpp')
+  
   A = PassLines.index('//fidl_1')
   PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class,F_Mode)) # Trigger: "fread"
   B = PassLines.index('//fidl_2')
@@ -217,77 +208,47 @@ def FTriggerGenerator() :
   	# PassLines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());}' % (F_Mode, F_Class))
   
   # complete instrumenting pass development by printing the pass content into a file.
-  
-  
-  filter(None, PassLines)
-  NumLine = len(PassLines)
-  for i in range(0, NumLine):
-    "".join(PassLines[i].split())
-    
-  filter(None, MapLines)
-  RangeLine = len(MapLines)
-  for i in range(0,RangeLine):
-    "".join(MapLines[i].split())    
     
 
   # write to a file
   filename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
-  with open(os.path.join(software_failures_passes_dir, filename), mode='wt', encoding='utf-8') as myfile:
-  	if multisrc == 1: 
-  	  for lines in PassLines:
-  	  	print(lines, file = myfile)
-  	  print('Instrument module created.')
-  	elif dst == 1 or singlesrc == 1:
-  		for lines in MapLines:
-  			print(lines, file = myfile)
-  		print('Instrument module created.')
-  	else:
-  		print('Check your target format!') 
-  	if dst == 1 and multisrc == 1:
-  		print("Invalid trigger module (both src and dst usage not allowed)")	
-  	   
-  	myfile.close
+  filepath = os.path.join(software_failures_passes_dir, filename)
+    
+  if multisrc == 1: 
+    write_file(filepath, PassLines)
+    print('Instrument module created.')
+  elif dst == 1 or singlesrc == 1:
+    write_file(filepath, MapLines)
+    print('Instrument module created.')
+  else:
+    print('Check your target format!') 
+  if dst == 1 and multisrc == 1:
+    print("Invalid trigger module (both src and dst usage not allowed)")	
   
   # modify llvm_pass/CMakeLists.txt
-  # TODO need to check if the line exist and then modify it
-  f = open(cmakelists, 'r')
-  l = list(f)
-  f.close
+  l = read_file(cmakelists)
   
   try:
-    l.index('  software_failures/%s\n' % filename) 
+    l.index('  software_failures/%s' % filename) 
   except:
-    l.insert(l.index('  #FIDL\n') + 1, '  software_failures/%s\n' % filename)
-
-    f = open(cmakelists, 'w')
-    f.writelines(l)
-    f.close
+    l.insert(l.index('  #FIDL') + 1, '  software_failures/%s' % filename)
+    write_file(cmakelists, l)
 
   # modify GUI's list
-  # TODO same as above
-  f = open(gui_software_fault_list, 'r')
-  l = list(f)
-  f.close
+  l = read_file(gui_software_fault_list)
   
   try:
-    l.index('%s(%s)\n' % (F_Mode, F_Class))
+    l.index('%s(%s)' % (F_Mode, F_Class))
   except:
-    l.append('%s(%s)\n' % (F_Mode, F_Class))
-  
-    f = open(gui_software_fault_list, 'w')
-    f.writelines(l)
-    f.close
+    l.append('%s(%s)' % (F_Mode, F_Class))
+    write_file(gui_software_fault_list, l)
   
    # print (PassLines)
 ###########################################################
 
 def FInjectorGenerator():
-
-  ko = open('Built-in-FITemplate.cpp', 'r')
-                
-  InjectorLines0= list (ko)
-  # remove '/n' from all list members.
-  InjectorLines = [el.replace('\n', '') for el in InjectorLines0]
+  InjectorLines = read_file('Built-in-FITemplate.cpp')
+  
   M = InjectorLines.index('static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());')
   N = InjectorLines.index('static RegisterFaultInjector CD("NoAck(MPI)", new HangInjector());')
   O = InjectorLines.index('static RegisterFaultInjector DB("CPUHog(Res)", new SleepInjector());')
@@ -299,7 +260,6 @@ def FInjectorGenerator():
   W = InjectorLines.index('static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());')
   X = InjectorLines.index('static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());')
   Y = InjectorLines.index('static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());')
-  ko.close    
   # print(Type)     
   if Type == 'Corrupt':
     InjectorLines.insert(M + 1,'static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());' % (F_Mode, F_Class))
@@ -313,7 +273,7 @@ def FInjectorGenerator():
     InjectorLines.insert(O + 1,'static RegisterFaultInjector DC("%s(%s)", new SleepInjector());' % (F_Mode, F_Class))
     # print('i am in delay')
     # print("compilation successful")
-  elif Type== "Perturb :: MemoryLeakInjector": 
+  elif Type == "Perturb :: MemoryLeakInjector": 
     InjectorLines.insert(P + 1, 'static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());' % (F_Mode, F_Class))
     # print('i am in built-in perturb') 
     # print("compilation successful")
@@ -349,21 +309,16 @@ def FInjectorGenerator():
     # print ('i am in perturb') 
     # print (" compilation successful") 	 
   else:
-    filter(None, InjectorLines)
-    NumLine = len(InjectorLines)
-    for i in range(0, NumLine):
-      "".join(InjectorLines[i].split())
-    with open(software_fault_injectors, mode='wt', encoding='utf-8') as myfile:
-      for lines in InjectorLines:
-        print(lines, file = myfile)
-      myfile.close	
+    write_file(software_fault_injectors, InjectorLines)
       
   
  #######################################################################   
 def AddInjector():
   fo = open(InputFIDL, 'r') 
   FIDLObjects0 = list(fo)
-  FIDLObjects = [el.replace('\n', '').replace(' ', '') for el in FIDLObjects0]  
+  FIDLObjects = [el.replace(' ', '') for el in read_file(InputFIDL)]
+  fo.close()
+  
   Injector = FIDLObjects.index('CustomInjector(char*Target){') 
   codes = FIDLObjects[Injector + 1 :]
   # print(codes)
@@ -371,9 +326,7 @@ def AddInjector():
   LOC = len(codes) 
   del(codes[LOC - 1]) 
   # print(codes) 
-  fo.close  	  
-  	 
-
+ 	  
   lo = open('NewInjectorTemplate.cpp', 'r') 
   NInjectorLines0 = list(lo)
   NInjectorLines = [el.replace('\n', '') for el in NInjectorLines0]  	
@@ -385,25 +338,23 @@ def AddInjector():
   NInjectorLines.append('\nstatic RegisterFaultInjector X("%s(%s)", new %s_%sFInjector());' % (F_Mode, F_Class, F_Class, F_Mode)) 
   # print(NInjectorLines)
   
-  ko = open ('Built-in-FITemplate.cpp', 'r')
-                
-  InjectorLines0 = list(ko)
-  # remove '/n' from all list members.
-  InjectorLines = [el.replace('\n', '') for el in InjectorLines0]
+  InjectorLines = read_file('Built-in-FITemplate.cpp')
   FinalInjector = InjectorLines + NInjectorLines
-  ko.close
+
   #writing to the file
-  filter(None, FinalInjector)
-  NumLine = len (FinalInjector)
-  for i in range(0, NumLine):
-    "".join(FinalInjector[i].split())
-  
-  with open(software_fault_injectors, mode = 'wt', encoding = 'utf-8') as myfile:
-    for lines in FinalInjector:
-      print(lines, file = myfile)
-    myfile.close 
+  write_file(software_fault_injectors, FinalInjector)
 
 ################################################################################
+
+def read_file(file_name):
+  with open(file_name) as f:
+    lines = f.read().splitlines()
+  return lines
+  
+def write_file(file_name, lines):
+  with open(file_name, 'w') as f:
+    for line in lines:
+      f.write('%s\n' % line)
 
 def main(InputFIDL):
   readInputFIDL()	 
