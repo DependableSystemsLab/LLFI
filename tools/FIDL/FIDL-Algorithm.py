@@ -201,7 +201,8 @@ def FTriggerGenerator() :
   PassLines.insert(F + 2, 'class _%s_%sRegSelector: public SoftwareFIRegSelector {' % (F_Class, F_Mode))  
   
   
-  
+  # @PHIL Bugfix July 21
+  PassLines.insert(PassLines.index('//fidl_8') + 1, '        if (_%s_%sInstSelector::isTarget(CI, reg)) {\n            return true;' % (F_Class, F_Mode))
   
   	
   # elif RetVal == 1: 
