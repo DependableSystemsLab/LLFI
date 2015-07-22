@@ -175,7 +175,7 @@ def FTriggerGenerator() :
            
   for i in range (0, NumRegs):
     if Insts[i] != '':
-      PassLines.insert(X + 1, '            funcNamesTargetArgs["%s"]= std::set<int>();' % (Insts[i]))
+      PassLines.insert(X + 1, '            funcNamesTargetArgs["%s"] = std::set<int>();' % (Insts[i]))
       PassLines.insert(X + 2, '            funcNamesTargetArgs["%s"].insert(%s);' % (Insts[i], Regs[i]))
      
   
@@ -326,10 +326,8 @@ def AddInjector():
   LOC = len(codes) 
   del(codes[LOC - 1]) 
   # print(codes) 
- 	  
-  lo = open('NewInjectorTemplate.cpp', 'r') 
-  NInjectorLines0 = list(lo)
-  NInjectorLines = [el.replace('\n', '') for el in NInjectorLines0]  	
+  
+  NInjectorLines = read_file('NewInjectorTemplate.cpp')
   # Q = NInjectorLines.index(' public:') 
   NInjectorLines.insert(0, 'class %s_%sFInjector : public SoftwareFaultInjector {' % (F_Class, F_Mode))
   R = NInjectorLines.index('        int *Target = (int *) buf;')
