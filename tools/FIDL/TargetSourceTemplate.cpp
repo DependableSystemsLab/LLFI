@@ -7,8 +7,8 @@
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/GraphTraits.h"
 
+#include "Utils.h"
 #include "FIInstSelector.h"
-#include "Utils.h" 
 #include "FICustomSelectorManager.h"
 #include "_SoftwareFaultRegSelectors.h"
 
