@@ -17,7 +17,7 @@ llfiroot = os.path.dirname(os.path.dirname(script_path))
 software_fault_injectors = os.path.join(llfiroot, 'runtime_lib/_SoftwareFaultInjectors.cpp')
 software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
 cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
-gui_software_fault_list = os.path.join(llfiroot, 'gui/config/customSoftwareFault_list.txt')
+gui_config_yaml = os.path.join(llfiroot, 'gui/gui_config.yaml')
 setup_script = os.path.join(llfiroot, 'setup.py')
 
 ################################################################################
@@ -193,26 +193,23 @@ def FTriggerGenerator() :
     print('Instrument module created.')
   else:
     print('Check your target format!')
+    exit(1)
   
   # modify llvm_pass/CMakeLists.txt
   l = read_file(cmakelists)
-  
   try:
     l.index('  software_failures/%s' % filename) 
   except:
-    l.insert(l.index('  #FIDL') + 1, '  software_failures/%s' % filename)
+    l.insert(l.index("  #FIDL - DO NOT MODIFY UNTIL '#END'") + 1, '  software_failures/%s' % filename)
     write_file(cmakelists, l)
 
-  # modify GUI's list
-  l = read_file(gui_software_fault_list)
-  
+  # modify GUI's config yaml
+  l = read_file(gui_config_yaml)
   try:
-    l.index('%s(%s)' % (F_Mode, F_Class))
+    l.index('    - %s(%s)' % (F_Mode, F_Class))
   except:
-    l.append('%s(%s)' % (F_Mode, F_Class))
-    write_file(gui_software_fault_list, l)
-  
-   # print (PassLines)
+    l.insert(l.index("    #FIDL - DO NOT MODIFY UNTIL '#END'") + 1, '    - %s(%s)' % (F_Mode, F_Class))
+    write_file(gui_config_yaml, l)
    
 ################################################################################
    

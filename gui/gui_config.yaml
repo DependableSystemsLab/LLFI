@@ -1,0 +1,82 @@
+instructions: # hardware injection
+    - ret-(ReturnInst)
+    - br-(BranchInst)
+    - switch-(SwitchInst)
+    - indirectbr-(IndirectBrInst)
+    - invoke-(InvokeInst)
+    - resume
+    - unreachable-(UnreachableInst)
+    - add-(BinaryADD)
+    - fadd
+    - sub-(BinarySUB)
+    - fsub
+    - mul-(BinaryMUL)
+    - fmul
+    - udiv
+    - sdiv
+    - fdiv
+    - urem
+    - srem
+    - frem
+    - shl
+    - lshr
+    - ashr
+    - and-(BinaryOR)
+    - or-(BinaryAND)
+    - xor-(BinaryXOR)
+    - extractelement
+    - insertelement
+    - shufflevector
+    - extractvalue
+    - insertvalue
+    - alloca
+    - load-(LoadInst)
+    - store-(StoreInst)
+    - fence
+    - cmpxchg
+    - atomicrmw
+    - getelementptr
+    - trunc
+    - zext
+    - sext
+    - fptrunc
+    - fpext
+    - fptoui
+    - fptosi
+    - uitofp
+    - sitofp
+    - ptrtoint
+    - inttoptr
+    - bitcast
+    - addrspacecast
+    - icmp
+    - fcmp
+    - phi
+    - select
+    - call
+    - va_arg
+    - landingpad
+
+fault_type: # hardware injection
+    - bitflip
+    - stuck_at_0
+    - stuck_at_1
+    
+registers: # hardware injection
+    - dstreg-(DESTINATION_REGISTER)
+    - allsrcreg-(ALL_SOURCE_REGISTERS)
+    - srcreg1-(SOURCE_REGISTER_1)
+    - srcreg2-(SOURCE_REGISTER_2)
+    - srcreg3-(SOURCE_REGISTER_3)
+    - srcreg4-(SOURCE_REGISTER_4)
+
+custom_instructions: # hardware injection (should be a list)
+
+
+custom_registers: # hardware injection (should be a list)
+
+
+custom_software_faults: # software injection (should be a list)
+    #FIDL - DO NOT MODIFY UNTIL '#END'
+    #END
+

@@ -13,7 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.yaml.snakeyaml.Yaml;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -726,6 +729,7 @@ public class InstrumentController implements Initializable {
 	 * If the file does not exist, it will generate one.
 	 * @return - the list of applicable software failures
 	 */
+	@SuppressWarnings("unchecked")
 	private List<String> getApplicableSoftwareFailures() {
 		FileReader applicableSoftwareFailure = null;
 		String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
@@ -743,25 +747,14 @@ public class InstrumentController implements Initializable {
 			}
 		}
 		
-		String line;
-		BufferedReader bufferedReader = new BufferedReader(applicableSoftwareFailure);
-		ArrayList<String> softwareFailure = new ArrayList<String>();
-		
-		try {
-			// discard first line, as it is not a software failure
-			bufferedReader.readLine();
-			
-			// read in all software failure, discarding everything before the dash
-			while ((line = bufferedReader.readLine()) != null)   {
-				softwareFailure.add(line.substring(line.indexOf("-") + 2));
-			}
-			bufferedReader.close();
-		} catch (IOException e) {
-			System.err.println("InstrumentController: Unable to read " + inputLocation);
-			e.printStackTrace();
-		} 
-		
-		return softwareFailure;
+		Yaml y = new Yaml();
+		Map<String, Object> config = (Map<String, Object>) y.load(applicableSoftwareFailure);
+
+		if (config.get("instSelMethod") == null) {
+			return new ArrayList<String>();
+		} else {
+			return (List<String>) config.get("instSelMethod");
+		}
 	}
 	
 	/**
