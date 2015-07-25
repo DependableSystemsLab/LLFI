@@ -6,7 +6,9 @@ New_Failure_Mode:
         call: [fread, fwrite]
     Trigger*: [1, 50, 55, 60]
     Target:
-        src: [2, 0]
+        src: 
+            fread: [2]
+            fwrite: [0]
     Action:
         Perturb: Custom_Injector
 

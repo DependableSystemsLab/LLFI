@@ -25,7 +25,7 @@ setup_script = os.path.join(llfiroot, 'setup.py')
 #read .yaml file, and calculates the number of trigger points
 
 def read_input_fidl(input_fidl):
-  global F_Class, F_Mode, SpecInstsIndexes, numOfSpecInsts, Insts, Regs, custom_injector, action, reg_type
+  global F_Class, F_Mode, SpecInstsIndexes, numOfSpecInsts, Insts, custom_injector, action, reg_type, trigger_type
 
   # Check for Input FIDL's presence
   try:
@@ -49,15 +49,38 @@ def read_input_fidl(input_fidl):
     F_Mode = doc['Failure_Mode']
     nfm = doc['New_Failure_Mode']
     
-    # change here to support things other than call
+    # parses 'Trigger'
     trigger = nfm['Trigger']
     
     if 'call' in trigger:
       Insts = trigger['call']
-    # elif 'other things' in trigger:
-    else:
-      raise Exception('Error: Trigger option (call, ...) not found!')
+      trigger_type = 'call'
       
+      # parses 'Target'
+      target = nfm['Target']
+      if 'src' in target and 'dst' in target:
+        raise Exception('Error: Invalid trigger module (both src and dst usage not allowed)')
+      elif 'src' in target:
+        insts = target['src']
+        if (set(insts) != set(Insts) or # need to specify at least one src for each instruction
+            bool([inst for inst in insts.values() if inst == None or inst == [] or inst == '' or not isinstance(inst, list)])): # check that the specified src's aren't empty, an empty list, or an empty string, or isn't a list
+          raise Exception("Error: Invalid number/name of src's in Target, or Target sources are not specified as list!")
+        else:
+          Insts = insts
+        reg_type = 'src'
+      elif 'dst' in target:
+        reg_type = 'dst'
+      elif 'RetVal' in target:
+        reg_type = 'RetVal'
+      else:
+        raise Exception('Error: Invalid register target type!')
+    elif 'RetVal' in trigger:
+      Insts = trigger['RetVal']
+      trigger_type = 'RetVal'
+    else:
+      raise Exception('Error: Trigger option (call, or ret) not found!')
+      
+    # parses 'Trigger*'
     if 'Trigger*' in nfm:
       trigger_s = nfm['Trigger*']
       SpecInstsIndexes = ', '.join(str(s) for s in trigger_s)
@@ -66,21 +89,7 @@ def read_input_fidl(input_fidl):
       SpecInstsIndexes = ''
       numOfSpecInsts = 0
       
-    target = nfm['Target']
-    if 'src' in target and 'dst' in target:
-      raise Exception('Error: Invalid trigger module (both src and dst usage not allowed)')
-    elif 'src' in target:
-      Regs = target['src']
-      if len(Regs) != 1 and len(Regs) != len(Insts):
-        raise Exception('Error: Invalid number of src\' in Target!')
-      reg_type = 'src'
-    elif 'dst' in target:
-      reg_type = 'dst'
-    elif 'RetVal' in target:
-      reg_type = 'RetVal'
-    else:
-      raise Exception('Error: Invalid register target type!')
-      
+    # parses 'Action'
     action = nfm['Action']
     if 'Perturb' in action:
       perturb = action['Perturb']
@@ -112,11 +121,11 @@ def gen_ftrigger_single():
   MapLines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
   
   # change reg_type
-  if reg_type == 'src' and len(Regs) == 1:
-  	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, Regs[0]))
+  if reg_type == 'src':
+  	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, next(iter(Insts.values()))[0]))
   elif reg_type == 'dst':
   	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n' % (F_Mode, F_Class))
-  # @PHIL Bugfix July 22
+  # @PHIL Bugfix July 22 # doesnt work still
   elif reg_type == 'RetVal': 
   	PassLines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
 
@@ -138,9 +147,10 @@ def gen_ftrigger_multisrc():
   PassLines.insert(B + 1,'    _%s_%sInstSelector () {' % (F_Class,F_Mode))
   X = PassLines.index('//fidl_3')
            
-  for i in range(len(Regs)):
-    PassLines.insert(X + 1, '            funcNamesTargetArgs["%s"] = std::set<int>();' % (Insts[i]))
-    PassLines.insert(X + 2, '            funcNamesTargetArgs["%s"].insert(%s);' % (Insts[i], Regs[i]))
+  for inst in Insts:
+    PassLines.insert(X + 1, '            funcNamesTargetArgs["%s"] = std::set<int>();' % inst)
+    for reg in Insts[inst]:
+      PassLines.insert(X + 2, '            funcNamesTargetArgs["%s"].insert(%s);' % (inst, reg))
      
   C = PassLines.index('//fidl_4')
   PassLines.insert(C + 1, '        info["failure_class"] = "%s";' % (F_Class))
@@ -175,10 +185,10 @@ def FTriggerGenerator() :
   filename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
   filepath = os.path.join(software_failures_passes_dir, filename)
     
-  if reg_type == 'src' and len(Regs) > 1: # multisrc
+  if reg_type == 'src' and not is_one_src_register(): # multisrc
     write_file(filepath, gen_ftrigger_multisrc())
     print('Instrument module created.')
-  elif reg_type == 'src' and len(Regs) == 1 or reg_type == 'dst': # dst or singlesrc
+  elif reg_type == 'src' or reg_type == 'dst': # dst or singlesrc
     write_file(filepath, gen_ftrigger_single())
     print('Instrument module created.')
   else:
@@ -204,6 +214,18 @@ def FTriggerGenerator() :
   
    # print (PassLines)
    
+################################################################################
+   
+# checks if we are only instrumenting a single src register
+
+def is_one_src_register():
+  init_val = next(iter(Insts.values()))[0]
+  for inst in Insts.values():
+    if len(inst) > 1 or inst[0] != init_val:
+      return False
+  
+  return True
+      
 ################################################################################
 
 def FInjectorGenerator():
