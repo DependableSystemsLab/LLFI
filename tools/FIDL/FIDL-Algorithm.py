@@ -1,7 +1,20 @@
 #! /usr/bin/env python3
 
-# Everytime the contents of .fidl file is changed, this script should be run to create new passes and injectors
-# It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory
+"""
+(%prog)s takes a .fidl and generates ... 
+
+Usage: %(prog)s [OPTIONS] <fidl .yaml>
+
+List of options:
+-r:    removes the specified fidl .yaml
+-h:    shows help
+
+Everytime the contents of .fidl file is changed, this script should be run to create new passes and injectors
+It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory
+
+Class and mode pair must be unique!
+
+"""
 
 import sys, os
 import shutil, errno
@@ -14,24 +27,29 @@ script_path = os.path.realpath(os.path.dirname(__file__))
 
 ### PHIL @ July 12
 llfiroot = os.path.dirname(os.path.dirname(script_path))
-software_fault_injectors = os.path.join(llfiroot, 'runtime_lib/_SoftwareFaultInjectors.cpp')
+
+software_injectors_path = os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFaultInjectors.cpp')
+custom_injectors_yaml = 'custom_injectors.yaml'
 software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
 cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
 gui_config_yaml = os.path.join(llfiroot, 'gui/gui_config.yaml')
+
 setup_script = os.path.join(llfiroot, 'setup.py')
 
 ################################################################################
 
 #read .yaml file, and calculates the number of trigger points
 
-def read_input_fidl(input_fidl):
+def read_input_fidl():
   global F_Class, F_Mode, SpecInstsIndexes, numOfSpecInsts, Insts, custom_injector, action, reg_type, trigger_type
+
+  input_fidl = name
 
   # Check for Input FIDL's presence
   try:
     f = open(input_fidl, 'r')
   except:
-    print('ERROR: Specified FIDL config file (%s) not found!' % input_fidl)
+    print('Error: Specified FIDL config file (%s) not found!' % input_fidl)
     exit(1)
   
   # Check for correct YAML formatting
@@ -227,6 +245,7 @@ def is_one_src_register():
 
 def FInjectorGenerator():
 
+  """
   InjectorLines = read_file('Built-in-FITemplate.cpp')
   
   M = InjectorLines.index('static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());')
@@ -240,49 +259,53 @@ def FInjectorGenerator():
   W = InjectorLines.index('static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());')
   X = InjectorLines.index('static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());')
   Y = InjectorLines.index('static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());')
-  
+  """
+  name = '%s(%s)' % (F_Mode, F_Class)
+  selectorfilename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
+  code = []
+
   # print(Type)     
   if 'Corrupt' in action:
-    InjectorLines.insert(M + 1,'static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());' % (F_Mode, F_Class))
     # print('i am in corrupt')
     # print("compilation successful")
   elif 'Freeze' in action:	
-    InjectorLines.insert(N + 1,'static RegisterFaultInjector CE("%s(%s)", new HangInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector CE("%s(%s)", new HangInjector());' % (F_Mode, F_Class))
     # print('i am in freeze')
     # print("compilation successful")
   elif 'Delay' in action:	 
-    InjectorLines.insert(O + 1,'static RegisterFaultInjector DC("%s(%s)", new SleepInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector DC("%s(%s)", new SleepInjector());' % (F_Mode, F_Class))
     # print('i am in delay')
     # print("compilation successful")
   elif 'Perturb' in action:
     perturb = action['Perturb']
     if 'MemoryLeakInjector' in perturb:
-      InjectorLines.insert(P + 1, 'static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());' % (F_Mode, F_Class))
       # print('i am in built-in perturb') 
       # print("compilation successful")
     elif 'ChangeValueInjector' in perturb:
-      InjectorLines.insert(S + 1, 'static RegisterFaultInjector EI("%s(%s)", new ChangeValueInjector(-40, false));' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector EI("%s(%s)", new ChangeValueInjector(-40, false));' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'InappropriateCloseInjector' in perturb:
-      InjectorLines.insert(T + 1, 'static RegisterFaultInjector FC("%s(%s)", new InappropriateCloseInjector(false));' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector FC("%s(%s)", new InappropriateCloseInjector(false));' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'MemoryExhaustionInjector' in perturb:
-      InjectorLines.insert(U + 1, 'static RegisterFaultInjector HC("%s(%s)", new MemoryExhaustionInjector(false));' %( F_Mode, F_Class))
+      code.append('static RegisterFaultInjector HC("%s(%s)", new MemoryExhaustionInjector(false));' %( F_Mode, F_Class))
       # print("compilation successful")
     elif 'WrongFormatInjector' in perturb:
-      InjectorLines.insert(V + 1, 'static RegisterFaultInjector IC("%s(%s)", new WrongFormatInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector IC("%s(%s)", new WrongFormatInjector());' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'PthreadDeadLockInjector' in perturb:
-      InjectorLines.insert(W + 1, 'static RegisterFaultInjector JB("%s(%s)", new PthreadDeadLockInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector JB("%s(%s)", new PthreadDeadLockInjector());' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'PthreadThreadKillerInjector' in perturb:
-      InjectorLines.insert(X + 1, 'static RegisterFaultInjector KB("%s(%s)", new PthreadThreadKillerInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector KB("%s(%s)", new PthreadThreadKillerInjector());' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'PthreadRaceConditionInjector' in perturb:
-      InjectorLines.insert(Y + 1, 'static RegisterFaultInjector LB("%s(%s)", new PthreadRaceConditionInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector LB("%s(%s)", new PthreadRaceConditionInjector());' % (F_Mode, F_Class))
       # print("compilation successful")
     elif 'Custom_Injector' in perturb:
-      InjectorLines.extend(gen_custom_injector())
+      code.extend(gen_custom_injector())
     else:
       print('Error: Invalid Perturb Injector!')
       exit(1)
@@ -290,7 +313,18 @@ def FInjectorGenerator():
     print('Error: Invalid Action!')
     exit(1)
     
-  write_file(software_fault_injectors, InjectorLines)
+  return {'name': name, 'selectorfilename': selectorfilename, 'code': '\n'.join(code)}
+  
+################################################################################
+
+def generate_FI_file():
+  content = []
+  content.append('#include "_SoftwareFaultInjectors.cpp"\n')
+  for i in custom_injectors:
+    content.append('// ' + i['name'])
+    content.append(i['code'] + '\n')
+    
+  write_file(os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFaultInjectors.cpp'), content)
   
 ################################################################################
 
@@ -326,14 +360,105 @@ def write_file(file_name, lines):
       
 ################################################################################
 
-def main(InputFIDL):
-  read_input_fidl(InputFIDL)	 
-  FTriggerGenerator()
-  FInjectorGenerator()
-  print ('Injector module created.')
+def parse_args(args):
+  global option, name
+  option = '-a'
+  for a in args:
+    if a == '-r':
+      option = '-r'
+    elif a == '-l':
+      option = '-l'
+    else:
+      name = a
+      
+################################################################################
+
+def read_custom_injectors():
+  global custom_injectors, doc
+  f = open(custom_injectors_yaml)
+  doc = yaml.load(f)
+  custom_injectors = doc['custom_injectors']
+  f.close()
+
+################################################################################
+
+def main(args):
+
+  parse_args(args)
+  read_custom_injectors()
+  
+  if option == '-r':
+    selectorfilename = ''
+    print('Deleting ' + name)
+    for i in custom_injectors:
+      if i['name']  == name:
+        selectorfilename = i['selectorfilename']
+        custom_injectors.remove(i)
+        break
+        
+    if selectorfilename == '':
+      print("Error: %s is not a custom injector!" % name)
+      exit(1)
+      
+    # write the custom injectors yaml
+    f = open(custom_injectors_yaml, 'w')
+    yaml.dump(doc, f)
+    f.close()
+    
+    # modify llvm_pass/CMakeLists.txt
+    l = read_file(cmakelists)
+    try:
+      l.remove('  software_failures/%s' % selectorfilename) 
+      write_file(cmakelists, l)
+    except Exception:
+      pass
+
+    # modify GUI's config yaml
+    l = read_file(gui_config_yaml)
+    try:
+      l.remove('    - ' + name)
+      write_file(gui_config_yaml, l)
+    except Exception:
+      pass
+    
+    # remove the selector file
+    os.remove(os.path.join(software_failures_passes_dir, selectorfilename))
+    
+    # generate custom software fault injector file
+    generate_FI_file()
+      
+  elif option == '-l':
+    print('Current custom software fault injectors:')
+    for i in custom_injectors:
+      print(i['name'])
+      
+  else: 
+    read_input_fidl()
+    FTriggerGenerator()
+    
+    # generate and insert new software fault injector into the custom injector yaml
+    new_injector = FInjectorGenerator()
+    found = False
+    for i, n in enumerate(custom_injectors):
+      if n['name'] == new_injector['name']:
+        custom_injectors[i] = new_injector
+        found = True
+        break
+    if not found:
+      custom_injectors.append(new_injector)
+    
+    # write the custom injectors yaml
+    f = open(custom_injectors_yaml, 'w')
+    yaml.dump(doc, f)
+    f.close()
+    
+    # generate custom software fault injector file
+    generate_FI_file()
+    
+    print ('Injector module created.')
 
 ################################################################################
 
 if __name__ == '__main__':
-  main(sys.argv[1])
+  main(sys.argv[1:])
 
