@@ -44,16 +44,16 @@ namespace llfi {
             Function* called_func = CI->getCalledFunction();
             if (called_func == NULL) {
                 return false;
-			}
+            }
             std::string func_name = std::string(called_func->getName());
             if (funcNames.find(func_name) != funcNames.end()) { 
 //fidl_5
-				long llfiindex = getLLFIIndexofInst(inst);
-				for (int i = 0; i < numOfSpecInsts; i++) {  
-				    if (llfiindex + 1 == IndexOfSpecInsts[i]) {
-				        std::cout << "Special Instruction Index is:" << llfiindex + 1 << "\n"; 
-				    }
-				}
+                long llfiindex = getLLFIIndexofInst(inst);
+                for (int i = 0; i < numOfSpecInsts; i++) {  
+                    if (llfiindex + 1 == IndexOfSpecInsts[i]) {
+                        std::cout << "Special Instruction Index is:" << llfiindex + 1 << "\n"; 
+                    }
+                }
                 return true;
             } else {
                 return false;
