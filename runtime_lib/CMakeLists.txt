@@ -9,7 +9,7 @@ add_library(llfi-rt SHARED
     InstTraceLib.c
     ProfilingLib.c
     Utils.c
-    _SoftwareFaultInjectors.cpp
+    _FIDLSoftwareFaultInjectors.cpp #_SoftwareFaultInjector.cpp is included in this file
 )
 
 add_executable(InjectorScanner

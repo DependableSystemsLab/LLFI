@@ -337,12 +337,12 @@ def FInjectorGenerator():
 
 def generate_FI_file():
   content = []
-  content.append('#include "_SoftwareFaultInjectors.cpp"\n')
+  content.append('// DO NOT MODIFY\n#include "_SoftwareFaultInjectors.cpp"\n')
   for i in custom_injectors:
     content.append('// ' + i['name'])
     content.append(i['code'] + '\n')
     
-  write_file(os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFaultInjectors.cpp'), content)
+  write_file(os.path.join(llfiroot, 'runtime_lib/_FIDLSoftwareFaultInjectors.cpp'), content)
   
 ################################################################################
 
