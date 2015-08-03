@@ -146,8 +146,10 @@ def gen_ftrigger_single():
   # @PHIL Bugfix July 22 # doesnt work still
   elif reg_type == 'RetVal': 
   	PassLines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
+  	
+  MapLines.insert(MapLines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
 
-  AA = MapLines.index('//fidl_5')
+  AA = MapLines.index('//fidl_6')
 
   MapLines.insert(AA + 1, '                long numOfSpecInsts = %s;' % (numOfSpecInsts))
   MapLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
@@ -180,6 +182,8 @@ def gen_ftrigger_multisrc():
   
   PassLines.append('static RegisterFIRegSelector B("%s(%s)", new _%s_%sRegSelector());\n\n}\n'%(F_Mode, F_Class, F_Class, F_Mode))
   # print(PassLines)
+  
+  PassLines.insert(PassLines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
     
   AA = PassLines.index('//fidl_6')
 
@@ -244,6 +248,7 @@ def is_one_src_register():
 ################################################################################
 
 def FInjectorGenerator():
+  global injector
 
   """
   InjectorLines = read_file('Built-in-FITemplate.cpp')
@@ -263,49 +268,62 @@ def FInjectorGenerator():
   name = '%s(%s)' % (F_Mode, F_Class)
   selectorfilename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
   code = []
+  injector = ''
 
   # print(Type)     
   if 'Corrupt' in action:
     code.append('static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());' % (F_Mode, F_Class))
+    injector = 'BitCorruptionInjector';
     # print('i am in corrupt')
     # print("compilation successful")
   elif 'Freeze' in action:	
     code.append('static RegisterFaultInjector CE("%s(%s)", new HangInjector());' % (F_Mode, F_Class))
+    injector = 'HangInjector'
     # print('i am in freeze')
     # print("compilation successful")
   elif 'Delay' in action:	 
     code.append('static RegisterFaultInjector DC("%s(%s)", new SleepInjector());' % (F_Mode, F_Class))
+    injector = 'SleepInjector'
     # print('i am in delay')
     # print("compilation successful")
   elif 'Perturb' in action:
     perturb = action['Perturb']
     if 'MemoryLeakInjector' in perturb:
       code.append('static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print('i am in built-in perturb') 
       # print("compilation successful")
     elif 'ChangeValueInjector' in perturb:
       code.append('static RegisterFaultInjector EI("%s(%s)", new ChangeValueInjector(-40, false));' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'InappropriateCloseInjector' in perturb:
       code.append('static RegisterFaultInjector FC("%s(%s)", new InappropriateCloseInjector(false));' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'MemoryExhaustionInjector' in perturb:
       code.append('static RegisterFaultInjector HC("%s(%s)", new MemoryExhaustionInjector(false));' %( F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'WrongFormatInjector' in perturb:
       code.append('static RegisterFaultInjector IC("%s(%s)", new WrongFormatInjector());' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'PthreadDeadLockInjector' in perturb:
       code.append('static RegisterFaultInjector JB("%s(%s)", new PthreadDeadLockInjector());' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'PthreadThreadKillerInjector' in perturb:
       code.append('static RegisterFaultInjector KB("%s(%s)", new PthreadThreadKillerInjector());' % (F_Mode, F_Class))
+      injector = 'MemoryLeakInjector'
       # print("compilation successful")
     elif 'PthreadRaceConditionInjector' in perturb:
       code.append('static RegisterFaultInjector LB("%s(%s)", new PthreadRaceConditionInjector());' % (F_Mode, F_Class))
+      injector = 'PthreadRaceConditionInjector'
       # print("compilation successful")
     elif 'Custom_Injector' in perturb:
       code.extend(gen_custom_injector())
+      injector = 'CustomInjector'
     else:
       print('Error: Invalid Perturb Injector!')
       exit(1)
@@ -434,7 +452,6 @@ def main(args):
       
   else: 
     read_input_fidl()
-    FTriggerGenerator()
     
     # generate and insert new software fault injector into the custom injector yaml
     new_injector = FInjectorGenerator()
@@ -454,6 +471,9 @@ def main(args):
     
     # generate custom software fault injector file
     generate_FI_file()
+    
+    # generate trigger/selector file
+    FTriggerGenerator()
     
     print ('Injector module created.')
 

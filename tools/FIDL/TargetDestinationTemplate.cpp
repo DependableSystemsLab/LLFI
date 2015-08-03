@@ -31,6 +31,12 @@ namespace llfi {
     
     virtual void getCompileTimeInfo(std::map<std::string, std::string>& info) {
 //fidl_4
+        for(std::set<std::string>::iterator SI = funcNames.begin(); SI != funcNames.end(); SI++){
+            info["targets"] += *SI + "()/";
+        }
+        //remove the '/' at the end
+        info["targets"] = info["targets"].substr(0, info["targets"].length() - 1);
+//fidl_5
     }
 
     private:
@@ -47,7 +53,7 @@ namespace llfi {
             }
             std::string func_name = std::string(called_func->getName());
             if (funcNames.find(func_name) != funcNames.end()) { 
-//fidl_5
+//fidl_6
                 long llfiindex = getLLFIIndexofInst(inst);
                 for (int i = 0; i < numOfSpecInsts; i++) {  
                     if (llfiindex + 1 == IndexOfSpecInsts[i]) {

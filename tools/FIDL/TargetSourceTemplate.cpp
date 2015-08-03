@@ -35,7 +35,7 @@ namespace llfi {
         }
         //remove the '/' at the end
         info["targets"] = info["targets"].substr(0, info["targets"].length() - 1);
-//fidl_5 unused
+//fidl_5
     }
     
     static bool isTarget(CallInst* CI, Value* T) {
