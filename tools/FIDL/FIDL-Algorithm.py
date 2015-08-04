@@ -32,7 +32,6 @@ software_injectors_path = os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFau
 custom_injectors_yaml = 'custom_injectors.yaml'
 software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
 cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
-gui_config_yaml = os.path.join(llfiroot, 'gui/gui_config.yaml')
 
 setup_script = os.path.join(llfiroot, 'setup.py')
 
@@ -224,14 +223,6 @@ def FTriggerGenerator() :
   except:
     l.insert(l.index("  #FIDL - DO NOT MODIFY UNTIL '#END'") + 1, '  software_failures/%s' % filename)
     write_file(cmakelists, l)
-
-  # modify GUI's config yaml
-  l = read_file(gui_config_yaml)
-  try:
-    l.index('    - %s(%s)' % (F_Mode, F_Class))
-  except:
-    l.insert(l.index("    #FIDL - DO NOT MODIFY UNTIL '#END'") + 1, '    - %s(%s)' % (F_Mode, F_Class))
-    write_file(gui_config_yaml, l)
    
 ################################################################################
    
@@ -428,14 +419,6 @@ def main(args):
     try:
       l.remove('  software_failures/%s' % selectorfilename) 
       write_file(cmakelists, l)
-    except Exception:
-      pass
-
-    # modify GUI's config yaml
-    l = read_file(gui_config_yaml)
-    try:
-      l.remove('    - ' + name)
-      write_file(gui_config_yaml, l)
     except Exception:
       pass
     

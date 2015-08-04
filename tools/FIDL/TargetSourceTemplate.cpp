@@ -44,7 +44,9 @@ namespace llfi {
             return false;
         }
         for (std::set<int>::iterator SI = funcNamesTargetArgs[func_name].begin(); SI != funcNamesTargetArgs[func_name].end(); SI++) {
-            if (T == CI->getArgOperand(*SI)) {
+            if (*SI >= CI->getNumArgOperands()) {
+                continue;
+            } else if (T == CI->getArgOperand(*SI)) {
                 return true; 
             }
         }

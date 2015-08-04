@@ -77,6 +77,7 @@ custom_registers: # hardware injection (should be a list)
 
 
 custom_software_faults: # software injection (should be a list)
-    #FIDL - DO NOT MODIFY UNTIL '#END'
-    #END
+
+
+
 
