@@ -53,6 +53,7 @@ namespace llfi {
     
     private:
     static std::map<std::string, std::set<int> > funcNamesTargetArgs;
+    
     virtual bool isInstFITarget(Instruction* inst) {
         if (isa<CallInst>(inst) == false) {
             return false;

@@ -187,8 +187,8 @@ def gen_ftrigger_multisrc():
     
   AA = PassLines.index('//fidl_6')
 
-  PassLines.insert(AA + 1, '            long numOfSpecInsts = %s;' % (numOfSpecInsts))
-  PassLines.insert(AA + 2, '            long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
+  PassLines.insert(AA + 1, '                long numOfSpecInsts = %s;' % (numOfSpecInsts))
+  PassLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
 
   F = PassLines.index('//fidl_7')
   PassLines.insert(F + 1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;\n' % (F_Class, F_Mode))

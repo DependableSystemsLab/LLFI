@@ -40,7 +40,7 @@ namespace llfi {
     }
 
     private:
-        std::set<std::string> funcNames;
+    std::set<std::string> funcNames;
 
     virtual bool isInstFITarget(Instruction* inst) {
         if (isa<CallInst>(inst) == false) {
