@@ -14,12 +14,9 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <set>
 #include <string>
-
-/**
- * This instruction selector only selects the API call functions as target
- */
 
 using namespace llvm;
 namespace llfi {

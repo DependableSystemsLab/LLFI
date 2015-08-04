@@ -6,7 +6,8 @@
 Usage: %(prog)s [OPTIONS] <fidl .yaml>
 
 List of options:
--r:    removes the specified fidl .yaml
+-r:    removes the specified injector by '<FMode>(<FClass>)' or by the index shown in -l
+-l:    lists all active passes/injector
 -h:    shows help
 
 Everytime the contents of .fidl file is changed, this script should be run to create new passes and injectors
@@ -87,13 +88,13 @@ def read_input_fidl():
         reg_type = 'src'
       elif 'dst' in target:
         reg_type = 'dst'
-      elif 'RetVal' in target:
-        reg_type = 'RetVal'
+      # elif 'RetVal' in target:
+      #  reg_type = 'RetVal'
       else:
         raise Exception('Error: Invalid register target type!')
-    elif 'RetVal' in trigger:
-      Insts = trigger['RetVal']
-      trigger_type = 'RetVal'
+    elif 'return' in trigger:
+      #Insts = trigger['RetVal']
+      trigger_type = 'return'
     else:
       raise Exception('Error: Trigger option (call, or ret) not found!')
       
@@ -142,9 +143,6 @@ def gen_ftrigger_single():
   	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, next(iter(Insts.values()))[0]))
   elif reg_type == 'dst':
   	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n' % (F_Mode, F_Class))
-  # @PHIL Bugfix July 22 # doesnt work still
-  elif reg_type == 'RetVal': 
-  	PassLines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
   	
   MapLines.insert(MapLines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
 
@@ -156,12 +154,34 @@ def gen_ftrigger_single():
   return MapLines
   
 ################################################################################
+def gen_ftrigger_return():
+
+  lines = read_file('TargetReturnTemplate.cpp')
+  
+  i = lines.index('//#fidl_1')
+  lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
+  
+  i = lines.index('//#fidl_2')
+  lines.insert(i + 1, '        info["failure_class"] = "%s";' % (F_Class))
+  lines.insert(i + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
+  lines.insert(i + 3, '        info["injector"] = "%s";' % (injector))
+  
+  i = lines.index('//#fidl_3')
+  lines.insert(i + 1, '            long numOfSpecInsts = %s;' % (numOfSpecInsts))
+  lines.insert(i + 2, '            long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
+  
+  lines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
+  lines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
+  
+  return lines
+  
+################################################################################
   
 def gen_ftrigger_multisrc():
   PassLines = read_file('TargetSourceTemplate.cpp')
   
   A = PassLines.index('//fidl_1')
-  PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class,F_Mode)) # Trigger: "fread"
+  PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode)) # Trigger: "fread"
   B = PassLines.index('//fidl_2')
   PassLines.insert(B + 1,'    _%s_%sInstSelector () {' % (F_Class,F_Mode))
   X = PassLines.index('//fidl_3')
@@ -206,7 +226,10 @@ def FTriggerGenerator() :
   filename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
   filepath = os.path.join(software_failures_passes_dir, filename)
     
-  if reg_type == 'src' and not is_one_src_register(): # multisrc
+  if trigger_type == 'return':
+    write_file(filepath, gen_ftrigger_return())
+    print('Instrument module created.')
+  elif reg_type == 'src' and not is_one_src_register(): # multisrc
     write_file(filepath, gen_ftrigger_multisrc())
     print('Instrument module created.')
   elif reg_type == 'src' or reg_type == 'dst': # dst or singlesrc
@@ -392,46 +415,69 @@ def read_custom_injectors():
 ################################################################################
 
 def main(args):
+  global custom_injectors
 
   parse_args(args)
   read_custom_injectors()
   
   if option == '-r':
-    selectorfilename = ''
-    print('Deleting ' + name)
-    for i in custom_injectors:
-      if i['name']  == name:
-        selectorfilename = i['selectorfilename']
-        custom_injectors.remove(i)
-        break
-        
-    if selectorfilename == '':
-      print("Error: %s is not a custom injector!" % name)
-      exit(1)
+    if name.isdigit():
+      i = int(name)
+      try:
+        print('Deleting ' + custom_injectors[i]['name'])
+        selectorfilename = [custom_injectors[i]['selectorfilename']]
+        del custom_injectors[i]
+      except IndexError:
+        print('Error: %s is not a valid index!' % name)
+        exit(1)
+    elif name == 'all':
+      selectorfilename = []
+      for i in custom_injectors:
+        selectorfilename.append(i['selectorfilename'])
+      custom_injectors = doc['custom_injectors'] = []
+    else:
+      selectorfilename = []
+      print('Deleting ' + name)
+      for i in custom_injectors:
+        if i['name']  == name:
+          selectorfilename = [i['selectorfilename']]
+          custom_injectors.remove(i)
+          break
+          
+      if selectorfilename == []:
+        print('Error: %s is not a custom injector!' % name)
+        exit(1)
       
     # write the custom injectors yaml
     f = open(custom_injectors_yaml, 'w')
     yaml.dump(doc, f)
     f.close()
     
-    # modify llvm_pass/CMakeLists.txt
+    # modify llvm_pass/CMakeLists.txt and remove the selector file
     l = read_file(cmakelists)
-    try:
-      l.remove('  software_failures/%s' % selectorfilename) 
-      write_file(cmakelists, l)
-    except Exception:
-      pass
-    
-    # remove the selector file
-    os.remove(os.path.join(software_failures_passes_dir, selectorfilename))
-    
+    for n in selectorfilename:
+      try:
+        l.remove('  software_failures/%s' % n) 
+      except Exception:
+        pass
+      
+      try:
+        os.remove(os.path.join(software_failures_passes_dir, n))
+      except Exception:
+        pass
+      
+    write_file(cmakelists, l)
+
     # generate custom software fault injector file
     generate_FI_file()
       
   elif option == '-l':
     print('Current custom software fault injectors:')
-    for i in custom_injectors:
-      print(i['name'])
+    if custom_injectors == []:
+      print('No injector exists!')
+    else:
+      for i, n in enumerate(custom_injectors):
+        print("%i %s" % (i, n['name']))
       
   else: 
     read_input_fidl()

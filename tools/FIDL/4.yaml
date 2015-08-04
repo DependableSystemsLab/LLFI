@@ -1,0 +1,12 @@
+Failure_Class: Class4
+Failure_Mode: FMode4
+
+New_Failure_Mode:
+    Trigger: 
+        return
+    Trigger*: [1, 50, 55, 60]
+    Action:
+        Perturb: Custom_Injector
+
+Custom_Injector: | 
+    *Target = *Target + 1000;
