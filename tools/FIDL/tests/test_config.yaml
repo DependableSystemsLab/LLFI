@@ -1,0 +1,106 @@
+#This is the configuration yaml for test_FIDL.py
+
+tests: 
+  - FIDL: #Tests Custom_Injector, and return value register targeting
+      Failure_Class: TestFIDL
+      Failure_Mode: custom
+      New_Failure_Mode:
+          Trigger: 
+              return
+          Action:
+              Perturb: Custom_Injector
+      Custom_Injector: | 
+          sleep(3);
+    config: 
+      program: PROGRAMS/mcf
+      input: inp.in
+      simulate: CPUHOG(Res)
+      fi_cycle:
+      fi_index:
+    
+  - FIDL: #Tests destination register targeting, and option for perturb
+      Failure_Class: TestFIDL
+      Failure_Mode: dst
+      New_Failure_Mode:
+          Trigger: 
+              call: [fopen]
+          Target:
+              dst
+          Action:
+              Perturb: InappropriateCloseInjector
+              option: True
+    config:
+      program: PROGRAMS/memcpy1
+      input:
+      simulate: InappropriateClose(API)
+      fi_cycle:
+      fi_index:
+        
+  - FIDL: #Tests multi-source register targeting
+      Failure_Class: TestFIDL
+      Failure_Mode: multisrc
+      New_Failure_Mode:
+          Trigger: 
+              call: [fread, fwrite, fgetc, fopen]
+          Target:
+              src: 
+                  fread: [3]
+                  fwrite: [3]
+                  fgetc: [2]
+                  fopen: [0, 1]
+          Action:
+              Corrupt
+    config:
+      program: PROGRAMS/mcf
+      input: inp.in
+      simulate: WrongAPISelector(API)
+      fi_cycle:
+      fi_index:
+
+  - FIDL: #Test single source register targeting, and option/value for perturb
+      Failure_Class: TestFIDL
+      Failure_Mode: singlesrc
+
+      New_Failure_Mode:
+          Trigger: 
+              call: [fread, fwrite]
+          Target:
+              src: 
+                  fread: [2]
+                  fwrite: [2]
+          Action:
+              Perturb: ChangeValueInjector
+              option: False
+              value: 45
+    config:
+      program: PROGRAMS/memcpy1
+      input:
+      simulate: BufferOverflowInstSelector(API)
+      fi_cycle:
+      fi_index:
+
+inputTemplate:
+    compileOption:
+        instSelMethod:
+          - customInstselector:
+              include: []
+
+        regSelMethod: customregselector
+        customRegSelector: Automatic
+
+        includeInjectionTrace:
+            - backward
+            - forward
+            
+        tracingPropagation: True
+
+        tracingPropagationOption:
+            debugTrace: True/False
+            generateCDFG: True
+
+    runOption:
+        - run:
+            numOfRuns: 1
+            fi_type: AutoInjection
+            fi_cycle:
+            fi_index:
