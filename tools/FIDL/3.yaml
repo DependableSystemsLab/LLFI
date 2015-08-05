@@ -10,3 +10,4 @@ New_Failure_Mode:
           fwrite: [0]
     Action:
         Perturb: InappropriateCloseInjector
+        option: False

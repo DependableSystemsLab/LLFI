@@ -264,77 +264,60 @@ def is_one_src_register():
 def FInjectorGenerator():
   global injector
 
-  """
-  InjectorLines = read_file('Built-in-FITemplate.cpp')
-  
-  M = InjectorLines.index('static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());')
-  N = InjectorLines.index('static RegisterFaultInjector CD("NoAck(MPI)", new HangInjector());')
-  O = InjectorLines.index('static RegisterFaultInjector DB("CPUHog(Res)", new SleepInjector());')
-  P = InjectorLines.index('static RegisterFaultInjector BA("MemoryLeak(Res)", new MemoryLeakInjector());')
-  S = InjectorLines.index('static RegisterFaultInjector EH("PacketStorm(MPI)", new ChangeValueInjector(-40, false));')
-  T = InjectorLines.index('static RegisterFaultInjector FB("NoClose(API)", new InappropriateCloseInjector(false));')
-  U = InjectorLines.index('static RegisterFaultInjector HB("LowMemory(Res)", new MemoryExhaustionInjector(false));')
-  V = InjectorLines.index('static RegisterFaultInjector IB("WrongSavedFormat(I/O)", new WrongFormatInjector());')
-  W = InjectorLines.index('static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());')
-  X = InjectorLines.index('static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());')
-  Y = InjectorLines.index('static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());')
-  """
   name = '%s(%s)' % (F_Mode, F_Class)
   selectorfilename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
   code = []
   injector = ''
-
-  # print(Type)     
+  
+  insert = '_%s_%s_FIDLInjector("%s(%s)",' % (F_Class, F_Mode, F_Mode, F_Class)
+  
   if 'Corrupt' in action:
-    code.append('static RegisterFaultInjector AO("%s(%s)", BitCorruptionInjector::getBitCorruptionInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector %s BitCorruptionInjector::getBitCorruptionInjector());' % (insert))
     injector = 'BitCorruptionInjector';
-    # print('i am in corrupt')
-    # print("compilation successful")
   elif 'Freeze' in action:	
-    code.append('static RegisterFaultInjector CE("%s(%s)", new HangInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector %s new HangInjector());' % (insert))
     injector = 'HangInjector'
-    # print('i am in freeze')
-    # print("compilation successful")
   elif 'Delay' in action:	 
-    code.append('static RegisterFaultInjector DC("%s(%s)", new SleepInjector());' % (F_Mode, F_Class))
+    code.append('static RegisterFaultInjector %s new SleepInjector());' % (insert))
     injector = 'SleepInjector'
-    # print('i am in delay')
-    # print("compilation successful")
   elif 'Perturb' in action:
     perturb = action['Perturb']
+    
+    # certain perturb actions needs more information
+    option = 'false'
+    value = '-40'
+    if 'option' in action:
+      if action['option']:
+        option = 'true'
+      else:
+        option = 'false'
+    if 'value' in action:
+      value = action['value']
+    
     if 'MemoryLeakInjector' in perturb:
-      code.append('static RegisterFaultInjector BB("%s(%s)", new MemoryLeakInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new MemoryLeakInjector());' % (insert))
       injector = 'MemoryLeakInjector'
-      # print('i am in built-in perturb') 
-      # print("compilation successful")
     elif 'ChangeValueInjector' in perturb:
-      code.append('static RegisterFaultInjector EI("%s(%s)", new ChangeValueInjector(-40, false));' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new ChangeValueInjector(%s, %s));' % (insert, value, option))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'InappropriateCloseInjector' in perturb:
-      code.append('static RegisterFaultInjector FC("%s(%s)", new InappropriateCloseInjector(false));' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new InappropriateCloseInjector(%s));' % (insert, option))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'MemoryExhaustionInjector' in perturb:
-      code.append('static RegisterFaultInjector HC("%s(%s)", new MemoryExhaustionInjector(false));' %( F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new MemoryExhaustionInjector(%s));' % (insert, option))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'WrongFormatInjector' in perturb:
-      code.append('static RegisterFaultInjector IC("%s(%s)", new WrongFormatInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new WrongFormatInjector());' % (insert))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'PthreadDeadLockInjector' in perturb:
-      code.append('static RegisterFaultInjector JB("%s(%s)", new PthreadDeadLockInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new PthreadDeadLockInjector());' % (insert))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'PthreadThreadKillerInjector' in perturb:
-      code.append('static RegisterFaultInjector KB("%s(%s)", new PthreadThreadKillerInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new PthreadThreadKillerInjector());' % (insert))
       injector = 'MemoryLeakInjector'
-      # print("compilation successful")
     elif 'PthreadRaceConditionInjector' in perturb:
-      code.append('static RegisterFaultInjector LB("%s(%s)", new PthreadRaceConditionInjector());' % (F_Mode, F_Class))
+      code.append('static RegisterFaultInjector %s new PthreadRaceConditionInjector());' % (insert))
       injector = 'PthreadRaceConditionInjector'
-      # print("compilation successful")
     elif 'Custom_Injector' in perturb:
       code.extend(gen_custom_injector())
       injector = 'CustomInjector'
