@@ -30,7 +30,7 @@ script_path = os.path.realpath(os.path.dirname(__file__))
 llfiroot = os.path.dirname(os.path.dirname(script_path))
 
 software_injectors_path = os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFaultInjectors.cpp')
-custom_injectors_yaml = 'custom_injectors.yaml'
+custom_injectors_yaml = os.path.join(script_path, 'custom_injectors.yaml')
 software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
 cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
 
@@ -122,7 +122,7 @@ def read_input_fidl():
 def gen_ftrigger_single():
   # convert trigger and target of .fidl file into appropriate llvm passes
   # os.chdir("llfisrc/Templates/")
-  MapLines = read_file('TargetDestinationTemplate.cpp')
+  MapLines = read_file(os.path.join(script_path, 'TargetDestinationTemplate.cpp'))
   
   # print(MapLines)
   M1 = MapLines.index('//fidl_1')
@@ -156,7 +156,7 @@ def gen_ftrigger_single():
 ################################################################################
 def gen_ftrigger_return():
 
-  lines = read_file('TargetReturnTemplate.cpp')
+  lines = read_file(os.path.join(script_path, 'TargetReturnTemplate.cpp'))
   
   i = lines.index('//#fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
@@ -178,7 +178,7 @@ def gen_ftrigger_return():
 ################################################################################
   
 def gen_ftrigger_multisrc():
-  PassLines = read_file('TargetSourceTemplate.cpp')
+  PassLines = read_file(os.path.join(script_path, 'TargetSourceTemplate.cpp'))
   
   A = PassLines.index('//fidl_1')
   PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode)) # Trigger: "fread"
@@ -269,7 +269,7 @@ def FInjectorGenerator():
   code = []
   injector = ''
   
-  insert = '_%s_%s_FIDLInjector("%s(%s)",' % (F_Class, F_Mode, F_Mode, F_Class)
+  insert = '_%s_%sFIDLInjector("%s(%s)",' % (F_Class, F_Mode, F_Mode, F_Class)
   
   if 'Corrupt' in action:
     code.append('static RegisterFaultInjector %s BitCorruptionInjector::getBitCorruptionInjector());' % (insert))
@@ -319,7 +319,7 @@ def FInjectorGenerator():
       code.append('static RegisterFaultInjector %s new PthreadRaceConditionInjector());' % (insert))
       injector = 'PthreadRaceConditionInjector'
     elif 'Custom_Injector' in perturb:
-      code.extend(gen_custom_injector())
+      code.extend(gen_custom_injector(insert))
       injector = 'CustomInjector'
     else:
       print('Error: Invalid Perturb Injector!')
@@ -343,7 +343,7 @@ def generate_FI_file():
   
 ################################################################################
 
-def gen_custom_injector():
+def gen_custom_injector(insert):
   global custom_injector
   
   # format the custom injector lines
@@ -352,12 +352,12 @@ def gen_custom_injector():
   custom_injector = custom_injector.replace('\n', '\n        ') # add spaces after every \n character
   
   # read template
-  NInjectorLines = read_file('NewInjectorTemplate.cpp')
+  NInjectorLines = read_file(os.path.join(script_path, 'NewInjectorTemplate.cpp'))
   
   # modify template
-  NInjectorLines[0] = 'class %s_%sFInjector : public SoftwareFaultInjector {' % (F_Class, F_Mode)
+  NInjectorLines[0] = 'class _%s_%sFInjector : public SoftwareFaultInjector {' % (F_Class, F_Mode)
   NInjectorLines[5] = custom_injector
-  NInjectorLines.append('static RegisterFaultInjector X("%s(%s)", new %s_%sFInjector());' % (F_Mode, F_Class, F_Class, F_Mode)) 
+  NInjectorLines.append('static RegisterFaultInjector %s new _%s_%sFInjector());' % (insert, F_Class, F_Mode)) 
   
   return NInjectorLines
 

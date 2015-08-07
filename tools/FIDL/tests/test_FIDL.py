@@ -20,11 +20,12 @@ Run this file *after* successfully executing the llfi regression test
 
 import sys, os, subprocess, shutil
 import yaml
+from distutils.dir_util import copy_tree
 
 script_path = os.path.realpath(os.path.dirname(__file__))
 
 test_config_path = os.path.join(script_path, 'test_config.yaml')
-fidl_al_path = os.path.join(script_path, '../FIDL_Algorithm.py')
+fidl_al_path = os.path.join(script_path, '../FIDL-Algorithm.py')
 
 fidl_config_dir = os.path.join(script_path, 'fidl_config/')
 fidl_tests_dir = os.path.join(script_path, 'fidl_test/')
@@ -32,45 +33,45 @@ fidl_tests_dir = os.path.join(script_path, 'fidl_test/')
 def execute_tests():
   global doc
   
-  # delete and create and change into a new test folder
+  # delete and create a new tests folder
   del_mkdir(fidl_tests_dir)
-  os.chdir(fidl_tests_dir)
   
   # create folder for each test case
   for n in doc['tests']:
     dir_name = n['FIDL']['Failure_Mode']
     dir_path = os.path.join(fidl_tests_dir, dir_name)
+    os.makedirs(dir_path)
     print('Testing %s' % dir_name)
     
-    # make and change into the directory
-    os.makedirs(dir_path)
-    os.chdir(dir_path)
+    l = [['Expected', n['config']['simulate']], [['Output', extract_names(n)[1]]]]
+    for i in l:
+      # create inner directory and cd to it
+      inner_dir_path = os.path.join(dir_path, i[0])
+      os.makedirs(inner_dir_path)
+      os.chdir(inner_dir_path)
+      
+      # creates the input.yaml
+      dump_yaml(os.path.join(innder_dir_path, 'input.yaml'), create_input_yaml(n, i[1]))
+      
+      # copy in the program
+      copy_tree(os.path.join(script_path, n['config']['program']), inner_dir_path)
+      
+      # instrument
+      
+      # profile
+      
+      # fault injection
+      
+      # check result
     
-    # create subfolder and place an input.yaml and its repective program in it
-    name = extract_names(n)[1]
-    
-    os.makedirs('Expected')
-    input_yaml = create_input_yaml(n, n['config']['simulate'])
-    
-    f = open('input.yaml', 'w')
-    f.write(yaml.dump(input_yaml))
-    f.close()
-    
-    os.makedirs('Output')
-    input_yaml = create_input_yaml(n, name)
-    
-    f = open('input.yaml', 'w')
-    f.write(yaml.dump(input_yaml))
-    f.close()
-    
-def create_input_yaml(FIDL, selector):
+def create_input_yaml(test, selector):
   global doc
   
   template = doc['inputTemplate'].copy()
   template['compileOption']['instSelMethod'][0]['customInstselector']['include'] = [selector]
     
-  template['runOption'][0]['run']['fi_cycle'] = FIDL['config']['fi_cycle']
-  template['runOption'][0]['run']['fi_index'] = FIDL['config']['fi_index']
+  template['runOption'][0]['run']['fi_cycle'] = test['config']['fi_cycle']
+  template['runOption'][0]['run']['fi_index'] = test['config']['fi_index']
     
   return template
 
@@ -87,41 +88,49 @@ def extract_names(test):
   name = '%s(%s)' % (f_mode, f_class)
   
   return (filename, name)
+  
+def dump_yaml(path, yaml_object):
+  f = open(path, 'w')
+  f.write(yaml.dump(yaml_object))
+  f.close()
 
-def run_algorithm(add):
+def run_fidl_algorithm(add):
   global doc
   
   # delete and create a new fidl script config(s) folder
-  del_mkdir(fidl_config_dir)
+  if add:
+    del_mkdir(fidl_config_dir)
   
   for n in doc['tests']:
     filename, name = extract_names(n)
     
     # create new fidl script from ones specified in test_config.yaml
-    f = open(os.path.join(fidl_config_dir, filename), 'w')
-    f.write(yaml.dump(n['FIDL']))
-    f.close()
+    filename_path = os.path.join(fidl_config_dir, filename)
+    dump_yaml(filename_path, n['FIDL'])
     
     if add:
-      option = [fidl_al_path, '-r', name]
+      option = [fidl_al_path, filename_path]
     else:
-      option = [fidl_al_path, filename]
+      option = [fidl_al_path, '-r', name]
       
     #TODO what is the proper way for this?
     # redirect error and such...
     
     # executes the fidl algorithm on the script
-    p = subprocess.call(option)
-    p.wait()
-    if p.returncode != 0:
+    retVal = subprocess.call(option)
+    if retVal != 0:
       print('Error: %s is not a valid fidl script!' % filename)
       exit(1)
+     
+  # delete fidl script config(s) folder if removing
+  if os.path.exists(fidl_config_dir) and not add:
+    shutil.rmtree(fidl_config_dir)
     
 def remove_tests():
-  run_algorithm(False)
+  run_fidl_algorithm(False)
 
 def add_tests():
-  run_algorithm(True)
+  run_fidl_algorithm(True)
 
 def usage(msg = None):
   retval = 0
@@ -156,4 +165,6 @@ def main(args):
   parse_args(args)
 
 if __name__ == '__main__':
+  if len(sys.argv) == 1:
+    usage('Please specify an option.')
   main(sys.argv[1:])
