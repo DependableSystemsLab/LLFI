@@ -344,9 +344,11 @@ def compileProg():
     retcode = execCompilation(execlist)
 
   if retcode == 0:
-    execlist = [optbin, '-load', llfilib, "-faultinjectionpass"]
+    execlist = [optbin, '-load', llfilib]
     execlist2 = ['-o', fifile + _suffixOfIR(), llfi_indexed_file + _suffixOfIR()]
     execlist.extend(compileOptions)
+    # PHIL Aug 7 2015 Bugfix one off error in tracegraph, call to @injectfault need to occur before @printInstTracer
+    execlist.append('-faultinjectionpass')
     execlist.extend(execlist2)
     if options["readable"]:
       execlist.append("-S")
