@@ -12,9 +12,9 @@ tests:
       Custom_Injector: | 
           sleep(3);
     config: 
-      program: PROGRAMS/mcf
-      input: inp.in
-      simulate: CPUHOG(Res)
+      program: memcpy1
+      input: #inp.in
+      simulate: CPUHog(Res)
       fi_cycle:
       fi_index:
     
@@ -30,7 +30,7 @@ tests:
               Perturb: InappropriateCloseInjector
               option: True
     config:
-      program: PROGRAMS/memcpy1
+      program: memcpy1
       input:
       simulate: InappropriateClose(API)
       fi_cycle:
@@ -51,9 +51,9 @@ tests:
           Action:
               Corrupt
     config:
-      program: PROGRAMS/mcf
-      input: inp.in
-      simulate: WrongAPISelector(API)
+      program: memcpy1
+      input: #inp.in
+      simulate: WrongAPI(API)
       fi_cycle:
       fi_index:
 
@@ -73,13 +73,14 @@ tests:
               option: False
               value: 45
     config:
-      program: PROGRAMS/memcpy1
+      program: memcpy1
       input:
-      simulate: BufferOverflowInstSelector(API)
+      simulate: BufferOverflow(API)
       fi_cycle:
       fi_index:
 
 inputTemplate:
+    kernelOption: [forceRun]
     compileOption:
         instSelMethod:
           - customInstselector:
@@ -89,8 +90,8 @@ inputTemplate:
         customRegSelector: Automatic
 
         includeInjectionTrace:
-            - backward
             - forward
+            - backward
             
         tracingPropagation: True
 
@@ -102,5 +103,3 @@ inputTemplate:
         - run:
             numOfRuns: 1
             fi_type: AutoInjection
-            fi_cycle:
-            fi_index:

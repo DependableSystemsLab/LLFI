@@ -27,9 +27,21 @@ script_path = os.path.realpath(os.path.dirname(__file__))
 test_config_path = os.path.join(script_path, 'test_config.yaml')
 fidl_al_path = os.path.join(script_path, '../FIDL-Algorithm.py')
 
+programs_dir = os.path.join(script_path, 'PROGRAMS/')
 fidl_config_dir = os.path.join(script_path, 'fidl_config/')
 fidl_tests_dir = os.path.join(script_path, 'fidl_test/')
 
+bin_path = os.path.join(script_path, '../../../bin')
+instrument_path = os.path.join(bin_path, 'instrument')
+profile_path = os.path.join(bin_path, 'profile')
+injectfault_path = os.path.join(bin_path, 'injectfault')
+
+ir_ext = '.ll'
+
+def check_result():
+  print('Success')
+  return
+  
 def execute_tests():
   global doc
   
@@ -43,26 +55,51 @@ def execute_tests():
     os.makedirs(dir_path)
     print('Testing %s' % dir_name)
     
-    l = [['Expected', n['config']['simulate']], [['Output', extract_names(n)[1]]]]
+    l = [['Expected', n['config']['simulate']], ['Output', extract_names(n)[1]]]
     for i in l:
       # create inner directory and cd to it
       inner_dir_path = os.path.join(dir_path, i[0])
       os.makedirs(inner_dir_path)
       os.chdir(inner_dir_path)
       
+      program_name = n['config']['program']
+      program_input = n['config']['input']
+      
       # creates the input.yaml
-      dump_yaml(os.path.join(innder_dir_path, 'input.yaml'), create_input_yaml(n, i[1]))
+      dump_yaml(os.path.join(inner_dir_path, 'input.yaml'), create_input_yaml(n, i[1]))
       
       # copy in the program
-      copy_tree(os.path.join(script_path, n['config']['program']), inner_dir_path)
+      copy_tree(os.path.join(programs_dir, program_name), inner_dir_path)
       
       # instrument
+      execlist = [instrument_path, '--readable', '-lpthread', program_name + ir_ext]
+      ret_val = subprocess.call(execlist)
+      if (ret_val != 0):
+        print('Error: Instrument failed!')
+        exit(1)
       
       # profile
+      if n['config']['input'] == None:
+        execlist = [profile_path, './llfi/%s-profiling.exe' % program_name]
+      else:
+        execlist = [profile_path, './llfi/%s-profiling.exe' % program_name, program_input]
+      ret_val = subprocess.call(execlist)
+      if (ret_val != 0):
+        print('Error: Profile failed!')
+        exit(1)
       
       # fault injection
+      if n['config']['input'] == None:
+        execlist = [injectfault_path, './llfi/%s-faultinjection.exe' % program_name]
+      else:
+        execlist = [injectfault_path, './llfi/%s-faultinjection.exe' % program_name, program_input]
+      ret_val = subprocess.call(execlist)
+      if (ret_val != 0):
+        print('Error: FaultInjection failed!')
+        exit(1)
       
       # check result
+      check_result()
     
 def create_input_yaml(test, selector):
   global doc
@@ -70,8 +107,8 @@ def create_input_yaml(test, selector):
   template = doc['inputTemplate'].copy()
   template['compileOption']['instSelMethod'][0]['customInstselector']['include'] = [selector]
     
-  template['runOption'][0]['run']['fi_cycle'] = test['config']['fi_cycle']
-  template['runOption'][0]['run']['fi_index'] = test['config']['fi_index']
+  #template['runOption'][0]['run']['fi_cycle'] = test['config']['fi_cycle']
+  #template['runOption'][0]['run']['fi_index'] = test['config']['fi_index']
     
   return template
 
