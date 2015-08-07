@@ -50,6 +50,10 @@ void FaultInjectionPass::insertInjectionFuncCall(
        inst_regs_map->begin(); inst_reg_it != inst_regs_map->end(); 
        ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
+
+    // PHIL Aug 7 2015 Bugfix one off error in tracegraph, call to @injectfault need to occur before @printInstTracer
+    if (!llfi::isLLFIIndexedInst(fi_inst)) continue;
+    
     std::list<int> *fi_reg_pos_list = inst_reg_it->second;
     unsigned reg_index = 0;
     unsigned total_reg_num = fi_reg_pos_list->size();
