@@ -1,4 +1,4 @@
-; ModuleID = '/home/phil/Desktop/llfi-gui-merge/tools/FIDL/tests/fidl_test/multisrc/Expected/llfi/memcpy1-llfi_index.ll'
+; ModuleID = '/home/phil/Desktop/llfi-gui-merge/tools/FIDL/tests/fidl_test/custom/Expected/llfi/memcpy1-llfi_index.ll'
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
@@ -16,11 +16,10 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str8 = private unnamed_addr constant [2 x i8] c"w\00", align 1
 @.str9 = private unnamed_addr constant [34 x i8] c" the content of OUTPUT file is :\0A\00", align 1
 @.str10 = private unnamed_addr constant [3 x i8] c"%c\00", align 1
-@call_namestr = internal constant [5 x i8] c"call\00"
+@ret_namestr = internal constant [4 x i8] c"ret\00"
 
 ; Function Attrs: nounwind uwtable
 define i32 @main() #0 {
-  call void @initInjections()
   %llfi_trace182 = alloca i32
   %llfi_trace183 = alloca [4 x i8]
   %llfi_trace180 = alloca i32
@@ -205,6 +204,7 @@ define i32 @main() #0 {
   %llfi_trace3 = alloca [7 x i8]
   %llfi_trace = alloca i32*
   %llfi_trace1 = alloca [7 x i8]
+  call void @initInjections()
   %1 = alloca i32, align 4, !llfi_index !1
   store i32* %1, i32** %llfi_trace
   store [7 x i8] c"alloca\00", [7 x i8]* %llfi_trace1
@@ -329,9 +329,7 @@ define i32 @main() #0 {
   br label %70, !llfi_index !29
 
 ; <label>:17                                      ; preds = %9
-  %fi185 = call i8* @injectFault0(i64 29, i8* getelementptr inbounds ([11 x i8]* @.str2, i32 0, i32 0), i32 49, i32 0, i32 2, i32 1, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %fi186 = call i8* @injectFault0(i64 29, i8* getelementptr inbounds ([2 x i8]* @.str3, i32 0, i32 0), i32 49, i32 1, i32 2, i32 2, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %18 = call %struct._IO_FILE* @fopen(i8* %fi185, i8* %fi186), !llfi_index !30
+  %18 = call %struct._IO_FILE* @fopen(i8* getelementptr inbounds ([11 x i8]* @.str2, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8]* @.str3, i32 0, i32 0)), !llfi_index !30
   store %struct._IO_FILE* %18, %struct._IO_FILE** %llfi_trace58
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace59
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, %struct._IO_FILE**, i32)*)(i32 29, [5 x i8]* %llfi_trace59, i32 8, %struct._IO_FILE** %llfi_trace58, i32 1000)
@@ -379,8 +377,7 @@ define i32 @main() #0 {
   store %struct._IO_FILE* %27, %struct._IO_FILE** %llfi_trace78
   store [5 x i8] c"load\00", [5 x i8]* %llfi_trace79
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, %struct._IO_FILE**, i32)*)(i32 39, [5 x i8]* %llfi_trace79, i32 8, %struct._IO_FILE** %llfi_trace78, i32 1000)
-  %fi187 = call %struct._IO_FILE* @injectFault1(i64 40, %struct._IO_FILE* %27, i32 49, i32 0, i32 1, i32 4, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %28 = call i64 @fread(i8* %24, i64 1, i64 %26, %struct._IO_FILE* %fi187), !llfi_index !41
+  %28 = call i64 @fread(i8* %24, i64 1, i64 %26, %struct._IO_FILE* %27), !llfi_index !41
   store i64 %28, i64* %llfi_trace80
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace81
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, i64*, i32)*)(i32 40, [5 x i8]* %llfi_trace81, i32 8, i64* %llfi_trace80, i32 1000)
@@ -420,9 +417,7 @@ define i32 @main() #0 {
   store i32 %36, i32* %llfi_trace98
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace99
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, i32*, i32)*)(i32 49, [5 x i8]* %llfi_trace99, i32 4, i32* %llfi_trace98, i32 1000)
-  %fi = call i8* @injectFault0(i64 50, i8* getelementptr inbounds ([11 x i8]* @.str7, i32 0, i32 0), i32 49, i32 0, i32 2, i32 1, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %fi184 = call i8* @injectFault0(i64 50, i8* getelementptr inbounds ([2 x i8]* @.str8, i32 0, i32 0), i32 49, i32 1, i32 2, i32 2, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %37 = call %struct._IO_FILE* @fopen(i8* %fi, i8* %fi184), !llfi_index !51
+  %37 = call %struct._IO_FILE* @fopen(i8* getelementptr inbounds ([11 x i8]* @.str7, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8]* @.str8, i32 0, i32 0)), !llfi_index !51
   store %struct._IO_FILE* %37, %struct._IO_FILE** %llfi_trace100
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace101
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, %struct._IO_FILE**, i32)*)(i32 50, [5 x i8]* %llfi_trace101, i32 8, %struct._IO_FILE** %llfi_trace100, i32 1000)
@@ -460,8 +455,7 @@ define i32 @main() #0 {
   store %struct._IO_FILE* %44, %struct._IO_FILE** %llfi_trace116
   store [5 x i8] c"load\00", [5 x i8]* %llfi_trace117
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, %struct._IO_FILE**, i32)*)(i32 58, [5 x i8]* %llfi_trace117, i32 8, %struct._IO_FILE** %llfi_trace116, i32 1000)
-  %fi188 = call %struct._IO_FILE* @injectFault1(i64 59, %struct._IO_FILE* %44, i32 49, i32 0, i32 1, i32 4, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %45 = call i64 @fwrite(i8* %41, i64 1, i64 %43, %struct._IO_FILE* %fi188), !llfi_index !60
+  %45 = call i64 @fwrite(i8* %41, i64 1, i64 %43, %struct._IO_FILE* %44), !llfi_index !60
   store i64 %45, i64* %llfi_trace118
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace119
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, i64*, i32)*)(i32 59, [5 x i8]* %llfi_trace119, i32 8, i64* %llfi_trace118, i32 1000)
@@ -479,9 +473,7 @@ define i32 @main() #0 {
   store i32 %48, i32* %llfi_trace124
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace125
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, i32*, i32)*)(i32 62, [5 x i8]* %llfi_trace125, i32 4, i32* %llfi_trace124, i32 1000)
-  %fi189 = call i8* @injectFault0(i64 63, i8* getelementptr inbounds ([11 x i8]* @.str7, i32 0, i32 0), i32 49, i32 0, i32 2, i32 1, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %fi190 = call i8* @injectFault0(i64 63, i8* getelementptr inbounds ([2 x i8]* @.str3, i32 0, i32 0), i32 49, i32 1, i32 2, i32 2, i8* getelementptr inbounds ([5 x i8]* @call_namestr, i32 0, i32 0))
-  %49 = call %struct._IO_FILE* @fopen(i8* %fi189, i8* %fi190), !llfi_index !64
+  %49 = call %struct._IO_FILE* @fopen(i8* getelementptr inbounds ([11 x i8]* @.str7, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8]* @.str3, i32 0, i32 0)), !llfi_index !64
   store %struct._IO_FILE* %49, %struct._IO_FILE** %llfi_trace126
   store [5 x i8] c"call\00", [5 x i8]* %llfi_trace127
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, %struct._IO_FILE**, i32)*)(i32 63, [5 x i8]* %llfi_trace127, i32 8, %struct._IO_FILE** %llfi_trace126, i32 1000)
@@ -601,11 +593,12 @@ define i32 @main() #0 {
   store i32 %71, i32* %llfi_trace180
   store [5 x i8] c"load\00", [5 x i8]* %llfi_trace181
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [5 x i8]*, i32, i32*, i32)*)(i32 90, [5 x i8]* %llfi_trace181, i32 4, i32* %llfi_trace180, i32 1000)
+  %fi = call i32 @injectFault0(i64 91, i32 %71, i32 1, i32 0, i32 1, i32 1, i8* getelementptr inbounds ([4 x i8]* @ret_namestr, i32 0, i32 0))
+  call void @postInjections()
   store i32 0, i32* %llfi_trace182
   store [4 x i8] c"ret\00", [4 x i8]* %llfi_trace183
   call void bitcast (void (i32, [7 x i8]*, i32, i32**, i32)* @printInstTracer to void (i32, [4 x i8]*, i32, i32*, i32)*)(i32 91, [4 x i8]* %llfi_trace183, i32 4, i32* %llfi_trace182, i32 1000)
-  call void @postInjections()
-  ret i32 %71, !llfi_index !92
+  ret i32 %fi, !llfi_index !92
 }
 
 ; Function Attrs: nounwind
@@ -629,40 +622,21 @@ declare i32 @fgetc(%struct._IO_FILE*) #2
 ; Function Attrs: nounwind
 declare void @free(i8*) #1
 
-declare void @printInstTracer(i32, [7 x i8]*, i32, i32**, i32)
-
-define i8* @injectFault0(i64, i8*, i32, i32, i32, i32, i8*) {
+define i32 @injectFault0(i64, i32, i32, i32, i32, i32, i8*) {
 entry:
-  %tmploc = alloca i8*
-  store i8* %1, i8** %tmploc
+  %tmploc = alloca i32
+  store i32 %1, i32* %tmploc
   %pre_cond = call i1 @preFunc(i64 %0, i32 %2, i32 %3, i32 %4)
   br i1 %pre_cond, label %inject, label %exit
 
 inject:                                           ; preds = %entry
-  %tmploc_cast = bitcast i8** %tmploc to i8*
-  call void @injectFunc(i64 %0, i32 64, i8* %tmploc_cast, i32 %3, i32 %5, i8* %6)
+  %tmploc_cast = bitcast i32* %tmploc to i8*
+  call void @injectFunc(i64 %0, i32 32, i8* %tmploc_cast, i32 %3, i32 %5, i8* %6)
   br label %exit
 
 exit:                                             ; preds = %inject, %entry
-  %updateval = load i8** %tmploc
-  ret i8* %updateval
-}
-
-define %struct._IO_FILE* @injectFault1(i64, %struct._IO_FILE*, i32, i32, i32, i32, i8*) {
-entry:
-  %tmploc = alloca %struct._IO_FILE*
-  store %struct._IO_FILE* %1, %struct._IO_FILE** %tmploc
-  %pre_cond = call i1 @preFunc(i64 %0, i32 %2, i32 %3, i32 %4)
-  br i1 %pre_cond, label %inject, label %exit
-
-inject:                                           ; preds = %entry
-  %tmploc_cast = bitcast %struct._IO_FILE** %tmploc to i8*
-  call void @injectFunc(i64 %0, i32 64, i8* %tmploc_cast, i32 %3, i32 %5, i8* %6)
-  br label %exit
-
-exit:                                             ; preds = %inject, %entry
-  %updateval = load %struct._IO_FILE** %tmploc
-  ret %struct._IO_FILE* %updateval
+  %updateval = load i32* %tmploc
+  ret i32 %updateval
 }
 
 declare void @initInjections()
@@ -672,6 +646,8 @@ declare void @postInjections()
 declare i1 @preFunc(i64, i32, i32, i32)
 
 declare void @injectFunc(i64, i32, i8*, i32, i32, i8*)
+
+declare void @printInstTracer(i32, [7 x i8]*, i32, i32**, i32)
 
 attributes #0 = { nounwind uwtable "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "unsafe-fp-math"="false" "use-soft-float"="false" }
