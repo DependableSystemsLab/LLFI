@@ -37,10 +37,35 @@ profile_path = os.path.join(bin_path, 'profile')
 injectfault_path = os.path.join(bin_path, 'injectfault')
 
 ir_ext = '.ll'
+expected = 'Expected'
+output = 'Output'
 
-def check_result():
-  print('Success')
-  return
+def ir_file_equals(ir1_path, ir2_path):
+  with open(ir2_path) as f:
+    lines1 = f.read().splitlines()
+  with optn(ir2_path) as f:
+    lines2 = f.read().splitlines()
+    
+  if len(lines1) != len(lines2):
+    return False
+    
+  # check the file content (ignoring the first line where the path
+  # of the files will be different
+  for i in range(1, len(lines1)):
+    if lines1[i] != lines2[i]:
+      return False
+      
+  return True
+  
+def is_same_result(test_dir_path, program_name):
+  file_list = ['llfi/%s-faultinjection%s' % (program_name, ir_ext), 'llfi/%s-profiling%s' % (program_name, ir_ext)]
+
+  # check if the generated ir files are equal
+  for n in file_list:
+    if not ir_file_equals(os.path.join(test_dir_path, expected, n), os.path.join(test_dir_path, output, n)):
+      return False
+
+  return True
   
 def execute_tests():
   global doc
@@ -55,15 +80,14 @@ def execute_tests():
     os.makedirs(dir_path)
     print('Testing %s' % dir_name)
     
-    l = [['Expected', n['config']['simulate']], ['Output', extract_names(n)[1]]]
+    program_name = n['config']['program']
+    
+    l = [[expected, n['config']['simulate']], [output, extract_names(n)[1]]]
     for i in l:
       # create inner directory and cd to it
       inner_dir_path = os.path.join(dir_path, i[0])
       os.makedirs(inner_dir_path)
       os.chdir(inner_dir_path)
-      
-      program_name = n['config']['program']
-      program_input = n['config']['input']
       
       # creates the input.yaml
       dump_yaml(os.path.join(inner_dir_path, 'input.yaml'), create_input_yaml(n, i[1]))
@@ -78,37 +102,17 @@ def execute_tests():
         print('Error: Instrument failed!')
         exit(1)
       
-      # profile
-      if n['config']['input'] == None:
-        execlist = [profile_path, './llfi/%s-profiling.exe' % program_name]
-      else:
-        execlist = [profile_path, './llfi/%s-profiling.exe' % program_name, program_input]
-      ret_val = subprocess.call(execlist)
-      if (ret_val != 0):
-        print('Error: Profile failed!')
-        exit(1)
-      
-      # fault injection
-      if n['config']['input'] == None:
-        execlist = [injectfault_path, './llfi/%s-faultinjection.exe' % program_name]
-      else:
-        execlist = [injectfault_path, './llfi/%s-faultinjection.exe' % program_name, program_input]
-      ret_val = subprocess.call(execlist)
-      if (ret_val != 0):
-        print('Error: FaultInjection failed!')
-        exit(1)
-      
-      # check result
-      check_result()
+    # check results
+    if is_same_result(dir_path, program_name):
+      print('Success: %s' % dir_name)
+    else:
+      print('Error: %s' % dir_name)
     
 def create_input_yaml(test, selector):
   global doc
   
   template = doc['inputTemplate'].copy()
   template['compileOption']['instSelMethod'][0]['customInstselector']['include'] = [selector]
-    
-  #template['runOption'][0]['run']['fi_cycle'] = test['config']['fi_cycle']
-  #template['runOption'][0]['run']['fi_index'] = test['config']['fi_index']
     
   return template
 
