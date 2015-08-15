@@ -30,11 +30,18 @@ script_path = os.path.realpath(os.path.dirname(__file__))
 llfiroot = os.path.dirname(os.path.dirname(script_path))
 
 software_injectors_path = os.path.join(llfiroot, 'runtime_lib/_CustomSoftwareFaultInjectors.cpp')
-custom_injectors_yaml = os.path.join(script_path, 'custom_injectors.yaml')
 software_failures_passes_dir = os.path.join(llfiroot, 'llvm_passes/software_failures/')
 cmakelists = os.path.join(llfiroot, 'llvm_passes/CMakeLists.txt')
 
 setup_script = os.path.join(llfiroot, 'setup.py')
+
+#template path
+config_dir = os.path.join(script_path, 'config')
+custom_injectors_yaml = os.path.join(config_dir, 'custom_injectors.yaml')
+injector_template = os.path.join(config_dir, 'NewInjectorTemplate.cpp')
+dst_template = os.path.join(config_dir, 'TargetDestinationTemplate.cpp')
+ret_template = os.path.join(config_dir, 'TargetReturnTemplate.cpp')
+src_template = os.path.join(config_dir, 'TargetSourceTemplate.cpp')
 
 ################################################################################
 
@@ -122,7 +129,7 @@ def read_input_fidl():
 def gen_ftrigger_single():
   # convert trigger and target of .fidl file into appropriate llvm passes
   # os.chdir("llfisrc/Templates/")
-  MapLines = read_file(os.path.join(script_path, 'TargetDestinationTemplate.cpp'))
+  MapLines = read_file(dst_template)
   
   # print(MapLines)
   M1 = MapLines.index('//fidl_1')
@@ -156,7 +163,7 @@ def gen_ftrigger_single():
 ################################################################################
 def gen_ftrigger_return():
 
-  lines = read_file(os.path.join(script_path, 'TargetReturnTemplate.cpp'))
+  lines = read_file(ret_template)
   
   i = lines.index('//#fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
@@ -178,7 +185,7 @@ def gen_ftrigger_return():
 ################################################################################
   
 def gen_ftrigger_multisrc():
-  PassLines = read_file(os.path.join(script_path, 'TargetSourceTemplate.cpp'))
+  PassLines = read_file(src_template)
   
   A = PassLines.index('//fidl_1')
   PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode)) # Trigger: "fread"
@@ -352,7 +359,7 @@ def gen_custom_injector(insert):
   custom_injector = custom_injector.replace('\n', '\n        ') # add spaces after every \n character
   
   # read template
-  NInjectorLines = read_file(os.path.join(script_path, 'NewInjectorTemplate.cpp'))
+  NInjectorLines = read_file(injector_template)
   
   # modify template
   NInjectorLines[0] = 'class _%s_%sFInjector : public SoftwareFaultInjector {' % (F_Class, F_Mode)
