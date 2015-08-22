@@ -20,25 +20,28 @@
 
 using namespace llvm;
 namespace llfi {
-//#fidl_1
+//fidl_1
     public:
     virtual void getCompileTimeInfo(std::map<std::string, std::string>& info) {
-//#fidl_2
-        info["targets"] = "return";
+//fidl_2
     }
     private:
     virtual bool isInstFITarget(Instruction* inst) {
-        if (isa<ReturnInst>(inst)) {
-//#fidl_3
+//fidl_3
+    }
+    
+    static bool isTargetLLFIIndex(Instruction* inst) {
+//fidl_4
+        if (numOfSpecInsts > 0) {
             long llfiindex = getLLFIIndexofInst(inst);
             for (int i = 0; i < numOfSpecInsts; i++) {  
-                if (llfiindex + 1 == IndexOfSpecInsts[i]) { 
-                    std::cout << "Special Instruction Index is:" << llfiindex + 1 << "\n"; 
+                if (llfiindex == IndexOfSpecInsts[i]) { 
+                    return true;
                 }
             }
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 };

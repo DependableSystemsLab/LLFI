@@ -23,7 +23,9 @@ namespace llfi {
 //fidl_1
     public:
 //fidl_2
+        if (funcNames.size() == 0) {
 //fidl_3
+        }
     }
     
     virtual void getCompileTimeInfo(std::map<std::string, std::string>& info) {
@@ -37,31 +39,46 @@ namespace llfi {
     }
 
     private:
-    std::set<std::string> funcNames;
+    static std::set<std::string> funcNames;
 
     virtual bool isInstFITarget(Instruction* inst) {
-        if (isa<CallInst>(inst) == false) {
+        if (!isa<CallInst>(inst)) {
+            return false;
+        }
+        
+        CallInst* CI = dyn_cast<CallInst>(inst);
+        Function* called_func = CI->getCalledFunction();
+        if (called_func == NULL) {
+            return false;
+        }
+        
+        std::string func_name = std::string(called_func->getName());
+//fidl_6
+    }
+    
+    static bool isTargetLLFIIndex(Instruction* inst) {
+//fidl_7
+        if (numOfSpecInsts > 0) {
+            long llfiindex = getLLFIIndexofInst(inst);
+            for (int i = 0; i < numOfSpecInsts; i++) {  
+                if (llfiindex == IndexOfSpecInsts[i]) { 
+                    return true;
+                }
+            }
             return false;
         } else {
-            CallInst* CI = dyn_cast<CallInst>(inst);
-            Function* called_func = CI->getCalledFunction();
-            if (called_func == NULL) {
-                return false;
-            }
-            std::string func_name = std::string(called_func->getName());
-            if (funcNames.find(func_name) != funcNames.end()) { 
-//fidl_6
-                long llfiindex = getLLFIIndexofInst(inst);
-                for (int i = 0; i < numOfSpecInsts; i++) {  
-                    if (llfiindex + 1 == IndexOfSpecInsts[i]) {
-                        std::cout << "Special Instruction Index is:" << llfiindex + 1 << "\n"; 
-                    }
-                }
-                return true;
-            } else {
-                return false;
+            return true;
+        }
+    }
+    
+    static std::set<std::string>::iterator key_partially_matches(std::string func_name) {
+        std::set<std::string>::iterator SI;
+        for (SI = funcNames.begin(); SI != funcNames.end(); SI++) {
+            if (func_name.find(*SI) != std::string::npos) {
+                break;
             }
         }
+        return SI;
     }
 };
 

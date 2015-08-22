@@ -40,10 +40,7 @@ namespace llfi {
     
     static bool isTarget(CallInst* CI, Value* T) {
         std::string func_name = CI->getCalledFunction()->getName();
-        if (funcNamesTargetArgs.find(func_name) == funcNamesTargetArgs.end()) {
-            return false;
-        }
-        for (std::set<int>::iterator SI = funcNamesTargetArgs[func_name].begin(); SI != funcNamesTargetArgs[func_name].end(); SI++) {
+//fidl_6
             if (*SI >= CI->getNumArgOperands()) {
                 continue;
             } else if (T == CI->getArgOperand(*SI)) {
@@ -57,32 +54,48 @@ namespace llfi {
     static std::map<std::string, std::set<int> > funcNamesTargetArgs;
     
     virtual bool isInstFITarget(Instruction* inst) {
-        if (isa<CallInst>(inst) == false) {
+        if (!isa<CallInst>(inst)) {
+            return false;
+        }
+        
+        CallInst* CI = dyn_cast<CallInst>(inst);
+        Function* called_func = CI->getCalledFunction();
+        if (called_func == NULL) { 
+            return false;
+        }
+        
+        std::string func_name = std::string(called_func->getName());
+//fidl_7
+    }
+    
+    static bool isTargetLLFIIndex(Instruction* inst) {
+//fidl_8
+        if (numOfSpecInsts > 0) {
+            long llfiindex = getLLFIIndexofInst(inst);
+            for (int i = 0; i < numOfSpecInsts; i++) {  
+                if (llfiindex == IndexOfSpecInsts[i]) { 
+                    return true;
+                }
+            }
             return false;
         } else {
-            CallInst* CI = dyn_cast<CallInst>(inst);
-            Function* called_func = CI->getCalledFunction();
-            if (called_func == NULL) { 
-                return false;
-            }
-            std::string func_name = std::string(called_func->getName());
-            if(funcNamesTargetArgs.find(func_name) != funcNamesTargetArgs.end()) { 
-//fidl_6
-                long llfiindex = getLLFIIndexofInst(inst);
-                for (int i = 0; i < numOfSpecInsts; i++) {  
-                    if (llfiindex + 1 == IndexOfSpecInsts[i]) { 
-                        std::cout << "Special Instruction Index is:" << llfiindex + 1 << "\n"; 
-                    }
-                }
-                return true;
-            } else {
-                return false;
+            return true;
+        }
+    }
+    
+    // does something in funcNamesTargetArgs matches partially with func_name?
+    static std::map<std::string, std::set<int> >::iterator key_partially_matches(std::string func_name) {
+        std::map<std::string, std::set<int> >::iterator SI;
+        for (SI = funcNamesTargetArgs.begin(); SI != funcNamesTargetArgs.end(); SI++) {
+            if (func_name.find(SI->first) != std::string::npos) {   
+                break;
             }
         }
+        return SI;
     }
 };
 
-//fidl_7
+//fidl_9
     private:
     virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) {
         if (isa<CallInst>(inst) == false) {
@@ -93,7 +106,7 @@ namespace llfi {
         if (called_func == NULL) {
             return false;
         }
-//fidl_8
+//fidl_10
         } else { 
             return false;
         }
