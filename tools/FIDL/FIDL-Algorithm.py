@@ -39,16 +39,17 @@ setup_script = os.path.join(llfiroot, 'setup.py')
 config_dir = os.path.join(script_path, 'config')
 custom_injectors_yaml = os.path.join(config_dir, 'custom_injectors.yaml')
 injector_template = os.path.join(config_dir, 'NewInjectorTemplate.cpp')
-dst_template = os.path.join(config_dir, 'TargetDestinationTemplate.cpp')
-ret_template = os.path.join(config_dir, 'TargetReturnTemplate.cpp')
-src_template = os.path.join(config_dir, 'TargetSourceTemplate.cpp')
+single_template = os.path.join(config_dir, 'TargetSingleTemplate.cpp')
+all_template = os.path.join(config_dir, 'TargetAllTemplate.cpp')
+multisrc_template = os.path.join(config_dir, 'TargetMultiSourceTemplate.cpp')
 
 ################################################################################
 
 #read .yaml file, and calculates the number of trigger points
 
 def read_input_fidl():
-  global F_Class, F_Mode, SpecInstsIndexes, numOfSpecInsts, Insts, custom_injector, action, reg_type, trigger_type
+  global F_Class, F_Mode, SpecInstsIndexes, numOfSpecInsts, Insts, custom_injector, action, reg_type, trigger_type, wildcard
+  wildcard = False
 
   input_fidl = name
 
@@ -90,7 +91,17 @@ def read_input_fidl():
         if (set(insts) != set(Insts) or # need to specify at least one src for each instruction
             bool([inst for inst in insts.values() if inst == None or inst == [] or inst == '' or not isinstance(inst, list)])): # check that the specified src's aren't empty, an empty list, or an empty string, or isn't a list
           raise Exception("Error: Invalid number/name of src's in Target, or Target sources are not specified as list!")
-        else:
+
+        if 'all' in insts and len(insts) != 1: 
+          raise Exception('Error: When instrumenting all call instruction, only 1 register can be specified!')
+          
+        if '*' in Insts[0]:
+          Insts = {}
+          for key in insts:
+            new_key = key.replace('*', '')
+            Insts[new_key] = insts[key]
+          wildcard = True
+        else:  
           Insts = insts
         reg_type = 'src'
       elif 'dst' in target:
@@ -128,102 +139,139 @@ def read_input_fidl():
 
 def gen_ftrigger_single():
   # convert trigger and target of .fidl file into appropriate llvm passes
-  # os.chdir("llfisrc/Templates/")
-  MapLines = read_file(dst_template)
+  lines = read_file(single_template)
   
-  # print(MapLines)
-  M1 = MapLines.index('//fidl_1')
-  
-  MapLines.insert(M1 + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
-  M2 = MapLines.index('//fidl_2')
-  MapLines.insert(M2 + 1, '    _%s_%sInstSelector() {' % (F_Class, F_Mode))
-  M3 = MapLines.index('//fidl_3')
-  for i in Insts:
-    MapLines.insert(M3 + 1, '        funcNames.insert(std::string("%s"));' % i) 
-  M4 = MapLines.index('//fidl_4')
-  MapLines.insert(M4 + 1, '        info["failure_class"] = "%s";' % (F_Class))
-  MapLines.insert(M4 + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
-  MapLines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
-  
-  # change reg_type
-  if reg_type == 'src':
-  	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, next(iter(Insts.values()))[0]))
-  elif reg_type == 'dst':
-  	MapLines.append('static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n' % (F_Mode, F_Class))
-  	
-  MapLines.insert(MapLines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
-
-  AA = MapLines.index('//fidl_6')
-
-  MapLines.insert(AA + 1, '                long numOfSpecInsts = %s;' % (numOfSpecInsts))
-  MapLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
-  
-  return MapLines
-  
-################################################################################
-def gen_ftrigger_return():
-
-  lines = read_file(ret_template)
-  
-  i = lines.index('//#fidl_1')
+  i = lines.index('//fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
   
-  i = lines.index('//#fidl_2')
+  i = lines.index('//fidl_2')
+  lines.insert(i + 1, '    _%s_%sInstSelector() {' % (F_Class, F_Mode))
+  
+  i = lines.index('//fidl_3')
+  for n in Insts:
+    lines.insert(i + 1, '            funcNames.insert(std::string("%s"));' % n) 
+    
+  i = lines.index('//fidl_4')
+  lines.insert(i + 1, '        info["failure_class"] = "%s";' % (F_Class))
+  lines.insert(i + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
+  	
+  lines.insert(lines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
+
+  i = lines.index('//fidl_6')
+  if not wildcard:
+    lines.insert(i + 1, '        return funcNames.find(func_name) != funcNames.end() && isTargetLLFIIndex(inst);')
+  else:
+    lines.insert(i + 1, '        return key_partially_matches(func_name) != funcNames.end() && isTargetLLFIIndex(inst);')
+    
+  i = lines.index('//fidl_7')
+  lines.insert(i + 1, '        const long numOfSpecInsts = %s;' % (numOfSpecInsts))
+  lines.insert(i + 2, '        const long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
+  
+  lines.append('std::set<std::string> _%s_%sInstSelector::funcNames;\n' % (F_Class, F_Mode))
+  
+  lines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
+  # change reg_type
+  if reg_type == 'src':
+  	lines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, next(iter(Insts.values()))[0]))
+  elif reg_type == 'dst':
+  	lines.append('static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n' % (F_Mode, F_Class))
+  
+  return lines
+  
+################################################################################
+def gen_ftrigger_all():
+
+  lines = read_file(all_template)
+  
+  i = lines.index('//fidl_1')
+  lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode))
+  
+  i = lines.index('//fidl_2')
   lines.insert(i + 1, '        info["failure_class"] = "%s";' % (F_Class))
   lines.insert(i + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
   lines.insert(i + 3, '        info["injector"] = "%s";' % (injector))
+  if trigger_type == 'return':
+    lines.insert(i + 4, '        info["targets"] = "return";')
+  else:
+    lines.insert(i + 4, '        info["targets"] = "all-call-instructions";')
   
-  i = lines.index('//#fidl_3')
-  lines.insert(i + 1, '            long numOfSpecInsts = %s;' % (numOfSpecInsts))
-  lines.insert(i + 2, '            long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
+  i = lines.index('//fidl_3')
+  if trigger_type == 'return':
+    lines.insert(i + 1, '        return isa<ReturnInst>(inst) && isTargetLLFIIndex(inst);')
+  else:
+    lines.insert(i + 1, '        return isa<CallInst>(inst) && isTargetLLFIIndex(inst);')
+  
+  i = lines.index('//fidl_4')
+  lines.insert(i + 1, '        const long numOfSpecInsts = %s;' % (numOfSpecInsts))
+  lines.insert(i + 2, '        const long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
   
   lines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
-  lines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
+  if trigger_type == 'return':
+    lines.append('static RegisterFIRegSelector B("%s(%s)", new RetValRegSelector());\n\n}\n' % (F_Mode, F_Class))
+  else:
+    if reg_type == 'src':
+  	  lines.append('static RegisterFIRegSelector B("%s(%s)", new FuncArgRegSelector(%s));\n\n}\n' % (F_Mode, F_Class, next(iter(Insts.values()))[0]))
+    elif reg_type == 'dst':
+  	  lines.append('static RegisterFIRegSelector B("%s(%s)", new FuncDestRegSelector());\n\n}\n' % (F_Mode, F_Class))
   
   return lines
   
 ################################################################################
   
 def gen_ftrigger_multisrc():
-  PassLines = read_file(src_template)
+  lines = read_file(multisrc_template)
   
-  A = PassLines.index('//fidl_1')
-  PassLines.insert(A + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode)) # Trigger: "fread"
-  B = PassLines.index('//fidl_2')
-  PassLines.insert(B + 1,'    _%s_%sInstSelector () {' % (F_Class,F_Mode))
-  X = PassLines.index('//fidl_3')
-           
+  i = lines.index('//fidl_1')
+  lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (F_Class, F_Mode)) # Trigger: "fread"
+  
+  i = lines.index('//fidl_2')
+  lines.insert(i + 1,'    _%s_%sInstSelector () {' % (F_Class,F_Mode))
+  
+  i = lines.index('//fidl_3')
   for inst in Insts:
-    PassLines.insert(X + 1, '            funcNamesTargetArgs["%s"] = std::set<int>();' % inst)
+    lines.insert(i + 1, '            funcNamesTargetArgs["%s"] = std::set<int>();' % inst)
     for reg in Insts[inst]:
-      PassLines.insert(X + 2, '            funcNamesTargetArgs["%s"].insert(%s);' % (inst, reg))
+      lines.insert(i + 2, '            funcNamesTargetArgs["%s"].insert(%s);' % (inst, reg))
      
-  C = PassLines.index('//fidl_4')
-  PassLines.insert(C + 1, '        info["failure_class"] = "%s";' % (F_Class))
-  PassLines.insert(C + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
+  i = lines.index('//fidl_4')
+  lines.insert(i + 1, '        info["failure_class"] = "%s";' % (F_Class))
+  lines.insert(i + 2, '        info["failure_mode"] = "%s";' % (F_Mode))
+  
+  lines.insert(lines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
+  
+  i = lines.index('//fidl_6')
+  if not wildcard:
+    lines.insert(i + 1, '        if (funcNamesTargetArgs.find(func_name) == funcNamesTargetArgs.end()) {')
+    lines.insert(i + 2, '            return false;')
+    lines.insert(i + 3, '        }')
+    lines.insert(i + 4, '        for (std::set<int>::iterator SI = funcNamesTargetArgs[func_name].begin(); SI != funcNamesTargetArgs[func_name].end(); SI++) {')
+  else:
+    lines.insert(i + 1, '        std::map<std::string, std::set<int> >::iterator it = key_partially_matches(func_name);')
+    lines.insert(i + 2, '        if (it == funcNamesTargetArgs.end()) {')
+    lines.insert(i + 3, '            return false;')
+    lines.insert(i + 4, '        }')
+    lines.insert(i + 5, '        for (std::set<int>::iterator SI = it->second.begin(); SI != it->second.end(); SI++) {')
+  
+  i = lines.index('//fidl_7')
+  if not wildcard:
+    lines.insert(i + 1, '        return funcNamesTargetArgs.find(func_name) != funcNamesTargetArgs.end() && isTargetLLFIIndex(inst);')
+  else:
+    lines.insert(i + 1, '        return key_partially_matches(func_name) != funcNamesTargetArgs.end() && isTargetLLFIIndex(inst);')
+  
+  i = lines.index('//fidl_8')
+  lines.insert(i + 1, '        const long numOfSpecInsts = %s;' % (numOfSpecInsts))
+  lines.insert(i + 2, '        const long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
 
-  F = PassLines.index('    virtual bool isRegofInstFITarget(Value *reg, Instruction *inst) {')
-  PassLines.insert(F + 5, '        if (_%s_%sInstSelector::isTarget(CI, reg)) {\n            return true;\n        }' % (F_Class,F_Mode))
-  PassLines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
+  i = lines.index('//fidl_9')
+  lines.insert(i + 1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;\n' % (F_Class, F_Mode))
+  lines.insert(i + 2, 'class _%s_%sRegSelector: public SoftwareFIRegSelector {' % (F_Class, F_Mode))  
   
-  PassLines.append('static RegisterFIRegSelector B("%s(%s)", new _%s_%sRegSelector());\n\n}\n'%(F_Mode, F_Class, F_Class, F_Mode))
-  # print(PassLines)
+  lines.insert(lines.index('//fidl_10') + 1, '        if (_%s_%sInstSelector::isTarget(CI, reg)) {\n            return true;' % (F_Class, F_Mode))
   
-  PassLines.insert(PassLines.index('//fidl_5') + 1, '        info["injector"] = "%s";' % (injector))
-    
-  AA = PassLines.index('//fidl_6')
-
-  PassLines.insert(AA + 1, '                long numOfSpecInsts = %s;' % (numOfSpecInsts))
-  PassLines.insert(AA + 2, '                long IndexOfSpecInsts[] = {%s};' % (SpecInstsIndexes))
-
-  F = PassLines.index('//fidl_7')
-  PassLines.insert(F + 1, 'std::map<std::string, std::set<int> >  _%s_%sInstSelector::funcNamesTargetArgs;\n' % (F_Class, F_Mode))
-  PassLines.insert(F + 2, 'class _%s_%sRegSelector: public SoftwareFIRegSelector {' % (F_Class, F_Mode))  
+  lines.append('static RegisterFIInstSelector A("%s(%s)", new _%s_%sInstSelector());' % (F_Mode, F_Class, F_Class, F_Mode))
+  lines.append('static RegisterFIRegSelector B("%s(%s)", new _%s_%sRegSelector());\n\n}\n'%(F_Mode, F_Class, F_Class, F_Mode))
   
-  # @PHIL Bugfix July 21
-  PassLines.insert(PassLines.index('//fidl_8') + 1, '        if (_%s_%sInstSelector::isTarget(CI, reg)) {\n            return true;' % (F_Class, F_Mode))
-  
-  return PassLines
+  return lines
   
 ################################################################################
   
@@ -233,8 +281,8 @@ def FTriggerGenerator() :
   filename = '_%s_%sSelector.cpp' % (F_Class, F_Mode)
   filepath = os.path.join(software_failures_passes_dir, filename)
     
-  if trigger_type == 'return':
-    write_file(filepath, gen_ftrigger_return())
+  if trigger_type == 'return' or 'all' in Insts: # targering all 'call' or all 'ret'
+    write_file(filepath, gen_ftrigger_all())
     print('Instrument module created.')
   elif reg_type == 'src' and not is_one_src_register(): # multisrc
     write_file(filepath, gen_ftrigger_multisrc())
@@ -332,7 +380,7 @@ def FInjectorGenerator():
       print('Error: Invalid Perturb Injector!')
       exit(1)
   else:
-    print('Error: Invalid Action!')
+    print("Error: Invalid 'Action:' field in yaml file!")
     exit(1)
     
   return {'name': name, 'selectorfilename': selectorfilename, 'code': '\n'.join(code)}
@@ -421,6 +469,7 @@ def main(args):
         print('Error: %s is not a valid index!' % name)
         exit(1)
     elif name == 'all':
+      print('Deleting all custom injectors!')
       selectorfilename = []
       for i in custom_injectors:
         selectorfilename.append(i['selectorfilename'])
@@ -469,8 +518,9 @@ def main(args):
       for i, n in enumerate(custom_injectors):
         print("%i %s" % (i, n['name']))
       
-  else: 
+  else: # add an injector module
     read_input_fidl()
+    print('Generating %s(%s) injector!' % (F_Mode, F_Class))
     
     # generate and insert new software fault injector into the custom injector yaml
     new_injector = FInjectorGenerator()
