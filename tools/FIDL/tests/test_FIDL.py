@@ -41,9 +41,9 @@ expected = 'Expected'
 output = 'Output'
 
 def ir_file_equals(ir1_path, ir2_path):
-  with open(ir2_path) as f:
+  with open(ir1_path) as f:
     lines1 = f.read().splitlines()
-  with optn(ir2_path) as f:
+  with open(ir2_path) as f:
     lines2 = f.read().splitlines()
     
   if len(lines1) != len(lines2):
@@ -75,14 +75,14 @@ def execute_tests():
   
   # create folder for each test case
   for n in doc['tests']:
-    dir_name = n['FIDL']['Failure_Mode']
+    dir_name, name = extract_names(n)
     dir_path = os.path.join(fidl_tests_dir, dir_name)
     os.makedirs(dir_path)
     print('Testing %s' % dir_name)
     
     program_name = n['config']['program']
     
-    l = [[expected, n['config']['simulate']], [output, extract_names(n)[1]]]
+    l = [[expected, n['config']['simulate']], [output, name]]
     for i in l:
       # create inner directory and cd to it
       inner_dir_path = os.path.join(dir_path, i[0])
@@ -97,7 +97,7 @@ def execute_tests():
       
       # instrument
       execlist = [instrument_path, '--readable', '-lpthread', program_name + ir_ext]
-      ret_val = subprocess.call(execlist)
+      ret_val = subprocess.call(execlist, stdout = open(os.devnull, 'wb'), stderr = open(os.devnull, 'wb'))
       if (ret_val != 0):
         print('Error: Instrument failed!')
         exit(1)
@@ -125,7 +125,7 @@ def extract_names(test):
   f_mode = test['FIDL']['Failure_Mode']
   f_class = test['FIDL']['Failure_Class']
   
-  filename = '%s.yaml' % f_mode
+  filename = '_%s_%s' % (f_class, f_mode)
   name = '%s(%s)' % (f_mode, f_class)
   
   return (filename, name)
@@ -144,6 +144,7 @@ def run_fidl_algorithm(add):
   
   for n in doc['tests']:
     filename, name = extract_names(n)
+    filename = filename + '.yaml'
     
     # create new fidl script from ones specified in test_config.yaml
     filename_path = os.path.join(fidl_config_dir, filename)
