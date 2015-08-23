@@ -151,7 +151,7 @@ def run_fidl_algorithm(add):
     dump_yaml(filename_path, n['FIDL'])
     
     if add:
-      option = [fidl_al_path, filename_path]
+      option = [fidl_al_path, '-a', filename_path]
     else:
       option = [fidl_al_path, '-r', name]
       
