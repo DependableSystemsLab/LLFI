@@ -481,8 +481,8 @@ tests:
           send: [1]
       Action:
         Perturb: ChangeValueInjector
-		option: False
-		value: 1024
+        option: False
+        value: 1024
         
   config:
     program: mpi
@@ -534,8 +534,8 @@ tests:
           recv: [3]
       Action:
         Perturb: ChangeValueInjector
-		option: True
-		value: 5000
+        option: True
+        value: 5000
         
   config:
     program: mpi

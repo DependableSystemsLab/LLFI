@@ -427,6 +427,9 @@ def gen_runtime_code(options, injectors_dict):
     elif 'PthreadRaceConditionInjector' in perturb:
       injector = 'PthreadRaceConditionInjector'
       code.append('static RegisterFaultInjector %s new PthreadRaceConditionInjector());' % (insert))
+    elif 'StalePointerInjector' in perturb:
+      injector = 'StalePointerInjector'
+      code.append('static RegisterFaultInjector %s new StalePointerInjector());' % (insert))
     elif 'Custom_Injector' in perturb:
       injector = 'CustomInjector'
       if 'custom_injector' in options:
