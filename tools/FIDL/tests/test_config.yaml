@@ -267,11 +267,11 @@ tests:
 
     New_Failure_Mode:
       Trigger: 
-        call: [memcpy*, memmove*]
+        call*: [memcpy, memmove]
       Target:
         src: 
-          memcpy*: [2]
-          memmove*: [2]
+          memcpy: [2]
+          memmove: [2]
       Action:
         Perturb: ChangeValueInjector
         option: False
@@ -331,12 +331,12 @@ tests:
 
     New_Failure_Mode:
       Trigger: 
-        call: [memcpy*, memmove*, memcmp*]
+        call*: [memcpy, memmove, memcmp]
       Target:
         src: 
-          memcpy*: [0]
-          memmove*: [0]
-          memcmp*: [0]
+          memcpy: [0]
+          memmove: [0]
+          memcmp: [0]
       Action:
         Corrupt
         
@@ -368,12 +368,12 @@ tests:
 
     New_Failure_Mode:
       Trigger: 
-        call: [memcpy*, memmove*, memcmp*]
+        call*: [memcpy, memmove, memcmp]
       Target:
         src: 
-          memcpy*: [1]
-          memmove*: [1]
-          memcmp*: [1]
+          memcpy: [1]
+          memmove: [1]
+          memcmp: [1]
       Action:
         Corrupt
         
@@ -480,7 +480,9 @@ tests:
           recv: [1]
           send: [1]
       Action:
-        Corrupt
+        Perturb: ChangeValueInjector
+		option: False
+		value: 1024
         
   config:
     program: mpi
@@ -514,7 +516,7 @@ tests:
       Target:
         dst
       Action:
-        Corrupt
+        Freeze
         
   config:
     program: mpi
@@ -531,7 +533,9 @@ tests:
         src:
           recv: [3]
       Action:
-        Corrupt
+        Perturb: ChangeValueInjector
+		option: True
+		value: 5000
         
   config:
     program: mpi
@@ -549,7 +553,7 @@ tests:
           recv: [1]
           send: [1]
       Action:
-        Corrupt
+        Freeze
         
   config:
     program: mpi
@@ -567,7 +571,7 @@ tests:
           recv: [2]
       Action:
         Perturb: ChangeValueInjector
-        option: false
+        option: False
         value: -40
         
   config:
@@ -682,7 +686,7 @@ tests:
       Target:
         dst
       Action:
-        Corrupt
+        Perturb: StalePointerInjector
         
   config:
     program: memcpy1
@@ -719,7 +723,7 @@ tests:
           calloc: [0]
       Action:
         Perturb: ChangeValueInjector
-        option: false
+        option: False
         value: 45
         
   config:
