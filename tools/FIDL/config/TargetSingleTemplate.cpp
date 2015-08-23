@@ -18,6 +18,8 @@
 #include <set>
 #include <string>
 
+// This file is generated from the TargetSingleTemplate.cpp
+
 using namespace llvm;
 namespace llfi {
 //fidl_1
