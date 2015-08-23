@@ -29,21 +29,6 @@ class BitCorruptionInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector AA("NoOpen(API)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AB("WrongMode(API)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AC("WrongPointer(Data)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AD("WrongSource(Data)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AE("WrongDestination(Data)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AF("InvalidPointer(Res)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AG("WrongAPI(API)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AH("IncorrectOutput(API)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AI("IncorrectOutput(Data)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AJ("WrongRetrievedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AK("InvalidSender(MPI)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AL("DeadLock(MPI)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AM("WrongSavedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
-static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());
-
 class MemoryLeakInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -54,8 +39,6 @@ class MemoryLeakInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector BA("MemoryLeak(Res)", new MemoryLeakInjector());
-
 class HangInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -64,11 +47,6 @@ class HangInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector CA("NoOutput(API)", new HangInjector());
-static RegisterFaultInjector CB("NoOutput(Data)", new HangInjector());
-static RegisterFaultInjector CC("NoMessage(MPI)", new HangInjector());
-static RegisterFaultInjector CD("NoAck(MPI)", new HangInjector());
-
 class SleepInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -76,9 +54,6 @@ class SleepInjector: public SoftwareFaultInjector {
 		return;
 	}
 };
-
-static RegisterFaultInjector DA("HighFrequentEvent(Timing)", new SleepInjector());
-static RegisterFaultInjector DB("CPUHog(Res)", new SleepInjector());
 
 class ChangeValueInjector: public SoftwareFaultInjector {
 	public:
@@ -102,15 +77,6 @@ class ChangeValueInjector: public SoftwareFaultInjector {
 	bool is_replace;
 };
 
-static RegisterFaultInjector EA("InvalidMessage(MPI)", new ChangeValueInjector(+1024, false));
-static RegisterFaultInjector EB("NoDrain(MPI)", new ChangeValueInjector(+5000, true));
-static RegisterFaultInjector EC("BufferOverflow(API)", new ChangeValueInjector(+45, false));
-static RegisterFaultInjector ED("BufferUnderflow(API)", new ChangeValueInjector(-40, false));
-static RegisterFaultInjector EE("BufferOverflowMemmove(Data)", new ChangeValueInjector(+45, false));
-static RegisterFaultInjector EF("BufferOverflowMalloc(Data)", new ChangeValueInjector(-40, false));
-static RegisterFaultInjector EG("UnderAccumulator(Res)", new ChangeValueInjector(+45, false));
-static RegisterFaultInjector EH("PacketStorm(MPI)", new ChangeValueInjector(-40, false));
-
 class InappropriateCloseInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -130,9 +96,6 @@ class InappropriateCloseInjector: public SoftwareFaultInjector {
 	bool add_close;
 };
 
-static RegisterFaultInjector FA("InappropriateClose(API)", new InappropriateCloseInjector(true));
-static RegisterFaultInjector FB("NoClose(API)", new InappropriateCloseInjector(false));
-
 class StalePointerInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -140,8 +103,6 @@ class StalePointerInjector: public SoftwareFaultInjector {
 		free(*newbuf);
 	}
 };
-
-static RegisterFaultInjector GA("StalePointer(Res)", new StalePointerInjector());
 
 class MemoryExhaustionInjector: public SoftwareFaultInjector {
 	public:
@@ -170,9 +131,6 @@ class MemoryExhaustionInjector: public SoftwareFaultInjector {
 	bool non_left_space;
 };
 
-static RegisterFaultInjector HA("MemoryExhaustion(Res)", new MemoryExhaustionInjector(true));
-static RegisterFaultInjector HB("LowMemory(Res)", new MemoryExhaustionInjector(false));
-
 class WrongFormatInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -194,9 +152,6 @@ class WrongFormatInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector IA("WrongRetrievedFormat(I/O)", new WrongFormatInjector());
-static RegisterFaultInjector IB("WrongSavedFormat(I/O)", new WrongFormatInjector());
-
 class PthreadDeadLockInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -209,8 +164,6 @@ class PthreadDeadLockInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());
-
 class PthreadThreadKillerInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -221,8 +174,6 @@ class PthreadThreadKillerInjector: public SoftwareFaultInjector {
 	}
 };
 
-static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());
-
 class PthreadRaceConditionInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
@@ -231,6 +182,4 @@ class PthreadRaceConditionInjector: public SoftwareFaultInjector {
 		return;
 	}
 };
-
-static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());
 

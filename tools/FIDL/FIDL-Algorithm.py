@@ -514,13 +514,6 @@ def list_injectors(injector_type):
 def add_injectors(filename, injector_type):
   inp = read_input_yaml(filename)
   
-  #TODO remove after
-  if 'tests' in inp:
-    c = inp['tests']
-    inp = []
-    for n in c:
-      inp.append(n['FIDL'])
-  
   all_injectors = read_input_yaml(all_injectors_yaml)
   injectors = all_injectors[injector_type]
 
@@ -615,11 +608,7 @@ def main(args):
       
   elif option == '-a':
     if name == 'default':
-      #TODO
-      filename = 'tests/test_config.yaml'
-      add_injectors(filename, name)
-      
-      #add_injectors(default_failures_yaml, name)
+      add_injectors(default_failures_yaml, name)
     else: 
       add_injectors(name, 'custom')
     print('Injector module(s) created.')
