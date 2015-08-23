@@ -53,13 +53,13 @@ tests:
     Failure_Mode: multisrc1
     New_Failure_Mode:
       Trigger: 
-        call: [fread*, fwrite*, fgetc*, fopen*]
+        call*: [fread, fwrite, fgetc, fopen]
       Target:
         src: 
-          fread*: [3]
-          fwrite*: [3]
-          fgetc*: [2]
-          fopen*: [0, 1]
+          fread: [3]
+          fwrite: [3]
+          fgetc: [2]
+          fopen: [0, 1]
       Action:
         Corrupt
   config:
