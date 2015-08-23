@@ -70,10 +70,10 @@ namespace llfi {
     
     static bool isTargetLLFIIndex(Instruction* inst) {
 //fidl_8
-        if (numOfSpecInsts > 0) {
+        if (n > 0) {
             long llfiindex = getLLFIIndexofInst(inst);
-            for (int i = 0; i < numOfSpecInsts; i++) {  
-                if (llfiindex == IndexOfSpecInsts[i]) { 
+            for (int i = 0; i < n; i++) {  
+                if (llfiindex == targeted_indices[i]) { 
                     return true;
                 }
             }
