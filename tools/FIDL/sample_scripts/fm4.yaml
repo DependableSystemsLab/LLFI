@@ -6,7 +6,4 @@ New_Failure_Mode:
         return
     Trigger*: [1, 50, 55, 60]
     Action:
-        Perturb: Custom_Injector
-
-Custom_Injector: | 
-    *Target = *Target + 1000;
+        Corrupt

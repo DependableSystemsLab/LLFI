@@ -14,3 +14,7 @@ New_Failure_Mode:
 
 Custom_Injector: | 
     *Target = *Target + 1000;
+    
+#CustomInjector (char*Target){    
+#*Target = *Target + 1000;
+#}
