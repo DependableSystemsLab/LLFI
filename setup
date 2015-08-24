@@ -150,13 +150,24 @@ def checkEnvironment():
 
 def build():
   global optional_configs, gui_build_flag
-# create config files
+  # create config files
   script_path = os.path.realpath(os.path.dirname(__file__))
   llvm_paths_cmake = os.path.join(script_path, "config/llvm_paths.cmake")
   llvm_paths_py = os.path.join(script_path, "config/llvm_paths.py")
   llvm_paths_make = os.path.join(script_path, "config/llvm_paths.make")
   java_paths_cmake = os.path.join(script_path, "config/java_paths.cmake")
   java_paths_py = os.path.join(script_path, "config/java_paths.py")
+  
+  # build all default software failures
+  fidl_path =  os.path.join(script_path, 'tools/FIDL/FIDL-Algorithm.py')
+  execlist = [fidl_path, '-a', 'default']
+  print('-- Generating default software failures with %s...' % (fidl_path))
+  p = subprocess.call(execlist, stdout = open(os.devnull, 'wb'))
+  if p != 0:
+    print('-- Failed!')
+    sys.exit(p)
+  else:
+    print('-- Success!')
   
   # write cmake config file for llvm paths
   cmake_File = open(llvm_paths_cmake, "w")
@@ -237,7 +248,7 @@ def build():
   make_File.close()
 
 
-# build
+  # build
   LLFI_BUILD_DIR = os.path.realpath(required_configs['LLFI_BUILD_ROOT'])
   os.makedirs(LLFI_BUILD_DIR)
   os.chdir(LLFI_BUILD_DIR)
