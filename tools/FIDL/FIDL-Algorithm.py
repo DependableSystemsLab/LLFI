@@ -1,24 +1,25 @@
 #! /usr/bin/env python3
 
 """
-%(prog)s takes a .fidl and generates ... 
+%(prog)s takes a FIDL (Fault Injection Descriptor Language) yaml and generates
+an instruction/register selector, and a fault injection runtime.
 
-Usage: %(prog)s [OPTIONS] <fidl .yaml>
+Usage: %(prog)s [OPTIONS]
 
 List of options:
--r:    removes the specified injector by '<FMode>(<FClass>)'
--l:    lists all active passes/injector
--h:    shows help
+-a <fidl .yaml>: add a FI runtime and selector from the fidl .yaml
+-r <name>      : removes the specified injector by '<FMode>(<FClass>)'
+                 or remove all 'custom' or 'default' injector
+-l <name>      : lists all active injectors/selectors by 'custom' or 'default'
+-h             : shows help
 
-Everytime the contents of .fidl file is changed, this script should be run to create new passes and injectors
-It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory
+Everytime the content of a fidl yaml is changed, this script should be executed to create new passes/selectors
+and injectors. It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory.
 
-Class and mode pair must be unique!
+Class and Mode pair must be unique, or else the previous Class and Mode is overwritten.
 """
 
-import sys, os
-import shutil, errno
-import subprocess
+import sys, os, subprocess
 import yaml
 
 ################################################################################
@@ -480,7 +481,7 @@ def gen_custom_injector(insert, f_class, f_mode, custom_injector):
   
   # modify template
   lines[0] = 'class _%s_%sFInjector : public SoftwareFaultInjector {' % (f_class, f_mode)
-  lines[5] = custom_injector
+  lines[4] = custom_injector
   lines.append('static RegisterFaultInjector %s new _%s_%sFInjector());' % (insert, f_class, f_mode)) 
   
   return lines

@@ -13,8 +13,5 @@ New_Failure_Mode:
         Perturb: Custom_Injector
 
 Custom_Injector: | 
+    int *Target = (int *) buf;
     *Target = *Target + 1000;
-    
-#CustomInjector (char*Target){    
-#*Target = *Target + 1000;
-#}
