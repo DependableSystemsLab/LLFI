@@ -45,11 +45,6 @@ public class ConfigReader {
 		} else {
 			customRegister = (List<String>) config.get("custom_registers");
 		}
-		if (config.get("custom_software_faults") == null) {
-			customSoftwareFault = new ArrayList<String>();
-		} else {
-			customSoftwareFault = (List<String>) config.get("custom_software_faults");
-		}
 		
 		faultType = (List<String>) config.get("fault_type");
 		instruction = (List<String>) config.get("instructions");
@@ -62,10 +57,6 @@ public class ConfigReader {
 
 	public List<String> getCustomRegister() {
 		return new ArrayList<String>(customRegister);
-	}
-
-	public List<String> getCustomSoftwareFault() {
-		return new ArrayList<String>(customSoftwareFault);
 	}
 
 	public List<String> getFaultType() {

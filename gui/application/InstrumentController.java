@@ -698,7 +698,7 @@ public class InstrumentController implements Initializable {
 		if (Controller.isHardwareInjection) {
 			customInstList = Controller.configReader.getCustomInstruction();
 		} else {
-			customInstList = Controller.configReader.getCustomSoftwareFault();
+			customInstList = new ArrayList<String>();
 		}
 		customInstCombo.setItems(FXCollections.observableArrayList(customInstList));
 		customInstCombo.setPromptText("-- Select --");
@@ -782,6 +782,10 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(false);
 			regCombo.setVisible(false);
 			customRegCombo.setVisible(false);
+			
+			instTypeRadio.setVisible(false);
+			customInstCombo.setVisible(false);
+			customInstTypeRadio.setVisible(false);
 		} else {
 			hardware.setSelected(true);
 			
@@ -792,6 +796,10 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(true);
 			regCombo.setVisible(true);
 			customRegCombo.setVisible(true);
+			
+			instTypeRadio.setVisible(true);
+			customInstCombo.setVisible(true);
+			customInstTypeRadio.setVisible(true);
 		}
 	}
 	
