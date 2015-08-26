@@ -1,3 +1,11 @@
+// DO NOT MODIFY!
+// File generated on 
+
+// This file was generated from <LLFI_SRC_ROOT>/tools/FIDL/TargetMultiSourceTemplate.cpp
+// by the <LLFI_SRC_ROOT>/tools/FIDL/FIDL-Algorithm.py
+// See https://github.com/DependableSystemsLab/LLFI/wiki/Using-FIDL-to-create-a-Custom-Software-Fault-Injector-and-an-Instruction-Selector
+// for more information.
+
 #include "llvm/Pass.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instructions.h"
@@ -17,8 +25,6 @@
 #include <map>
 #include <set>
 #include <string>
-
-// This file is generated from the TargetMultiSourceTemplate.cpp
 
 using namespace llvm;
 namespace llfi {

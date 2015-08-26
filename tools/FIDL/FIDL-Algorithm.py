@@ -1,25 +1,31 @@
 #! /usr/bin/env python3
 
 """
-%(prog)s takes a FIDL (Fault Injection Descriptor Language) yaml and generates
-an instruction/register selector, and a fault injection runtime.
+%(prog)s takes a FIDL (Fault Injection Description Language) yaml and 
+generates an instruction/register selector C++ code, and a fault injection 
+run-time C++ code.
 
 Usage: %(prog)s [OPTIONS]
 
 List of options:
--a <fidl .yaml>: add a FI runtime and selector from the fidl .yaml
--r <name>      : removes the specified injector by '<FMode>(<FClass>)'
+-a <FIDL yaml> : add a FI run-time and selector from a FIDL yaml
+-r <name/type> : removes the specified injector by '<FMode>(<FClass>)'
                  or remove all 'custom' or 'default' injector
--l <name>      : lists all active injectors/selectors by 'custom' or 'default'
+-l <type>      : lists all active injectors/selectors by 'custom' or 'default'
 -h             : shows help
 
-Everytime the content of a fidl yaml is changed, this script should be executed to create new passes/selectors
-and injectors. It is assumed that the script is executed in the <llfisrc>/tools/FIDL/ directory.
+Every time the content of a FIDL yaml is changed, this script should be executed
+(-a <FIDL yaml>) to reflect the change(s) in the generated C++ code.
 
-Class and Mode pair must be unique, or else the previous Class and Mode is overwritten.
+Failure Class and Failure Mode pair should be unique, otherwise the previous 
+Failure Class and Failure Mode pair is overwritten.
+
+It is assumed that the script is located in the '<LLFI_SRC_ROOT>/tools/FIDL/' 
+directory.
 """
 
 import sys, os, subprocess
+import time
 import yaml
 
 ################################################################################
@@ -159,6 +165,8 @@ def gen_ftrigger_single(options):
   # convert trigger and target of .fidl file into appropriate llvm passes
   lines = read_file(single_template)
   
+  add_current_time(lines) # attaches a generated date/time to the file
+  
   i = lines.index('//fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (f_class, f_mode))
   
@@ -207,6 +215,8 @@ def gen_ftrigger_all(options):
 
   lines = read_file(all_template)
   
+  add_current_time(lines) # attaches a generated date/time to the file
+  
   i = lines.index('//fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (f_class, f_mode))
   
@@ -249,6 +259,8 @@ def gen_ftrigger_multisrc(options):
   injector = options['injector']
   
   lines = read_file(multisrc_template)
+  
+  add_current_time(lines) # attaches a generated date/time to the file
   
   i = lines.index('//fidl_1')
   lines.insert(i + 1, 'class _%s_%sInstSelector : public SoftwareFIInstSelector {' % (f_class, f_mode)) # Trigger: "fread"
@@ -334,7 +346,7 @@ def gen_and_write_selector(options) :
     l.insert(l.index("  #FIDL - DO NOT MODIFY UNTIL '#END'") + 1, '  software_failures/%s' % filename)
     write_file(cmakelists, l)
     
-  print('Selector/Instrument module created.')
+  print('Instrument module created.')
    
 # checks if we are only instrumenting a single src register
 def is_one_src_register(insts):
@@ -356,6 +368,9 @@ def gen_targeted_indices(options):
     
   return '        const long n = %s;\n' % (n) + \
          '        const long targeted_indices[] = {%s};' % (targeted_indices)
+         
+def add_current_time(lines):
+  lines[1] += time.strftime('%Y/%m/%d %H:%M:%S %Z') # yyyy/mm/dd 24hrClock Timezone
       
 ################################################################################
 
@@ -521,12 +536,12 @@ def add_injectors(filename, injector_type):
   if isinstance(inp, list):
     for n in inp:
       options = parse_input(n) # parses yaml
-      print('Generating %s(%s) injector!' % (options['f_mode'], options['f_class']))
+      print('Generating %s(%s) %s software injector.' % (options['f_mode'], options['f_class'], injector_type))
       gen_runtime_code(options, injectors) # generates runtime fault injector code and insert runtime into a dictionary
       gen_and_write_selector(options) # generates selector file
   else:
     options = parse_input(inp) # parses yaml
-    print('Generating %s(%s) injector!' % (options['f_mode'], options['f_class']))
+    print('Generating %s(%s) %s software injector.' % (options['f_mode'], options['f_class'], injector_type))
     gen_runtime_code(options, injectors) # generates runtime fault injector code and insert runtime into a dictionary
     gen_and_write_selector(options) # generates selector file
   
