@@ -15,13 +15,17 @@ List of options:
 -h             : shows help
 
 Every time the content of a FIDL yaml is changed, this script should be executed
-(-a <FIDL yaml>) to reflect the change(s) in the generated C++ code.
+(-a <FIDL yaml>) to reflect the change(s) in the generated C++ code. Rebuild
+LLFI after adding or changing a FIDL yaml to use the new/changed injector(s).
 
 Failure Class and Failure Mode pair should be unique, otherwise the previous 
 Failure Class and Failure Mode pair is overwritten.
 
 It is assumed that the script is located in the '<LLFI_SRC_ROOT>/tools/FIDL/' 
 directory.
+
+For more information, see:
+https://github.com/DependableSystemsLab/LLFI/wiki/Using-FIDL-to-create-a-Custom-Software-Fault-Injector-and-a-Custom-Instruction-Selector
 """
 
 import sys, os, subprocess

@@ -3,7 +3,7 @@
 
 // This file was generated from <LLFI_SRC_ROOT>/tools/FIDL/TargetSingleTemplate.cpp
 // by the <LLFI_SRC_ROOT>/tools/FIDL/FIDL-Algorithm.py
-// See https://github.com/DependableSystemsLab/LLFI/wiki/Using-FIDL-to-create-a-Custom-Software-Fault-Injector-and-an-Instruction-Selector
+// See https://github.com/DependableSystemsLab/LLFI/wiki/Using-FIDL-to-create-a-Custom-Software-Fault-Injector-and-a-Custom-Instruction-Selector
 // for more information.
 
 #include "llvm/Pass.h"
