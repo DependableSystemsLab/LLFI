@@ -1,8 +1,12 @@
 #! /usr/bin/env python3
 
 """
-Tests the FIDL algorithm.
+This script is DEPRECATED! This was used to initially test if the 38/39 software failures
+converted from .cpp format to the FIDL yaml format was working properly.
 
+Tests FIDL-Algorithm.py.
+
+Usage: %(prog)s [OPTIONS]
 
 -a:    adds FIDL test cases
 -r:    removes FIDL test cases
@@ -10,12 +14,14 @@ Tests the FIDL algorithm.
 -h:    shows help
 
 Steps:
-1. Execute with -a
+1. Execute with -a in LLFI_SRC
 2. Build LLFI
-3. Execute this script where LLFI was built -t
-4. Execute -r & rebuild LLFI to get rid of test cases
+3. Execute this script in LLFI_DST with -t
+4. Execute -r in LLFI_SRC and rebuild LLFI to get rid of test cases
 
 Run this file *after* successfully executing the llfi regression test
+This tests compares the generated FIDL-Algorithm.py's generated faultinjection.ll and profiling.ll
+against the actual faultinjection.ll and profiling.ll from the real selector cpp file.
 """
 
 import sys, os, subprocess, shutil
@@ -23,11 +29,14 @@ import yaml
 from distutils.dir_util import copy_tree
 
 script_path = os.path.realpath(os.path.dirname(__file__))
+prog = os.path.basename(sys.argv[0])
+
+llfiroot = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
 
 test_config_path = os.path.join(script_path, 'test_config.yaml')
 fidl_al_path = os.path.join(script_path, '../FIDL-Algorithm.py')
 
-programs_dir = os.path.join(script_path, 'PROGRAMS/')
+programs_dir = os.path.join(llfiroot, 'test_suite/PROGRAMS/')
 fidl_config_dir = os.path.join(script_path, 'fidl_config/')
 fidl_tests_dir = os.path.join(script_path, 'fidl_test/')
 
@@ -203,6 +212,7 @@ def read_yaml():
   f.close()
 
 def main(args):
+  print('This script is DEPRECATED! See -h')
   read_yaml()
   parse_args(args)
 
