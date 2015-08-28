@@ -1,0 +1,18 @@
+defaultTimeOut: 1000
+
+kernelOption:
+    - forceRun
+
+compileOption:
+    instSelMethod:
+      - customInstselector:
+          include:
+            - InappropriateClose(API)
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+runOption:
+    - run:
+        numOfRuns: 2
+        fi_type: AutoInjection

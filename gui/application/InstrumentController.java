@@ -13,7 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.yaml.snakeyaml.Yaml;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -195,7 +198,14 @@ public class InstrumentController implements Initializable {
 			// calls the correct script if the user selected more than 1 software fault
 			String scriptToCall;
 			ObservableList<String> numFaultTypes = instIncludeListView.getItems();
+			if (instTypeRadio.isSelected()) {
+				numFaultTypes = instIncludeListView.getItems();
+			} else {
+				// custom instruction is selected
+				numFaultTypes = FXCollections.observableArrayList(customInstCombo.getValue().toString());
+			}
 			Controller.selectedSoftwareFailures = numFaultTypes;
+			
 			if (Controller.isHardwareInjection || numFaultTypes.size() == 1) {
 				scriptToCall = "bin/instrument -lpthread --readable ";
 				Controller.isBatchMode = false;
@@ -688,7 +698,7 @@ public class InstrumentController implements Initializable {
 		if (Controller.isHardwareInjection) {
 			customInstList = Controller.configReader.getCustomInstruction();
 		} else {
-			customInstList = Controller.configReader.getCustomSoftwareFault();
+			customInstList = new ArrayList<String>();
 		}
 		customInstCombo.setItems(FXCollections.observableArrayList(customInstList));
 		customInstCombo.setPromptText("-- Select --");
@@ -719,6 +729,7 @@ public class InstrumentController implements Initializable {
 	 * If the file does not exist, it will generate one.
 	 * @return - the list of applicable software failures
 	 */
+	@SuppressWarnings("unchecked")
 	private List<String> getApplicableSoftwareFailures() {
 		FileReader applicableSoftwareFailure = null;
 		String inputLocation = folderName + "/llfi.applicable.software.failures.txt";
@@ -736,25 +747,14 @@ public class InstrumentController implements Initializable {
 			}
 		}
 		
-		String line;
-		BufferedReader bufferedReader = new BufferedReader(applicableSoftwareFailure);
-		ArrayList<String> softwareFailure = new ArrayList<String>();
-		
-		try {
-			// discard first line, as it is not a software failure
-			bufferedReader.readLine();
-			
-			// read in all software failure, discarding everything before the dash
-			while ((line = bufferedReader.readLine()) != null)   {
-				softwareFailure.add(line.substring(line.indexOf("-") + 2));
-			}
-			bufferedReader.close();
-		} catch (IOException e) {
-			System.err.println("InstrumentController: Unable to read " + inputLocation);
-			e.printStackTrace();
-		} 
-		
-		return softwareFailure;
+		Yaml y = new Yaml();
+		Map<String, Object> config = (Map<String, Object>) y.load(applicableSoftwareFailure);
+
+		if (config.get("instSelMethod") == null) {
+			return new ArrayList<String>();
+		} else {
+			return (List<String>) config.get("instSelMethod");
+		}
 	}
 	
 	/**
@@ -782,6 +782,10 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(false);
 			regCombo.setVisible(false);
 			customRegCombo.setVisible(false);
+			
+			instTypeRadio.setVisible(false);
+			customInstCombo.setVisible(false);
+			customInstTypeRadio.setVisible(false);
 		} else {
 			hardware.setSelected(true);
 			
@@ -792,6 +796,10 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(true);
 			regCombo.setVisible(true);
 			customRegCombo.setVisible(true);
+			
+			instTypeRadio.setVisible(true);
+			customInstCombo.setVisible(true);
+			customInstTypeRadio.setVisible(true);
 		}
 	}
 	

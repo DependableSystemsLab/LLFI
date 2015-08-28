@@ -7,16 +7,16 @@ The list is formatted to allow easy grepping and
 beautification by scripts.  The fields are: name (N), and description (D).
 
 N: Nithya Narayanamurthy
-D: GUI for LLFI, prepared first release
+D: GUI for LLFI, prepared first release.
 
 N: Maryam Raiyat
-D: Implemented API injection capability
+D: Implemented API injection capability and provided the initial algorithm for FIDL.
 
 N: Anna Thomas
 D: Coding for LLFI - passes and scripts.
 
 N: Karthik Pattabiraman
-D: Provider of initial code and ideas
+D: Provider of initial code and ideas.
 
 N: Qining Lu
 D: Documented README file and examples, add argument-wise injection feature. 
@@ -25,7 +25,7 @@ N: Jiesheng Wei
 D: Focused on the restructured LLFI. Coded for the passes and modified the scripts.
 
 N: Kevin Cho
-D: Coded for the scripts
+D: Coded for the scripts.
 
 N: Sam Coulter
 D: Coded for the fault propagation tracing functionality, Installer and Install Script. 
@@ -34,13 +34,13 @@ N: Justin Li
 D: Experiments to validate the accuracy of LLFI. Ported LLFI to LLVM 3.3 and Python3.
 
 N: Shaden Smith
-D: Added Progress Bar to injector, multiple instruction selector, unified executable (in progress)
+D: Added Progress Bar to injector, multiple instruction selector, unified executable (in progress).
 
 N: Kenneth Song
-D: Integrated tracing functionality into GUI, many other changes to the GUI and tracing functionality
+D: Integrated tracing functionality into GUI, many other changes to the GUI and tracing functionality.
 
 N: Sittipol (Phil) Tribunyatkul
-D: Added Software Fault Injection option to the GUI
+D: Added Software Fault Injection to the GUI and integrated FIDL into LLFI.
 
 N: Abraham Chan
-D: Added Makefile script to support compilation of entire projects
+D: Added Makefile script to support compilation of entire projects.

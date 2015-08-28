@@ -347,21 +347,12 @@ public class InputYaml {
 			// always false for Software Injection
 			customRegister = false;
 			
-			// may be false
+			// always false since we are using SoftwareFailureAutoScan
+			// if the custom injector is valid for the current software
+			// it already show up in the normal list
 			customInstruction = false;
 			
 			isHardwareFault = false;
-			
-			// check if we are doing a custom software injection
-			if (includedInstruction.size() == 1) {
-				List<String> customSoftwareFault = Controller.configReader.getCustomSoftwareFault();
-				for (int i = 0; i < customSoftwareFault.size(); i++) {
-					if (customSoftwareFault.get(i).equals(includedInstruction.get(0))) {
-						customInstruction = true;
-						break;
-					}
-				}
-			}
 		} 
 
 		return new InstrumentOption(includedInstruction, isHardwareFault, customRegister,
