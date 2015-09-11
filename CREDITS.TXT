@@ -10,8 +10,7 @@ N: Nithya Narayanamurthy
 D: GUI for LLFI, prepared first release.
 
 N: Maryam Raiyat
-D: Implemented API injection capability and provided the initial algorithm for FIDL.
-
+D: Initiated and implemented software fault injection capability for LLFI, and designed the initial algorithm for FIDL 
 N: Anna Thomas
 D: Coding for LLFI - passes and scripts.
 
