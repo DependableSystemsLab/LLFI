@@ -11,7 +11,7 @@
 //2^20 == 32MB
 #define MEM_EXHAUSTION_UNIT 33554432
 
-class BitCorruptionInjector: public SoftwareFaultInjector {
+class BitCorruptionInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		unsigned int fi_bytepos = fi_bit/8;
@@ -22,7 +22,7 @@ class BitCorruptionInjector: public SoftwareFaultInjector {
 	
 	static BitCorruptionInjector* getBitCorruptionInjector(){
 		static BitCorruptionInjector* injector_ptr = NULL;
-		if(injector_ptr == NULL){
+		if(injector_ptr = NULL){
 			injector_ptr = new BitCorruptionInjector();
 			return injector_ptr;
 		}else	return injector_ptr;
@@ -44,7 +44,7 @@ static RegisterFaultInjector AL("DeadLock(MPI)", BitCorruptionInjector::getBitCo
 static RegisterFaultInjector AM("WrongSavedAddress(I/O)", BitCorruptionInjector::getBitCorruptionInjector());
 static RegisterFaultInjector AN("DataCorruption(Data)", BitCorruptionInjector::getBitCorruptionInjector());
 
-class MemoryLeakInjector: public SoftwareFaultInjector {
+class MemoryLeakInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		void* fake_p = malloc(1024 * sizeof(char));
@@ -56,7 +56,21 @@ class MemoryLeakInjector: public SoftwareFaultInjector {
 
 static RegisterFaultInjector BA("MemoryLeak(Res)", new MemoryLeakInjector());
 
-class HangInjector: public SoftwareFaultInjector {
+class TaintInjector: public FaultInjector {
+	public:
+	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
+		int** newbuf = (int**) buf;
+		**newbuf= **newbuf +100 ;
+		return;
+	}
+       
+};
+
+static RegisterFaultInjector BT("TaintSource(API)", new TaintInjector());
+
+
+
+class HangInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		while(1);
@@ -69,7 +83,7 @@ static RegisterFaultInjector CB("NoOutput(Data)", new HangInjector());
 static RegisterFaultInjector CC("NoMessage(MPI)", new HangInjector());
 static RegisterFaultInjector CD("NoAck(MPI)", new HangInjector());
 
-class SleepInjector: public SoftwareFaultInjector {
+class SleepInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		sleep(3);
@@ -80,7 +94,7 @@ class SleepInjector: public SoftwareFaultInjector {
 static RegisterFaultInjector DA("HighFrequentEvent(Timing)", new SleepInjector());
 static RegisterFaultInjector DB("CPUHog(Res)", new SleepInjector());
 
-class ChangeValueInjector: public SoftwareFaultInjector {
+class ChangeValueInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		if(is_replace == false){
@@ -106,12 +120,13 @@ static RegisterFaultInjector EA("InvalidMessage(MPI)", new ChangeValueInjector(+
 static RegisterFaultInjector EB("NoDrain(MPI)", new ChangeValueInjector(+5000, true));
 static RegisterFaultInjector EC("BufferOverflow(API)", new ChangeValueInjector(+45, false));
 static RegisterFaultInjector ED("BufferUnderflow(API)", new ChangeValueInjector(-40, false));
-static RegisterFaultInjector EE("BufferOverflowMemmove(Data)", new ChangeValueInjector(+45, false));
-static RegisterFaultInjector EF("BufferOverflowMalloc(Data)", new ChangeValueInjector(-40, false));
+static RegisterFaultInjector EE("BufOverflowMemmove(Data)", new ChangeValueInjector(+45, false));
+static RegisterFaultInjector EF("BufOverflowMalloc(Data)", new ChangeValueInjector(-40, false));
 static RegisterFaultInjector EG("UnderAccumulator(Res)", new ChangeValueInjector(+45, false));
 static RegisterFaultInjector EH("PacketStorm(MPI)", new ChangeValueInjector(-40, false));
+static RegisterFaultInjector EI("G-Heartbleed(Res)", new ChangeValueInjector(+10045, false));
 
-class InappropriateCloseInjector: public SoftwareFaultInjector {
+class InappropriateCloseInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		if(add_close){
@@ -133,7 +148,7 @@ class InappropriateCloseInjector: public SoftwareFaultInjector {
 static RegisterFaultInjector FA("InappropriateClose(API)", new InappropriateCloseInjector(true));
 static RegisterFaultInjector FB("NoClose(API)", new InappropriateCloseInjector(false));
 
-class StalePointerInjector: public SoftwareFaultInjector {
+class StalePointerInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		void** newbuf = (void**) buf;
@@ -143,7 +158,7 @@ class StalePointerInjector: public SoftwareFaultInjector {
 
 static RegisterFaultInjector GA("StalePointer(Res)", new StalePointerInjector());
 
-class MemoryExhaustionInjector: public SoftwareFaultInjector {
+class MemoryExhaustionInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		void* p = NULL;
@@ -173,7 +188,7 @@ class MemoryExhaustionInjector: public SoftwareFaultInjector {
 static RegisterFaultInjector HA("MemoryExhaustion(Res)", new MemoryExhaustionInjector(true));
 static RegisterFaultInjector HB("LowMemory(Res)", new MemoryExhaustionInjector(false));
 
-class WrongFormatInjector: public SoftwareFaultInjector {
+class WrongFormatInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		switch(*buf){
@@ -197,21 +212,27 @@ class WrongFormatInjector: public SoftwareFaultInjector {
 static RegisterFaultInjector IA("WrongRetrievedFormat(I/O)", new WrongFormatInjector());
 static RegisterFaultInjector IB("WrongSavedFormat(I/O)", new WrongFormatInjector());
 
-class PthreadDeadLockInjector: public SoftwareFaultInjector {
+class PthreadDeadLockInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
-		pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-		pthread_mutex_lock(&mutex1);
-		pthread_t thread1 = pthread_t(*buf);
-		pthread_join(thread1, NULL);
-		pthread_mutex_lock(&mutex1);
+		
+		//pthread_mutex_t * mutex= (pthread_mutex_t*)  (*buf) ;  
+		//pthread_t thread1 ;
+		//pthread_join(thread1, NULL);
+                pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+	        pthread_mutex_lock( &mutex1 );
+                 pthread_t thread1= pthread_t(*buf);
+                   pthread_join(thread1,NULL);
+                     pthread_mutex_lock( &mutex1 );
 		return;
+                
+
 	}
 };
 
 static RegisterFaultInjector JA("DeadLock(Res)", new PthreadDeadLockInjector());
 
-class PthreadThreadKillerInjector: public SoftwareFaultInjector {
+class PthreadThreadKillerInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
 		pthread_t t = pthread_t(*buf);
@@ -223,13 +244,38 @@ class PthreadThreadKillerInjector: public SoftwareFaultInjector {
 
 static RegisterFaultInjector KA("ThreadKiller(Res)", new PthreadThreadKillerInjector());
 
-class PthreadRaceConditionInjector: public SoftwareFaultInjector {
+class PthreadRaceConditionInjector: public FaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){
-		pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-		pthread_mutex_unlock(&mutex);
+		/*
+                  pthread_mutex_t * mutex= (pthread_mutex_t*)  (*buf) ;  
+		pthread_mutex_unlock(mutex);
 		return;
+                */     
+                pthread_mutex_t fake_mutex = PTHREAD_MUTEX_INITIALIZER; 
+                 
+		pthread_mutex_t * newbuf = (pthread_mutex_t *) (*buf);
+		*newbuf = fake_mutex;
+		return;
+
+
+
 	}
 };
 
 static RegisterFaultInjector LA("RaceCondition(Timing)", new PthreadRaceConditionInjector());
+
+
+class MyClass_MyFModeFInjector: public FaultInjector {
+
+ public:
+  virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf) { 
+   //  Target= *buf
+    void * newbuf= (void *)buf;  
+*buf=*buf+1000;
+   //write your code here
+     buf= (char*) newbuf;
+  }
+};
+
+static RegisterFaultInjector X("MyFMode(MyClass)", new MyClass_MyFModeFInjector);

@@ -21,10 +21,10 @@
 
 using namespace llvm;
 namespace llfi{
-    class _Res_ThreadKillerInstSelector: public SoftwareFIInstSelector{
+    class _Res_ThreadKillerInstSelector: public FIInstSelector{
         public:
             _Res_ThreadKillerInstSelector(){
-                funcNames.insert(std::string("pthread_create"));
+               // funcNames.insert(std::string("pthread_create"));
                 funcNames.insert(std::string("pthread_join"));
             }
             virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
