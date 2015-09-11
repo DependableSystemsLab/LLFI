@@ -344,10 +344,11 @@ def compileProg():
     retcode = execCompilation(execlist)
 
   if retcode == 0:
-    execlist = [optbin, '-load', llfilib, "-faultinjectionpass"]
+    execlist = [optbin, '-load', llfilib, '-faultinjectionpass']
     execlist2 = ['-o', fifile + _suffixOfIR(), llfi_indexed_file + _suffixOfIR()]
     execlist.extend(compileOptions)
     execlist.extend(execlist2)
+    #print(execlist)
     if options["readable"]:
       execlist.append("-S")
     retcode = execCompilation(execlist)

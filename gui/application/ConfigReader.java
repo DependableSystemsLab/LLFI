@@ -1,32 +1,21 @@
 package application;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import org.yaml.snakeyaml.Yaml;
 
 /**
- * Class for reading in files from the gui/config folder.
+ * Class for reading the GUI config file from gui/gui_config.yaml
  * @author phil
  *
  */
 public class ConfigReader {
 	private final static String CONFIG_PATH = Controller.llfibuildPath
-			+ "gui/config/";
-
-	private final static String customInstruction_list_PATH = CONFIG_PATH
-			+ "customInstruction_list.txt";
-	private final static String customRegister_list_PATH = CONFIG_PATH
-			+ "customRegister_list.txt";
-	private final static String customSoftwareFault_list_PATH = CONFIG_PATH
-			+ "customSoftwareFault_list.txt";
-	private final static String fault_type_PATH = CONFIG_PATH
-			+ "fault_type.txt";
-	private final static String instruction_list_PATH = CONFIG_PATH
-			+ "instruction_list.txt";
-	private final static String register_list_PATH = CONFIG_PATH
-			+ "register_list.txt";
+			+ "gui/gui_config.yaml";
 
 	private List<String> customInstruction;
 	private List<String> customRegister;
@@ -35,13 +24,31 @@ public class ConfigReader {
 	private List<String> instruction;
 	private List<String> register;
 
+	@SuppressWarnings("unchecked")
 	public ConfigReader() {
-		customInstruction = readFileIntoList(customInstruction_list_PATH);
-		customRegister = readFileIntoList(customRegister_list_PATH);
-		customSoftwareFault = readFileIntoList(customSoftwareFault_list_PATH);
-		faultType = readFileIntoList(fault_type_PATH);
-		instruction = readFileIntoList(instruction_list_PATH);
-		register = readFileIntoList(register_list_PATH);
+		Yaml y = new Yaml();
+		Map<String, Object> config = null;
+		try {
+			config = (Map<String, Object>) y.load(new FileInputStream(CONFIG_PATH));
+		} catch (FileNotFoundException e) {
+			System.err.println("GUI Config file (" + CONFIG_PATH + ") not found!");
+			e.printStackTrace();
+		}
+		
+		if (config.get("custom_instructions") == null) {
+			customInstruction = new ArrayList<String>();
+		} else {
+			customInstruction = (List<String>) config.get("custom_instructions");
+		}
+		if (config.get("custom_registers") == null) {
+			customRegister = new ArrayList<String>();
+		} else {
+			customRegister = (List<String>) config.get("custom_registers");
+		}
+		
+		faultType = (List<String>) config.get("fault_type");
+		instruction = (List<String>) config.get("instructions");
+		register = (List<String>) config.get("registers");
 	}
 
 	public List<String> getCustomInstruction() {
@@ -50,10 +57,6 @@ public class ConfigReader {
 
 	public List<String> getCustomRegister() {
 		return new ArrayList<String>(customRegister);
-	}
-
-	public List<String> getCustomSoftwareFault() {
-		return new ArrayList<String>(customSoftwareFault);
 	}
 
 	public List<String> getFaultType() {
@@ -66,23 +69,5 @@ public class ConfigReader {
 
 	public List<String> getRegister() {
 		return new ArrayList<String>(register);
-	}
-
-	private List<String> readFileIntoList(String path) {
-		BufferedReader reader;
-		String line;
-		List<String> list = new ArrayList<String>();
-		try {
-			reader = new BufferedReader(new FileReader(path));
-			list = new ArrayList<String>();
-			while ((line = reader.readLine()) != null) {
-				list.add(line);
-			}
-			reader.close();
-		} catch (IOException e) {
-			System.err.println("ERROR: Unable to read " + path);
-			e.printStackTrace();
-		}
-		return list;
 	}
 }

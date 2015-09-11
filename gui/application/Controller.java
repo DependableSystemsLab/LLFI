@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -1553,6 +1554,7 @@ public class Controller implements Initializable {
 			}
 
 			addDirectory(dir, true);
+			Files.deleteIfExists(Paths.get(dir.getAbsolutePath(), "/llfi.applicable.software.failures.txt"));
 		} catch (IOException | InterruptedException e) {
 			System.err.println("ERROR: cannot open/read/move file!");
 			e.printStackTrace();

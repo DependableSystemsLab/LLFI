@@ -1,0 +1,17 @@
+Failure_Class: Class2
+Failure_Mode: FMode2
+
+New_Failure_Mode:
+    Trigger: 
+        call: [fread, fwrite]
+    Trigger*: [1, 50, 55, 60]
+    Target:
+        src: 
+            fread: [2]
+            fwrite: [0]
+    Action:
+        Perturb: Custom_Injector
+
+Custom_Injector: | 
+    int *Target = (int *) buf;
+    *Target = *Target + 1000;

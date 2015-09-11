@@ -1,0 +1,456 @@
+- Failure_Class: API
+  Failure_Mode: BufferOverflow
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite]
+    Target:
+      src: 
+        fread: [2]
+        fwrite: [2]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: 45
+
+- Failure_Class: API
+  Failure_Mode: BufferUnderflow
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite]
+    Target:
+      src: 
+        fread: [2]
+        fwrite: [2]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: -40
+      
+- Failure_Class: API
+  Failure_Mode: InappropriateClose
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fopen]
+    Target:
+      dst
+    Action:
+      Perturb: InappropriateCloseInjector
+      option: True
+
+- Failure_Class: API
+  Failure_Mode: IncorrectOutput
+
+  New_Failure_Mode:
+    Trigger: 
+      return
+    Action:
+      Corrupt
+      
+- Failure_Class: API
+  Failure_Mode: NoClose
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fclose]
+    Target:
+      src:
+        fclose: [0]
+    Action:
+      Perturb: InappropriateCloseInjector
+      option: False
+      
+- Failure_Class: API
+  Failure_Mode: NoOpen
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fopen]
+    Target:
+      src:
+        fopen: [0]
+    Action:
+      Corrupt
+      
+- Failure_Class: API
+  Failure_Mode: NoOutput
+
+  New_Failure_Mode:
+    Trigger: 
+      return
+    Action:
+      Freeze
+      
+- Failure_Class: API
+  Failure_Mode: WrongAPI
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite, fgetc, fopen]
+    Target:
+      src: 
+        fread: [3]
+        fwrite: [3]
+        fgetc: [2]
+        fopen: [0, 1]
+    Action:
+      Corrupt
+
+- Failure_Class: API
+  Failure_Mode: WrongMode
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fopen]
+    Target:
+      src:
+        fopen: [1]
+    Action:
+      Corrupt
+
+- Failure_Class: Data
+  Failure_Mode: BufferOverflowMalloc
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      src: 
+        malloc: [0]
+        calloc: [0]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: -40
+
+- Failure_Class: Data
+  Failure_Mode: BufferOverflowMemmove
+
+  New_Failure_Mode:
+    Trigger: 
+      call*: [memcpy, memmove]
+    Target:
+      src: 
+        memcpy: [2]
+        memmove: [2]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: 45
+
+- Failure_Class: Data
+  Failure_Mode: DataCorruption
+
+  New_Failure_Mode:
+    Trigger: 
+      call:
+        [all]
+    Target:
+      src: 
+        all: [0]
+    Action:
+      Corrupt
+
+- Failure_Class: Data
+  Failure_Mode: WrongDestination
+
+  New_Failure_Mode:
+    Trigger: 
+      call*: [memcpy, memmove, memcmp]
+    Target:
+      src: 
+        memcpy: [0]
+        memmove: [0]
+        memcmp: [0]
+    Action:
+      Corrupt
+
+- Failure_Class: Data
+  Failure_Mode: WrongPointer
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite]
+    Target:
+      src: 
+        fread: [0]
+        fwrite: [0]
+    Action:
+      Corrupt
+
+- Failure_Class: Data
+  Failure_Mode: WrongSource
+
+  New_Failure_Mode:
+    Trigger: 
+      call*: [memcpy, memmove, memcmp]
+    Target:
+      src: 
+        memcpy: [1]
+        memmove: [1]
+        memcmp: [1]
+    Action:
+      Corrupt
+
+- Failure_Class: IO
+  Failure_Mode: WrongRetrievedAddress
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite]
+    Target:
+      src: 
+        fread: [3]
+        fwrite: [0]
+    Action:
+      Corrupt
+
+- Failure_Class: IO
+  Failure_Mode: WrongRetrievedFormat
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread]
+    Target:
+      src: 
+        fread: [1]
+    Action:
+      Perturb: WrongFormatInjector
+   
+- Failure_Class: IO
+  Failure_Mode: WrongSavedAddress
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fread, fwrite]
+    Target:
+      src: 
+        fread: [0]
+        fwrite: [3]
+    Action:
+      Corrupt
+
+- Failure_Class: IO
+  Failure_Mode: WrongSavedFormat
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [fwrite]
+    Target:
+      src:
+        fwrite: [1]
+    Action:
+      Perturb: WrongFormatInjector
+
+- Failure_Class: MPI
+  Failure_Mode: DeadLock
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv, send]
+    Target:
+      src:
+        recv: [0]
+        send: [0]
+    Action:
+      Corrupt
+
+- Failure_Class: MPI
+  Failure_Mode: InvalidMessage
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv, send]
+    Target:
+      src:
+        recv: [1]
+        send: [1]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: 1024
+
+- Failure_Class: MPI
+  Failure_Mode: InvalidSender
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [connect, accept]
+    Target:
+      src:
+        connect: [1]
+        accept: [1]
+    Action:
+      Corrupt
+
+- Failure_Class: MPI
+  Failure_Mode: NoAck
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv]
+    Target:
+      dst
+    Action:
+      Freeze
+
+- Failure_Class: MPI
+  Failure_Mode: NoDrain
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv]
+    Target:
+      src:
+        recv: [3]
+    Action:
+      Perturb: ChangeValueInjector
+      option: True
+      value: 5000
+
+- Failure_Class: MPI
+  Failure_Mode: NoMessage
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv, send]
+    Target:
+      src:
+        recv: [1]
+        send: [1]
+    Action:
+      Freeze
+
+- Failure_Class: MPI
+  Failure_Mode: PacketStorm
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [recv]
+    Target:
+      src:
+        recv: [2]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: -40
+
+- Failure_Class: Res
+  Failure_Mode: CPUHog
+
+  New_Failure_Mode:
+    Trigger: 
+      return
+    Action:
+      Delay
+
+- Failure_Class: Res
+  Failure_Mode: DeadLock
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [pthread_join]
+    Target:
+      src:
+        pthread_join: [0]
+    Action:
+      Perturb: PthreadDeadLockInjector
+
+- Failure_Class: Res
+  Failure_Mode: InvalidPointer
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      dst
+    Action:
+      Corrupt
+
+- Failure_Class: Res
+  Failure_Mode: LowMemory
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      dst
+    Action:
+      Perturb: MemoryExhaustionInjector
+      option: False
+
+- Failure_Class: Res
+  Failure_Mode: MemoryExhaustion
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      dst
+    Action:
+      Perturb: MemoryExhaustionInjector
+      option: True
+
+- Failure_Class: Res
+  Failure_Mode: MemoryLeak
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [free]
+    Target:
+      src:
+        free: [0]
+    Action:
+      Perturb: MemoryLeakInjector
+
+- Failure_Class: Res
+  Failure_Mode: StalePointer
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      dst
+    Action:
+      Perturb: StalePointerInjector
+
+- Failure_Class: Res
+  Failure_Mode: ThreadKiller
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [pthread_create, pthread_join]
+    Target:
+      src:
+        pthread_create: [0]
+        pthread_join: [0]
+    Action:
+      Perturb: PthreadThreadKillerInjector
+
+- Failure_Class: Res
+  Failure_Mode: UnderAccumulator
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [malloc, calloc]
+    Target:
+      src:
+        malloc: [0]
+        calloc: [0]
+    Action:
+      Perturb: ChangeValueInjector
+      option: False
+      value: 45
+
+- Failure_Class: Timing
+  Failure_Mode: RaceCondition
+
+  New_Failure_Mode:
+    Trigger: 
+      call: [pthread_mutex_lock]
+    Target:
+      dst
+    Action:
+      Perturb: PthreadRaceConditionInjector

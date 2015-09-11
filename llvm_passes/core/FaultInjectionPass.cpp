@@ -50,6 +50,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
        inst_regs_map->begin(); inst_reg_it != inst_regs_map->end(); 
        ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
+    
     std::list<int> *fi_reg_pos_list = inst_reg_it->second;
     unsigned reg_index = 0;
     unsigned total_reg_num = fi_reg_pos_list->size();

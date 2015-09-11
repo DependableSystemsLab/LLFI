@@ -14,5 +14,7 @@ copy(GenerateMakefile.py GenerateMakefile)
 
 copy(zgrviewer/llfi_run.sh zgrviewer/run.sh)
 
+#FIDL tests
+copydir(FIDL/tests/ FIDL/tests/)
 
 genCopy()

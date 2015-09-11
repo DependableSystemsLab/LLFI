@@ -1,0 +1,773 @@
+#Deprecated
+#This is the configuration yaml for test_FIDL.py
+
+tests: 
+- FIDL: #Tests Custom_Injector, and return value register targeting
+    Failure_Class: TestFIDL
+    Failure_Mode: custom
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Perturb: Custom_Injector
+    Custom_Injector: | 
+      sleep(3);
+  config: 
+    program: memcpy1
+    simulate: CPUHog(Res)
+    
+- FIDL: #Tests destination register targeting, and option for perturb
+    Failure_Class: TestFIDL
+    Failure_Mode: dst
+    New_Failure_Mode:
+      Trigger: 
+        call: [fopen]
+      Target:
+        dst
+      Action:
+        Perturb: InappropriateCloseInjector
+        option: True
+  config:
+    program: memcpy1
+    simulate: InappropriateClose(API)
+      
+- FIDL: #Tests multi-source register targeting
+    Failure_Class: TestFIDL
+    Failure_Mode: multisrc
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite, fgetc, fopen]
+      Target:
+        src: 
+          fread: [3]
+          fwrite: [3]
+          fgetc: [2]
+          fopen: [0, 1]
+      Action:
+        Corrupt
+  config:
+    program: memcpy1
+    simulate: WrongAPI(API)
+    
+- FIDL: #Tests multi-source register targeting
+    Failure_Class: TestFIDL
+    Failure_Mode: multisrc1
+    New_Failure_Mode:
+      Trigger: 
+        call*: [fread, fwrite, fgetc, fopen]
+      Target:
+        src: 
+          fread: [3]
+          fwrite: [3]
+          fgetc: [2]
+          fopen: [0, 1]
+      Action:
+        Corrupt
+  config:
+    program: memcpy1
+    simulate: WrongAPI(API)
+
+- FIDL: #Test single source register targeting, and option/value for perturb
+    Failure_Class: TestFIDL
+    Failure_Mode: singlesrc
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [2]
+          fwrite: [2]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: 45
+  config:
+    program: memcpy1
+    simulate: BufferOverflow(API)
+    
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: BufferOverflow1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [2]
+          fwrite: [2]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: 45
+  config:
+    program: memcpy1
+    simulate: BufferOverflow(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: BufferUnderflow1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [2]
+          fwrite: [2]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: -40
+        
+  config:
+    program: memcpy1
+    simulate: BufferUnderflow(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: InappropriateClose1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fopen]
+      Target:
+        dst
+      Action:
+        Perturb: InappropriateCloseInjector
+        option: True
+        
+  config:
+    program: memcpy1
+    simulate: InappropriateClose(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: IncorrectOutput1
+
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Corrupt
+        
+  config:
+    program: mcf
+    simulate: IncorrectOutput(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: NoClose1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fclose]
+      Target:
+        src:
+          fclose: [0]
+      Action:
+        Perturb: InappropriateCloseInjector
+        option: False
+        
+  config:
+    program: memcpy1
+    simulate: NoClose(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: NoOpen1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fopen]
+      Target:
+        src:
+          fopen: [0]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: NoOpen(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: NoOutput1
+
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Freeze
+        
+  config:
+    program: sudoku2
+    simulate: NoOutput(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: WrongAPI1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite, fgetc, fopen]
+      Target:
+        src: 
+          fread: [3]
+          fwrite: [3]
+          fgetc: [2]
+          fopen: [0, 1]
+      Action:
+        Corrupt
+        
+  config:
+    program: mcf
+    simulate: WrongAPI(API)
+        
+- FIDL:
+    Failure_Class: API
+    Failure_Mode: WrongMode1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fopen]
+      Target:
+        src:
+          fopen: [1]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongMode(API)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: BufferOverflowMalloc1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        src: 
+          malloc: [0]
+          calloc: [0]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: -40
+        
+  config:
+    program: memcpy1
+    simulate: BufferOverflowMalloc(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: BufferOverflowMemmove1
+
+    New_Failure_Mode:
+      Trigger: 
+        call*: [memcpy, memmove]
+      Target:
+        src: 
+          memcpy: [2]
+          memmove: [2]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: 45
+        
+  config:
+    program: memcpy1
+    simulate: BufferOverflowMemmove(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: DataCorruption1
+
+    New_Failure_Mode:
+      Trigger: 
+        call:
+          [all]
+      Target:
+        src: 
+          all: [0]
+      Action:
+        Corrupt
+  config:
+    program: mcf
+    simulate: DataCorruption(Data)
+        
+- FIDL:     
+    Failure_Class: Data
+    Failure_Mode: IncorrectOutput1
+
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Corrupt
+        
+  config:
+    program: mcf
+    simulate: IncorrectOutput(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: NoOutput1
+
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Freeze
+  config:
+    program: mcf
+    simulate: NoOutput(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: WrongDestination1
+
+    New_Failure_Mode:
+      Trigger: 
+        call*: [memcpy, memmove, memcmp]
+      Target:
+        src: 
+          memcpy: [0]
+          memmove: [0]
+          memcmp: [0]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongDestination(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: WrongPointer1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [0]
+          fwrite: [0]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongPointer(Data)
+        
+- FIDL:
+    Failure_Class: Data
+    Failure_Mode: WrongSource1
+
+    New_Failure_Mode:
+      Trigger: 
+        call*: [memcpy, memmove, memcmp]
+      Target:
+        src: 
+          memcpy: [1]
+          memmove: [1]
+          memcmp: [1]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongSource(Data)
+        
+- FIDL:
+    Failure_Class: IO
+    Failure_Mode: WrongRetrievedAddress1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [3]
+          fwrite: [0]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongRetrievedAddress(IO)
+        
+- FIDL:
+    Failure_Class: IO
+    Failure_Mode: WrongRetrievedFormat1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread]
+      Target:
+        src: 
+          fread: [1]
+      Action:
+        Perturb: WrongFormatInjector
+  config:
+    program: memcpy1
+    simulate: WrongRetrievedFormat(IO)
+        
+- FIDL:        
+    Failure_Class: IO
+    Failure_Mode: WrongSavedAddress1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fread, fwrite]
+      Target:
+        src: 
+          fread: [0]
+          fwrite: [3]
+      Action:
+        Corrupt
+        
+  config:
+    program: memcpy1
+    simulate: WrongSavedAddress(IO)
+        
+- FIDL:
+    Failure_Class: IO
+    Failure_Mode: WrongSavedFormat1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [fwrite]
+      Target:
+        src:
+          fwrite: [1]
+      Action:
+        Perturb: WrongFormatInjector
+        
+  config:
+    program: memcpy1
+    simulate: WrongSavedFormat(IO)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: DeadLock1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv, send]
+      Target:
+        src:
+          recv: [0]
+          send: [0]
+      Action:
+        Corrupt
+        
+  config:
+    program: mpi
+    simulate: DeadLock(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: InvalidMessage1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv, send]
+      Target:
+        src:
+          recv: [1]
+          send: [1]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: 1024
+        
+  config:
+    program: mpi
+    simulate: InvalidMessage(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: InvalidSender1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [connect, accept]
+      Target:
+        src:
+          connect: [1]
+          accept: [1]
+      Action:
+        Corrupt
+        
+  config:
+    program: mpi
+    simulate: InvalidSender(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: NoAck1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv]
+      Target:
+        dst
+      Action:
+        Freeze
+        
+  config:
+    program: mpi
+    simulate: NoAck(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: NoDrain1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv]
+      Target:
+        src:
+          recv: [3]
+      Action:
+        Perturb: ChangeValueInjector
+        option: True
+        value: 5000
+        
+  config:
+    program: mpi
+    simulate: NoDrain(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: NoMessage1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv, send]
+      Target:
+        src:
+          recv: [1]
+          send: [1]
+      Action:
+        Freeze
+        
+  config:
+    program: mpi
+    simulate: NoMessage(MPI)
+        
+- FIDL:
+    Failure_Class: MPI
+    Failure_Mode: PacketStorm1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [recv]
+      Target:
+        src:
+          recv: [2]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: -40
+        
+  config:
+    program: mpi
+    simulate: PacketStorm(MPI)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: CPUHog1
+
+    New_Failure_Mode:
+      Trigger: 
+        return
+      Action:
+        Delay
+        
+  config:
+    program: mcf
+    simulate: CPUHog(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: DeadLock1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [pthread_join]
+      Target:
+        src:
+          pthread_join: [0]
+      Action:
+        Perturb: PthreadDeadLockInjector
+        
+  config:
+    program: deadlock
+    simulate: DeadLock(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: InvalidPointer1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        dst
+      Action:
+        Corrupt
+        
+  config:
+    program: mcf
+    simulate: InvalidPointer(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: LowMemory1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        dst
+      Action:
+        Perturb: MemoryExhaustionInjector
+        option: False
+        
+  config:
+    program: mcf
+    simulate: LowMemory(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: MemoryExhaustion1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        dst
+      Action:
+        Perturb: MemoryExhaustionInjector
+        option: True
+        
+  config:
+    program: memcpy1
+    simulate: MemoryExhaustion(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: MemoryLeak1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [free]
+      Target:
+        src:
+          free: [0]
+      Action:
+        Perturb: MemoryLeakInjector
+        
+  config:
+    program: mcf
+    simulate: MemoryLeak(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: StalePointer1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        dst
+      Action:
+        Perturb: StalePointerInjector
+        
+  config:
+    program: memcpy1
+    simulate: StalePointer(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: ThreadKiller1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [pthread_create, pthread_join]
+      Target:
+        src:
+          pthread_create: [0]
+          pthread_join: [0]
+      Action:
+        Perturb: PthreadThreadKillerInjector
+        
+  config:
+    program: deadlock
+    simulate: ThreadKiller(Res)
+        
+- FIDL:
+    Failure_Class: Res
+    Failure_Mode: UnderAccumulator1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [malloc, calloc]
+      Target:
+        src:
+          malloc: [0]
+          calloc: [0]
+      Action:
+        Perturb: ChangeValueInjector
+        option: False
+        value: 45
+        
+  config:
+    program: memcpy1
+    simulate: UnderAccumulator(Res)
+        
+- FIDL:
+    Failure_Class: Timing
+    Failure_Mode: RaceCondition1
+
+    New_Failure_Mode:
+      Trigger: 
+        call: [pthread_mutex_lock]
+      Target:
+        dst
+      Action:
+        Perturb: PthreadRaceConditionInjector
+
+  config:
+    program: deadlock
+    simulate: RaceCondition(Timing)
+    
+inputTemplate:
+  kernelOption: [forceRun]
+  compileOption:
+    instSelMethod:
+    - customInstselector:
+        include: []
+
+    regSelMethod: customregselector
+    customRegSelector: Automatic
+
+    includeInjectionTrace:
+      - forward
+      - backward
+        
+    tracingPropagation: True
+
+    tracingPropagationOption:
+      debugTrace: True/False
+      generateCDFG: True
+
+  runOption:
+  - run:
+      numOfRuns: 1
+      fi_type: AutoInjection
