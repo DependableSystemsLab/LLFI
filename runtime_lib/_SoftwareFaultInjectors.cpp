@@ -55,6 +55,8 @@ class SleepInjector: public SoftwareFaultInjector {
 	}
 };
 
+static RegisterFaultInjector DA("HighFrequentEvent(Timing)", new SleepInjector());
+
 class ChangeValueInjector: public SoftwareFaultInjector {
 	public:
 	virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf){

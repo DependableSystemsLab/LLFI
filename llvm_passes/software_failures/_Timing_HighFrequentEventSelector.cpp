@@ -71,7 +71,7 @@ namespace llfi {
                 if (called_func == NULL) {
                     return false;
                 }
-                return reg == CI;
+                return reg == CI; // selects dst register
             } else if (isa<ReturnInst>(inst)) {
                 ReturnInst* RI = dyn_cast<ReturnInst>(inst);
                 return reg == RI->getReturnValue();

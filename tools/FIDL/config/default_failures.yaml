@@ -154,24 +154,6 @@
       Corrupt
 
 - Failure_Class: Data
-  Failure_Mode: IncorrectOutput
-
-  New_Failure_Mode:
-    Trigger: 
-      return
-    Action:
-      Corrupt
-
-- Failure_Class: Data
-  Failure_Mode: NoOutput
-
-  New_Failure_Mode:
-    Trigger: 
-      return
-    Action:
-      Freeze
-
-- Failure_Class: Data
   Failure_Mode: WrongDestination
 
   New_Failure_Mode:
