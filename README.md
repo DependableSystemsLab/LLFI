@@ -7,7 +7,7 @@ Please join the following Google Groups for information related to LLFI developm
 
 Auto-Installer
 --------------
-This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run "python3 InstallLLFI.py".
+This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run `python3 InstallLLFI.py`.
   
 Dependencies:
   1. 32/64 Bit Linux or OS X
@@ -31,7 +31,7 @@ run "python3 InstallLLFI.py -h" to see all running options/guidelines
 
 About tcsh:
 
-The LLFI-GUI uses tcsh to read environment variables describing the location of the LLFI build. The installer will automatically add those environmnet variables to your ~/.tcshrc file. You do not need to actively use tcsh as your primary shell, simply having it installed is enough.
+The LLFI-GUI uses tcsh to read environment variables describing the location of the LLFI build. The installer will automatically add those environment variables to your ~/.tcshrc file. You do not need to actively use tcsh as your primary shell, simply having it installed is enough.
 
 Manual Install
 ---------------
