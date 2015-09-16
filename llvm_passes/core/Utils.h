@@ -48,6 +48,13 @@ void genFullNameOpcodeMap(std::map<std::string, unsigned> &opcodenamemap);
 //Check metadata to see if instruction was generated/inserted by LLFI
 bool isLLFIIndexedInst(Instruction *inst);
 
+// sets the metadata on the injectFault call
+void setInjectFaultInst(Value *reg, Instruction *inst, Instruction *ficall);
+
+// checks if the instruction is a call to llfi's 'injectFault*', if it is, return
+// the next instruction iff injectFault occurs AFTER the targeted instruction
+Instruction* changeInsertPtrIfInjectFaultInst(Instruction *inst);
+
 //======== Add opcode_str QINING @SEP 13th========
 GlobalVariable* findOrCreateGlobalNameString(Module &M, std::string name);
 //================================================

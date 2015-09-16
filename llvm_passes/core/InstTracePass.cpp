@@ -87,6 +87,20 @@ struct InstTrace : public FunctionPass {
   long fetchLLFIInstructionID(Instruction *targetInst) {
     return llfi::getLLFIIndexofInst(targetInst);
   }
+  
+  Instruction* getInsertPoint(Instruction* llfiIndexedInst) {
+    Instruction *insertPoint;
+    if (!llfiIndexedInst->isTerminator()) {
+      insertPoint = llfi::getInsertPtrforRegsofInst(llfiIndexedInst, llfiIndexedInst);
+      // if insert point is a call to inject fault, insert printInstTrace after the injectFault call
+      // iff injectFault occurs AFTER the targeted instruction (ie. dst targeted)
+      insertPoint = changeInsertPtrIfInjectFaultInst(insertPoint);
+    } else {
+      // if terminator, insert before function
+      insertPoint = llfiIndexedInst;
+    }
+    return insertPoint;
+  }
 
   virtual bool runOnFunction(Function &F) {
     //Create handles to the functions parent module and context
@@ -112,12 +126,7 @@ struct InstTrace : public FunctionPass {
       if (llfi::isLLFIIndexedInst(inst)) {
 
         //Find instrumentation point for current instruction
-        Instruction *insertPoint;
-        if (!inst->isTerminator()) {
-          insertPoint = llfi::getInsertPtrforRegsofInst(inst, inst);
-        } else {
-          insertPoint = inst;
-        }
+        Instruction *insertPoint = getInsertPoint(inst);
 
         //======== Find insertion location for alloca QINING @SET 15th============
         Instruction* alloca_insertPoint = inst->getParent()->getParent()->begin()->getFirstNonPHIOrDbgOrLifetime();
@@ -149,7 +158,7 @@ struct InstTrace : public FunctionPass {
         //Insert instructions to allocate stack memory for opcode name
         
         const char* opcodeNamePt = inst->getOpcodeName();
-	const std::string str(inst->getOpcodeName());
+        const std::string str(inst->getOpcodeName());
         ArrayRef<uint8_t> opcode_name_array_ref((uint8_t*)opcodeNamePt, str.size() + 1);
         //llvm::Value* OPCodeName = llvm::ConstantArray::get(context, opcode_name_array_ref);
         llvm::Value* OPCodeName = llvm::ConstantDataArray::get(context, opcode_name_array_ref);
@@ -162,7 +171,7 @@ struct InstTrace : public FunctionPass {
         //Create the decleration of the printInstTracer Function
         std::vector<Type*> parameterVector(5);
         parameterVector[0] = Type::getInt32Ty(context); //ID
-	    parameterVector[1] = OPCodePtr->getType(); 
+        parameterVector[1] = OPCodePtr->getType(); 
         //======== opcode_str QINING @SET 15th============
         //parameterVector[1] = PointerType::get(Type::getInt8Ty(context), 0);     //Ptr to OpCode
         //================================================
@@ -170,8 +179,8 @@ struct InstTrace : public FunctionPass {
         parameterVector[3] = ptrInst->getType();    //Ptr to Inst Value
         parameterVector[4] = Type::getInt32Ty(context); //Int of max traces
 
-	//LLVM 3.3 Upgrade
-	ArrayRef<Type*> parameterVector_array_ref(parameterVector);
+        //LLVM 3.3 Upgrade
+        ArrayRef<Type*> parameterVector_array_ref(parameterVector);
 
         FunctionType* traceFuncType = FunctionType::get(Type::getVoidTy(context), 
                                                         parameterVector_array_ref, false);
@@ -188,7 +197,7 @@ struct InstTrace : public FunctionPass {
 
         //Fetch maxtrace number:
         ConstantInt* maxTraceConstInt =
-            ConstantInt::get(IntegerType::get(context, 32), maxtrace);
+        ConstantInt::get(IntegerType::get(context, 32), maxtrace);
 
         //======== opcode_str QINING @SET 15th============
         //string opcode_str = fi_inst->getOpcodeName();
@@ -207,8 +216,8 @@ struct InstTrace : public FunctionPass {
         traceArgs.push_back(ptrInst);
         traceArgs.push_back(maxTraceConstInt);
 
-	//LLVM 3.3 Upgrade
-	ArrayRef<Value*> traceArgs_array_ref(traceArgs);
+        //LLVM 3.3 Upgrade
+        ArrayRef<Value*> traceArgs_array_ref(traceArgs);
 
         //Create the Function
         CallInst::Create(traceFunc, traceArgs_array_ref, "", insertPoint);

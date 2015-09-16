@@ -126,6 +126,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
       Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
       Instruction* ficall = CallInst::Create(
           injectfunc, args_array_ref, "fi", insertptr);
+      setInjectFaultInst(fi_reg, fi_inst, ficall); // sets the instruction metadata
 
       // redirect the data dependencies
       if (fi_reg == fi_inst) {

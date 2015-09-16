@@ -103,6 +103,34 @@ Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
   }
 }
 
+Instruction* changeInsertPtrIfInjectFaultInst(Instruction *inst) {
+  MDNode *mdnode = inst->getMetadata("llfi_injectfault");
+  if (mdnode) {
+    if (((MDString*)mdnode->getOperand(0))->getString() == "after") {
+      return ++((BasicBlock::iterator) inst);
+    } else {
+      return inst;
+    }
+  } else {
+    return inst;
+  }
+}
+
+void setInjectFaultInst(Value *reg, Instruction *inst, Instruction *ficall) {
+  Function *func = inst->getParent()->getParent();
+  LLVMContext &context = func->getContext();
+  
+  MDString *s;
+  if (reg == inst) {
+    s = MDString::get(context, "after");
+  } else {
+    s = MDString::get(context, "before");
+  }
+  
+  MDNode *node = MDNode::get(context, s);
+  ficall->setMetadata("llfi_injectfault", node);
+}
+
 long getLLFIIndexofInst(Instruction *inst) {
   MDNode *mdnode = inst->getMetadata("llfi_index");
   if (mdnode) {
