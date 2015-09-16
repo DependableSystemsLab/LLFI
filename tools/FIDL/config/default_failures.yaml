@@ -448,9 +448,10 @@
 
   New_Failure_Mode:
     Trigger: 
-      call: [pthread_mutex_lock]
+      call: [pthread_mutex_lock, pthread_mutex_trylock]
     Target:
       src:
         pthread_mutex_lock: [0]
+        pthread_mutex_trylock: [0]
     Action:
       Perturb: PthreadRaceConditionInjector

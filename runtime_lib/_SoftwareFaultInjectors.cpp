@@ -179,7 +179,7 @@ class PthreadThreadKillerInjector: public SoftwareFaultInjector {
 class PthreadRaceConditionInjector: public SoftwareFaultInjector {
   public:
   virtual void injectFault(long llfi_index, unsigned size, unsigned fi_bit,char *buf) {
-    pthread_mutex_t *fake_mutex = malloc(sizeof(pthread_mutex_t));
+    pthread_mutex_t *fake_mutex = (pthread_mutex_t*) malloc(sizeof(pthread_mutex_t));
     pthread_mutex_init(fake_mutex, NULL);
     pthread_mutex_t **newbuf = (pthread_mutex_t**) buf;
     *newbuf = fake_mutex;
