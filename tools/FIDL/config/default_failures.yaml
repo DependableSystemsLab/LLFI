@@ -421,10 +421,9 @@
 
   New_Failure_Mode:
     Trigger: 
-      call: [pthread_create, pthread_join]
+      call: [pthread_join]
     Target:
       src:
-        pthread_create: [0]
         pthread_join: [0]
     Action:
       Perturb: PthreadThreadKillerInjector
@@ -451,6 +450,7 @@
     Trigger: 
       call: [pthread_mutex_lock]
     Target:
-      dst
+      src:
+        pthread_mutex_lock: [0]
     Action:
       Perturb: PthreadRaceConditionInjector
