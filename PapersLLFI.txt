@@ -1,0 +1,113 @@
+# This is a file for keeping track of papers that (1) describe LLFI, and (2) use LLFI
+# Please add your paper to the list in the appropriate category in bibtex format
+# These are from the IEEE/ACM bibliographic database
+
+1. Papers on LLFI:
+
+A. Paper on the design of LLFI
+
+@inproceedings {LLFI-QRS, 
+author={Qining Lu and Farahani, M. and Jiesheng Wei and Thomas, A. and Pattabiraman, K.}, 
+booktitle={Software Quality, Reliability and Security (QRS), 2015 IEEE International Conference on}, 
+title={LLFI: An Intermediate Code-Level Fault Injection Tool for Hardware Faults}, 
+year={2015}, 
+pages={11-16}, 
+keywords={software fault tolerance;LLFI;error resilient applications;fault injection techniques;fine-grained manner;hardware errors;hardware faults;intermediate code-level fault injection tool;intermediate representation level;software based error resilience techniques;software-based techniques;Benchmark testing;Computer crashes;Hardware;Instruments;Registers;Resilience;Software}, 
+doi={10.1109/QRS.2015.13}, 
+month={Aug},}
+
+B. Paper on the accuracy of LLFI
+
+ @in-proceedings{LLFI-DSN, 
+author={Jiesheng Wei and Thomas, A. and Guanpeng Li and Pattabiraman, K.}, 
+booktitle={Dependable Systems and Networks (DSN), 2014 44th Annual IEEE/IFIP International Conference on}, 
+title={Quantifying the Accuracy of High-Level Fault Injection Techniques for Hardware Faults}, 
+year={2014}, 
+pages={375-382}, 
+keywords={program compilers;program testing;software fault tolerance;system recovery;LLFI;LLVM compiler;error resilience;fault injector tool;hardware faults;software fault-injection mechanisms;software testing;Accuracy;Assembly;Benchmark testing;Computer crashes;Hardware;Registers;Software;Fault injection;LLVM;PIN;comparison}, 
+doi={10.1109/DSN.2014.2}, 
+month={June},}
+
+2. Papers using LLFI
+
+@article{Thomas-2013},
+author = {Anna Thomas and Karthik Pattabiraman},
+title = {Error detector placement for soft computation},
+journal ={2014 44th Annual IEEE/IFIP International Conference on Dependable Systems and Networks},
+volume = {0},
+issn = {1530-0889},
+year = {2013},
+pages = {1-12},
+doi = {http://doi.ieeecomputersociety.org/10.1109/DSN.2013.6575353},
+publisher = {IEEE Computer Society},
+address = {Los Alamitos, CA, USA},
+}
+
+@INPROCEEDINGS{Fang-2012},
+author={Bo Fang and Pattabiraman, K. and Ripeanu, M. and Gurumurthi, S.}, 
+booktitle={Dependable Systems and Networks (DSN), 2014 44th Annual IEEE/IFIP International Conference on}, 
+title={Evaluating the Error Resilience of Parallel Programs}, 
+year={2014}, 
+pages={720-725}, 
+keywords={fault tolerance;message passing;parallel programming;software reliability;HPC systems;OpenMP program;error resilience;fault-injection experiment;fault-tolerant mechanism;hardware fault rates;parallel programs;program structure;reliability;thread model;Benchmark testing;Hardware;Instruction sets;Instruments;Message systems;Resilience;Standards;Error Resilience;OpenMP;algorithms}, 
+doi={10.1109/DSN.2014.73}, 
+month={June},}
+
+@inproceedings{Lu-2014,
+ author = {Lu, Qining and Pattabiraman, Karthik and Gupta, Meeta S. and Rivers, Jude A.},
+ title = {SDCTune: A Model for Predicting the SDC Proneness of an Application for Configurable Protection},
+ booktitle = {Proceedings of the 2014 International Conference on Compilers, Architecture and Synthesis for Embedded Systems},
+ series = {CASES '14},
+ year = {2014},
+ isbn = {978-1-4503-3050-3},
+ location = {New Delhi, India},
+ pages = {23:1--23:10},
+ articleno = {23},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/2656106.2656127},
+ doi = {10.1145/2656106.2656127},
+ acmid = {2656127},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {compiler, modeling, reliability},
+} 
+
+@INPROCEEDINGS{Li-2015a, 
+author={Guanpeng Li and Qining Lu and Pattabiraman, K.}, 
+booktitle={Dependable Systems and Networks (DSN), 2015 45th Annual IEEE/IFIP International Conference on}, 
+title={Fine-Grained Characterization of Faults Causing Long Latency Crashes in Programs}, 
+year={2015}, 
+pages={450-461}, 
+keywords={checkpointing;program compilers;program diagnostics;CRASHFINDER;LLC causing locations;LLC locations;dynamic analysis;fault injection techniques;fine-grained fault characterization;magnitude time reduction;program code pattern identification;program long latency crash;selective fault injection-based approach;software techniques;static analysis;transient hardware faults;Arrays;Benchmark testing;Computer crashes;Fault diagnosis;Hardware;Program processors;checkpoint corruption;hardware faults;long-latency crashes}, 
+doi={10.1109/DSN.2015.36}, 
+month={June},}
+
+@inproceedings{Ashra-2015,
+ author = {Ashraf, Rizwan A. and Gioiosa, Roberto and Kestor, Gokcen and DeMara, Ronald F. and Cher, Chen-Yong and Bose, Pradip},
+ title = {Understanding the Propagation of Transient Errors in HPC Applications},
+ booktitle = {Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis},
+ series = {SC '15},
+ year = {2015},
+ isbn = {978-1-4503-3723-6},
+ location = {Austin, Texas},
+ pages = {72:1--72:12},
+ articleno = {72},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2807591.2807670},
+ doi = {10.1145/2807591.2807670},
+ acmid = {2807670},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {application vulnerability, distributed applications, fault injection, fault propagation, resiliency, soft errors},
+} 
+
+@inproceedings{Fikah-2015,
+ author = {Fatimeh Fika and Arshad Jhumka
+ title = {An Investigation of the Impact of Double Single Bit-Flip Errors on Program Executions},
+ booktitle = {Proceedings of the International Conference on DEPEND}
+ series = {DEPEND '15},
+ year = {2015},
+ isbn = {978-1-61208-429-9},
+ pages = {15 to 22},
+ publisher = {IARA}
+}
