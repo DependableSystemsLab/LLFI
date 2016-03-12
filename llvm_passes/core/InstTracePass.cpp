@@ -127,6 +127,11 @@ struct InstTrace : public FunctionPass {
 
         //Find instrumentation point for current instruction
         Instruction *insertPoint = getInsertPoint(inst);
+        
+        //Skip instrumentation for terminating instructions
+        if (insertPoint->isTerminator()) {
+			continue;
+		}
 
         //======== Find insertion location for alloca QINING @SET 15th============
         Instruction* alloca_insertPoint = inst->getParent()->getParent()->begin()->getFirstNonPHIOrDbgOrLifetime();
