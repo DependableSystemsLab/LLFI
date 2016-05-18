@@ -204,6 +204,7 @@ void injectFunc(long llfi_index, unsigned size,
   //================================================
   //======== Add opcode_str QINING @MAR 11th========
   int runs =0;
+  long long fi_cycle_to_print = config.fi_cycle;
   for(runs = 0; runs < fi_num_bits && runs < size; runs++){
   	  // NOTE: if fi_bit specified, use it, otherwise, randomly generate
 	  if (config.fi_bit >= 0)
@@ -227,7 +228,7 @@ void injectFunc(long llfi_index, unsigned size,
 	  fprintf(injectedfaultsFile, 
           "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
           "fi_reg_pos=%u, fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type,
-          llfi_index, config.fi_cycle, my_reg_index, reg_pos, size, fi_bit, opcode_str);
+          llfi_index, fi_cycle_to_print, my_reg_index, reg_pos, size, fi_bit, opcode_str);
  	  fflush(injectedfaultsFile); 
 	  //================================================
 	  
