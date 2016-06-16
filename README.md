@@ -1,9 +1,9 @@
 LLFI
 ====
 
-LLFI is an LLVM based fault injection tool, that injects faults into the LLVM IR of the application source code.  The faults can be injected into specific program points, and the effect can be easily tracked back to the source code.  LLFI is typically used to map fault characteristics back to source code, and hence understand source level or program characteristics for various kinds of fault outcomes.    
+LLFI is an LLVM based fault injection tool, that injects faults into the LLVM IR of the application source code.  The faults can be injected into specific program points, and the effect can be easily tracked back to the source code.  LLFI is typically used to map fault characteristics back to source code, and hence understand source level or program characteristics for various kinds of fault outcomes. Detailed documentation about LLFI can be found at: https://github.com/DependableSystemsLab/LLFI/wiki    
 
-Please join the following Google Groups for information related to LLFI development: llfi-development@googlegroups.com
+Please join the following Google Groups for asking questions about LLFI that are not answered in the documentation: llfi-development@googlegroups.com
 
 Auto-Installer
 --------------
