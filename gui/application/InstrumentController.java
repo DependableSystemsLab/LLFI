@@ -91,7 +91,7 @@ public class InstrumentController implements Initializable {
 	private Button createNewProfileButton;
 	@FXML
 	private CheckBox allCheckBox;
-	
+
 
 	private List<String> fileContent;
 	private List<String> includeInstList;
@@ -100,7 +100,7 @@ public class InstrumentController implements Initializable {
 	private List<String> registerList;
 	private List<String> customInstList;
 	private List<String> customRegList;
-	
+
 	@FXML
 	ObservableList<String> items;
 	@FXML
@@ -109,48 +109,48 @@ public class InstrumentController implements Initializable {
 	ObservableList<String> tempItems=FXCollections.observableArrayList();
 	@FXML
 	ObservableList<String> tempItems1=FXCollections.observableArrayList();
-	
+
 	private boolean errorFlag;
 	public String folderName;
 	public String fileName;
 	File theDirectory;
-	
+
 	// #SFIT
 	// used for selection software injection
 	@FXML
 	private RadioButton software;
 	@FXML
 	private RadioButton hardware;
-	
+
 	@FXML
 	private Node registerSelectionMethodLabel;
 	@FXML
 	private Node separator;
-	
+
 	// for determining if the previous runtime option should be kept
 	private InstrumentOption previousInstrumentOption;
 	private List<RuntimeOption> previousRuntimeOption;
-	
+
 	// fiResultDisplay from Controller
 	private ComboBox<String> fiResultDisplay;
-	
+
 	@FXML
 	private void onClickGenerateYamlFile(ActionEvent event) {
 		Parent root;
 		Controller.console = new ArrayList<String>();
-		
+
 		try {
 			// delete old folders and files from last fault injection excluding llfi.applicable.software.failures.txt
 			String cmd1 = "rm -rf `find ./" + Controller.currentProgramFolder + " -name 'llfi*' ! -name 'llfi.applicable.software.failures.txt'`";
 			ProcessBuilder p1 = new ProcessBuilder("/bin/tcsh", "-c", cmd1);
 			p1.start().waitFor();
-			
+
 			InstrumentOption option = new InstrumentOption();
 
 			// see what type of injection we're doing
 			if (Controller.isHardwareInjection) {
 				option.isHardwareFault = true;
-				
+
 				// set regloc_OR_customRegSelector
 				// does not matter for software injection
 				if (regTypeRadio.isSelected()) {
@@ -167,12 +167,12 @@ public class InstrumentController implements Initializable {
 			// see if we are doing custom injection
 			if (instTypeRadio.isSelected()) {
 				option.customInstruction = false;
-				
+
 				ArrayList<String> formattedList = new ArrayList<String>();
 				for (String s: instIncludeListView.getItems()) {
 					formattedList.add(s.split("-")[0]);
 				}
-				
+
 				option.includedInstruction = formattedList;
 			} else {
 				option.customInstruction = true;
@@ -193,7 +193,7 @@ public class InstrumentController implements Initializable {
 			} else {
 				option.maxTrace = null;
 			}
-			
+
 			// #SFIT
 			// calls the correct script if the user selected more than 1 software fault
 			String scriptToCall;
@@ -205,7 +205,7 @@ public class InstrumentController implements Initializable {
 				numFaultTypes = FXCollections.observableArrayList(customInstCombo.getValue().toString());
 			}
 			Controller.selectedSoftwareFailures = numFaultTypes;
-			
+
 			if (Controller.isHardwareInjection || numFaultTypes.size() == 1) {
 				scriptToCall = "bin/instrument -lpthread --readable ";
 				Controller.isBatchMode = false;
@@ -214,17 +214,17 @@ public class InstrumentController implements Initializable {
 				scriptToCall = "bin/batchInstrument --readable ";
 				Controller.isBatchMode = true;
 			}
-			
+
 			InputYaml input = new InputYaml();
-			
+
 			// if injection mode did not change, keep the same runtime option
 			if (!injectionModeChanged() && previousRuntimeOption.size() != 0) {
 				input.setRuntimeOption(previousRuntimeOption);
 			}
-			
+
 			input.setInstrumentOption(option);
 			input.writeChanges(Controller.currentProgramFolder + "/input.yaml");
-			
+
 			// sets the ComboBox so that the user can select which result to display
 			// when fault injection has completed
 			if (Controller.isBatchMode) {
@@ -232,11 +232,11 @@ public class InstrumentController implements Initializable {
 				displayedFaultResult.add(0, "All");
 				fiResultDisplay.setItems(displayedFaultResult);
 			}
-			
+
 			String cmd = Controller.llfibuildPath
 					+ scriptToCall + folderName + "/"
 					+ folderName + ".ll";
-			
+
 			ProcessBuilder p = new ProcessBuilder("/bin/tcsh", "-c", cmd);
 			Controller.console.add("$ " + cmd + "\n");
 
@@ -248,7 +248,7 @@ public class InstrumentController implements Initializable {
 			Controller.errorString = new ArrayList<>();
 			String line1;
 			boolean success = false;
-			
+
 			while ((line1 = in1.readLine()) != null) {
 				/*
 				 * if(line1.contains("Sucess")) Controller.errorString = new
@@ -260,7 +260,7 @@ public class InstrumentController implements Initializable {
 				if (line1.contains("error") || line1.contains("Error")
 						|| line1.contains("ERROR"))
 					errorFlag = true;
-				
+
 				// c++ program is compiled with clang++, but the script will try clang
 				// first, which would output some error(s)
 				if (line1.contains("Success") || line1.contains("success") ) {
@@ -287,7 +287,7 @@ public class InstrumentController implements Initializable {
 			} else {
 				// Generate the LLFI .ll file with index labelled.
 				// use for the indexed injection
-				
+
 				// #SFIT
 				// if batch mode, we need to go into one of the generated folder
 				// to generated the indexed .ll file
@@ -321,17 +321,17 @@ public class InstrumentController implements Initializable {
 							Paths.get(Controller.currentProgramFolder + "/llfi-" + numFaultTypes.get(0) + "/llfi.stat.graph.dot"),
 							Paths.get(Controller.currentProgramFolder + "/llfi.stat.graph.dot"));
 				}
-				
+
 				// reads llfi/<program>-llfi_index.ll
 				BufferedReader bufferReader = new BufferedReader(inputIndexFile);
 				while ((line = bufferReader.readLine()) != null) {
 					fileContent.add(line + "\n");
 				}
 				bufferReader.close();
-		
+
 				// writes a modified, easily readable file (<program>-llfi_displayIndex.ll)
 				BufferedWriter outputFile = new BufferedWriter(new FileWriter(outputIndexFile));
-				long index = 0;
+				long index = 1;
 				for (int i = 0; i < fileContent.size(); i++) {
 					String l = fileContent.get(i);
 
@@ -342,10 +342,10 @@ public class InstrumentController implements Initializable {
 					}
 				}
 				outputFile.close();
-				
+
 				Controller.cs.changeStateTo(State.INSTRUMENT_COMPLETED);
 				Controller.errorString.clear();
-				
+
 				Node source = (Node) event.getSource();
 				Stage stage = (Stage) source.getScene().getWindow();
 				stage.close();
@@ -359,19 +359,19 @@ public class InstrumentController implements Initializable {
 
 		}
 	}
-	
+
 	private static enum InjectionType {
 		HARDWARE, SOFTWARE, SOFTWARE_BATCH;
 	}
 
 	private boolean injectionModeChanged() {
 		InjectionType current, previous;
-		
+
 		// first time doing instrument
 		if (previousInstrumentOption == null) {
 			return true;
 		}
-		
+
 		// compute current mode
 		if (Controller.isHardwareInjection) {
 			current = InjectionType.HARDWARE;
@@ -380,7 +380,7 @@ public class InstrumentController implements Initializable {
 		} else {
 			current = InjectionType.SOFTWARE;
 		}
-		
+
 		// compute previous mode
 		if (previousInstrumentOption.isHardwareFault) {
 			previous = InjectionType.HARDWARE;
@@ -391,7 +391,7 @@ public class InstrumentController implements Initializable {
 				previous = InjectionType.SOFTWARE;
 			}
 		}
-		
+
 		if (current == previous) {
 			return false;
 		} else {
@@ -485,17 +485,17 @@ public class InstrumentController implements Initializable {
 			instExcludeListView.setDisable(true);
 			instIncludeButton.setDisable(true);
 			instExcludeButton.setDisable(true);
-			
+
 			allCheckBox.setDisable(true);
 		} else {
 			customInstCombo.setDisable(true);
 			includeLabel.setDisable(false);
-			
+
 			instIncludeListView.setDisable(false);
 			instExcludeListView.setDisable(false);
 			instIncludeButton.setDisable(false);
 			instExcludeButton.setDisable(false);
-			
+
 			allCheckBox.setDisable(false);
 		}
 	}
@@ -531,15 +531,15 @@ public class InstrumentController implements Initializable {
 			traceCountLabel.setDisable(true);
 		}
 	}
-	
+
 	@FXML
 	private void onClickSelectProfile(ActionEvent event){
 		Stage stage = new Stage();
-		
+
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open an input.yaml file");
 		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("YAML", "*.yaml"));
-		
+
 		File file = fileChooser.showOpenDialog(stage);
 		if (file != null) {
 			loadProfile(file);
@@ -550,22 +550,22 @@ public class InstrumentController implements Initializable {
 		InputYaml parser = new InputYaml();
 		parser.load(file);
 		InstrumentOption option = parser.getInstrumentOption();
-		
+
 		// runtime option stays the same if
 		// injection mode did not change
 		previousInstrumentOption = option;
 		previousRuntimeOption = parser.getRuntimeOptions();
-		
+
 		// set if hardware fault or not
 		if (option.isHardwareFault) {
 			Controller.isHardwareInjection = true;
 		} else {
 			Controller.isHardwareInjection = false;
 		}
-		
+
 		// reset options to the correct ones
 		resetAllOptions();
-		
+
 		if (option.isHardwareFault) {
 			// set register
 			if (option.customRegister) {
@@ -577,18 +577,18 @@ public class InstrumentController implements Initializable {
 			}
 			onSelectRegSelectRadio(null);
 		}
-		
+
 		// set selected instruction
 		if (option.customInstruction) {
 			// set state
 			customInstTypeRadio.setSelected(true);
-			
+
 			// set value
 			customInstCombo.setValue(option.includedInstruction.get(0));
 		} else {
 			// set state
 			instTypeRadio.setSelected(true);
-			
+
 			// find what the new excluded list is
 			List<String> newExcludedList;
 			List<String> newIncludedList = new ArrayList<String>();
@@ -606,14 +606,14 @@ public class InstrumentController implements Initializable {
 					}
 				}
 			}
-			
+
 			// set excluded list
 			instExcludeListView.setItems(FXCollections.observableArrayList(newExcludedList));
 			// set included list
 			instIncludeListView.setItems(FXCollections.observableArrayList(newIncludedList));
 		}
 		onSelectInstSelectRadio(null);
-		
+
 		// reset all checkbox #TODO does this run the allcheckbox function???
 		allCheckBox.setSelected(false);
 
@@ -626,7 +626,7 @@ public class InstrumentController implements Initializable {
 			noTraceRadio.setSelected(true);
 		}
 		onClickTraceOption(null);
-		
+
 		// set trace count if exists
 		if (option.maxTrace != null) {
 			traceCountText.setText("" + option.maxTrace.intValue());
@@ -674,26 +674,26 @@ public class InstrumentController implements Initializable {
 			instExcludeListView.setItems(items);
 		}
 	}
-	
+
 	/**
 	 * Reset the InstrumentOption to reflect hardware or software injection.
 	 */
 	private void resetAllOptions() {
 		// RESETS / REREADS ALL FILES
-		
+
 		// reset register list
 		registerList = Controller.configReader.getRegister();
 		regCombo.setItems(FXCollections.observableArrayList(registerList));
 		regCombo.setPromptText("-- Select --");
-		
+
 		// reset custom register list
 		customRegList = Controller.configReader.getCustomRegister();
 		customRegCombo.setItems(FXCollections.observableArrayList(customRegList));
 		customRegCombo.setPromptText("-- Select --");
-		
+
 		// reset the included/excluded instruction list
 		resetInstList(false);
-		
+
 		// reset custom instruction list
 		if (Controller.isHardwareInjection) {
 			customInstList = Controller.configReader.getCustomInstruction();
@@ -702,16 +702,16 @@ public class InstrumentController implements Initializable {
 		}
 		customInstCombo.setItems(FXCollections.observableArrayList(customInstList));
 		customInstCombo.setPromptText("-- Select --");
-		
+
 		// RESET STATES
-		
+
 		// reset all checkbox
 		allCheckBox.setSelected(false);
-		
+
 		// reset included / excluded inst
 		instTypeRadio.setSelected(true);
 		onSelectInstSelectRadio(null);
-	
+
 		// reset register selection state
 		regTypeRadio.setSelected(true);
 		onSelectRegSelectRadio(null);
@@ -719,11 +719,11 @@ public class InstrumentController implements Initializable {
 		// reset trace state
 		fullTraceRadio.setSelected(true);
 		onClickTraceOption(null);
-		
+
 		// switch display between hardware/software injection
 		changeInjectionDisplay(Controller.isHardwareInjection);
 	}
-	
+
 	/**
 	 * #SFIT opens llfi.applicable.software.failures.txt and read it into the list.
 	 * If the file does not exist, it will generate one.
@@ -746,7 +746,7 @@ public class InstrumentController implements Initializable {
 				return null;
 			}
 		}
-		
+
 		Yaml y = new Yaml();
 		Map<String, Object> config = (Map<String, Object>) y.load(applicableSoftwareFailure);
 
@@ -756,7 +756,7 @@ public class InstrumentController implements Initializable {
 			return (List<String>) config.get("instSelMethod");
 		}
 	}
-	
+
 	/**
 	 * Change GUI state to Hardware Fault Injection
 	 * @param e
@@ -770,11 +770,11 @@ public class InstrumentController implements Initializable {
 		}
 		resetAllOptions();
 	}
-	
+
 	private void changeInjectionDisplay(boolean isHardwareInjection) {
 		if (!isHardwareInjection) {
 			software.setSelected(true);
-			
+
 			// makes these boxes disappear
 			customRegTypeRadio.setVisible(false);
 			registerSelectionMethodLabel.setVisible(false);
@@ -782,13 +782,13 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(false);
 			regCombo.setVisible(false);
 			customRegCombo.setVisible(false);
-			
+
 			instTypeRadio.setVisible(false);
 			customInstCombo.setVisible(false);
 			customInstTypeRadio.setVisible(false);
 		} else {
 			hardware.setSelected(true);
-			
+
 			// make these boxes appear
 			customRegTypeRadio.setVisible(true);
 			registerSelectionMethodLabel.setVisible(true);
@@ -796,20 +796,20 @@ public class InstrumentController implements Initializable {
 			regTypeRadio.setVisible(true);
 			regCombo.setVisible(true);
 			customRegCombo.setVisible(true);
-			
+
 			instTypeRadio.setVisible(true);
 			customInstCombo.setVisible(true);
 			customInstTypeRadio.setVisible(true);
 		}
 	}
-	
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		folderName = Controller.currentProgramFolder;
-		
+
 		// load profile if exist (user is re-instrumenting)
 		File f = new File(Controller.currentProgramFolder + "/input.yaml");
-		
+
 		if(f.exists()) {
 			createNewProfileButton.setDisable(false);
 			fileContent = new ArrayList<>();
@@ -818,8 +818,8 @@ public class InstrumentController implements Initializable {
 		} else {
 			resetAllOptions();
 		}
-	} 
-	
+	}
+
 	/**
 	 * fiResultDisplay from Controller.class needs to be passed to this controller
 	 * after initialization. See http://stackoverflow.com/questions/14187963/passing-parameters-javafx-fxml

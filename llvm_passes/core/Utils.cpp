@@ -15,7 +15,7 @@ std::string demangleFuncName(std::string func) {
 
     // Select up to the first ( to only insert function name
     size_t endpos = demangled.find("(");
-      
+
     // Templated functions will have type information first, so skip to the
     // first space.
     size_t startpos = demangled.find(" ");
@@ -51,7 +51,7 @@ Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
 
-  assert(isa<ReturnInst>(ret) || isa<UnreachableInst>(ret) && 
+  assert(isa<ReturnInst>(ret) || isa<UnreachableInst>(ret) &&
          "Last instruction is not return or exit() instruction");
   return ret;
 }
@@ -59,19 +59,19 @@ Instruction *getTermInstofFunction(Function *func) {
 void getProgramExitInsts(Module &M, std::set<Instruction*> &exitinsts) {
   for (Module::iterator m_it = M.begin(); m_it != M.end(); ++m_it) {
     if (!m_it->isDeclaration()) {
-      //m_it is a function  
+      //m_it is a function
       for (inst_iterator f_it = inst_begin(m_it); f_it != inst_end(m_it);
            ++f_it) {
         Instruction *inst = &(*f_it);
         if (CallInst *ci = dyn_cast<CallInst>(inst)) {
           Function *calledFunc = ci->getCalledFunction();
-          if (calledFunc && calledFunc->hasName() && 
+          if (calledFunc && calledFunc->hasName() &&
               calledFunc->getName().str() == "exit") {
             exitinsts.insert(inst);
           }
         }
       }
-    }  
+    }
   }
 
   Function* mainfunc = M.getFunction("main");
@@ -84,7 +84,7 @@ Instruction *getInsertPtrforRegsofInst(Value *reg, Instruction *inst) {
   if (reg == inst) {
     // inject into destination reg, insert after inst
     if (inst->isTerminator()) {
-      errs() << "ERROR: LLFI not able to inject into destination register of " 
+      errs() << "ERROR: LLFI not able to inject into destination register of "
           << *inst << ", change isRegofInstInjectable() to fix it\n";
       exit(2);
     } else {
@@ -119,14 +119,14 @@ Instruction* changeInsertPtrIfInjectFaultInst(Instruction *inst) {
 void setInjectFaultInst(Value *reg, Instruction *inst, Instruction *ficall) {
   Function *func = inst->getParent()->getParent();
   LLVMContext &context = func->getContext();
-  
+
   MDString *s;
   if (reg == inst) {
     s = MDString::get(context, "after");
   } else {
     s = MDString::get(context, "before");
   }
-  
+
   MDNode *node = MDNode::get(context, s);
   ficall->setMetadata("llfi_injectfault", node);
 }
@@ -143,7 +143,7 @@ long getLLFIIndexofInst(Instruction *inst) {
   }
 }
 
-static long fi_index = 0;
+static long fi_index = 1;
 void setLLFIIndexofInst(Instruction *inst) {
   assert (fi_index >= 0 && "static instruction number exceeds index max");
   Function *func = inst->getParent()->getParent();
@@ -161,7 +161,7 @@ void genFullNameOpcodeMap(
 #include "llvm/IR/Instruction.def"
 }
 
-//Returns true if the function is indexed by llfi 
+//Returns true if the function is indexed by llfi
 //(and therefore we should perform trace/fault injects on it)
 bool isLLFIIndexedInst(Instruction *inst) {
   MDNode *mdnode = inst->getMetadata("llfi_index");
@@ -189,7 +189,7 @@ GlobalVariable* findOrCreateGlobalNameString(Module &M, std::string name)
 	std::string gv_nameStr = name + str_suffix;
 	//get the string content
 	Constant* name_c = ConstantDataArray::getString(context, name);
-	//nameStr = new GlobalVariable(M, AT, true, GlobalVariable::InternalLinkage, 
+	//nameStr = new GlobalVariable(M, AT, true, GlobalVariable::InternalLinkage,
 	//create a new container named as gv_nameStr with content as name_c
 	nameStr = new GlobalVariable(name_c->getType(), true, GlobalVariable::InternalLinkage, name_c, gv_nameStr.c_str());
 	//add to global list
