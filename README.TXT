@@ -8,7 +8,7 @@ Pre-requisites
   3. Python 3
   4. Python YAML library installed (PyYAML)
   5. clang-3.4 ( frontend for llvm 3.4 )
-  6. Machines with 64/32 bit Linux/OS X.
+  6. 64 bit Machines with 64 bit Linux/OS X.
 
 ======
 Installation
