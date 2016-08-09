@@ -10,12 +10,13 @@ Auto-Installer
 This is the recommended method for building the LLFI. If you wish to build the LLFI via the auto-installer, you *do not need* to clone the LLFI git repository. Simply download the installer script by itself, and it will fetch the latest version of the git repository for you. The LLFI auto-installer takes the form of a single python script (installer/installLLFI.py). To run the script, simply copy it into the directory where you would like to build the LLFI and, from the command line, run `python3 InstallLLFI.py`.
   
 Dependencies:
-  1. 32/64 Bit Linux or OS X
-  2. Cmake (mininum v2.8)
-  3. Python 3 and above
-  4. tcsh (for GUI)
-  5. GraphViz package (for visualizing error propagation)
-  6. Internet Connection
+  1. 64 Bit Machine
+  2. 64 Bit Linux or OS X
+  3. Cmake (mininum v2.8)
+  4. Python 3 and above
+  5. tcsh (for GUI)
+  6. GraphViz package (for visualizing error propagation)
+  7. Internet Connection
 
 GUI Dependencies:
   1. JDK7/JDK8 with JavaFX
@@ -39,7 +40,7 @@ This method is also available, and may be more suitable if you want more control
 
 Dependencies:
   
-  1. 32/64 bit Linux or OS X
+  1. 64 Machine with 64 bit Linux or OS X
   2. CMake (minimum v2.8)
   3. Python 3 and above
   4. Python YAML library (PyYAML)
