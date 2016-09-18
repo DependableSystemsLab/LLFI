@@ -48,3 +48,7 @@ gui/sad/
 gui/sum/
 gui/min/
 gui/bfs/
+
+# web app
+web-app/node_modules/
+web-app/src/bundle.min.js
