@@ -1,13 +1,13 @@
 {
-  "name": "LLFI-Web-app",
+  "name": "llfi-web-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "npm install\r npm install -g webpack\r webpack\r webpack -w",
   "main": "webpack.config.js",
   "scripts": {
     "dev": "./node_modules/.bin/webpack-dev-server --content-base src --inline --hot",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Kenneth Song",
   "license": "ISC",
   "dependencies": {
     "babel-loader": "^6.2.0",
@@ -22,5 +22,12 @@
     "react-dom": "^0.14.6",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.14.1"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\u0016https://github.com/DependableSystemsLab/LLFI"
   }
 }
