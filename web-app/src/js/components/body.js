@@ -1,18 +1,14 @@
 var React = require("react");
-
+var Tabs = require('./tabs');
+var Tools = require('./tools');
 
 var Body = React.createClass({
 	render: function() {
 		return (
 			<div className = "body">
-				<ul className="nav nav-tabs">
-					<li className="active">
-						<a href="#">Standard</a>
-					</li>
-					<li className="disabled">
-						<a>Advanced</a>
-					</li>
-				</ul>
+				<Tabs></Tabs>
+				<Tools></Tools>
+				<hr/>
 			</div>
 		);
 	}
