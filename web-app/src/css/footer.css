@@ -1,0 +1,11 @@
+.footer {
+	line-height: 50px;
+	margin: auto;
+	text-align: center;
+	background-color: black;
+}
+
+.footer-message {
+	font-size: medium;
+	color: white;
+}
