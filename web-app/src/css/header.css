@@ -1,0 +1,11 @@
+.header {
+	line-height: 150px;
+	margin: auto;
+	text-align: center;
+	background-color: black;
+}
+
+.header-message {
+	font-size: xx-large;
+	color: white;
+}
