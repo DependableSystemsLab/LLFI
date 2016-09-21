@@ -1,6 +1,7 @@
 var React = require("react");
 var Tabs = require('./tabs');
 var Tools = require('./tools');
+var MainWindows = require('./MainWindows');
 
 var Body = React.createClass({
 	render: function() {
@@ -9,6 +10,7 @@ var Body = React.createClass({
 				<Tabs></Tabs>
 				<Tools></Tools>
 				<hr/>
+				<MainWindows/>
 			</div>
 		);
 	}

@@ -4,7 +4,7 @@ var React = require("react");
 var Tools = React.createClass({
 	render: function() {
 		return (
-			<div className = "tabs">
+			<div className = "tools">
 				<ul className="nav nav-pills">
 					<li><a>Files</a></li>
 					<li><a>Edit</a></li>
