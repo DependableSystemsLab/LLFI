@@ -35,6 +35,7 @@
 	border-bottom-right-radius: 0;
 	text-align: left;
 }
+
 .llfiTutorial-label {
 	font-weight: 900;
 }
@@ -48,6 +49,9 @@
 }
 .llfiTutorial-context {
 	padding: 20px;
+}
+.llfiTutorial-context.hide .llfiTutorial-container{
+	border: 0;
 }
 .caret-directional {
     border: 5px solid transparent;
