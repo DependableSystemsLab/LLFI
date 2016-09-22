@@ -1,0 +1,31 @@
+.mainWindows {
+	padding-bottom: 60px;
+}
+
+.functionTabs {
+	margin-left: 20%;
+	padding-bottom: 20px;
+}
+.mainWindowContainer {
+	display: flex;
+}
+
+.left-pannel {
+	width: 20%;
+}
+
+.fileListLabel{
+	font-size: large;
+	padding-bottom: 20px;
+	text-align: center;
+	font-weight: 900;
+}
+
+.file-context {
+	max-height: 800px;
+	width: 50%;
+}
+
+.llfiTutorial{
+	width:30%;
+}
