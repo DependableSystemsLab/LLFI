@@ -12,6 +12,7 @@
 
 .left-pannel {
 	width: 20%;
+	max-height: 400px;
 }
 
 .fileListLabel{
@@ -22,13 +23,14 @@
 }
 
 .file-context {
-	max-height: 800px;
+	max-height: 400px;
 	width: 50%;
 }
 
 .llfiTutorial{
 	width:30%;
-	max-height: 800px;
+	max-height: 400px;
+	overflow: auto;
 }
 .llfiTutorial-toggle{
 	border-bottom-left-radius: 0;
