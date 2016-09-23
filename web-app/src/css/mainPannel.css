@@ -1,0 +1,72 @@
+.mainPannelContainer {
+	display: flex;
+}
+
+.left-pannel {
+	width: 20%;
+	max-height: 400px;
+}
+
+.fileListLabel{
+	font-size: large;
+	padding-bottom: 20px;
+	text-align: center;
+	font-weight: 900;
+}
+
+.file-context {
+	max-height: 400px;
+	width: 50%;
+}
+
+.llfiTutorial{
+	width:30%;
+	max-height: 400px;
+}
+.llfiTutorial-toggle{
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	text-align: left;
+}
+
+.llfiTutorial-label {
+	font-weight: 900;
+}
+.llfiTutorial-container {
+	background-color: darkgrey;
+	border-style: ridge;
+	border-radius: 6px;
+	border-top-width: 0;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	overflow: auto;
+	max-height: 370px;
+}
+.llfiTutorial-context {
+	padding: 20px;
+}
+.llfiTutorial-context.hide .llfiTutorial-container{
+	border: 0;
+}
+.caret-directional {
+    border: 5px solid transparent;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    opacity: 0.5;
+    vertical-align: top;
+}
+.caret-directional.up {
+    border-bottom: 5px solid;
+}
+.caret-directional.right {
+    border-left: 5px solid;
+    margin: 5px 12px 0 12px;
+}
+.caret-directional.down {
+    border-top: 5px solid;
+    margin: 8px 12px 0 12px;
+}
+.caret-directional.left {
+    border-right: 5px solid;
+}
