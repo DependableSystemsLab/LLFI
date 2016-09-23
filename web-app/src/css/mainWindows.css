@@ -30,7 +30,6 @@
 .llfiTutorial{
 	width:30%;
 	max-height: 400px;
-	overflow: auto;
 }
 .llfiTutorial-toggle{
 	border-bottom-left-radius: 0;
@@ -48,6 +47,8 @@
 	border-top-width: 0;
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+	overflow: auto;
+	max-height: 370px;
 }
 .llfiTutorial-context {
 	padding: 20px;

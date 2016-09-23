@@ -11,8 +11,8 @@ var Tutorial = React.createClass({
 		return (
 			<div className = "llfiTutorial">
 				<div className="btn dropdown-toggle btn-block llfiTutorial-toggle" onClick={this.onClickToggle}>
-					<span className={caretDirectionClassName}>
-					</span><span className="llfiTutorial-label">LLFI Tutorial</span>
+					<span className={caretDirectionClassName}></span>
+					<span className="llfiTutorial-label">LLFI Tutorial</span>
 				</div>
 				<div className={tutorialContainerClassName}>
 					<div className="llfiTutorial-context">
