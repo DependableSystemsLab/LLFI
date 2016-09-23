@@ -30,3 +30,10 @@
 .outputTabs {
 	margin-bottom: 0;
 }
+.consoleBox{
+	margin-top: 20px;
+	width: 95%;
+	resize: none;
+	cursor: text !important;
+	overflow: auto;
+}

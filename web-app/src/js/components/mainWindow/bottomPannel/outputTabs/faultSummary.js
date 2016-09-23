@@ -6,7 +6,7 @@ var FaultSummary = React.createClass({
 		var className = "faultSummary" + (this.props.shouldDisplay ? "" : " hide");
 
 		return (
-			<div id="faultSummary" class={className}>
+			<div class={className}>
 				<canvas id="faultSummary"></canvas>
 			</div>
 		);
