@@ -1,10 +1,12 @@
 var React = require("react");
 var ProfilingStatus = require("./outputTabs/profilingStatus");
+var FaultInjectionStatus = require("./outputTabs/faultInjectionStatus");
+var FaultSummary = require("./outputTabs/faultSummary");
 
 
 var OutputSummary = React.createClass({
 	render: function() {
-		var displayedTab = (<ProfilingStatus></ProfilingStatus>);
+		var displayedTab = (<FaultSummary></FaultSummary>);
 		return (
 			<div className="outputSummaryWindow">
 				<ul className="nav nav-tabs outputTabs">

@@ -15,24 +15,24 @@ var ProfilingStatus = React.createClass({
 					</thead>
 					<tbody>
 						<tr>
-							<td className="failureType">1</td>
-							<td className="lastIndex">2</td>
-							<td className="lastCycle">3</td>
+							<td className="failureType">Hardware Fault(s)</td>
+							<td className="lastIndex">33</td>
+							<td className="lastCycle">2</td>
 						</tr>
 						<tr>
-							<td className="failureType">1</td>
-							<td className="lastIndex">2</td>
-							<td className="lastCycle">3</td>
+							<td className="failureType">Hardware Fault(s)</td>
+							<td className="lastIndex">33</td>
+							<td className="lastCycle">2</td>
 						</tr>
 						<tr>
-							<td className="failureType">1</td>
-							<td className="lastIndex">2</td>
-							<td className="lastCycle">3</td>
+							<td className="failureType">Hardware Fault(s)</td>
+							<td className="lastIndex">33</td>
+							<td className="lastCycle">2</td>
 						</tr>
 						<tr>
-							<td className="failureType">1</td>
-							<td className="lastIndex">2</td>
-							<td className="lastCycle">3</td>
+							<td className="failureType">Hardware Fault(s)</td>
+							<td className="lastIndex">33</td>
+							<td className="lastCycle">2</td>
 						</tr>
 					</tbody>
 				</table>
