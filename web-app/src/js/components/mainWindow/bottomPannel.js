@@ -1,6 +1,6 @@
 var React = require("react");
-var InputWindow = require("./inputWindow");
-var OutputSummary = require("./outputSummary");
+var InputWindow = require("./bottomPannel/inputWindow");
+var OutputSummary = require("./bottomPannel/outputSummary");
 
 
 

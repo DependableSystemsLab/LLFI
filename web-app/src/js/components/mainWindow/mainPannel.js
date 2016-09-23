@@ -1,5 +1,5 @@
 var React = require("react");
-var Tutorial = require("./tutorial");
+var Tutorial = require("./mainPannel/tutorial");
 
 
 var MainPannel = React.createClass({
