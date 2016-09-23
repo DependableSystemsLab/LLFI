@@ -3,9 +3,10 @@ var React = require("react");
 
 var FaultInjectionStatus = React.createClass({
 	render: function() {
+		var className = "faultInjectionStatus" + (this.props.shouldDisplay ? "" : " hide");
 		return (
-			<div className="faultInjectionStatus">
-				<table className="table table-hover faultInjectionStatusTable">
+			<div class={className}>
+				<table class="table table-hover faultInjectionStatusTable">
 					<thead>
 						<tr>
 							<th>Run Option</th>
