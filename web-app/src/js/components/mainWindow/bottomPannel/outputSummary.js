@@ -9,7 +9,7 @@ var Console = require("./outputTabs/console");
 var OutputSummary = React.createClass({
 	getInitialState: function(){
 		return {
- 			selectedTab: 'profilingStatus'
+			selectedTab: 'profilingStatus'
 		};
 	},
 	render: function() {
