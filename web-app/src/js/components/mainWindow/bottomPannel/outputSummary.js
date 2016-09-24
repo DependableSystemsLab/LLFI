@@ -2,7 +2,8 @@ var React = require("react");
 var ProfilingStatus = require("./outputTabs/profilingStatus");
 var FaultInjectionStatus = require("./outputTabs/faultInjectionStatus");
 var FaultSummary = require("./outputTabs/faultSummary");
-var Console = require("./outputTabs/Console");
+var ErrorDisplay = require("./outputTabs/errorDisplay");
+var Console = require("./outputTabs/console");
 
 
 var OutputSummary = React.createClass({
@@ -34,6 +35,7 @@ var OutputSummary = React.createClass({
 				<ProfilingStatus shouldDisplay={this.state.selectedTab === "profilingStatus" ? true : false}></ProfilingStatus>
 				<FaultInjectionStatus shouldDisplay={this.state.selectedTab === "faultInjectionStatus" ? true : false}></FaultInjectionStatus>
 				<FaultSummary shouldDisplay={this.state.selectedTab === "faultSummary" ? true : false}></FaultSummary>
+				<ErrorDisplay shouldDisplay={this.state.selectedTab === "errorDisplay" ? true : false}></ErrorDisplay>
 				<Console shouldDisplay={this.state.selectedTab === "console" ? true : false}></Console>
 			</div>
 		);
