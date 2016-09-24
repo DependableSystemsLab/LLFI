@@ -17,7 +17,12 @@ var FaultInjectionStatus = React.createClass({
 							<th>SDC Occurance</th>
 							<th>Status</th>
 							<th>Result</th>
-							<th>Trace</th>
+							<th class="traceHeader">
+								Trace
+								<div class="checkbox">
+									<label><input type="checkbox" value=""/>Select All</label>
+								</div>
+							</th>
 						</tr>
 					</thead>
 					<tbody>

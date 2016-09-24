@@ -37,3 +37,14 @@
 	cursor: text !important;
 	overflow: auto;
 }
+
+.traceHeader{
+	display: flex;
+	flex-direction: row;
+}
+.checkbox label {
+	margin-bottom: 0;
+}
+.traceHeader .checkbox {
+	padding-left: 25px;
+}
