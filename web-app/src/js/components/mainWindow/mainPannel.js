@@ -32,8 +32,7 @@ var MainPannel = React.createClass({
 	onFileChange: function(event) {
 		$(event.currentTarget).parent().siblings().removeClass("active");
 		$(event.currentTarget).parent().addClass("active");
-	},
-
+	}
 });
 
 module.exports = MainPannel;
