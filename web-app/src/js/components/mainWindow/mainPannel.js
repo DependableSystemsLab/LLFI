@@ -9,10 +9,10 @@ var MainPannel = React.createClass({
 				<ul className="nav nav-tabs left-pannel">
 					<li className="fileListLabel">List Of Files</li>
 					<li className="divider"></li>
-					<li className="active"><a>file1.c</a></li>
-					<li><a>file2.c</a></li>
-					<li><a>file3.java</a></li>
-					<li><a>file4.java</a></li>
+					<li className="active"><a onClick={this.onFileChange}>file1.c</a></li>
+					<li><a onClick={this.onFileChange}>file2.c</a></li>
+					<li><a onClick={this.onFileChange}>file3.java</a></li>
+					<li><a onClick={this.onFileChange}>file4.java</a></li>
 				</ul>
 				<div className="tab-content file-context">
 					<p>#include stdio.h</p>
@@ -28,7 +28,12 @@ var MainPannel = React.createClass({
 				<Tutorial></Tutorial>
 			</div>
 		);
-	}
+	},
+	onFileChange: function(event) {
+		$(event.currentTarget).parent().siblings().removeClass("active");
+		$(event.currentTarget).parent().addClass("active");
+	},
+
 });
 
 module.exports = MainPannel;
