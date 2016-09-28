@@ -9,8 +9,8 @@ var Tools = React.createClass({
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Files</a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-							<li><a tabindex="-1">Open File</a></li>
-							<li><a tabindex="-1">Import Project</a></li>
+							<li><a>Open File</a></li>
+							<li><a>Import Project</a></li>
 						</ul>
 					</li>
 					<li class="disabled"><a>Edit</a></li>
