@@ -9,8 +9,11 @@ var Tools = React.createClass({
 					<li class="dropdown">
 						<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Files</a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
-							<li><a>Open File</a></li>
-							<li><a>Import Project</a></li>
+							<li>
+								<input ref="fileUpload" id="fileUpload" type="file"/>
+								<a onClick={this.onClickFileUpload}>Upload File</a>
+							</li>
+							<li><a>Upload Project</a></li>
 						</ul>
 					</li>
 					<li class="disabled"><a>Edit</a></li>
@@ -18,6 +21,9 @@ var Tools = React.createClass({
 				</ul>
 			</div>
 		);
+	},
+	onClickFileUpload: function() {
+		$("#fileUpload").click();
 	}
 });
 
