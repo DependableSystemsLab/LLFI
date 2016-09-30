@@ -10,13 +10,13 @@ app.get('/', function(req, res){
 	res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/upload', function(req, res){
+app.post('/uploadFile', function(req, res){
 
 	// create an incoming form object
 	var form = new formidable.IncomingForm();
-
+	var fileName;
 	// specify that we want to allow the user to upload multiple files in a single request
-	form.multiples = true;
+	form.multiples = false;
 
 	// store all uploads in the /uploads directory
 	form.uploadDir = path.join(__dirname, '/uploads');
@@ -24,9 +24,9 @@ app.post('/upload', function(req, res){
 	// every time a file has been uploaded successfully,
 	// rename it to it's orignal name
 	form.on('file', function(field, file) {
-	 fs.rename(file.path, path.join(form.uploadDir, file.name));
+		fs.rename(file.path, path.join(form.uploadDir, file.name));
+		fileName = '/uploads' + file.name;
 	});
-	console.log(1);
 
 	// log any errors that occur
 	form.on('error', function(err) {
@@ -34,7 +34,8 @@ app.post('/upload', function(req, res){
 	});
 
 	// once all the files have been uploaded, send a response to the client
-	form.on('end', function() {
+	form.on('end', function(fields, files) {
+		res.sendFile(fileName, {root: __dirname });
 		res.end('success');
 	});
 

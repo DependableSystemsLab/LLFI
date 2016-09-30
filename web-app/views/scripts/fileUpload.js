@@ -17,13 +17,13 @@ $('#fileUpload').on('change', function(){
 			formData.append('uploads[]', file, file.name);
 		}
 		$.ajax({
-			url: '/upload',
+			url: '/uploadFile',
 			type: 'POST',
 			data: formData,
 			processData: false,
 			contentType: false,
 			success: function(data){
-				console.log('upload successful!');
+				console.log('upload successful!', data);
 			}
 		});
 	}
