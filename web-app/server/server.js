@@ -24,8 +24,20 @@ app.post('/uploadFile', function(req, res){
 	// every time a file has been uploaded successfully,
 	// rename it to it's orignal name
 	form.on('file', function(field, file) {
-		fs.rename(file.path, path.join(form.uploadDir, file.name));
-		fileName = '/uploads' + file.name;
+		fs.rename(file.path, path.join(form.uploadDir, file.name), function (err) {
+			if (err) {
+				console.log("An error has occured in file rename, ", err);
+			}
+			else {
+				fs.readFile('uploads/' + file.name, 'utf8', function(err, data) {
+					var fileObj = {};
+					fileObj.fileName = file.name;
+					fileObj.content = data;
+					if (err) console.log("err", err);
+					res.send(fileObj);
+				});
+			}
+		});
 	});
 
 	// log any errors that occur
@@ -34,11 +46,9 @@ app.post('/uploadFile', function(req, res){
 	});
 
 	// once all the files have been uploaded, send a response to the client
-	form.on('end', function(fields, files) {
-		res.sendFile(fileName, {root: __dirname });
-		res.end('success');
+	form.on('end', function() {
+		// res.end("success");
 	});
-
 	// parse the incoming request containing the form data
 	form.parse(req);
 
