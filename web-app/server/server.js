@@ -32,7 +32,7 @@ app.post('/uploadFile', function(req, res){
 				fs.readFile('uploads/' + file.name, 'utf8', function(err, data) {
 					var fileObj = {};
 					fileObj.fileName = file.name;
-					fileObj.content = data;
+					fileObj.fileContent = data;
 					if (err) console.log("err", err);
 					res.send(fileObj);
 				});
