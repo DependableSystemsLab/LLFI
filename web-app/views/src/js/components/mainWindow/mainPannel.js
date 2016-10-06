@@ -8,19 +8,20 @@ var MainPannel = React.createClass({
 	mixins: [Reflux.connect(fileUploadStore,"fileList")],
 	getInitialState: function() {
 		return {
-			fileList: []
+			fileList: [],
+			fileDisplayIndex: 0
 		};
 	},
 	render: function() {
+		var fileContent = this.state.fileList[this.state.fileDisplayIndex] ? this.state.fileList[this.state.fileDisplayIndex].fileContent : "";
 		var fileList = this.state.fileList.map(function(file, index) {
-			console.log(index);
 			if (index == 0) {
 				return (
-					<li className="active" key={index}><a onClick={this.onFileChange}>{file.fileName}</a></li>
+					<li className="active" key={index}><a onClick={this.onFileChange.bind(this, index)}>{file.fileName}</a></li>
 				);
 			} else {
 				return (
-					<li key={index}><a onClick={this.onFileChange}>{file.fileName}</a></li>
+					<li key={index}><a onClick={this.onFileChange.bind(this, index)}>{file.fileName}</a></li>
 				);
 			}
 		}.bind(this));
@@ -33,21 +34,24 @@ var MainPannel = React.createClass({
 					{fileList}
 				</ul>
 				<div className="tab-content file-context">
-					<p>#include stdio.h</p>
-					<p>main(argc, argv)</p>
-					<p>int argc;</p>
-					<p>char *argv[];</p>
-					<p>  int i,fact, n;</p>
-					<p>  n = atoi(argv[1]);   </p>     
-					<p>  fact = 1;</p>
-					<p>    fact = fact * i;</p>
-					<p>  printf("%d\n",fact);</p>
+					{fileContent.split(/\r\n?|\n|\u21B5/g).map(function(item, index) {
+						return (
+							<span key={index}>
+								{item}
+								<br/>
+							</span>
+						);
+					})}
 				</div>
 				<Tutorial></Tutorial>
 			</div>
 		);
 	},
-	onFileChange: function(event) {
+	onFileChange: function(index, event) {
+		this.setState({
+			fileDisplayIndex: index
+		});
+		console.log(event.currentTarget, index);
 		$(event.currentTarget).parent().siblings().removeClass("active");
 		$(event.currentTarget).parent().addClass("active");
 	}
