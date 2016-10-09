@@ -52,4 +52,3 @@ gui/bfs/
 # web app
 web-app/node_modules/
 web-app/views/bundle.min.js
-web-app/server/uploads/
