@@ -28,6 +28,8 @@
     "webpack-dev-server": "^1.14.1"
   },
   "devDependencies": {
+    "babel-core": "^6.17.0",
+    "babel-loader": "^6.2.5",
     "webpack": "^1.13.2"
   },
   "repository": {
