@@ -1,5 +1,6 @@
 var React = require("react");
 var fileUploadActions = require("./../actions/fileUploadActions");
+var targetFileNameActions = require("./../actions/targetFileNameActions");
 
 
 var Tools = React.createClass({
@@ -28,7 +29,7 @@ var Tools = React.createClass({
 	},
 	onFileUploaded: function() {
 		var files = $("#fileUpload").get(0).files;
-		if (files.length > 0){
+		if (files.length > 0) {
 			// One or more files selected, process the file upload
 
 			// create a FormData object which will be sent as the data payload in the
@@ -41,6 +42,7 @@ var Tools = React.createClass({
 
 				// add the files to formData object for the data payload
 				formData.append('uploads[]', file, file.name);
+				targetFileNameActions.changeFileName(file.name);
 			}
 			$.ajax({
 				url: '/uploadFile',

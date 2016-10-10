@@ -1,7 +1,7 @@
 var Reflux = require("reflux");
 var fileUploadActions = require("./../actions/fileUploadActions");
 var fileList = [];
-
+var fileName ='';
 var fileUploadStore = Reflux.createStore({
 	// this will set up listeners to all publishers in TodoActions, using onKeyname (or keyname) as callbacks
 	listenables: [fileUploadActions],
