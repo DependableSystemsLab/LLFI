@@ -1,11 +1,10 @@
+var fs = require('fs');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
-
 
 exports.processInstrument = function (req, res) {
 
 	var fileName = req.body.fileName;
-	console.log(fileName);
 
 	// Remove the file extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
@@ -26,9 +25,29 @@ exports.processInstrument = function (req, res) {
 		});
 	}, Promise.resolve([])).then(function(results) {
 		// all done here, all results in the results array
-		console.log("Instrument success", results);
+		console.log("Instrument success");
+
 	}, function(err) {
 		// error here
+	}).then(function() {
+
+		var files = [];
+		// Send the .ll file and make file back to front-end
+		fs.readFile("./uploads/"+ req.ip+"/" + fileName + ".ll", 'utf8', function(err, data) {
+			var fileObj = {};
+			fileObj.fileName = fileName + ".ll";
+			fileObj.fileContent = data;
+			files.push(fileObj);
+			if (err) console.log("err in file reading, ", err);
+			fs.readFile("./uploads/"+ req.ip+"/Makefile", 'utf8', function(err, data) {
+				var fileObj = {};
+				fileObj.fileName = "Makefile";
+				fileObj.fileContent = data;
+				files.push(fileObj);
+				if (err) console.log("err in file reading, ", err);
+				res.send(files);
+			});
+		});
 	});
 }
 

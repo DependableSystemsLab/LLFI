@@ -51,7 +51,6 @@ var MainPannel = React.createClass({
 		this.setState({
 			fileDisplayIndex: index
 		});
-		console.log(event.currentTarget, index);
 		$(event.currentTarget).parent().siblings().removeClass("active");
 		$(event.currentTarget).parent().addClass("active");
 	}

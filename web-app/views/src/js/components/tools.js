@@ -51,7 +51,7 @@ var Tools = React.createClass({
 				processData: false,
 				contentType: false,
 				success: function(data){
-					fileUploadActions.addFiles(data);
+					fileUploadActions.addFile(data);
 				}
 			});
 		}

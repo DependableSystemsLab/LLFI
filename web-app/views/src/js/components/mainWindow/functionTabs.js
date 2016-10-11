@@ -1,9 +1,10 @@
 var React = require("react");
 var Reflux = require("reflux");
-var fileUploadStore = require("./../../stores/targetFileNameStore");
+var targetFileNameStore = require("./../../stores/targetFileNameStore");
+var fileUploadActions = require("./../../actions/fileUploadActions");
 
 var FunctionTabs = React.createClass({
-	mixins: [Reflux.connect(fileUploadStore,"fileName")],
+	mixins: [Reflux.connect(targetFileNameStore,"fileName")],
 	getInitialState: function() {
 		return {
 			fileName: ''
@@ -27,7 +28,6 @@ var FunctionTabs = React.createClass({
 	onInstrumentClick: function(event) {
 		var data = {}
 		data.fileName = this.state.fileName;
-		console.log(this.state);
 		$.ajax({
 			url: '/instrument',
 			type: 'POST',
@@ -35,7 +35,7 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				console.log("instrument success.", data);
+				fileUploadActions.addFiles(data);
 			}
 		});
 		this.changeButtonStatus(event);
