@@ -1,7 +1,10 @@
 var React = require("react");
 var Reflux = require("reflux");
+var Modal = require('react-modal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
+
+
 
 var FunctionTabs = React.createClass({
 	mixins: [Reflux.connect(targetFileNameStore,"fileName")],
@@ -15,8 +18,8 @@ var FunctionTabs = React.createClass({
 		return (
 			<div class = "functionTabs">
 				<div class="btn-toolbar">
-					<button id="compileIRBtn" class="btn btn-primary" onClick={this.onInstrumentClick}>Compile To IR</button>
-					<button id="instrumentBtn" class="btn disabled" onClick={this.onButtonClick}>Instrument</button>
+					<button id="compileIRBtn" class="btn btn-primary" onClick={this.onCompileIRClick}>Compile To IR</button>
+					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
 					<button id="profilingBtn" class="btn disabled" onClick={this.onButtonClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onButtonClick}>Runtime Options</button>
 					<button id="injectFaultBtn" class="btn disabled" onClick={this.onButtonClick}>Inject Fault</button>
@@ -25,11 +28,12 @@ var FunctionTabs = React.createClass({
 			</div>
 		);
 	},
-	onInstrumentClick: function(event) {
+	// CompileIR
+	onCompileIRClick: function(event) {
 		var data = {}
 		data.fileName = this.state.fileName;
 		$.ajax({
-			url: '/instrument',
+			url: '/compileIR',
 			type: 'POST',
 			data: JSON.stringify(data),
 			processData: false,
@@ -38,6 +42,9 @@ var FunctionTabs = React.createClass({
 				fileUploadActions.addFiles(data);
 			}
 		});
+		this.changeButtonStatus(event);
+	},
+	onInstrumentClick: function (event) {
 		this.changeButtonStatus(event);
 	},
 	changeButtonStatus: function(event) {

@@ -5,7 +5,7 @@ var formidable = require('formidable');
 var fs = require('fs');
 var Port = 8080;
 var fileUpload = require('./fileUpload');
-var instrument = require('./instrument');
+var compileIR = require('./compileIR');
 var bodyParser = require('body-parser');
 
 var clientInfo = {};
@@ -21,8 +21,8 @@ app.post('/uploadFile', function(req, res){
 	fileUpload.processFileUpload(req,res);
 });
 
-app.post('/instrument', function(req, res){
-	instrument.processInstrument(req,res, clientInfo);
+app.post('/compileIR', function(req, res){
+	compileIR.processInstrument(req,res, clientInfo);
 });
 
 var server = app.listen(Port, function(){

@@ -25,7 +25,7 @@ exports.processInstrument = function (req, res) {
 		});
 	}, Promise.resolve([])).then(function(results) {
 		// all done here, all results in the results array
-		console.log("Instrument success");
+		console.log("CompileIR success");
 
 	}, function(err) {
 		// error here
