@@ -1,6 +1,6 @@
 var React = require("react");
 var Reflux = require("reflux");
-var Modal = require('react-modal');
+var InstrumentModal = require('./instrumentModal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
 
@@ -18,18 +18,22 @@ var FunctionTabs = React.createClass({
 		return (
 			<div class = "functionTabs">
 				<div class="btn-toolbar">
-					<button id="compileIRBtn" class="btn btn-primary" onClick={this.onCompileIRClick}>Compile To IR</button>
+					<button id="compileIRBtn" class={"btn " + (this.state.fileName ? "btn-primary" : "disabled")} onClick={this.onCompileIRClick}>Compile To IR</button>
 					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
 					<button id="profilingBtn" class="btn disabled" onClick={this.onButtonClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onButtonClick}>Runtime Options</button>
 					<button id="injectFaultBtn" class="btn disabled" onClick={this.onButtonClick}>Inject Fault</button>
 					<button id="traceGraphBtn" class="btn disabled" onClick={this.onButtonClick}>Trace Graph</button>
 				</div>
+				<InstrumentModal/>
 			</div>
 		);
 	},
 	// CompileIR
 	onCompileIRClick: function(event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
 		var data = {}
 		data.fileName = this.state.fileName;
 		$.ajax({
@@ -45,6 +49,10 @@ var FunctionTabs = React.createClass({
 		this.changeButtonStatus(event);
 	},
 	onInstrumentClick: function (event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
+		$("#InstrumentModalID").click();
 		this.changeButtonStatus(event);
 	},
 	changeButtonStatus: function(event) {
