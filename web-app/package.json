@@ -31,7 +31,7 @@
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
     "body-parser": "^1.15.2",
-    "react-modal": "^1.5.2",
+    "react-bootstrap": "^0.30.5",
     "webpack": "^1.13.2"
   },
   "repository": {

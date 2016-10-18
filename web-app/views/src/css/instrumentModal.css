@@ -8,10 +8,10 @@
 	background : #fff;
 	overflow : auto;
 	WebkitOverflowScrolling : touch;
-	borderRadius : 4px;
+	border-radius : 4px;
 	outline : none;
 	padding : 20px;
-	marginRight : -20%;
+	margin-right : -20%;
 	transform : translate(-13%, -5%);
 }
 
