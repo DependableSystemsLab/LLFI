@@ -25,11 +25,9 @@ var Tools = React.createClass({
 		);
 	},
 	onClickFileUpload: function() {
-		console.log("click");
 		$("#fileUpload").click();
 	},
 	onFileUploaded: function() {
-		console.log('upload');
 		var files = $("#fileUpload").get(0).files;
 		if (files.length > 0) {
 			// One or more files selected, process the file upload

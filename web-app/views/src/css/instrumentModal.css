@@ -1,0 +1,38 @@
+.modalContent {
+	position : absolute;
+	top : 15%;
+	left : 20%;
+	right : 20%;
+	bottom : auto;
+	border : 1px solid #ccc;
+	background : #fff;
+	overflow : auto;
+	WebkitOverflowScrolling : touch;
+	borderRadius : 4px;
+	outline : none;
+	padding : 20px;
+	marginRight : -20%;
+	transform : translate(-13%, -5%);
+}
+
+
+.rowContainer {
+	flex-direction: row;
+	overflow:hidden;
+	padding: 10px 0;
+}
+.boldFont {
+	font-weight: bold;
+}
+.rightFloat {
+	float: right;
+}
+.leftFloat {
+	float: left;
+}
+.flexDisplay {
+	display: flex;
+}
+.spaceLeft {
+	padding-left: 25px;
+}
