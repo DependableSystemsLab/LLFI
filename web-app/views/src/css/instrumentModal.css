@@ -41,3 +41,10 @@
 .fullTraceOptions {
 	margin-right: 15px;
 }
+
+.form-group select {
+	width: 160px;
+}
+.registerSelectSpace {
+	margin-right: 10px;
+}

@@ -4,6 +4,7 @@ var FormGroup = require('react-bootstrap').FormGroup;
 var FormControl = require('react-bootstrap').FormControl;
 var Checkbox = require('react-bootstrap').Checkbox;
 var Button = require('react-bootstrap').Button;
+var ControlLabel = require('react-bootstrap').ControlLabel;
 
 var InstrumentModal = React.createClass({
 
@@ -83,21 +84,25 @@ var InstrumentModal = React.createClass({
 							</div>	
 						</div>
 						<div class="rowContainer">
-							<div class="btn-group rightFloat">
-								<button type="button" class="btn btn-default dropdown-toggle custModalBtnWidth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									---Select--- <span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a > </a></li>
-								</ul>
+							<div class="rightFloat">
+								<FormGroup controlId="formControlsSelect">
+									<FormControl componentClass="select" placeholder="select">
+									<option value="notSpecified">---Select---</option>
+									</FormControl>
+								</FormGroup>
 							</div>
-							<div class="btn-group rightFloat">
-								<button type="button" class="btn btn-default dropdown-toggle custModalBtnWidth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									---Select--- <span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a > </a></li>
-								</ul>
+							<div class="rightFloat registerSelectSpace">
+								<FormGroup controlId="formControlsSelect">
+									<FormControl componentClass="select" placeholder="select">
+									<option value="notSpecified">---Select---</option>
+									<option value="dstreg-(DESTINATION_REGISTER)">dstreg-(DESTINATION_REGISTER)</option>
+									<option value="allsrcreg-(ALL_SOURCE_REGISTERS)">allsrcreg-(ALL_SOURCE_REGISTERS)</option>
+									<option value="srcreg1-(SOURCE_REGISTER_1)">srcreg1-(SOURCE_REGISTER_1)</option>
+									<option value="srcreg2-(SOURCE_REGISTER_2)">srcreg2-(SOURCE_REGISTER_2)</option>
+									<option value="srcreg3-(SOURCE_REGISTER_3)">srcreg3-(SOURCE_REGISTER_3)</option>
+									<option value="srcreg4-(SOURCE_REGISTER_4)">srcreg4-(SOURCE_REGISTER_4)</option>
+									</FormControl>
+								</FormGroup>
 							</div>
 						</div>
 						<hr class="boldHr"/>
@@ -122,7 +127,6 @@ var InstrumentModal = React.createClass({
 					</Modal.Body>
 					<Modal.Footer>
 						<Button>Instrument</Button>
-						<Button onClick={this.close}>Close</Button>
 					</Modal.Footer>
 				</Modal>
 			</div>
