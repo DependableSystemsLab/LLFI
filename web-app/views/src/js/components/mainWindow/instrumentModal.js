@@ -1,26 +1,30 @@
 var React = require('react');
 var Modal = require('react-bootstrap').Modal;
+var FormGroup = require('react-bootstrap').FormGroup;
+var FormControl = require('react-bootstrap').FormControl;
+var Checkbox = require('react-bootstrap').Checkbox;
+var Button = require('react-bootstrap').Button;
 
 var InstrumentModal = React.createClass({
 
 	getInitialState() {
-		return { showModal: false };
+		return { show: false };
 	},
 
 	close() {
-		this.setState({ showModal: false });
+		this.setState({ show: false });
 	},
 
 	open() {
-		this.setState({ showModal: true });
+		this.setState({ show: true });
 	},
 
 	render: function() {
 		return (
-			<div id="InstrumentModalID" onClick={this.open}>
-				<Modal show={this.state.showModal} onHide={this.close}>
+			<div class="modal-container" id="InstrumentModalID" onClick={this.open}>
+				<Modal {...this.props} bsSize="large" aria-labelledby="contained-modal-title-lg" onClick={this.open} show={this.state.show} onHide={this.close}>
 					<Modal.Header closeButton>
-						<Modal.Title>Instrument</Modal.Title>
+						<Modal.Title id="contained-modal-title-lg">Instrument</Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
 						<div class="rowContainer">
@@ -54,36 +58,41 @@ var InstrumentModal = React.createClass({
 								</ul>
 							</div>
 						</div>
-						<form>
-							<div class="form-group">
-								<select multiple class="form-control" id="sel2">
-									<option>ret-(ReturnInst)</option>
-									<option>br-(BranchInst)</option>
-									<option>switch-(SwitchInst)</option>
-									<option>indirectbr-(IndirectBrInst)</option>
-									<option>invoke-(InvokeInst)</option>
-								</select>
+						<div class="rowContainer">
+							<div class="rowContainer">
+								<Checkbox readOnly class="rightFloat">
+									Include All
+								</Checkbox>
 							</div>
-						</form>
-						<br/>
-						<div>
-							<h2>Register Selection Method</h2>
-							<div class="radio">
-								<label><input type="radio" name="optradio"/>Register Location</label>
-								<label><input type="radio" name="optradio"/>Custom Register Selector</label>
+							<FormGroup controlId="formControlsSelectMultiple" class="rightFloat">
+								<FormControl componentClass="select" multiple>
+									<option value="ret-(ReturnInst)">ret-(ReturnInst)</option>
+									<option value="br-(BranchInst)">br-(BranchInst)</option>
+									<option value="switch-(SwitchInst)">switch-(SwitchInst)</option>
+									<option value="indirectbr-(IndirectBrInst)">indirectbr-(IndirectBrInst)</option>
+									<option value="invoke-(InvokeInst)">invoke-(InvokeInst)</option>
+								</FormControl>
+							</FormGroup>
+						</div>
+						<hr class="boldHr"/>
+						<div class="rowContainer">
+							<p class="spaceLeft leftFloat">Register Selection Method</p>
+							<div class="radio rightFloat flexDisplay">
+								<label class="spaceLeft"><input type="radio" name="optradio"/>Register Location</label>
+								<label class="spaceLeft"><input type="radio" name="optradio"/>Custom Register Selector</label>
 							</div>	
 						</div>
-						<div>
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<div class="rowContainer">
+							<div class="btn-group rightFloat">
+								<button type="button" class="btn btn-default dropdown-toggle custModalBtnWidth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									---Select--- <span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
 									<li><a > </a></li>
 								</ul>
 							</div>
-							<div class="btn-group">
-								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<div class="btn-group rightFloat">
+								<button type="button" class="btn btn-default dropdown-toggle custModalBtnWidth" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									---Select--- <span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu">
@@ -91,18 +100,29 @@ var InstrumentModal = React.createClass({
 								</ul>
 							</div>
 						</div>
-						<br/>
-						<div>
-							<h2>Inject Trace</h2>
-							<div class="radio">
-								<label><input type="radio" name="optradio"/>No Trace</label>
-								<label><input type="radio" name="optradio"/>Full Trace</label>
-								<label><input type="radio" name="optradio"/>Limited Trace</label>
+						<hr class="boldHr"/>
+						<div class="rowContainer">
+							<p class="spaceLeft leftFloat">Inject Trace</p>
+							<div class="radio rightFloat flexDisplay">
+								<label class="traceOptions"><input type="radio" name="optradio"/>No Trace</label>
+								<label class="traceOptions"><input type="radio" name="optradio"/>Full Trace</label>
+								<label class="traceOptions"><input type="radio" name="optradio"/>Limited Trace</label>
+							</div>
+						</div>
+						<div class="rowContainer">
+							<div class="rightFloat flexDisplay">
+								<label>Max Trace Count</label>
+								<input type="text" class="maxTraceCount"></input>
+							</div>
+							<div class="rightFloat fullTraceOptions">
+								<Checkbox readOnly>Backward</Checkbox>
+								<Checkbox readOnly>Forward</Checkbox>
 							</div>
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
-						<button onClick={this.close}>Close</button>
+						<Button>Instrument</Button>
+						<Button onClick={this.close}>Close</Button>
 					</Modal.Footer>
 				</Modal>
 			</div>

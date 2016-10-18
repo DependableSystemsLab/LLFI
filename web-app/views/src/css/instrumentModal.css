@@ -1,20 +1,6 @@
-.modalContent {
-	position : absolute;
-	top : 15%;
-	left : 20%;
-	right : 20%;
-	bottom : auto;
-	border : 1px solid #ccc;
-	background : #fff;
-	overflow : auto;
-	WebkitOverflowScrolling : touch;
-	border-radius : 4px;
-	outline : none;
-	padding : 20px;
-	margin-right : -20%;
-	transform : translate(-13%, -5%);
+.modal  {
+	width: auto !important;
 }
-
 
 .rowContainer {
 	flex-direction: row;
@@ -35,4 +21,23 @@
 }
 .spaceLeft {
 	padding-left: 25px;
+}
+.boldHr {
+	background-color: #a0a0a0;
+	height: 1px;
+}
+.custModalBtnWidth {
+	width:135px;
+	margin-right: 21px;
+}
+.maxTraceCount {
+	width: 15px;
+	height: 10px !important;
+	margin-left: 5px;
+}
+.traceOptions {
+	padding-left: 70px;
+}
+.fullTraceOptions {
+	margin-right: 15px;
 }
