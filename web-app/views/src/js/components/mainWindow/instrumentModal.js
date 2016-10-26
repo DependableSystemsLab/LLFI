@@ -53,14 +53,11 @@ var InstrumentModal = React.createClass({
 							</div>	
 						</div>
 						<div class="rowContainer">
-							<div id="customSelector" class="btn-group rightFloat">
-								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									---Select--- <span class="caret"></span>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a > </a></li>
-								</ul>
-							</div>
+							<FormGroup controlId="customSelector" class="rightFloat">
+								<FormControl componentClass="select" disabled>
+									<option value="notSpecified">---Select---</option>
+								</FormControl>
+							</FormGroup>
 						</div>
 						<div class="rowContainer">
 							<div class="rowContainer">
@@ -82,20 +79,20 @@ var InstrumentModal = React.createClass({
 						<div id="registerSelectOptions" class="rowContainer">
 							<p class="spaceLeft leftFloat">Register Selection Method</p>
 							<div class="radio rightFloat flexDisplay" data-toggle="buttons">
-								<label class="spaceLeft"><input type="radio" name="registerLocation" defaultChecked={true}/>Register Location</label>
-								<label class="spaceLeft"><input type="radio" name="registerLocation"/>Custom Register Selector</label>
+								<label class="spaceLeft"><input type="radio" name="registerLocation" value="defaultRegisterLocation" defaultChecked={true} onClick={this.registerLocationHandler}/>Register Location</label>
+								<label class="spaceLeft"><input type="radio" name="registerLocation" value="customRegisterLocation" onClick={this.registerLocationHandler}/>Custom Register Selector</label>
 							</div>	
 						</div>
 						<div id="registerSelector" class="rowContainer">
 							<div class="rightFloat">
-								<FormGroup controlId="formControlsSelect">
-									<FormControl componentClass="select" placeholder="select">
+								<FormGroup controlId="customRegister">
+									<FormControl componentClass="select" placeholder="select" disabled>
 									<option value="notSpecified">---Select---</option>
 									</FormControl>
 								</FormGroup>
 							</div>
 							<div class="rightFloat registerSelectSpace">
-								<FormGroup controlId="formControlsSelect">
+								<FormGroup controlId="defaultRegister">
 									<FormControl componentClass="select" placeholder="select">
 									<option value="notSpecified">---Select---</option>
 									<option value="dstreg-(DESTINATION_REGISTER)">dstreg-(DESTINATION_REGISTER)</option>
@@ -120,7 +117,7 @@ var InstrumentModal = React.createClass({
 						<div class="rowContainer">
 							<div class="rightFloat flexDisplay">
 								<label>Max Trace Count</label>
-								<input type="text" id="maxTraceCount" class="maxTraceCount"></input>
+								<input type="text" id="maxTraceCount" class="maxTraceCount" disabled></input>
 							</div>
 							<div class="rightFloat fullTraceOptions" data-toggle="buttons">
 								<Checkbox id="backwardTrace" defaultChecked={true}>Backward</Checkbox>
@@ -173,9 +170,20 @@ var InstrumentModal = React.createClass({
 		if (event.target.value === "customInstructionType") {
 			$("#selectAllInstructionType").prop("disabled", true);
 			$("#formControlsSelectMultiple").prop("disabled", true);
+			$("#customSelector").prop("disabled", false);
 		} else if (event.target.value === "defaultInstructionType") {
 			$("#selectAllInstructionType").prop("disabled", false);
 			$("#formControlsSelectMultiple").prop("disabled", false);
+			$("#customSelector").prop("disabled", true);
+		}
+	},
+	registerLocationHandler: function (event) {
+		if (event.target.value === "defaultRegisterLocation") {
+			$("#customRegister").prop("disabled", true);
+			$("#defaultRegister").prop("disabled", false);
+		} else if (event.target.value === "customRegisterLocation") {
+			$("#customRegister").prop("disabled", false);
+			$("#defaultRegister").prop("disabled", true);
 		}
 	}
 });
