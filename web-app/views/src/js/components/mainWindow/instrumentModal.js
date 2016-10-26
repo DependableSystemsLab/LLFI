@@ -12,6 +12,9 @@ var InstrumentModal = React.createClass({
 		return { show: false };
 	},
 
+	componentDidMount () {
+		// Initial status of the UI elements
+	},
 	close() {
 		this.setState({ show: false });
 	},
@@ -35,22 +38,22 @@ var InstrumentModal = React.createClass({
 						<div class="rowContainer">
 							
 							<p class="boldFont leftFloat">Injection Type : </p>
-							<div class="radio leftFloat flexDisplay">
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Hardware Injection</label>
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Software Injection</label>
+							<div class="radio leftFloat flexDisplay" data-toggle="buttons">
+								<label class="spaceLeft"><input type="radio" name="injectionMode" value="hardwareInjection" defaultChecked={true} onChange={this.injectionModeHandler}/>Hardware Injection</label>
+								<label class="spaceLeft"><input type="radio" name="injectionMode" value="softwareInjection" onChange={this.injectionModeHandler}/>Software Injection</label>
 							</div>
-							<button class="rightFloat">Reset Profile</button>
+							<button class="rightFloat" disabled>Reset Profile</button>
 						</div>
 						<div><p class="boldFont">Compile Option: </p></div>
 						<div class="rowContainer">
 							<p class="spaceLeft leftFloat">Instruction Selection Method </p>
-							<div class="radio radio leftFloat flexDisplay">
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Instruction Type</label>
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Custom Instruction Selector</label>
+							<div id="instructionSelectionContainer" class="radio radio leftFloat flexDisplay" data-toggle="buttons">
+								<label class="spaceLeft"><input type="radio" name="instructionSelection" value="defaultInstructionType" defaultChecked={true} onChange={this.intructionTypeHandler}/>Instruction Type</label>
+								<label class="spaceLeft"><input type="radio" name="instructionSelection" value="customInstructionType" onChange={this.intructionTypeHandler}/>Custom Instruction Selector</label>
 							</div>	
 						</div>
 						<div class="rowContainer">
-							<div class="btn-group rightFloat">
+							<div id="customSelector" class="btn-group rightFloat">
 								<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									---Select--- <span class="caret"></span>
 								</button>
@@ -61,7 +64,7 @@ var InstrumentModal = React.createClass({
 						</div>
 						<div class="rowContainer">
 							<div class="rowContainer">
-								<Checkbox readOnly class="rightFloat">
+								<Checkbox id="selectAllInstructionType" class="rightFloat">
 									Include All
 								</Checkbox>
 							</div>
@@ -76,14 +79,14 @@ var InstrumentModal = React.createClass({
 							</FormGroup>
 						</div>
 						<hr class="boldHr"/>
-						<div class="rowContainer">
+						<div id="registerSelectOptions" class="rowContainer">
 							<p class="spaceLeft leftFloat">Register Selection Method</p>
-							<div class="radio rightFloat flexDisplay">
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Register Location</label>
-								<label class="spaceLeft"><input type="radio" name="optradio"/>Custom Register Selector</label>
+							<div class="radio rightFloat flexDisplay" data-toggle="buttons">
+								<label class="spaceLeft"><input type="radio" name="registerLocation" defaultChecked={true}/>Register Location</label>
+								<label class="spaceLeft"><input type="radio" name="registerLocation"/>Custom Register Selector</label>
 							</div>	
 						</div>
-						<div class="rowContainer">
+						<div id="registerSelector" class="rowContainer">
 							<div class="rightFloat">
 								<FormGroup controlId="formControlsSelect">
 									<FormControl componentClass="select" placeholder="select">
@@ -108,20 +111,20 @@ var InstrumentModal = React.createClass({
 						<hr class="boldHr"/>
 						<div class="rowContainer">
 							<p class="spaceLeft leftFloat">Inject Trace</p>
-							<div class="radio rightFloat flexDisplay">
-								<label class="traceOptions"><input type="radio" name="optradio"/>No Trace</label>
-								<label class="traceOptions"><input type="radio" name="optradio"/>Full Trace</label>
-								<label class="traceOptions"><input type="radio" name="optradio"/>Limited Trace</label>
+							<div class="radio rightFloat flexDisplay" data-toggle="buttons">
+								<label class="traceOptions"><input type="radio" value="noTrace" name="traceType" onChange={this.traceOptionHandler}/>No Trace</label>
+								<label class="traceOptions"><input type="radio" value="fullTrace" name="traceType" defaultChecked={true} onChange={this.traceOptionHandler}/>Full Trace</label>
+								<label class="traceOptions"><input type="radio" value="limitedTrace" name="traceType" onChange={this.traceOptionHandler}/>Limited Trace</label>
 							</div>
 						</div>
 						<div class="rowContainer">
 							<div class="rightFloat flexDisplay">
 								<label>Max Trace Count</label>
-								<input type="text" class="maxTraceCount"></input>
+								<input type="text" id="maxTraceCount" class="maxTraceCount"></input>
 							</div>
-							<div class="rightFloat fullTraceOptions">
-								<Checkbox readOnly>Backward</Checkbox>
-								<Checkbox readOnly>Forward</Checkbox>
+							<div class="rightFloat fullTraceOptions" data-toggle="buttons">
+								<Checkbox id="backwardTrace" defaultChecked={true}>Backward</Checkbox>
+								<Checkbox id="forwardTrace" defaultChecked={true}>Forward</Checkbox>
 							</div>
 						</div>
 					</Modal.Body>
@@ -131,6 +134,49 @@ var InstrumentModal = React.createClass({
 				</Modal>
 			</div>
 		);
+	},
+	injectionModeHandler : function (event) {
+		if (event.target.value === "softwareInjection") {
+			this.enbaleSoftwareInjectionElements();
+		} else if (event.target.value === "hardwareInjection") {
+			this.enbaleHardwareInjectionElements();
+		}
+	},
+	enbaleSoftwareInjectionElements : function () {
+		$("#instructionSelectionContainer").hide();
+		$("#customSelector").hide();
+		$("#registerSelectOptions").hide();
+		$("#registerSelector").hide();
+	},
+	enbaleHardwareInjectionElements: function () {
+		$("#instructionSelectionContainer").show();
+		$("#customSelector").show();
+		$("#registerSelectOptions").show();
+		$("#registerSelector").show();
+	},
+	traceOptionHandler: function (event) {
+		if (event.target.value === "noTrace") {
+			$("#maxTraceCount").prop("disabled", true);
+			$("#backwardTrace").prop("disabled", true);
+			$("#forwardTrace").prop("disabled", true);
+		} else if (event.target.value === "fullTrace") {
+			$("#maxTraceCount").prop("disabled", true);
+			$("#backwardTrace").prop("disabled", false);
+			$("#forwardTrace").prop("disabled", false);
+		} else if (event.target.value === "limitedTrace") {
+			$("#maxTraceCount").prop("disabled", false);
+			$("#backwardTrace").prop("disabled", true);
+			$("#forwardTrace").prop("disabled", true);
+		}
+	},
+	intructionTypeHandler: function (event) {
+		if (event.target.value === "customInstructionType") {
+			$("#selectAllInstructionType").prop("disabled", true);
+			$("#formControlsSelectMultiple").prop("disabled", true);
+		} else if (event.target.value === "defaultInstructionType") {
+			$("#selectAllInstructionType").prop("disabled", false);
+			$("#formControlsSelectMultiple").prop("disabled", false);
+		}
 	}
 });
 
