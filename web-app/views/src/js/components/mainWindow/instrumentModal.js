@@ -1,4 +1,6 @@
 var React = require('react');
+var Reflux = require("reflux");
+var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var Modal = require('react-bootstrap').Modal;
 var FormGroup = require('react-bootstrap').FormGroup;
 var FormControl = require('react-bootstrap').FormControl;
@@ -7,9 +9,12 @@ var Button = require('react-bootstrap').Button;
 var ControlLabel = require('react-bootstrap').ControlLabel;
 
 var InstrumentModal = React.createClass({
-
+	mixins: [Reflux.connect(targetFileNameStore,"fileName")],
 	getInitialState() {
-		return { show: false };
+		return {
+			show: false,
+			fileName: ''
+		};
 	},
 
 	componentDidMount () {
@@ -187,12 +192,12 @@ var InstrumentModal = React.createClass({
 		}
 	},
 	onClickInstrument: function (event) {
-		// var data = {}
-		// data.fileName = this.state.fileName;
+		var data = {}
+		data.fileName = this.state.fileName;
 		$.ajax({
 			url: '/instrument',
 			type: 'POST',
-			data: "",
+			data: JSON.stringify(data),
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){

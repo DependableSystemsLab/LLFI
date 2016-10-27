@@ -1,4 +1,5 @@
 var fs = require('fs');
+var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
 exports.processInstrument = function (req, res) {
@@ -20,5 +21,41 @@ exports.processInstrument = function (req, res) {
 		stream.write("  tracingPropagationOption: {debugTrace: True/False, generateCDFG: true}\n");
 		stream.end();
 	});
+
+	var fileName = req.body.fileName;
+
+	// Remove the file extension
+	fileName = fileName.replace(/\.[^/.]+$/, "");
+
+	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
+
+	var softwareFailureAutoScanCmd = LLFI_BUILD_ROOT + "bin/SoftwareFailureAutoScan --no_input_yaml " + fileName + ".ll";
+
+	var commands = [cdDirCmd + " && " + softwareFailureAutoScanCmd];
+
+	commands.reduce(function(p, cmd) {
+		return p.then(function(results) {
+			return execPromise(cmd).then(function(stdout) {
+				results.push(stdout);
+				return results;
+			});
+		});
+	}, Promise.resolve([])).then(function(results) {
+		console.log("Instrument success");
+
+	});
+
+
 	res.end();
+}
+
+var execPromise = function(cmd) {
+	console.log("exec");
+	return new Promise(function(resolve, reject) {
+		exec(cmd, function(err, stdout) {
+			console.log("stdout" + stdout);
+			if (err) return reject(err);
+			resolve(stdout);
+		});
+	});
 }

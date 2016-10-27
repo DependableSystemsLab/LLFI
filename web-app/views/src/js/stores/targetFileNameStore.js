@@ -3,8 +3,8 @@ var targetFileNameActions = require("./../actions/targetFileNameActions");
 var fileName ='';
 var targetFileNameStore = Reflux.createStore({
 	listenables: [targetFileNameActions],
-	onChangeFileName: function(fileName) {
-		fileName = fileName;
+	onChangeFileName: function(Name) {
+		fileName = Name;
 		this.trigger(fileName);
 	}
 });

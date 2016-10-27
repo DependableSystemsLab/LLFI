@@ -20,6 +20,7 @@ exports.processCompileIR = function (req, res) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
+				console.log(results);
 				return results;
 			});
 		});
@@ -51,11 +52,11 @@ exports.processCompileIR = function (req, res) {
 	});
 }
 
-
-
 var execPromise = function(cmd) {
+	console.log("exec");
 	return new Promise(function(resolve, reject) {
 		exec(cmd, function(err, stdout) {
+			console.log("stdout" + stdout);
 			if (err) return reject(err);
 			resolve(stdout);
 		});
