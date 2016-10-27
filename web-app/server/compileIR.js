@@ -2,7 +2,7 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
-exports.processInstrument = function (req, res) {
+exports.processCompileIR = function (req, res) {
 
 	var fileName = req.body.fileName;
 

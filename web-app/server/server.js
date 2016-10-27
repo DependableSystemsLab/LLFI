@@ -6,12 +6,11 @@ var fs = require('fs');
 var Port = 8080;
 var fileUpload = require('./fileUpload');
 var compileIR = require('./compileIR');
+var instrument = require('./instrument');
 var bodyParser = require('body-parser');
 
-var clientInfo = {};
 app.use(express.static(path.join(__dirname, '../views')));
 app.use(bodyParser.json());
-
 
 app.get('/', function(req, res){
 	res.sendFile(path.join(__dirname, 'index.html'));
@@ -22,7 +21,11 @@ app.post('/uploadFile', function(req, res){
 });
 
 app.post('/compileIR', function(req, res){
-	compileIR.processInstrument(req,res, clientInfo);
+	compileIR.processCompileIR(req,res);
+});
+
+app.post('/instrument', function(req, res){
+	instrument.processInstrument(req,res);
 });
 
 var server = app.listen(Port, function(){

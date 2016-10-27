@@ -126,7 +126,7 @@ var InstrumentModal = React.createClass({
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
-						<Button>Instrument</Button>
+						<Button onClick={this.onClickInstrument}>Instrument</Button>
 					</Modal.Footer>
 				</Modal>
 			</div>
@@ -185,6 +185,21 @@ var InstrumentModal = React.createClass({
 			$("#customRegister").prop("disabled", false);
 			$("#defaultRegister").prop("disabled", true);
 		}
+	},
+	onClickInstrument: function (event) {
+		// var data = {}
+		// data.fileName = this.state.fileName;
+		$.ajax({
+			url: '/instrument',
+			type: 'POST',
+			data: "",
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				// fileUploadActions.addFiles(data);
+				console.log("instrument success")
+			}
+		});
 	}
 });
 
