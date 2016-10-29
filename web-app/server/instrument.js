@@ -4,6 +4,15 @@ var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
 exports.processInstrument = function (req, res) {
 
+	var fileName = req.body.fileName;
+	var injectionMode = req.body.injectionMode;
+	var injectionType = req.body.injectionType;
+	var traceMode = req.body.traceMode;
+	var backwardTrace = req.body.backwardTrace;
+	var forwardTrace = req.body.forwardTrace;
+	var maxTraceCount = req.body.maxTraceCount;
+	var registerLocation = req.body.registerLocation;
+
 	// Create a stream for input.yaml file
 	var stream = fs.createWriteStream("./uploads/"+ req.ip +"/input.yaml");
 
