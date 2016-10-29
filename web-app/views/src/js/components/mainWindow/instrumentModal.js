@@ -93,24 +93,30 @@ var InstrumentModal = React.createClass({
 						</div>
 						<div class="rowContainer">
 							<div class="rowContainer">
-								<Checkbox id="selectAllInstructionType" class="rightFloat">
+								<Checkbox id="selectAllInstructionType" class="rightFloat" onClick={this.onClickSelectAllInstructions}>
 									Include All
 								</Checkbox>
 							</div>
-							<FilteredMultiSelect
-								id="instructionTypeUnselected"
-								className=""
-								options={this.state.injectionOptions}
-								onChange={this.instructionTypeAddHandler}
-								selectedOptions={selectedInjectionType}
-							/>
-							<FilteredMultiSelect
-								id="instructionTypeSelected"
-								className=""
-								options={this.state.injectionOptions}
-								onChange={this.instructionTypeRemoveHandler}
-								selectedOptions={unselectedInjectionType}
-							/>
+							<div class="multipleSelectContainer">
+								<FilteredMultiSelect
+									id = "instructionTypeUnselected"
+									buttonText = {"Add"}
+									className = "multipleSelect"
+									size = {6}
+									options = {this.state.injectionOptions}
+									onChange = {this.instructionTypeAddHandler}
+									selectedOptions = {selectedInjectionType}
+								/>
+								<FilteredMultiSelect
+									id = "instructionTypeSelected"
+									buttonText = {"Remove"}
+									className = "multipleSelect"
+									size = {6}
+									options = {this.state.injectionOptions}
+									onChange = {this.instructionTypeRemoveHandler}
+									selectedOptions = {unselectedInjectionType}
+								/>
+							</div>
 						</div>
 						<hr class="boldHr"/>
 						<div id="registerSelectOptions" class="rowContainer">
@@ -154,7 +160,7 @@ var InstrumentModal = React.createClass({
 						<div class="rowContainer">
 							<div class="rightFloat flexDisplay">
 								<label>Max Trace Count</label>
-								<input type="number" id="maxTraceCount" class="maxTraceCount" disabled value="0"></input>
+								<input type="number" id="maxTraceCount" class="maxTraceCount" disabled onChange={this.maxTraceCountHandler} min={1}></input>
 							</div>
 							<div class="rightFloat fullTraceOptions" data-toggle="buttons">
 								<Checkbox id="backwardTrace" defaultChecked={true}>Backward</Checkbox>
@@ -243,6 +249,20 @@ var InstrumentModal = React.createClass({
 	onClickInstrument: function (event) {
 		var data = {}
 		data.fileName = this.state.fileName;
+		data.injectionMode = this.state.injectionMode;
+		data.injectionType = this.state.selectedInjectionType;
+		data.traceMode = this.state.traceMode;
+		if (data.traceMode == "fullTrace") {
+			data.backwardTrace = $("#backwardTrace").prop("checked");
+			data.forwardTrace = $("#forwardTrace").prop("checked");
+		} else if (data.traceMode == "limitedTrace") {
+			data.maxTraceCount = $("#maxTraceCount").val();
+		}
+		if (data.injectionMode == "software") {
+
+		} else if (data.injectionMode == "hardware") {
+
+		}
 		$.ajax({
 			url: '/instrument',
 			type: 'POST',
@@ -261,6 +281,16 @@ var InstrumentModal = React.createClass({
 	instructionTypeRemoveHandler: function (removedOptions) {
 		var selectedOptions = this.state.injectionOptions.diff(removedOptions);
 		this.setState({ selectedInjectionType: selectedOptions });
+	},
+	onClickSelectAllInstructions: function (e) {
+		if (e.target.checked) {
+			this.setState({ selectedInjectionType: this.state.injectionOptions });
+		} else {
+			this.setState({ selectedInjectionType: []});
+		}
+	},
+	maxTraceCountHandler: function (e) {
+		$("#maxTraceCount").val(e.target.value);
 	}
 });
 

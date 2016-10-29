@@ -31,12 +31,12 @@
 	margin-right: 21px;
 }
 .maxTraceCount {
-	width: 15px;
+	width: 30px;
 	height: 10px !important;
 	margin-left: 5px;
 }
 .traceOptions {
-	padding-left: 70px;
+	padding-left: 84px;
 }
 .fullTraceOptions {
 	margin-right: 15px;
@@ -47,4 +47,16 @@
 }
 .registerSelectSpace {
 	margin-right: 10px;
+}
+.multipleSelectContainer {
+	display: flex;
+	float: right;
+}
+.multipleSelect {
+	display: flex;
+	flex-direction: column;
+	padding: 0 20px;
+}
+.FilteredMultiSelect__filter {
+	display: none;
 }
