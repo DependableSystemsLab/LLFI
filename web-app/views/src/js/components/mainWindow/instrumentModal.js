@@ -36,7 +36,9 @@ var InstrumentModal = React.createClass({
 			show: false,
 			fileName: '',
 			selectedInjectionType: [],
-			injectionMode: "hardware"
+			injectionMode: "hardware",
+			injectionOptions: hardwareInjectionTypeOptions,
+			traceMode: "fullTrace"
 		};
 	},
 
@@ -53,7 +55,7 @@ var InstrumentModal = React.createClass({
 
 	render: function() {
 		var selectedInjectionType = this.state.selectedInjectionType;
-		var unselectedInjectionType = softwareInjectionTypeOptions.diff(selectedInjectionType);
+		var unselectedInjectionType = this.state.injectionOptions.diff(selectedInjectionType);
 		return (
 			<div class="modal-container" id="InstrumentModalID" onClick={this.open}>
 				<Modal {...this.props} bsSize="large" aria-labelledby="contained-modal-title-lg" onClick={this.open} show={this.state.show} onHide={this.close}>
@@ -69,8 +71,8 @@ var InstrumentModal = React.createClass({
 							
 							<p class="boldFont leftFloat">Injection Type : </p>
 							<div class="radio leftFloat flexDisplay" data-toggle="buttons">
-								<label class="spaceLeft"><input type="radio" name="injectionMode" value="hardwareInjection" defaultChecked={true} onChange={this.injectionModeHandler}/>Hardware Injection</label>
-								<label class="spaceLeft"><input type="radio" name="injectionMode" value="softwareInjection" onChange={this.injectionModeHandler}/>Software Injection</label>
+								<label class="spaceLeft"><input type="radio" name="injectionMode" value="hardware" defaultChecked={true} onChange={this.injectionModeHandler}/>Hardware Injection</label>
+								<label class="spaceLeft"><input type="radio" name="injectionMode" value="software" onChange={this.injectionModeHandler}/>Software Injection</label>
 							</div>
 							<button class="rightFloat" disabled>Reset Profile</button>
 						</div>
@@ -98,14 +100,14 @@ var InstrumentModal = React.createClass({
 							<FilteredMultiSelect
 								id="instructionTypeUnselected"
 								className=""
-								options={softwareInjectionTypeOptions}
+								options={this.state.injectionOptions}
 								onChange={this.instructionTypeAddHandler}
 								selectedOptions={selectedInjectionType}
 							/>
 							<FilteredMultiSelect
 								id="instructionTypeSelected"
 								className=""
-								options={softwareInjectionTypeOptions}
+								options={this.state.injectionOptions}
 								onChange={this.instructionTypeRemoveHandler}
 								selectedOptions={unselectedInjectionType}
 							/>
@@ -152,7 +154,7 @@ var InstrumentModal = React.createClass({
 						<div class="rowContainer">
 							<div class="rightFloat flexDisplay">
 								<label>Max Trace Count</label>
-								<input type="text" id="maxTraceCount" class="maxTraceCount" disabled></input>
+								<input type="number" id="maxTraceCount" class="maxTraceCount" disabled value="0"></input>
 							</div>
 							<div class="rightFloat fullTraceOptions" data-toggle="buttons">
 								<Checkbox id="backwardTrace" defaultChecked={true}>Backward</Checkbox>
@@ -168,10 +170,22 @@ var InstrumentModal = React.createClass({
 		);
 	},
 	injectionModeHandler : function (event) {
-		if (event.target.value === "softwareInjection") {
+		if (event.target.value === "software") {
 			this.enbaleSoftwareInjectionElements();
-		} else if (event.target.value === "hardwareInjection") {
+			// set the states, clear the selected injection type
+			this.setState({
+				injectionMode: "software",
+				injectionOptions: softwareInjectionTypeOptions,
+				selectedInjectionType: []
+			 });
+		} else if (event.target.value === "hardware") {
 			this.enbaleHardwareInjectionElements();
+			// set the states, clear the selected injection type
+			this.setState({
+				injectionMode: "hardware",
+				injectionOptions: hardwareInjectionTypeOptions,
+				selectedInjectionType: []
+			 });
 		}
 	},
 	enbaleSoftwareInjectionElements : function () {
@@ -191,14 +205,17 @@ var InstrumentModal = React.createClass({
 			$("#maxTraceCount").prop("disabled", true);
 			$("#backwardTrace").prop("disabled", true);
 			$("#forwardTrace").prop("disabled", true);
+			this.setState({ traceMode: "noTrace"});
 		} else if (event.target.value === "fullTrace") {
 			$("#maxTraceCount").prop("disabled", true);
 			$("#backwardTrace").prop("disabled", false);
 			$("#forwardTrace").prop("disabled", false);
+			this.setState({ traceMode: "fullTrace"});
 		} else if (event.target.value === "limitedTrace") {
 			$("#maxTraceCount").prop("disabled", false);
 			$("#backwardTrace").prop("disabled", true);
 			$("#forwardTrace").prop("disabled", true);
+			this.setState({ traceMode: "limitedTrace"});
 		}
 	},
 	intructionTypeHandler: function (event) {
@@ -242,7 +259,7 @@ var InstrumentModal = React.createClass({
 		this.setState({ selectedInjectionType: selectedOptions});
 	},
 	instructionTypeRemoveHandler: function (removedOptions) {
-		var selectedOptions = softwareInjectionTypeOptions.diff(removedOptions);
+		var selectedOptions = this.state.injectionOptions.diff(removedOptions);
 		this.setState({ selectedInjectionType: selectedOptions });
 	}
 });
