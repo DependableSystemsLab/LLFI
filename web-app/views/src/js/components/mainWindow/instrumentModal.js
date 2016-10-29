@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Reflux = require("reflux");
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var Modal = require('react-bootstrap').Modal;
@@ -136,8 +137,7 @@ var InstrumentModal = React.createClass({
 							</div>
 							<div class="rightFloat registerSelectSpace">
 								<FormGroup controlId="defaultRegister">
-									<FormControl componentClass="select" placeholder="select">
-									<option value="notSpecified">---Select---</option>
+									<FormControl ref={"registerLocation"} componentClass="select" placeholder="select">
 									<option value="dstreg-(DESTINATION_REGISTER)">dstreg-(DESTINATION_REGISTER)</option>
 									<option value="allsrcreg-(ALL_SOURCE_REGISTERS)">allsrcreg-(ALL_SOURCE_REGISTERS)</option>
 									<option value="srcreg1-(SOURCE_REGISTER_1)">srcreg1-(SOURCE_REGISTER_1)</option>
@@ -252,16 +252,18 @@ var InstrumentModal = React.createClass({
 		data.injectionMode = this.state.injectionMode;
 		data.injectionType = this.state.selectedInjectionType;
 		data.traceMode = this.state.traceMode;
+
+		// Pass trace type
 		if (data.traceMode == "fullTrace") {
 			data.backwardTrace = $("#backwardTrace").prop("checked");
 			data.forwardTrace = $("#forwardTrace").prop("checked");
 		} else if (data.traceMode == "limitedTrace") {
 			data.maxTraceCount = $("#maxTraceCount").val();
 		}
-		if (data.injectionMode == "software") {
 
-		} else if (data.injectionMode == "hardware") {
-
+		// Pass register location for hardware mode
+		if (data.injectionMode == "hardware") {
+			data.registerLocation = ReactDOM.findDOMNode(this.refs.registerLocation).value;
 		}
 		$.ajax({
 			url: '/instrument',
