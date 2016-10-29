@@ -7,13 +7,36 @@ var FormControl = require('react-bootstrap').FormControl;
 var Checkbox = require('react-bootstrap').Checkbox;
 var Button = require('react-bootstrap').Button;
 var ControlLabel = require('react-bootstrap').ControlLabel;
+var FilteredMultiSelect = require('react-filtered-multiselect');
+
+var softwareInjectionTypeOptions = [
+	{value: "CPUHog(Res)", text: "CPUHog(Res)"},
+	{value: "DataCorruption(Data)", text: "DataCorruption(Data)"},
+	{value: "HighFrequentEvent(Timing)", text: "HighFrequentEvent(Timing)"},
+	{value: "IncorrectOutput(API)", text: "IncorrectOutput(API)"},
+	{value: "NoOutput(API)", text: "NoOutput(API)"}
+];
+
+var hardwareInjectionTypeOptions = [
+	{value: "ret-(ReturnInst)", text: "ret-(ReturnInst)"},
+	{value: "br-(BranchInst)", text: "br-(BranchInst)"},
+	{value: "switch-(SwitchInst)", text: "switch-(SwitchInst)"},
+	{value: "indirectbr-(IndirectBrInst)", text: "indirectbr-(IndirectBrInst)"},
+	{value: "invoke-(InvokeInst)", text: "invoke-(InvokeInst)"}
+];
+
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};
 
 var InstrumentModal = React.createClass({
 	mixins: [Reflux.connect(targetFileNameStore,"fileName")],
 	getInitialState() {
 		return {
 			show: false,
-			fileName: ''
+			fileName: '',
+			selectedInjectionType: [],
+			injectionMode: "hardware"
 		};
 	},
 
@@ -29,6 +52,8 @@ var InstrumentModal = React.createClass({
 	},
 
 	render: function() {
+		var selectedInjectionType = this.state.selectedInjectionType;
+		var unselectedInjectionType = softwareInjectionTypeOptions.diff(selectedInjectionType);
 		return (
 			<div class="modal-container" id="InstrumentModalID" onClick={this.open}>
 				<Modal {...this.props} bsSize="large" aria-labelledby="contained-modal-title-lg" onClick={this.open} show={this.state.show} onHide={this.close}>
@@ -70,15 +95,20 @@ var InstrumentModal = React.createClass({
 									Include All
 								</Checkbox>
 							</div>
-							<FormGroup controlId="formControlsSelectMultiple" class="rightFloat">
-								<FormControl componentClass="select" multiple>
-									<option value="ret-(ReturnInst)">ret-(ReturnInst)</option>
-									<option value="br-(BranchInst)">br-(BranchInst)</option>
-									<option value="switch-(SwitchInst)">switch-(SwitchInst)</option>
-									<option value="indirectbr-(IndirectBrInst)">indirectbr-(IndirectBrInst)</option>
-									<option value="invoke-(InvokeInst)">invoke-(InvokeInst)</option>
-								</FormControl>
-							</FormGroup>
+							<FilteredMultiSelect
+								id="instructionTypeUnselected"
+								className=""
+								options={softwareInjectionTypeOptions}
+								onChange={this.instructionTypeAddHandler}
+								selectedOptions={selectedInjectionType}
+							/>
+							<FilteredMultiSelect
+								id="instructionTypeSelected"
+								className=""
+								options={softwareInjectionTypeOptions}
+								onChange={this.instructionTypeRemoveHandler}
+								selectedOptions={unselectedInjectionType}
+							/>
 						</div>
 						<hr class="boldHr"/>
 						<div id="registerSelectOptions" class="rowContainer">
@@ -174,11 +204,13 @@ var InstrumentModal = React.createClass({
 	intructionTypeHandler: function (event) {
 		if (event.target.value === "customInstructionType") {
 			$("#selectAllInstructionType").prop("disabled", true);
-			$("#formControlsSelectMultiple").prop("disabled", true);
+			$("#instructionTypeUnselected").prop("disabled", true);
+			$("#instructionTypeSelected").prop("disabled", true);
 			$("#customSelector").prop("disabled", false);
 		} else if (event.target.value === "defaultInstructionType") {
 			$("#selectAllInstructionType").prop("disabled", false);
-			$("#formControlsSelectMultiple").prop("disabled", false);
+			$("#instructionTypeUnselected").prop("disabled", false);
+			$("#instructionTypeSelected").prop("disabled", false);
 			$("#customSelector").prop("disabled", true);
 		}
 	},
@@ -205,6 +237,13 @@ var InstrumentModal = React.createClass({
 				console.log("instrument success")
 			}
 		});
+	},
+	instructionTypeAddHandler: function (selectedOptions) {
+		this.setState({ selectedInjectionType: selectedOptions});
+	},
+	instructionTypeRemoveHandler: function (removedOptions) {
+		var selectedOptions = softwareInjectionTypeOptions.diff(removedOptions);
+		this.setState({ selectedInjectionType: selectedOptions });
 	}
 });
 
