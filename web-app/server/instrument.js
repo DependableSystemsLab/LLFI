@@ -68,11 +68,9 @@ exports.processInstrument = function (req, res) {
 	var commands = [cdDirCmd + " && " + softwareFailureAutoScanCmd, cdDirCmd + " && " + intrumentScript];
 
 	commands.reduce(function(p, cmd) {
-		console.log(cmd);
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
-				console.log(result);
 				return results;
 			});
 		});
@@ -88,7 +86,6 @@ exports.processInstrument = function (req, res) {
 var execPromise = function(cmd) {
 	return new Promise(function(resolve, reject) {
 		exec(cmd, function(err, stdout) {
-			console.log("err", err);
 			if (err) return reject(err);
 			resolve(stdout);
 		});
