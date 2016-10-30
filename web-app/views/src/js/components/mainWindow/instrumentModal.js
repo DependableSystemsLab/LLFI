@@ -219,8 +219,8 @@ var InstrumentModal = React.createClass({
 			this.setState({ traceMode: "fullTrace"});
 		} else if (event.target.value === "limitedTrace") {
 			$("#maxTraceCount").prop("disabled", false);
-			$("#backwardTrace").prop("disabled", true);
-			$("#forwardTrace").prop("disabled", true);
+			$("#backwardTrace").prop("disabled", false);
+			$("#forwardTrace").prop("disabled", false);
 			this.setState({ traceMode: "limitedTrace"});
 		}
 	},
@@ -250,7 +250,10 @@ var InstrumentModal = React.createClass({
 		var data = {}
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
-		data.injectionType = this.state.selectedInjectionType;
+		data.injectionType = [];
+		for (var i = 0; i < this.state.selectedInjectionType.length; i++) {
+			data.injectionType.push(this.state.selectedInjectionType[i].value);
+		}
 		data.traceMode = this.state.traceMode;
 
 		// Pass trace type
