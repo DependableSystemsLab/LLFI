@@ -1,4 +1,5 @@
 var fs = require('fs');
+var readline = require('readline');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
@@ -69,12 +70,6 @@ exports.processInstrument = function (req, res) {
 	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
 	commands.push(cdDirCmd + " && " + intrumentScript);
 
-	// Copy the llfi.stat.graph.dot file
-	if (batchMode) {
-		var folderName = injectionType[0];
-		// commands.push(cdDirCmd + " && cp ./llfi-" + folderName + "/llfi.stat.graph.dot ./");
-	}
-
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
@@ -83,7 +78,27 @@ exports.processInstrument = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
-		fs.createReadStream("./uploads/" + req.ip +"/llfi-" + injectionType[0]+"/llfi.stat.graph.dot").pipe(fs.createWriteStream("./uploads/" + req.ip +"/llfi.stat.graph.dot"));
+		if (batchMode) {
+			// Copy the llfi.stat.graph.doc file
+			fs.createReadStream("./uploads/" + req.ip +"/llfi-" + injectionType[0]+"/llfi.stat.graph.dot").pipe(fs.createWriteStream("./uploads/" + req.ip +"/llfi.stat.graph.dot"));
+			var indexFilePath = "./uploads/" + req.ip +"/llfi-" + injectionType[0]+"/llfi/" + fileName + "-llfi_index.ll";
+		} else {
+			var indexFilePath = "./uploads/" + req.ip +"/llfi/" + fileName + "-llfi_index.ll";
+		}
+		// Generate the llfi_displayIndex.ll file
+		var outputIndexFilePath = "./uploads/" + req.ip +"/" + fileName + "-llfi_displayIndex.ll";
+		var index = 1;
+		fs.readFileSync(indexFilePath).toString().split('\n').forEach(function (line) {
+			var modefiedLine = line;
+			if (line.includes("!llfi_index !")) {
+				modefiedLine = index + "\t\t" + line.substring(0, line.indexOf("!llfi_index !"))
+				index ++;
+				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
+			} else if (!line.includes("= metadata !")) {
+				modefiedLine = "\t\t" + line;
+				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
+			}
+		});
 	}).then(function(){
 		console.log("Instrument success");
 	});
