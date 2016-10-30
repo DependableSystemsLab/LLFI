@@ -65,7 +65,15 @@ exports.processInstrument = function (req, res) {
 
 	var softwareFailureAutoScanCmd = LLFI_BUILD_ROOT + "bin/SoftwareFailureAutoScan --no_input_yaml " + fileName + ".ll";
 
-	var commands = [cdDirCmd + " && " + softwareFailureAutoScanCmd, cdDirCmd + " && " + intrumentScript];
+	var commands = [];
+	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
+	commands.push(cdDirCmd + " && " + intrumentScript);
+
+	// Copy the llfi.stat.graph.dot file
+	if (batchMode) {
+		var folderName = injectionType[0];
+		// commands.push(cdDirCmd + " && cp ./llfi-" + folderName + "/llfi.stat.graph.dot ./");
+	}
 
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
@@ -75,8 +83,9 @@ exports.processInstrument = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
+		fs.createReadStream("./uploads/" + req.ip +"/llfi-" + injectionType[0]+"/llfi.stat.graph.dot").pipe(fs.createWriteStream("./uploads/" + req.ip +"/llfi.stat.graph.dot"));
+	}).then(function(){
 		console.log("Instrument success");
-
 	});
 
 
