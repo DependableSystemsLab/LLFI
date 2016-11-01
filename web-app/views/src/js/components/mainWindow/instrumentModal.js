@@ -247,6 +247,7 @@ var InstrumentModal = React.createClass({
 		}
 	},
 	onClickInstrument: function (event) {
+		var me = this;
 		var data = {}
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
@@ -276,7 +277,8 @@ var InstrumentModal = React.createClass({
 			contentType: 'application/json',
 			success: function(data){
 				// fileUploadActions.addFiles(data);
-				console.log("instrument success")
+				console.log("instrument success");
+				me.close();
 			}
 		});
 	},

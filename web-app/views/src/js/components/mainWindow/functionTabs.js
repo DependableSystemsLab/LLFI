@@ -20,7 +20,7 @@ var FunctionTabs = React.createClass({
 				<div class="btn-toolbar">
 					<button id="compileIRBtn" class={"btn " + (this.state.fileName ? "btn-primary" : "disabled")} onClick={this.onCompileIRClick}>Compile To IR</button>
 					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
-					<button id="profilingBtn" class="btn disabled" onClick={this.onButtonClick}>Profiling</button>
+					<button id="profilingBtn" class="btn disabled" onClick={this.onProfilingClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onButtonClick}>Runtime Options</button>
 					<button id="injectFaultBtn" class="btn disabled" onClick={this.onButtonClick}>Inject Fault</button>
 					<button id="traceGraphBtn" class="btn disabled" onClick={this.onButtonClick}>Trace Graph</button>
@@ -53,6 +53,25 @@ var FunctionTabs = React.createClass({
 			return;
 		}
 		$("#InstrumentModalID").click();
+		this.changeButtonStatus(event);
+	},
+	onProfilingClick: function (event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
+		var data = {}
+		data.fileName = this.state.fileName;
+		data.input = document.getElementById("profilingInput").value;
+		$.ajax({
+			url: '/profiling',
+			type: 'POST',
+			data: JSON.stringify(data),
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				console.log("profiling success");
+			}
+		});
 		this.changeButtonStatus(event);
 	},
 	changeButtonStatus: function(event) {

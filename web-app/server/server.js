@@ -7,7 +7,9 @@ var Port = 8080;
 var fileUpload = require('./fileUpload');
 var compileIR = require('./compileIR');
 var instrument = require('./instrument');
+var profiling = require('./profiling');
 var bodyParser = require('body-parser');
+var batchMode = false;
 
 app.use(express.static(path.join(__dirname, '../views')));
 app.use(bodyParser.json());
@@ -26,6 +28,10 @@ app.post('/compileIR', function(req, res){
 
 app.post('/instrument', function(req, res){
 	instrument.processInstrument(req,res);
+});
+
+app.post('/profiling', function(req, res){
+	profiling.processProfiling(req,res);
 });
 
 var server = app.listen(Port, function(){

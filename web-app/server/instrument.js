@@ -18,7 +18,7 @@ exports.processInstrument = function (req, res) {
 	var registerLocation = req.body.registerLocation;
 
 	// Configurations for input.yaml file
-	var batchMode = injectionMode == "hardware" || injectionType.length > 1 ? true : false;
+	batchMode = injectionMode == "hardware" || injectionType.length > 1 ? true : false;
 	var intrumentScript = batchMode ? LLFI_BUILD_ROOT + "bin/batchInstrument --readable " + fileName + ".ll": LLFI_BUILD_ROOT + "bin/instrument -lpthread --readable " + fileName + ".ll";
 	var traceEnabled = (traceMode == "fullTrace" && (backwardTrace || forwardTrace))|| tradeMode == "limitedTrace" ? true : false;
 	if (traceEnabled) {
@@ -101,10 +101,10 @@ exports.processInstrument = function (req, res) {
 		});
 	}).then(function(){
 		console.log("Instrument success");
+		res.end();
 	});
 
 
-	res.end();
 }
 
 var execPromise = function(cmd) {

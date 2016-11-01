@@ -6,7 +6,7 @@ var InputWindow = React.createClass({
 		return (
 			<div className="inputWindow">
 				<div className="inputWindowLabel">Command Line Input</div>
-				<textarea className="inputTextArea" rows="5"></textarea>
+				<textarea id="profilingInput" className="inputTextArea" rows="5"></textarea>
 			</div>
 		);
 	}
