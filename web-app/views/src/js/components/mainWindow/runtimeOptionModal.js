@@ -235,8 +235,8 @@ var RuntimeOptionModal = React.createClass({
 	onClickSubmit: function () {
 		var me = this;
 		var data = {}
-		data.injectionMode = this.state.injectionMode;
 		var runtimeOptions = this.state.runtimeOptions;
+		// Remove invalid run options
 		for (var i = 0; i < runtimeOptions.length; i++) {
 			if (!this.isRequiredFilled(runtimeOptions[i])) {
 				runtimeOptions.splice(i, 1);

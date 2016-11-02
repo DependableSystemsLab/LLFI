@@ -5,33 +5,33 @@ var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
 exports.processRuntimeOptions = function (req, res) {
 
-	var fileName = req.body.fileName;
-	// Remove the file extension
-	fileName = fileName.replace(/\.[^/.]+$/, "");
-	var input = req.body.input;
-	var batchMode = req.body.injectionMode.isBatchMode;
-	var profilingScript;
-	if (batchMode) {
-		profilingScript = LLFI_BUILD_ROOT + "bin/batchProfile " + fileName + ".ll " + input;
-	} else {
-		profilingScript = LLFI_BUILD_ROOT + "bin/profile " + "./llfi/" + fileName + "-profiling.exe " + input;
+	var runtimeOptions = req.body.runtimeOptions;
+	var inputYamlFilePath = "./uploads/"+ req.ip +"/input.yaml";
+	var data = "";
+	if (runtimeOptions.length) data += "runOption:\n";
+	for (var j = 0; j < runtimeOptions.length; j ++) {
+		var runOption = runtimeOptions[j];
+		data += "- run: {";
+
+		for(var keys = Object.keys(runOption), i = 0, end = keys.length - 1; i < end; i++) {
+			var key = keys[i], value = runOption[key];
+			data += key + ": " + value + ", ";
+		}
+		var lastIndex = Object.keys(runOption).length - 1;
+		if(lastIndex >= 0) {
+			var lastKey = Object.keys(runOption)[lastIndex];
+			var value = runOption[lastKey];
+			data += lastKey + ": " + value + "}\n";
+		}
 	}
+	fs.appendFile(inputYamlFilePath, data, function (err) {
+		if (err) {
+			console.log("err in modifying input.yaml file in runtimeOption: ", err);
+		} else {
+			console.log("runtimeOption Submit success");
+			res.end();
+		}
 
-	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
-
-	var commands = [];
-	commands.push(cdDirCmd + " && " + profilingScript);
-
-	commands.reduce(function(p, cmd) {
-		return p.then(function(results) {
-			return execPromise(cmd).then(function(stdout) {
-				results.push(stdout);
-				return results;
-			});
-		});
-	}, Promise.resolve([])).then(function(results) {
-		console.log("Profiling success");
-		res.end();
 	});
 }
 

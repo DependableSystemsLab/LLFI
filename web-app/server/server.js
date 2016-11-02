@@ -9,6 +9,7 @@ var compileIR = require('./compileIR');
 var instrument = require('./instrument');
 var profiling = require('./profiling');
 var runtimeOptions = require('./runtimeOptions');
+var faultInjection = require('./faultInjection');
 var bodyParser = require('body-parser');
 
 app.use(express.static(path.join(__dirname, '../views')));
@@ -36,6 +37,10 @@ app.post('/profiling', function(req, res){
 
 app.post('/runtimeOptions', function(req, res){
 	runtimeOptions.processRuntimeOptions(req,res);
+});
+
+app.post('/faultInjection', function(req, res){
+	runtimeOptions.processFaultInjection(req,res);
 });
 
 var server = app.listen(Port, function(){
