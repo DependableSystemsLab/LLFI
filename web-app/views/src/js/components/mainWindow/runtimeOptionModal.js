@@ -94,7 +94,7 @@ var RuntimeOptionModal = React.createClass({
 							<label>Fault Injection Type<span class="redColor">*</span></label>
 							<div class="runtimeInputs">
 								<FormGroup controlId="faultInjectionType">
-									<FormControl ref={"faultInjectionType"} componentClass="select" placeholder="select">
+									<FormControl componentClass="select" placeholder="select" onChange={this.onChangeInjectionType}>
 									<option value="bitflip">bitflip</option>
 									<option value="stuck_at_0">stuck_at_0</option>
 									<option value="stuck_at_1">stuck_at_1</option>
@@ -104,7 +104,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Cycles</label>
-							<input class="runtimeInputs" type="number" placeholder="max:-1"></input>
+							<input class="runtimeInputs" type="number" placeholder="max:-1" onChange={this.onChangeInjectionCycles}></input>
 						</div>
 						<div>
 							<button>{"<"}</button>
@@ -112,15 +112,15 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Index</label>
-							<input class="runtimeInputs" type="number" placeholder="max:34"></input>
+							<input class="runtimeInputs" type="number" placeholder="max:34" onChange={this.onChangeInjectionIndex}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Register Index</label>
-							<input class="runtimeInputs" type="text" placeholder="null"></input>
+							<input class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionRegisterIndex}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Bit</label>
-							<input class="runtimeInputs" type="text" placeholder="null"></input>
+							<input class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionBit}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Random Seed</label>
@@ -140,18 +140,33 @@ var RuntimeOptionModal = React.createClass({
 		return this.state.injectionMode.injectionMode && this.state.injectionMode.injectionMode == "software" ? softwareOptions : hardwareOptions;
 	},
 	onChangeNumberofRuns: function (event) {
-		var runtimeOptions = this.state.runtimeOptions;
-		runtimeOptions[this.state.runtimeOptionNumber].numberOfRuns = event.targe.value;
-		this.setState({ runtimeOptions: runtimeOptions});
+		this.runtimeOptionChange("numberOfRuns", event.target.value);
 	},
 	onChangeRandomSeed: function (event) {
-		var runtimeOptions = this.state.runtimeOptions;
-		runtimeOptions[this.state.runtimeOptionNumber].randomSeed = event.targe.value;
-		this.setState({ runtimeOptions: runtimeOptions});
+		this.runtimeOptionChange("randomSeed", event.target.value);
 	},
 	onChangeTimeout: function (event) {
+		this.runtimeOptionChange("timeout", event.target.value);
+	},
+	onChangeInjectionType: function (event) {
+		this.runtimeOptionChange("injectionType", event.target.value);
+	},
+	onChangeInjectionCycles: function (event) {
+		this.runtimeOptionChange("injectionCycles", event.target.value);
+
+	},
+	onChangeInjectionIndex: function (event) {
+		this.runtimeOptionChange("injectionIndex", event.target.value);
+	},
+	onChangeInjectionRegisterIndex: function (event) {
+		this.runtimeOptionChange("injectionRegisterIndex", event.target.value);
+	},
+	onChangeInjectionBit: function (event) {
+		this.runtimeOptionChange("injectionBit", event.target.value);
+	},
+	runtimeOptionChange: function (filedName, value) {
 		var runtimeOptions = this.state.runtimeOptions;
-		runtimeOptions[this.state.runtimeOptionNumber].timeout = event.targe.value;
+		runtimeOptions[this.state.runtimeOptionNumber][filedName] = value;
 		this.setState({ runtimeOptions: runtimeOptions});
 	}
 });
