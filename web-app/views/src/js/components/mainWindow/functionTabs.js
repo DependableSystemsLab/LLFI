@@ -1,6 +1,7 @@
 var React = require("react");
 var Reflux = require("reflux");
 var InstrumentModal = require('./instrumentModal');
+var RuntimeOptionModal = require('./runtimeOptionModal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
@@ -23,11 +24,12 @@ var FunctionTabs = React.createClass({
 					<button id="compileIRBtn" class={"btn " + (this.state.fileName ? "btn-primary" : "disabled")} onClick={this.onCompileIRClick}>Compile To IR</button>
 					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
 					<button id="profilingBtn" class="btn disabled" onClick={this.onProfilingClick}>Profiling</button>
-					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onButtonClick}>Runtime Options</button>
+					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onRuntimeOptionClick}>Runtime Options</button>
 					<button id="injectFaultBtn" class="btn disabled" onClick={this.onButtonClick}>Inject Fault</button>
 					<button id="traceGraphBtn" class="btn disabled" onClick={this.onButtonClick}>Trace Graph</button>
 				</div>
 				<InstrumentModal/>
+				<RuntimeOptionModal/>
 			</div>
 		);
 	},
@@ -75,6 +77,13 @@ var FunctionTabs = React.createClass({
 				console.log("profiling success");
 			}
 		});
+		this.changeButtonStatus(event);
+	},
+	onRuntimeOptionClick: function (event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
+		$("#RuntimeOptionModalID").click();
 		this.changeButtonStatus(event);
 	},
 	changeButtonStatus: function(event) {
