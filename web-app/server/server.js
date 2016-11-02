@@ -8,6 +8,7 @@ var fileUpload = require('./fileUpload');
 var compileIR = require('./compileIR');
 var instrument = require('./instrument');
 var profiling = require('./profiling');
+var runtimeOptions = require('./runtimeOptions');
 var bodyParser = require('body-parser');
 
 app.use(express.static(path.join(__dirname, '../views')));
@@ -31,6 +32,10 @@ app.post('/instrument', function(req, res){
 
 app.post('/profiling', function(req, res){
 	profiling.processProfiling(req,res);
+});
+
+app.post('/runtimeOptions', function(req, res){
+	runtimeOptions.processRuntimeOptions(req,res);
 });
 
 var server = app.listen(Port, function(){

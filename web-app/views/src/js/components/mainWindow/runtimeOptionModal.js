@@ -15,7 +15,7 @@ var RuntimeOptionModal = React.createClass({
 	getInitialState() {
 		return {
 			show: false,
-			runtimeOptions: [{injectionType: "bitflip"}],
+			runtimeOptions: [{fi_type: "bitflip"}],
 			injectionMode: {},
 			runtimeOptionNumber: 0
 		};
@@ -50,7 +50,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Number Of Runs<span class="redColor">*</span></label>
-							<input id="numberOfRuns" class="runtimeInputs" type="number" onChange={this.onChangeNumberofRuns} min={1}></input>
+							<input id="numOfRuns" class="runtimeInputs" type="number" onChange={this.onChangeNumberofRuns} min={1}></input>
 						</div>
 						<div>
 							<button onClick={this.previousRun}>{"<"}</button>
@@ -62,7 +62,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>TimeOut(ms)</label>
-							<input id="timeout" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeTimeout}></input>
+							<input id="timeOut" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeTimeout}></input>
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
@@ -88,12 +88,12 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Number Of Runs<span class="redColor">*</span></label>
-							<input id="numberOfRuns" class="runtimeInputs" type="number" min={1} onChange={this.onChangeNumberofRuns}></input>
+							<input id="numOfRuns" class="runtimeInputs" type="number" min={1} onChange={this.onChangeNumberofRuns}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Type<span class="redColor">*</span></label>
 							<div class="runtimeInputs">
-								<FormGroup controlId="injectionType">
+								<FormGroup controlId="fi_type">
 									<FormControl componentClass="select" placeholder="select" onChange={this.onChangeInjectionType}>
 									<option value="bitflip">bitflip</option>
 									<option value="stuck_at_0">stuck_at_0</option>
@@ -104,7 +104,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Cycles</label>
-							<input id="injectionCycles" class="runtimeInputs" type="number" placeholder="max:-1" onChange={this.onChangeInjectionCycles}></input>
+							<input id="fi_cycle" class="runtimeInputs" type="number" placeholder="max:-1" onChange={this.onChangeInjectionCycles}></input>
 						</div>
 						<div>
 							<button onClick={this.previousRun}>{"<"}</button>
@@ -112,15 +112,15 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Index</label>
-							<input id="injectionIndex" class="runtimeInputs" type="number" placeholder="max:34" onChange={this.onChangeInjectionIndex}></input>
+							<input id="fi_index" class="runtimeInputs" type="number" placeholder="max:34" onChange={this.onChangeInjectionIndex}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Register Index</label>
-							<input id="injectionRegisterIndex" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionRegisterIndex}></input>
+							<input id="fi_reg_index" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionRegisterIndex}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Fault Injection Bit</label>
-							<input id="injectionBit" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionBit}></input>
+							<input id="fi_bit" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeInjectionBit}></input>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Random Seed</label>
@@ -128,7 +128,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>TimeOut(ms)</label>
-							<input id="timeout" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeTimeout}></input>
+							<input id="timeOut" class="runtimeInputs" type="text" placeholder="null" onChange={this.onChangeTimeout}></input>
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
@@ -140,28 +140,28 @@ var RuntimeOptionModal = React.createClass({
 		return this.state.injectionMode.injectionMode && this.state.injectionMode.injectionMode == "software" ? softwareOptions : hardwareOptions;
 	},
 	onChangeNumberofRuns: function (event) {
-		this.runtimeOptionChange("numberOfRuns", event.target.value);
+		this.runtimeOptionChange("numOfRuns", event.target.value);
 	},
 	onChangeRandomSeed: function (event) {
 		this.runtimeOptionChange("randomSeed", event.target.value);
 	},
 	onChangeTimeout: function (event) {
-		this.runtimeOptionChange("timeout", event.target.value);
+		this.runtimeOptionChange("timeOut", event.target.value);
 	},
 	onChangeInjectionType: function (event) {
-		this.runtimeOptionChange("injectionType", event.target.value);
+		this.runtimeOptionChange("fi_type", event.target.value);
 	},
 	onChangeInjectionCycles: function (event) {
-		this.runtimeOptionChange("injectionCycles", event.target.value);
+		this.runtimeOptionChange("fi_cycle", event.target.value);
 	},
 	onChangeInjectionIndex: function (event) {
-		this.runtimeOptionChange("injectionIndex", event.target.value);
+		this.runtimeOptionChange("fi_index", event.target.value);
 	},
 	onChangeInjectionRegisterIndex: function (event) {
-		this.runtimeOptionChange("injectionRegisterIndex", event.target.value);
+		this.runtimeOptionChange("fi_reg_index", event.target.value);
 	},
 	onChangeInjectionBit: function (event) {
-		this.runtimeOptionChange("injectionBit", event.target.value);
+		this.runtimeOptionChange("fi_bit", event.target.value);
 	},
 	runtimeOptionChange: function (filedName, value) {
 		var runtimeOptions = this.state.runtimeOptions;
@@ -186,32 +186,32 @@ var RuntimeOptionModal = React.createClass({
 
 		if (!runtimeOptions[nextRunNumber]) {
 			// Add a new run option
-			runtimeOptions[nextRunNumber] = {injectionType: "bitflip"};
+			runtimeOptions[nextRunNumber] = {fi_type: "bitflip"};
 		}
 		this.loadRunOption(nextRunNumber);
 		this.setState({ runtimeOptions: runtimeOptions, runtimeOptionNumber: nextRunNumber});
 	},
 	loadRunOption: function (runNumber) {
 		var runOption = this.state.runtimeOptions[runNumber];
-		$("#numberOfRuns").val(runOption.numberOfRuns);
+		$("#numOfRuns").val(runOption.numOfRuns);
 		$("#randomSeed").val(runOption.randomSeed);
-		$("#timeout").val(runOption.timeout);
-		if(runOption.injectionType) {
-			$("#injectionType").val(runOption.injectionType);
+		$("#timeOut").val(runOption.timeOut);
+		if(runOption.fi_type) {
+			$("#fi_type").val(runOption.fi_type);
 		} else {
-			$("#injectionType").val("bitflip");
+			$("#fi_type").val("bitflip");
 		}
-		$("#injectionCycles").val(runOption.injectionCycles);
-		$("#injectionIndex").val(runOption.injectionIndex);
-		$("#injectionRegisterIndex").val(runOption.injectionRegisterIndex);
-		$("#injectionBit").val(runOption.injectionBit);
+		$("#fi_cycle").val(runOption.fi_cycle);
+		$("#fi_index").val(runOption.fi_index);
+		$("#fi_reg_index").val(runOption.fi_reg_index);
+		$("#fi_bit").val(runOption.fi_bit);
 	},
 	deleteRun: function () {
 		var runNumber = this.state.runtimeOptionNumber;
 		var runtimeOptions = this.state.runtimeOptions;
 		if (runNumber == 0 && runtimeOptions.length <= 1) {
 			// Initialize the options
-			runtimeOptions = [{injectionType: "bitflip"}];
+			runtimeOptions = [{fi_type: "bitflip"}];
 		} else if (runNumber == 0 && runtimeOptions.length > 1) {
 			// Bring the next run
 			runtimeOptions.splice(runNumber, 1);
@@ -229,7 +229,7 @@ var RuntimeOptionModal = React.createClass({
 	},
 	isRequiredFilled: function (obj) {
 		if (!obj) return false;
-		if (obj.numberOfRuns) return true;
+		if (obj.numOfRuns) return true;
 		return false;
 	},
 	onClickSubmit: function () {
