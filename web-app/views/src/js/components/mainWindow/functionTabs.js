@@ -25,7 +25,7 @@ var FunctionTabs = React.createClass({
 					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
 					<button id="profilingBtn" class="btn disabled" onClick={this.onProfilingClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onRuntimeOptionClick}>Runtime Options</button>
-					<button id="injectFaultBtn" class="btn disabled" onClick={this.onButtonClick}>Inject Fault</button>
+					<button id="injectFaultBtn" class="btn disabled" onClick={this.onFaultInjectionClick}>Inject Fault</button>
 					<button id="traceGraphBtn" class="btn disabled" onClick={this.onButtonClick}>Trace Graph</button>
 				</div>
 				<InstrumentModal/>
@@ -84,6 +84,26 @@ var FunctionTabs = React.createClass({
 			return;
 		}
 		$("#RuntimeOptionModalID").click();
+		this.changeButtonStatus(event);
+	},
+	onFaultInjectionClick: function (event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
+		var data = {}
+		data.fileName = this.state.fileName;
+		data.injectionMode = this.state.injectionMode;
+		data.input = document.getElementById("profilingInput").value;
+		$.ajax({
+			url: '/faultInjection',
+			type: 'POST',
+			data: JSON.stringify(data),
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				console.log("faultInjection success");
+			}
+		});
 		this.changeButtonStatus(event);
 	},
 	changeButtonStatus: function(event) {
