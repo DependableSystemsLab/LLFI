@@ -9,6 +9,7 @@ var Checkbox = require('react-bootstrap').Checkbox;
 var Button = require('react-bootstrap').Button;
 var ControlLabel = require('react-bootstrap').ControlLabel;
 var FilteredMultiSelect = require('react-filtered-multiselect');
+var injectionModeActions = require("./../../actions/injectionModeActions");
 
 var softwareInjectionTypeOptions = [
 	{value: "CPUHog(Res)", text: "CPUHog(Res)"},
@@ -269,6 +270,8 @@ var InstrumentModal = React.createClass({
 		if (data.injectionMode == "hardware") {
 			data.registerLocation = ReactDOM.findDOMNode(this.refs.registerLocation).value;
 		}
+		var isBatchMode = data.injectionMode == "software" && data.injectionType.length > 1 ? true : false;
+		injectionModeActions.injectionModeChange({isBatchMode: isBatchMode, injectionMode: data.injectionMode});
 		$.ajax({
 			url: '/instrument',
 			type: 'POST',

@@ -2,15 +2,17 @@ var React = require("react");
 var Reflux = require("reflux");
 var InstrumentModal = require('./instrumentModal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
+var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
 
 
 
 var FunctionTabs = React.createClass({
-	mixins: [Reflux.connect(targetFileNameStore,"fileName")],
+	mixins: [Reflux.connect(targetFileNameStore,"fileName"), Reflux.connect(injectionModeStore,"injectionMode")],
 	getInitialState: function() {
 		return {
-			fileName: ''
+			fileName: '',
+			injectionMode: {}
 		};
 	},
 	render: function() {
@@ -61,6 +63,7 @@ var FunctionTabs = React.createClass({
 		}
 		var data = {}
 		data.fileName = this.state.fileName;
+		data.injectionMode = this.state.injectionMode;
 		data.input = document.getElementById("profilingInput").value;
 		$.ajax({
 			url: '/profiling',

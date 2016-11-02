@@ -9,7 +9,7 @@ exports.processProfiling = function (req, res) {
 	// Remove the file extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 	var input = req.body.input;
-
+	var batchMode = req.body.injectionMode.isBatchMode;
 	var profilingScript;
 	if (batchMode) {
 		profilingScript = LLFI_BUILD_ROOT + "bin/batchProfile " + fileName + ".ll " + input;
