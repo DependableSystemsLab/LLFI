@@ -27,6 +27,8 @@ exports.processFaultInjection = function (req, res) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
 				return results;
+			}, function(err) {
+				console.log("fault injection err: ", err);
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
