@@ -19,11 +19,11 @@ var softwareInjectionTypeOptions = [
 ];
 
 var hardwareInjectionTypeOptions = [
-	{value: "ret-(ReturnInst)", text: "ret-(ReturnInst)"},
-	{value: "br-(BranchInst)", text: "br-(BranchInst)"},
-	{value: "switch-(SwitchInst)", text: "switch-(SwitchInst)"},
-	{value: "indirectbr-(IndirectBrInst)", text: "indirectbr-(IndirectBrInst)"},
-	{value: "invoke-(InvokeInst)", text: "invoke-(InvokeInst)"}
+	{value: "ret", text: "ret-(ReturnInst)"},
+	{value: "br", text: "br-(BranchInst)"},
+	{value: "switch", text: "switch-(SwitchInst)"},
+	{value: "indirectbr", text: "indirectbr-(IndirectBrInst)"},
+	{value: "invoke", text: "invoke-(InvokeInst)"}
 ];
 
 Array.prototype.diff = function(a) {
@@ -138,12 +138,12 @@ var InstrumentModal = React.createClass({
 							<div class="rightFloat registerSelectSpace">
 								<FormGroup controlId="defaultRegister">
 									<FormControl ref={"registerLocation"} componentClass="select" placeholder="select">
-									<option value="dstreg-(DESTINATION_REGISTER)">dstreg-(DESTINATION_REGISTER)</option>
-									<option value="allsrcreg-(ALL_SOURCE_REGISTERS)">allsrcreg-(ALL_SOURCE_REGISTERS)</option>
-									<option value="srcreg1-(SOURCE_REGISTER_1)">srcreg1-(SOURCE_REGISTER_1)</option>
-									<option value="srcreg2-(SOURCE_REGISTER_2)">srcreg2-(SOURCE_REGISTER_2)</option>
-									<option value="srcreg3-(SOURCE_REGISTER_3)">srcreg3-(SOURCE_REGISTER_3)</option>
-									<option value="srcreg4-(SOURCE_REGISTER_4)">srcreg4-(SOURCE_REGISTER_4)</option>
+									<option value="dstreg">dstreg-(DESTINATION_REGISTER)</option>
+									<option value="allsrcreg">allsrcreg-(ALL_SOURCE_REGISTERS)</option>
+									<option value="srcreg1">srcreg1-(SOURCE_REGISTER_1)</option>
+									<option value="srcreg2">srcreg2-(SOURCE_REGISTER_2)</option>
+									<option value="srcreg3">srcreg3-(SOURCE_REGISTER_3)</option>
+									<option value="srcreg4">srcreg4-(SOURCE_REGISTER_4)</option>
 									</FormControl>
 								</FormGroup>
 							</div>

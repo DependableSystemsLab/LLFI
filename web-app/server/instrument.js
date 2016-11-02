@@ -18,7 +18,7 @@ exports.processInstrument = function (req, res) {
 	var registerLocation = req.body.registerLocation;
 
 	// Configurations for input.yaml file
-	batchMode = injectionMode == "hardware" || injectionType.length > 1 ? true : false;
+	batchMode = injectionMode == "software" && injectionType.length > 1 ? true : false;
 	var intrumentScript = batchMode ? LLFI_BUILD_ROOT + "bin/batchInstrument --readable " + fileName + ".ll": LLFI_BUILD_ROOT + "bin/instrument -lpthread --readable " + fileName + ".ll";
 	var traceEnabled = (traceMode == "fullTrace" && (backwardTrace || forwardTrace))|| tradeMode == "limitedTrace" ? true : false;
 	if (traceEnabled) {
@@ -34,13 +34,23 @@ exports.processInstrument = function (req, res) {
 		stream.write("kernelOption: [forceRun]\n");
 		stream.write("compileOption:\n");
 		stream.write("  instSelMethod:\n");
-		stream.write("  - customInstselector:\n");
-		var instrumentTypeStr = "      include: [";
-		instrumentTypeStr += injectionType.join(", ");
-		instrumentTypeStr += "]\n";
-		stream.write(instrumentTypeStr);
-		stream.write("  regSelMethod: customregselector\n");
-		stream.write("  customRegSelector: Automatic\n");
+		if(injectionMode == "software") {		
+			stream.write("  - customInstselector:\n");
+			var instrumentTypeStr = "      include: [";
+			instrumentTypeStr += injectionType.join(", ");
+			instrumentTypeStr += "]\n";
+			stream.write(instrumentTypeStr);
+			stream.write("  regSelMethod: customregselector\n");
+			stream.write("  customRegSelector: Automatic\n");
+		} else if (injectionMode == "hardware") {
+			stream.write("  - insttype:\n");
+			var instrumentTypeStr = "      include: [";
+			instrumentTypeStr += injectionType.join(", ");
+			instrumentTypeStr += "]\n";
+			stream.write(instrumentTypeStr);
+			stream.write("  regSelMethod: regloc\n");
+			stream.write("  regloc: " + registerLocation + "\n");
+		}
 		if (traceEnabled) {
 			var traceDirectionStr = "  includeInjectionTrace: [";
 			traceDirectionStr += traceDirection.join(", ");
@@ -67,6 +77,7 @@ exports.processInstrument = function (req, res) {
 	var softwareFailureAutoScanCmd = LLFI_BUILD_ROOT + "bin/SoftwareFailureAutoScan --no_input_yaml " + fileName + ".ll";
 
 	var commands = [];
+
 	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
 	commands.push(cdDirCmd + " && " + intrumentScript);
 
