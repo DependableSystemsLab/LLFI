@@ -42,7 +42,7 @@ var RuntimeOptionModal = React.createClass({
 					<Modal.Body>
 						<div class="runtimeContainer">
 							<p class="boldFont leftFloat font-size-large">Fault Injection Configuration</p>
-							<button class="rightFloat runtimeMargin">Delete Run</button>
+							<button class="rightFloat runtimeMargin" onClick={this.deleteRun}>Delete Run</button>
 						</div>
 						<div class="runtimeContainer runtimeOptionContainer">
 							<p class="boldFont leftFloat font-size-large">Runtime Option:</p>
@@ -53,8 +53,8 @@ var RuntimeOptionModal = React.createClass({
 							<input id="numberOfRuns" class="runtimeInputs" type="number" onChange={this.onChangeNumberofRuns} min={1}></input>
 						</div>
 						<div>
-							<button>{"<"}</button>
-							<button class="rightFloat">{">"}</button>
+							<button onClick={this.previousRun}>{"<"}</button>
+							<button class="rightFloat" onClick={this.nextRun}>{">"}</button>
 						</div>
 						<div class="runtimeContainer flexDisplay">
 							<label>Random Seed</label>
@@ -80,7 +80,7 @@ var RuntimeOptionModal = React.createClass({
 					<Modal.Body>
 						<div class="runtimeContainer">
 							<p class="boldFont leftFloat font-size-large">Fault Injection Configuration</p>
-							<button class="rightFloat runtimeMargin">Delete Run</button>
+							<button class="rightFloat runtimeMargin" onClick={this.deleteRun}>Delete Run</button>
 						</div>
 						<div class="runtimeContainer runtimeOptionContainer">
 							<p class="boldFont leftFloat font-size-large">Runtime Option:</p>
@@ -132,7 +132,7 @@ var RuntimeOptionModal = React.createClass({
 						</div>
 					</Modal.Body>
 					<Modal.Footer>
-						<Button onClick={this.onClickInstrument}>Submit</Button>
+						<Button onClick={this.onClickSubmit}>Submit</Button>
 					</Modal.Footer>
 				</Modal>
 			</div>
@@ -205,12 +205,56 @@ var RuntimeOptionModal = React.createClass({
 		$("#injectionIndex").val(runOption.injectionIndex);
 		$("#injectionRegisterIndex").val(runOption.injectionRegisterIndex);
 		$("#injectionBit").val(runOption.injectionBit);
-
+	},
+	deleteRun: function () {
+		var runNumber = this.state.runtimeOptionNumber;
+		var runtimeOptions = this.state.runtimeOptions;
+		if (runNumber == 0 && runtimeOptions.length <= 1) {
+			// Initialize the options
+			runtimeOptions = [{injectionType: "bitflip"}];
+		} else if (runNumber == 0 && runtimeOptions.length > 1) {
+			// Bring the next run
+			runtimeOptions.splice(runNumber, 1);
+		} else {
+			// Bring the previous run
+			runtimeOptions.splice(runNumber, 1);
+			runNumber --;
+		}
+		this.setState({
+			runtimeOptions: runtimeOptions,
+			runtimeOptionNumber: runNumber
+		}, function () {
+			this.loadRunOption(runNumber);
+		}.bind(this));
 	},
 	isRequiredFilled: function (obj) {
 		if (!obj) return false;
 		if (obj.numberOfRuns) return true;
 		return false;
+	},
+	onClickSubmit: function () {
+		var me = this;
+		var data = {}
+		data.injectionMode = this.state.injectionMode;
+		var runtimeOptions = this.state.runtimeOptions;
+		for (var i = 0; i < runtimeOptions.length; i++) {
+			if (!this.isRequiredFilled(runtimeOptions[i])) {
+				runtimeOptions.splice(i, 1);
+				i--;
+			}
+		}
+		data.runtimeOptions = runtimeOptions;
+		$.ajax({
+			url: '/runtimeOptions',
+			type: 'POST',
+			data: JSON.stringify(data),
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				console.log("runtimeOption submit success");
+				me.close();
+			}
+		});
 	}
 });
 

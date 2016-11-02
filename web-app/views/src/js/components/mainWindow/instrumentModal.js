@@ -279,7 +279,6 @@ var InstrumentModal = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				// fileUploadActions.addFiles(data);
 				console.log("instrument success");
 				me.close();
 			}
