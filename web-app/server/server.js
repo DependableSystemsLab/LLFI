@@ -40,7 +40,7 @@ app.post('/runtimeOptions', function(req, res){
 });
 
 app.post('/faultInjection', function(req, res){
-	runtimeOptions.processFaultInjection(req,res);
+	faultInjection.processFaultInjection(req,res);
 });
 
 var server = app.listen(Port, function(){
