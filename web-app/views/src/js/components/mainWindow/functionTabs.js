@@ -5,6 +5,7 @@ var RuntimeOptionModal = require('./runtimeOptionModal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
+var consoleLogActions = require("./../../actions/consoleLogActions");
 
 
 
@@ -47,7 +48,10 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				fileUploadActions.addFiles(data);
+				var consoleLog = data.consoleLog;
+				var files = data.files;
+				consoleLogActions.updateConsoleLog(consoleLog);
+				fileUploadActions.addFiles(files);
 			}
 		});
 		this.changeButtonStatus(event);

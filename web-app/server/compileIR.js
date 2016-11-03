@@ -16,10 +16,12 @@ exports.processCompileIR = function (req, res) {
 
 	var commands = [cdDirCmd + " && " + generateMakeCmd, cdDirCmd + " && " + "make"];
 
+	var consoleLog = [];
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
-				results.push(stdout);
+				if (stdout) results.push(stdout);
+				consoleLog = results;
 				return results;
 			});
 		});
@@ -45,7 +47,8 @@ exports.processCompileIR = function (req, res) {
 				fileObj.fileContent = data;
 				files.push(fileObj);
 				if (err) console.log("err in file reading, ", err);
-				res.send(files);
+				var response = {files: files, consoleLog: consoleLog};
+				res.send(response);
 			});
 		});
 	});
@@ -54,6 +57,7 @@ exports.processCompileIR = function (req, res) {
 var execPromise = function(cmd) {
 	return new Promise(function(resolve, reject) {
 		exec(cmd, function(err, stdout) {
+			// console.log(stdout);
 			if (err) return reject(err);
 			resolve(stdout);
 		});

@@ -108,9 +108,7 @@ exports.processInstrument = function (req, res) {
 		});
 
 		// Send the llfi_displayIndex file back to front-end
-		console.log(outputIndexFilePath);
 		fs.readFile(outputIndexFilePath, 'utf8', function(err, data) {
-			console.log("readfile", data);
 			var fileObj = {};
 			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
 			fileObj.fileContent = data;
