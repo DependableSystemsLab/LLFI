@@ -50,8 +50,8 @@ var InstrumentModal = React.createClass({
 			contentType: 'application/json',
 			success: function(data){
 				var softwareTypes = [];
-				for (var i = 0; i< data.softwareInjectionTypes.length; i++) {
-					var type = {value: data.softwareInjectionTypes[i], text: data.softwareInjectionTypes[i]}
+				for (var i = 0; i< data.length; i++) {
+					var type = {value: data[i], text: data[i]}
 					softwareTypes.push(type);
 				}
 				softwareInjectionTypeOptions = softwareTypes;
