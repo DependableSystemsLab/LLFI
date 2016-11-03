@@ -76,6 +76,7 @@ exports.processInstrument = function (req, res) {
 	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
 	commands.push(cdDirCmd + " && " + intrumentScript);
 
+	var files = [];
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
@@ -105,9 +106,18 @@ exports.processInstrument = function (req, res) {
 				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
 			}
 		});
-	}).then(function(){
-		console.log("Instrument success");
-		res.end();
+
+		// Send the llfi_displayIndex file back to front-end
+		console.log(outputIndexFilePath);
+		fs.readFile(outputIndexFilePath, 'utf8', function(err, data) {
+			console.log("readfile", data);
+			var fileObj = {};
+			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
+			fileObj.fileContent = data;
+			files.push(fileObj);
+			console.log("Instrument success");
+			res.send(files);
+		});
 	});
 
 

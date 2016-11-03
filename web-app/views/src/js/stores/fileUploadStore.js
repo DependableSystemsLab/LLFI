@@ -15,10 +15,17 @@ var fileUploadStore = Reflux.createStore({
 	// Adding an array of files to store
 	onAddFiles: function(files) {
 		for (var i = 0; i < files.length; i++) {
-			fileList.push({
-				fileName: files[i].fileName,
-				fileContent: files[i].fileContent
-			});
+			if (fileList.findIndex(file => file.fileName == files[i].fileName) >= 0) {
+				// Replace the existing file if a file is already loaded
+				var existingIndex = fileList.findIndex(file => file.fileName == files[i].fileName);
+				fileList[existingIndex] = { fileName: files[i].fileName, fileContent: files[i].fileContent};
+			} else {
+				// Add the new file to the list
+				fileList.push({
+					fileName: files[i].fileName,
+					fileContent: files[i].fileContent
+				});
+			}
 		}
 		this.trigger(fileList);
 	}

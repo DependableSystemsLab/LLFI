@@ -17,6 +17,7 @@ var FunctionTabs = React.createClass({
 		};
 	},
 	render: function() {
+		console.log(this.state);
 		return (
 			<div class = "functionTabs">
 				<div class="btn-toolbar">

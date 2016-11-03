@@ -14,6 +14,8 @@ var injectionTypeConfig = require("./../../config/config").injectionType;
 
 var softwareInjectionTypeOptions = injectionTypeConfig.softwareInjectionTypeOptions;
 var hardwareInjectionTypeOptions = injectionTypeConfig.hardwareInjectionTypeOptions;
+var fileUploadActions = require("./../../actions/fileUploadActions");
+
 
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return a.indexOf(i) < 0;});
@@ -289,6 +291,8 @@ var InstrumentModal = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				console.log(data);
+				fileUploadActions.addFiles(data);
 				console.log("instrument success");
 				me.close();
 			}
