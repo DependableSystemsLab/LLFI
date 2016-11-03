@@ -10,22 +10,10 @@ var Button = require('react-bootstrap').Button;
 var ControlLabel = require('react-bootstrap').ControlLabel;
 var FilteredMultiSelect = require('react-filtered-multiselect');
 var injectionModeActions = require("./../../actions/injectionModeActions");
+var injectionTypeConfig = require("./../../config/config").injectionType;
 
-var softwareInjectionTypeOptions = [
-	{value: "CPUHog(Res)", text: "CPUHog(Res)"},
-	{value: "DataCorruption(Data)", text: "DataCorruption(Data)"},
-	{value: "HighFrequentEvent(Timing)", text: "HighFrequentEvent(Timing)"},
-	{value: "IncorrectOutput(API)", text: "IncorrectOutput(API)"},
-	{value: "NoOutput(API)", text: "NoOutput(API)"}
-];
-
-var hardwareInjectionTypeOptions = [
-	{value: "ret", text: "ret-(ReturnInst)"},
-	{value: "br", text: "br-(BranchInst)"},
-	{value: "switch", text: "switch-(SwitchInst)"},
-	{value: "indirectbr", text: "indirectbr-(IndirectBrInst)"},
-	{value: "invoke", text: "invoke-(InvokeInst)"}
-];
+var softwareInjectionTypeOptions = injectionTypeConfig.softwareInjectionTypeOptions;
+var hardwareInjectionTypeOptions = injectionTypeConfig.hardwareInjectionTypeOptions;
 
 Array.prototype.diff = function(a) {
     return this.filter(function(i) {return a.indexOf(i) < 0;});
@@ -52,7 +40,6 @@ var InstrumentModal = React.createClass({
 	},
 
 	open() {
-		console.log("request sent");
 		var data = {}
 		data.fileName = this.state.fileName;
 		$.ajax({
@@ -62,11 +49,12 @@ var InstrumentModal = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				softwareInjectionTypeOptions = data.softwareInjectionTypes;
-				hardwareInjectionTypeOptions = data.hardwareInjectionTypes;
-				console.log(softwareInjectionTypeOptions);
-				console.log(hardwareInjectionTypeOptions);
-				console.log("PreInstrument success");
+				var softwareTypes = [];
+				for (var i = 0; i< data.softwareInjectionTypes.length; i++) {
+					var type = {value: data.softwareInjectionTypes[i], text: data.softwareInjectionTypes[i]}
+					softwareTypes.push(type);
+				}
+				softwareInjectionTypeOptions = softwareTypes;
 			},
 			error: function (err) {
 				console.log("err in preInstrument", err);

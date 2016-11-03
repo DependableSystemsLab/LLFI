@@ -50,8 +50,7 @@ exports.processPreInstrument = function (req, res) {
 		});
 	}).then(function(){
 		var injectionTypes = {softwareInjectionTypes: softwareInjectionTypes, hardwareInjectionTypes: hardwareInjectionTypes};
-		console.log("Pre-Instrument success", injectionTypes);
-		res.end(injectionTypes);
+		res.send(injectionTypes);
 	});
 
 
