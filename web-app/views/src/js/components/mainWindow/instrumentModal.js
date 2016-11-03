@@ -196,12 +196,14 @@ var InstrumentModal = React.createClass({
 		}
 	},
 	enbaleSoftwareInjectionElements : function () {
+		$("#selectAllInstructionType").prop("disabled", true);
 		$("#instructionSelectionContainer").hide();
 		$("#customSelector").hide();
 		$("#registerSelectOptions").hide();
 		$("#registerSelector").hide();
 	},
 	enbaleHardwareInjectionElements: function () {
+		$("#selectAllInstructionType").prop("disabled", false);
 		$("#instructionSelectionContainer").show();
 		$("#customSelector").show();
 		$("#registerSelectOptions").show();
@@ -285,7 +287,12 @@ var InstrumentModal = React.createClass({
 		});
 	},
 	instructionTypeAddHandler: function (selectedOptions) {
-		this.setState({ selectedInjectionType: selectedOptions});
+		// In software injection mode, only allow one type to be selected
+		var validOptions = selectedOptions;
+		if (this.state.injectionMode == "software") {
+			validOptions = [selectedOptions[0]];
+		}
+		this.setState({ selectedInjectionType: validOptions});
 	},
 	instructionTypeRemoveHandler: function (removedOptions) {
 		var selectedOptions = this.state.injectionOptions.diff(removedOptions);
