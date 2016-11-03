@@ -67,11 +67,6 @@ exports.processInstrument = function (req, res) {
 		stream.end();
 	});
 
-	var fileName = req.body.fileName;
-
-	// Remove the file extension
-	fileName = fileName.replace(/\.[^/.]+$/, "");
-
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
 
 	var softwareFailureAutoScanCmd = LLFI_BUILD_ROOT + "bin/SoftwareFailureAutoScan --no_input_yaml " + fileName + ".ll";

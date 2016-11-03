@@ -6,6 +6,7 @@ var fs = require('fs');
 var Port = 8080;
 var fileUpload = require('./fileUpload');
 var compileIR = require('./compileIR');
+var preInstrument = require('./preInstrument');
 var instrument = require('./instrument');
 var profiling = require('./profiling');
 var runtimeOptions = require('./runtimeOptions');
@@ -25,6 +26,10 @@ app.post('/uploadFile', function(req, res){
 
 app.post('/compileIR', function(req, res){
 	compileIR.processCompileIR(req,res);
+});
+
+app.post('/preInstrument', function(req, res){
+	preInstrument.processPreInstrument(req,res);
 });
 
 app.post('/instrument', function(req, res){

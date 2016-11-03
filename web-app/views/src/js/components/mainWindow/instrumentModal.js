@@ -52,6 +52,26 @@ var InstrumentModal = React.createClass({
 	},
 
 	open() {
+		console.log("request sent");
+		var data = {}
+		data.fileName = this.state.fileName;
+		$.ajax({
+			url: '/preInstrument',
+			type: 'POST',
+			data: JSON.stringify(data),
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				softwareInjectionTypeOptions = data.softwareInjectionTypes;
+				hardwareInjectionTypeOptions = data.hardwareInjectionTypes;
+				console.log(softwareInjectionTypeOptions);
+				console.log(hardwareInjectionTypeOptions);
+				console.log("PreInstrument success");
+			},
+			error: function (err) {
+				console.log("err in preInstrument", err);
+			}
+		});
 		this.setState({ show: true });
 	},
 
