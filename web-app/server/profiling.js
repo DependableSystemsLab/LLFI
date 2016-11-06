@@ -21,7 +21,7 @@ exports.processProfiling = function (req, res) {
 	}
 
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
-
+	var consoleLog = [];
 	var commands = [];
 	commands.push(cdDirCmd + " && " + profilingScript);
 
@@ -29,6 +29,7 @@ exports.processProfiling = function (req, res) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
+				consoleLog = results;
 				return results;
 			});
 		});
@@ -42,7 +43,8 @@ exports.processProfiling = function (req, res) {
 				lastCycle = lastCycle == 0 ? 0 : lastCycle -1 ;
 				var profilingStats = [{type: profilingType, lastIndex: totalIndex, lastCycle: lastCycle}];
 				console.log("Profiling success");
-				res.send(profilingStats);
+				var result = {profilingStats: profilingStats, consoleLog: consoleLog}
+				res.send(result);
 			});
 		});
 	});

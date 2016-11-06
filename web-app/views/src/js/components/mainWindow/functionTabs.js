@@ -79,7 +79,10 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				profilingStatusActions.updateProfilingStatus(data);
+				var profilingStats = data.profilingStats;
+				var consoleLog = data.consoleLog;
+				profilingStatusActions.updateProfilingStatus(profilingStats);
+				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("profiling success");
 			}
 		});
