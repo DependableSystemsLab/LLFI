@@ -110,6 +110,8 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				var consoleLog = data.consoleLog;
+				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("faultInjection success");
 			}
 		});

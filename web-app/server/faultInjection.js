@@ -18,7 +18,7 @@ exports.processFaultInjection = function (req, res) {
 	}
 
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
-
+	var consoleLog = [];
 	var commands = [];
 	commands.push(cdDirCmd + " && " + faultInjectionScript);
 
@@ -26,6 +26,7 @@ exports.processFaultInjection = function (req, res) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
+				consoleLog = results;
 				return results;
 			}, function(err) {
 				console.log("fault injection err: ", err);
@@ -33,7 +34,8 @@ exports.processFaultInjection = function (req, res) {
 		});
 	}, Promise.resolve([])).then(function(results) {
 		console.log("faultInjection success");
-		res.end();
+		var results = {consoleLog: consoleLog};
+		res.send(results);
 	});
 }
 
@@ -41,7 +43,7 @@ var execPromise = function(cmd) {
 	return new Promise(function(resolve, reject) {
 		exec(cmd, function(err, stdout) {
 			if (err) return reject(err);
-			resolve(stdout);
+			resolve(cmd + stdout);
 		});
 	});
 }
