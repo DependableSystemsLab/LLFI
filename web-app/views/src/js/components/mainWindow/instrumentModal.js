@@ -15,6 +15,7 @@ var injectionTypeConfig = require("./../../config/config").injectionType;
 var softwareInjectionTypeOptions = injectionTypeConfig.softwareInjectionTypeOptions;
 var hardwareInjectionTypeOptions = injectionTypeConfig.hardwareInjectionTypeOptions;
 var fileUploadActions = require("./../../actions/fileUploadActions");
+var consoleLogActions = require("./../../actions/consoleLogActions");
 
 
 Array.prototype.diff = function(a) {
@@ -291,7 +292,10 @@ var InstrumentModal = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				fileUploadActions.addFiles(data);
+				var consoleLog = data.consoleLog;
+				var files = data.files;
+				consoleLogActions.updateConsoleLog(consoleLog);
+				fileUploadActions.addFiles(files);
 				console.log("instrument success");
 				me.close();
 			}

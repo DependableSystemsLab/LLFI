@@ -75,12 +75,13 @@ exports.processInstrument = function (req, res) {
 
 	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
 	commands.push(cdDirCmd + " && " + intrumentScript);
-
+	var consoleLog = [];
 	var files = [];
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
 				results.push(stdout);
+				consoleLog = results;
 				return results;
 			});
 		});
@@ -113,8 +114,9 @@ exports.processInstrument = function (req, res) {
 			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
 			fileObj.fileContent = data;
 			files.push(fileObj);
+			var result = {files: files, consoleLog: consoleLog}
 			console.log("Instrument success");
-			res.send(files);
+			res.send(result);
 		});
 	});
 
@@ -125,7 +127,7 @@ var execPromise = function(cmd) {
 	return new Promise(function(resolve, reject) {
 		exec(cmd, function(err, stdout) {
 			if (err) return reject(err);
-			resolve(stdout);
+			resolve(cmd + stdout);
 		});
 	});
 }
