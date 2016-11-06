@@ -9,6 +9,9 @@ exports.processProfiling = function (req, res) {
 	// Remove the file extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 	var input = req.body.input;
+	var injectionMode = req.body.injectionMode.injectionMode;
+	var injectionType = req.body.injectionMode.injectionType;
+	var profilingType = injectionMode == "hardware" ? "Hardware Fault(s)" : injectionType[0];
 	var batchMode = req.body.injectionMode.isBatchMode;
 	var profilingScript;
 	if (batchMode) {
@@ -30,8 +33,18 @@ exports.processProfiling = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
-		console.log("Profiling success");
-		res.end();
+		var totalIndexFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.totalindex.txt";
+		fs.readFile(totalIndexFilePath, 'utf8', function(err, data) {
+			var totalIndex = parseInt(data.split("=")[1]);
+			var profilingStatsFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.prof.txt";
+			fs.readFile(profilingStatsFilePath, 'utf8', function(err, data) {
+				var lastCycle = parseInt(data.split("=")[1])
+				lastCycle = lastCycle == 0 ? 0 : lastCycle -1 ;
+				var profilingStats = [{type: profilingType, lastIndex: totalIndex, lastCycle: lastCycle}];
+				console.log("Profiling success");
+				res.send(profilingStats);
+			});
+		});
 	});
 }
 

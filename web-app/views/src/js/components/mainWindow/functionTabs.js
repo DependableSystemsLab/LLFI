@@ -6,6 +6,7 @@ var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
+var profilingStatusActions = require("./../../actions/profilingStatusActions");
 
 
 
@@ -78,6 +79,7 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				profilingStatusActions.updateProfilingStatus(data);
 				console.log("profiling success");
 			}
 		});

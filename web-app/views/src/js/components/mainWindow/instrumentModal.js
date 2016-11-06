@@ -284,7 +284,7 @@ var InstrumentModal = React.createClass({
 			data.registerLocation = ReactDOM.findDOMNode(this.refs.registerLocation).value;
 		}
 		var isBatchMode = data.injectionMode == "software" && data.injectionType.length > 1 ? true : false;
-		injectionModeActions.injectionModeChange({isBatchMode: isBatchMode, injectionMode: data.injectionMode});
+		injectionModeActions.injectionModeChange({isBatchMode: isBatchMode, injectionMode: data.injectionMode, injectionType: data.injectionType});
 		$.ajax({
 			url: '/instrument',
 			type: 'POST',

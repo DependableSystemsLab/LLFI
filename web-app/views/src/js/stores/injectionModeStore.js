@@ -3,7 +3,8 @@ var injectionModeActions = require("./../actions/injectionModeActions");
 
 var injectionMode = {
 	isBatchMode: false,
-	injectionMode: ""
+	injectionMode: "",
+	injectionType: []
 };
 var injectionModeStore = Reflux.createStore({
 	listenables: [injectionModeActions],
