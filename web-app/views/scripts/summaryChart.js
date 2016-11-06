@@ -1,31 +1,14 @@
 
-var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
 var randomScalingFactor = function() {
-    return (Math.random() > 0.5 ? 1.0 : -1.0) * Math.round(Math.random() * 100);
-};
-var randomColorFactor = function() {
-    return Math.round(Math.random() * 255);
-};
-var randomColor = function() {
-    return 'rgba(' + randomColorFactor() + ',' + randomColorFactor() + ',' + randomColorFactor() + ',.7)';
+    return 1;
 };
 
 var horizontalBarChartData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: ["SDC", "Hanged", "Crashed"],
     datasets: [{
         label: 'Dataset 1',
         backgroundColor: "rgba(220,220,220,0.5)",
-        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
-    }, {
-        hidden: true,
-        label: 'Dataset 2',
-        backgroundColor: "rgba(151,187,205,0.5)",
-        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
-    }, {
-        label: 'Dataset 3',
-        backgroundColor: "rgba(151,187,205,0.5)",
-        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
+        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
     }]
 
 };
@@ -40,7 +23,7 @@ window.onload = function() {
             // In this case, we are setting the border of each horizontal bar to be 2px wide and green
             elements: {
                 rectangle: {
-                    borderWidth: 2,
+                    borderWidth: 1,
                     borderColor: 'rgb(0, 255, 0)',
                     borderSkipped: 'left'
                 }
@@ -51,7 +34,7 @@ window.onload = function() {
             },
             title: {
                 display: true,
-                text: 'Chart.js Horizontal Bar Chart'
+                text: 'Fault Summary'
             }
         }
     });
