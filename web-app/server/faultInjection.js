@@ -34,13 +34,11 @@ exports.processFaultInjection = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
-		console.log("faultInjection success");
 		var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
 		var totalRunCount = 0;
 		// Get the total number of Runs
 		fs.readdir(statOutputDir, (err, files) => {
 			files.forEach(file => {
-				console.log(file);
 				// Get the stats of each run
 				if (file.includes("llfi.stat.fi.injectedfaults")) {
 					var data = fs.readFileSync(statOutputDir + file, 'utf8');
@@ -55,6 +53,7 @@ exports.processFaultInjection = function (req, res) {
 			});
 			var results = {faultInjectionStatus, consoleLog};
 			res.send(results);
+			console.log("faultInjection success");
 		})
 	});
 }
