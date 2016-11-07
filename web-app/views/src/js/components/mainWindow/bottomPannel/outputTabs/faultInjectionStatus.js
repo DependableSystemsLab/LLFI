@@ -1,9 +1,11 @@
 var React = require("react");
 var faultInjectionStatusStore = require("./../../../../stores/faultInjectionStatusStore");
+var selectedTraceRunNumberStore = require("./../../../../stores/selectedTraceRunNumberStore");
+var selectedTraceRunNumberActions = require("./../../../../actions/selectedTraceRunNumberActions");
 var Reflux = require("reflux");
 
 var FaultInjectionStatus = React.createClass({
-	mixins: [Reflux.connect(faultInjectionStatusStore,"faultInjectionStatus")],
+	mixins: [Reflux.connect(faultInjectionStatusStore,"faultInjectionStatus"), Reflux.connect(selectedTraceRunNumberStore,"traceRunNumbers")],
 	getInitialState: function() {
 		return {
 			faultInjectionStatus: [],
@@ -72,9 +74,7 @@ var FaultInjectionStatus = React.createClass({
 			var index = traceRunNumbers.indexOf(selectedRunNumber);
 			if (index > -1) traceRunNumbers.splice(index, 1);
 		}
-		this.setState({
-			traceRunNumbers: traceRunNumbers
-		});
+		selectedTraceRunNumberActions.updateSelectedRunNumber(traceRunNumbers);
 	},
 	onClickCheckAll : function (event) {
 		var traceAllChecked = $("#checkallTrace").is(":checked");
@@ -85,9 +85,7 @@ var FaultInjectionStatus = React.createClass({
 				traceRunNumbers.push(this.state.faultInjectionStatus[i].runOption);
 			}
 		}
-		this.setState({
-			traceRunNumbers: traceRunNumbers
-		});
+		selectedTraceRunNumberActions.updateSelectedRunNumber(traceRunNumbers);
 	}
 });
 

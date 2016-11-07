@@ -11,6 +11,7 @@ var instrument = require('./instrument');
 var profiling = require('./profiling');
 var runtimeOptions = require('./runtimeOptions');
 var faultInjection = require('./faultInjection');
+var traceGraph = require('./traceGraph');
 var bodyParser = require('body-parser');
 
 app.use(express.static(path.join(__dirname, '../views')));
@@ -46,6 +47,10 @@ app.post('/runtimeOptions', function(req, res){
 
 app.post('/faultInjection', function(req, res){
 	faultInjection.processFaultInjection(req,res);
+});
+
+app.post('/traceGraph', function(req, res){
+	traceGraph.processTrace(req,res);
 });
 
 var server = app.listen(Port, function(){

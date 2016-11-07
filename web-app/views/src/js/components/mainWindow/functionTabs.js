@@ -8,15 +8,19 @@ var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
 var profilingStatusActions = require("./../../actions/profilingStatusActions");
 var faultInjectionStatusActions = require("./../../actions/faultInjectionStatusActions");
+var selectedTraceRunNumberStore = require("./../../stores/selectedTraceRunNumberStore");
 
 
 
 var FunctionTabs = React.createClass({
-	mixins: [Reflux.connect(targetFileNameStore,"fileName"), Reflux.connect(injectionModeStore,"injectionMode")],
+	mixins: [Reflux.connect(targetFileNameStore,"fileName"),
+		Reflux.connect(injectionModeStore,"injectionMode"),
+		Reflux.connect(selectedTraceRunNumberStore,"selectedTraceRunNumber")],
 	getInitialState: function() {
 		return {
 			fileName: '',
-			injectionMode: {}
+			injectionMode: {},
+			selectedTraceRunNumber: []
 		};
 	},
 	render: function() {
@@ -29,7 +33,7 @@ var FunctionTabs = React.createClass({
 					<button id="profilingBtn" class="btn disabled" onClick={this.onProfilingClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onRuntimeOptionClick}>Runtime Options</button>
 					<button id="injectFaultBtn" class="btn disabled" onClick={this.onFaultInjectionClick}>Inject Fault</button>
-					<button id="traceGraphBtn" class="btn disabled" onClick={this.onButtonClick}>Trace Graph</button>
+					<button id="traceGraphBtn" class="btn disabled" onClick={this.onGenerateTraceClick}>Trace Graph</button>
 				</div>
 				<InstrumentModal/>
 				<RuntimeOptionModal/>
@@ -120,6 +124,24 @@ var FunctionTabs = React.createClass({
 		});
 		this.changeButtonStatus(event);
 	},
+	onGenerateTraceClick: function (event) {
+		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
+			return;
+		}
+		var data = {}
+		data.selectedRuns = this.state.selectedTraceRunNumber;
+		$.ajax({
+			url: '/traceGraph',
+			type: 'POST',
+			data: JSON.stringify(data),
+			processData: false,
+			contentType: 'application/json',
+			success: function(data){
+				console.log("Generate Trace success");
+			}
+		});
+		this.changeButtonStatus(event);
+	};
 	changeButtonStatus: function(event) {
 		// If the current button clicked is disabled, do nothing
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
