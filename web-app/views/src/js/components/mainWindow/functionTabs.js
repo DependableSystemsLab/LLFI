@@ -7,6 +7,7 @@ var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
 var profilingStatusActions = require("./../../actions/profilingStatusActions");
+var faultInjectionStatusActions = require("./../../actions/faultInjectionStatusActions");
 
 
 
@@ -111,6 +112,8 @@ var FunctionTabs = React.createClass({
 			contentType: 'application/json',
 			success: function(data){
 				var consoleLog = data.consoleLog;
+				var faultInjectionStatus = data.faultInjectionStatus;
+				faultInjectionStatusActions.updateFaultInjectionStatus(faultInjectionStatus);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("faultInjection success");
 			}

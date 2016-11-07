@@ -1,9 +1,35 @@
 var React = require("react");
-
+var faultInjectionStatusStore = require("./../../../../stores/faultInjectionStatusStore");
+var Reflux = require("reflux");
 
 var FaultInjectionStatus = React.createClass({
+	mixins: [Reflux.connect(faultInjectionStatusStore,"faultInjectionStatus")],
+	getInitialState: function() {
+		return {
+			faultInjectionStatus: []
+		};
+	},
 	render: function() {
 		var className = "faultInjectionStatus" + (this.props.shouldDisplay ? "" : " hide");
+		var injectionStatusRows = this.state.faultInjectionStatus.map(function(data, index) {
+			return (
+				<tr key={index}>
+					<td>{data.runOption}</td>
+					<td>{data.injectionType}</td>
+					<td>{data.index}</td>
+					<td>{data.cycle}</td>
+					<td>{data.bit}</td>
+					<td>Not Occured</td>
+					<td>Injected</td>
+					<td>Nil</td>
+					<td>
+						<div class="checkbox">
+							<input type="checkbox" value=""/>
+						</div>
+					</td>
+				</tr>
+			)
+		});
 		return (
 			<div class={className}>
 				<table class="table table-hover faultInjectionStatusTable">
@@ -26,21 +52,7 @@ var FaultInjectionStatus = React.createClass({
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<td>1</td>
-							<td>bitflip</td>
-							<td>33</td>
-							<td>2</td>
-							<td>29</td>
-							<td>Not Occured</td>
-							<td>Injected</td>
-							<td>Nil</td>
-							<td>
-								<div class="checkbox">
-									<input type="checkbox" value=""/>
-								</div>
-							</td>
-						</tr>
+						{injectionStatusRows}
 					</tbody>
 				</table>
 			</div>
