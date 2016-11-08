@@ -138,6 +138,12 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				// var pdf = $scope.base64ToUint8Array(data);
+				// PDFJS.getDocument(pdf).then(functiongetPdf (_pdfDoc) {
+				// 	$scope.pdfDoc = _pdfDoc;
+				// 	$scope.renderPage($scope.pageNum);
+				// });
+				console.log(data);
 				console.log("Generate Trace success");
 			}
 		});

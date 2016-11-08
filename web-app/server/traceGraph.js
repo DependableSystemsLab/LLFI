@@ -12,10 +12,13 @@ exports.processTrace = function (req, res) {
 		fs.mkdirSync(traceFolder);
 	}
 
-	var goldenFile = "./uploads/" + req.ip +"/llfi/baseline/llfi.stat.trace.prof.txt";
+	var goldenFile = "./llfi/baseline/llfi.stat.trace.prof.txt";
 	var llfi_stat_output = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
 	var runNumbers = [];
 	var selectedTraceFileNames = [];
+	var traceDiffFileNames = []
+	var commands = [];
+	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
 	// Get the number of runs in each run option
 	fs.readdir(llfi_stat_output, (err, files) => {
 		files.forEach(file => {
@@ -43,25 +46,60 @@ exports.processTrace = function (req, res) {
 			}
 			selectedTraceFileNames.push("llfi.stat.trace." + currentRunOptionNumber + "-" + traceNumber + ".txt");
 		}
-	})
 
-	// commands.push(cdDirCmd + " && " + faultInjectionScript);
+		// TraceDiff commands
+		for (var i = 0; i < selectedTraceFileNames.length; i++) {
+			if (files.indexOf(selectedTraceFileNames[i]) > -1) {
+				var nameParser = selectedTraceFileNames[i].split("llfi.stat.trace.")[1];
+				var runOption = parseInt(nameParser.split("-")[0]);;
+				var runNumber = nameParser.split("-")[1];;
+				runNumber = parseInt(runNumber.split(".txt")[0]);;
+				var tradeDiffFileName = "TraceDiffReportFile." + runOption + "-" + runNumber + ".txt";
+				traceDiffFileNames.push(tradeDiffFileName);
+				var tradeFile = "./llfi/llfi_stat_output/" + selectedTraceFileNames[i];
+				var command = LLFI_BUILD_ROOT + "tools/tracediff " + goldenFile + " " + tradeFile + " > " + "./llfi/trace_report_output/" + tradeDiffFileName;
 
-	// commands.reduce(function(p, cmd) {
-	// 	return p.then(function(results) {
-	// 		return execPromise(cmd).then(function(stdout) {
-	// 			results.push(stdout);
-	// 			consoleLog = results;
-	// 			return results;
-	// 		}, function(err) {
-	// 			console.log("fault injection err: ", err);
-	// 		});
-	// 	});
-	// }, Promise.resolve([])).then(function(results) {
-	// 	var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
-	// 	var totalRunCount = 0;
-	// 	// Get the total number of Runs
-	// });
+				commands.push(cdDirCmd + " && " + command);
+			}
+		}
+
+		//Trace Union command
+		var traceUnionCmd = LLFI_BUILD_ROOT + "tools/traceunion ";
+		for (var i = 0; i < traceDiffFileNames.length; i++) {
+			traceUnionCmd += "./llfi/trace_report_output/" + traceDiffFileNames[i] + " ";
+		}
+		traceUnionCmd += "> ./llfi/trace_report_output/UnionedDiffReportFile.txt";
+		commands.push(cdDirCmd + " && " + traceUnionCmd)
+
+		// traceontograph command
+		var tracetoGraphCmd = LLFI_BUILD_ROOT + "tools/traceontograph ./llfi/trace_report_output/UnionedDiffReportFile.txt ./llfi.stat.graph.dot > ./llfi/trace_report_output/TraceGraph.dot";
+		commands.push(cdDirCmd + " && " + tracetoGraphCmd)
+
+		//Covert dot file to pdf file
+		var traceCovertCmd = "dot -Tpdf ./llfi/trace_report_output/TraceGraph.dot -o ./llfi/trace_report_output/TraceGraph.pdf";
+		commands.push(cdDirCmd + " && " + traceCovertCmd)
+
+		//Execute the commands
+		commands.reduce(function(p, cmd) {
+			return p.then(function(results) {
+				return execPromise(cmd).then(function(stdout) {
+					results.push(stdout);
+					consoleLog = results;
+					return results;
+				}, function(err) {
+					console.log("Trace onto graph err: ", err);
+				});
+			});
+		}, Promise.resolve([])).then(function(results) {
+			fs.readFile("./uploads/" + req.ip +"/llfi/trace_report_output/TraceGraph.pdf", 'utf8', function(err, data) {
+				res.header("Content-Disposition", "attachment");
+				res.header("filename", "trace.pdf");
+				res.contentType("application/pdf");
+				res.send(data);
+				console.log("Generate trace graph success");
+			});
+		});
+	});
 }
 
 var execPromise = function(cmd) {
