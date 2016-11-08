@@ -5,47 +5,63 @@ var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
 exports.processTrace = function (req, res) {
 
-	var runNumbers = req.body.selectedRuns;
+	var traceRunNumbers = req.body.selectedRuns;
+	var traceFolder = "./uploads/" + req.ip +"/llfi/trace_report_output/";
+	// Make a dir to store the files from a client
+	if (!fs.existsSync(traceFolder)) {
+		fs.mkdirSync(traceFolder);
+	}
 
-	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
-	var consoleLog = [];
-	var commands = [];
-	var faultInjectionStatus = [];
-	commands.push(cdDirCmd + " && " + faultInjectionScript);
-
-	commands.reduce(function(p, cmd) {
-		return p.then(function(results) {
-			return execPromise(cmd).then(function(stdout) {
-				results.push(stdout);
-				consoleLog = results;
-				return results;
-			}, function(err) {
-				console.log("fault injection err: ", err);
-			});
-		});
-	}, Promise.resolve([])).then(function(results) {
-		var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
-		var totalRunCount = 0;
-		// Get the total number of Runs
-		fs.readdir(statOutputDir, (err, files) => {
-			files.forEach(file => {
-				// Get the stats of each run
-				if (file.includes("llfi.stat.fi.injectedfaults")) {
-					var data = fs.readFileSync(statOutputDir + file, 'utf8');
-					var runOption = totalRunCount;
-					var injectionType = getStatusValue("fi_type", data);
-					var index = getStatusValue("fi_index", data);
-					var cycle = getStatusValue("fi_cycle", data);
-					var bit = getStatusValue("fi_bit", data);
-					faultInjectionStatus[totalRunCount] = {runOption, injectionType, index, cycle, bit};
-					totalRunCount ++;
+	var goldenFile = "./uploads/" + req.ip +"/llfi/baseline/llfi.stat.trace.prof.txt";
+	var llfi_stat_output = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
+	var runNumbers = [];
+	var selectedTraceFileNames = [];
+	// Get the number of runs in each run option
+	fs.readdir(llfi_stat_output, (err, files) => {
+		files.forEach(file => {
+			// Get the stats of each run
+			if (file.includes("llfi.stat.fi.injectedfaults")) {
+				var fileName = file;
+				var runOptionNumber = fileName.split("llfi.stat.fi.injectedfaults.")[1];
+				runOptionNumber = parseInt(runOptionNumber.split("-")[0]);
+				if (!runNumbers[runOptionNumber]) {
+					runNumbers[runOptionNumber] = 1;
+				} else {
+					runNumbers[runOptionNumber]++;
 				}
-			});
-			var results = {faultInjectionStatus, consoleLog};
-			res.send(results);
-			console.log("Trace success");
-		})
-	});
+			}
+		});
+		// Get the selected Trace file names
+		var currentRunOptionNumber = 0;
+		var currentRunNumberOffset = 0;
+		for (var i = 0; i < traceRunNumbers.length; i++) {
+			var traceNumber = traceRunNumbers[i] - currentRunNumberOffset;
+			while (traceNumber >= runNumbers[currentRunOptionNumber]) {
+				currentRunNumberOffset += runNumbers[currentRunOptionNumber];
+				traceNumber -= runNumbers[currentRunOptionNumber];
+				currentRunOptionNumber ++ ;
+			}
+			selectedTraceFileNames.push("llfi.stat.trace." + currentRunOptionNumber + "-" + traceNumber + ".txt");
+		}
+	})
+
+	// commands.push(cdDirCmd + " && " + faultInjectionScript);
+
+	// commands.reduce(function(p, cmd) {
+	// 	return p.then(function(results) {
+	// 		return execPromise(cmd).then(function(stdout) {
+	// 			results.push(stdout);
+	// 			consoleLog = results;
+	// 			return results;
+	// 		}, function(err) {
+	// 			console.log("fault injection err: ", err);
+	// 		});
+	// 	});
+	// }, Promise.resolve([])).then(function(results) {
+	// 	var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
+	// 	var totalRunCount = 0;
+	// 	// Get the total number of Runs
+	// });
 }
 
 var execPromise = function(cmd) {

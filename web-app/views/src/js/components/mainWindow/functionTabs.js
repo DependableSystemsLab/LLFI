@@ -130,6 +130,7 @@ var FunctionTabs = React.createClass({
 		}
 		var data = {}
 		data.selectedRuns = this.state.selectedTraceRunNumber;
+		data.selectedRuns.sort(compareNumbers);
 		$.ajax({
 			url: '/traceGraph',
 			type: 'POST',
@@ -141,7 +142,7 @@ var FunctionTabs = React.createClass({
 			}
 		});
 		this.changeButtonStatus(event);
-	};
+	},
 	changeButtonStatus: function(event) {
 		// If the current button clicked is disabled, do nothing
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
@@ -155,5 +156,9 @@ var FunctionTabs = React.createClass({
 		$("#"+event.currentTarget.id).next().addClass("btn-primary");
 	}
 });
+
+function compareNumbers(a, b) {
+  return a - b;
+}
 
 module.exports = FunctionTabs;
