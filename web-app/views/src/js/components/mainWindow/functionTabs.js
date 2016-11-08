@@ -1,5 +1,6 @@
 var React = require("react");
 var Reflux = require("reflux");
+
 var InstrumentModal = require('./instrumentModal');
 var RuntimeOptionModal = require('./runtimeOptionModal');
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
@@ -138,12 +139,16 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
-				// var pdf = $scope.base64ToUint8Array(data);
-				// PDFJS.getDocument(pdf).then(functiongetPdf (_pdfDoc) {
-				// 	$scope.pdfDoc = _pdfDoc;
-				// 	$scope.renderPage($scope.pageNum);
-				// });
-				console.log(data);
+				var a = document.createElement("a");
+				a.href = "/tracepdf";
+				a.download = "TraceGraph";
+				document.body.appendChild(a);
+				a.click();
+				// remove `a` following `Save As` dialog, 
+				// `window` regains `focus`
+				window.onfocus = function () {                     
+					document.body.removeChild(a)
+				}
 				console.log("Generate Trace success");
 			}
 		});

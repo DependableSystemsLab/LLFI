@@ -91,13 +91,7 @@ exports.processTrace = function (req, res) {
 				});
 			});
 		}, Promise.resolve([])).then(function(results) {
-			fs.readFile("./uploads/" + req.ip +"/llfi/trace_report_output/TraceGraph.pdf", 'utf8', function(err, data) {
-				res.header("Content-Disposition", "attachment");
-				res.header("filename", "trace.pdf");
-				res.contentType("application/pdf");
-				res.send(data);
-				console.log("Generate trace graph success");
-			});
+			res.end();
 		});
 	});
 }

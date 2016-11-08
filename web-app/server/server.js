@@ -3,6 +3,8 @@ var app = express();
 var path = require('path');
 var formidable = require('formidable');
 var fs = require('fs');
+var http = require('http');
+
 var Port = 8080;
 var fileUpload = require('./fileUpload');
 var compileIR = require('./compileIR');
@@ -51,6 +53,11 @@ app.post('/faultInjection', function(req, res){
 
 app.post('/traceGraph', function(req, res){
 	traceGraph.processTrace(req,res);
+});
+
+app.get('/tracepdf', function(req, res){
+	console.log('Trace graph sent');
+	res.download("./uploads/" + req.ip +"/llfi/trace_report_output/TraceGraph.pdf");
 });
 
 var server = app.listen(Port, function(){
