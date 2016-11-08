@@ -42,7 +42,11 @@ exports.processFileUpload = function (req, res) {
 					var fileObj = {};
 					fileObj.fileName = file.name;
 					fileObj.fileContent = data;
-					if (err) console.log("err in file reading, ", err);
+					if (err) {
+						res.status(400);
+						res.send(err);
+						console.log("err in file reading, ", err)
+					};
 					res.send(fileObj);
 				});
 			}

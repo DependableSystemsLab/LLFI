@@ -52,6 +52,10 @@ var Tools = React.createClass({
 				contentType: false,
 				success: function(data){
 					fileUploadActions.addFile(data);
+				},
+				error: function (error) {
+					console.log(error);
+					window.alert("An error has occured in file upload, please refresh the page.");
 				}
 			});
 		}
