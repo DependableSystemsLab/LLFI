@@ -1,6 +1,5 @@
 var fs = require('fs');
 var readline = require('readline');
-var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 
 exports.processRuntimeOptions = function (req, res) {
@@ -32,14 +31,5 @@ exports.processRuntimeOptions = function (req, res) {
 			res.end();
 		}
 
-	});
-}
-
-var execPromise = function(cmd) {
-	return new Promise(function(resolve, reject) {
-		exec(cmd, function(err, stdout) {
-			if (err) return reject(err);
-			resolve(stdout);
-		});
 	});
 }

@@ -17,9 +17,11 @@ exports.processFileUpload = function (req, res) {
 	var dirName = "./uploads/" + clientIP + "/";
 
 	exec("rm -rf " + dirName + "*", function(err, stdout) {
-		if (err) console.log("err in clearing dir", dirName, err);
-		res.status(500);
-		res.send(err);
+		if (err) {
+			console.log("err in clearing dir", dirName, err);
+			res.status(500);
+			res.send(err);
+		}
 	});
 
 	// store all uploads in the /uploads directory

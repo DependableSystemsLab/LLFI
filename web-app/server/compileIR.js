@@ -1,6 +1,7 @@
 var fs = require('fs');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
+var execPromise = require('./utils/execPromise').execPromise;
 
 exports.processCompileIR = function (req, res) {
 
@@ -27,10 +28,10 @@ exports.processCompileIR = function (req, res) {
 		});
 	}, Promise.resolve([])).then(function(results) {
 		// all done here, all results in the results array
-		console.log("CompileIR success");
 
 	}, function(err) {
 		// error here
+		
 	}).then(function() {
 
 		var files = [];
@@ -48,17 +49,18 @@ exports.processCompileIR = function (req, res) {
 				files.push(fileObj);
 				if (err) console.log("err in file reading, ", err);
 				var response = {files: files, consoleLog: consoleLog};
+				console.log("CompileIR success");
 				res.send(response);
 			});
 		});
 	});
 }
 
-var execPromise = function(cmd) {
-	return new Promise(function(resolve, reject) {
-		exec(cmd, function(err, stdout) {
-			if (err) return reject(err);
-			resolve(cmd + stdout);
-		});
-	});
-}
+// var execPromise = function(cmd) {
+// 	return new Promise(function(resolve, reject) {
+// 		exec(cmd, function(err, stdout) {
+// 			if (err) return reject(err);
+// 			resolve(cmd + stdout);
+// 		});
+// 	});
+// }

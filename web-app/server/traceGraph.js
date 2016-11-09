@@ -1,7 +1,7 @@
 var fs = require('fs');
 var readline = require('readline');
-var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
+var execPromise = require('./utils/execPromise').execPromise;
 
 exports.processTrace = function (req, res) {
 
@@ -18,6 +18,7 @@ exports.processTrace = function (req, res) {
 	var selectedTraceFileNames = [];
 	var traceDiffFileNames = []
 	var commands = [];
+	var consoleLog = [];
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
 	// Get the number of runs in each run option
 	fs.readdir(llfi_stat_output, (err, files) => {
@@ -91,20 +92,10 @@ exports.processTrace = function (req, res) {
 				});
 			});
 		}, Promise.resolve([])).then(function(results) {
-			res.end();
+			res.send({consoleLog: consoleLog});
 		});
 	});
 }
-
-var execPromise = function(cmd) {
-	return new Promise(function(resolve, reject) {
-		exec(cmd, function(err, stdout) {
-			if (err) return reject(err);
-			resolve(cmd + stdout);
-		});
-	});
-}
-
 
 // Parse the file data to get the value of a status
 var getStatusValue = function (statusType, fileData) {1

@@ -1,7 +1,7 @@
 var fs = require('fs');
 var readline = require('readline');
-var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
+var execPromise = require('./utils/execPromise').execPromise;
 
 // Do a hardware and software auto scan, send the applicable injection types back to the client
 exports.processPreInstrument = function (req, res) {
@@ -39,13 +39,4 @@ exports.processPreInstrument = function (req, res) {
 	});
 
 
-}
-
-var execPromise = function(cmd) {
-	return new Promise(function(resolve, reject) {
-		exec(cmd, function(err, stdout) {
-			if (err) return reject(err);
-			resolve(stdout);
-		});
-	});
 }

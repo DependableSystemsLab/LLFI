@@ -138,6 +138,8 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				var consoleLog = data.consoleLog;
+				consoleLogActions.updateConsoleLog(consoleLog);
 				// Simulate a download a tag to download the pdf trace file
 				var a = document.createElement("a");
 				a.href = "/tracepdf";
