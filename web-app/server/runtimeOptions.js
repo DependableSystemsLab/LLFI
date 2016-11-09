@@ -1,6 +1,6 @@
 var fs = require('fs');
 var readline = require('readline');
-var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
+var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 
 exports.processRuntimeOptions = function (req, res) {
 
