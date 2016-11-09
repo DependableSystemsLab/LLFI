@@ -4,8 +4,6 @@ var fs = require('fs');
 var Port = 8080;
 var exec = require('child_process').exec;
 
-var clientInfo ={};
-
 exports.processFileUpload = function (req, res) {
 	// create an incoming form object
 	var form = new formidable.IncomingForm();
@@ -20,6 +18,8 @@ exports.processFileUpload = function (req, res) {
 
 	exec("rm -rf " + dirName + "*", function(err, stdout) {
 		if (err) console.log("err in clearing dir", dirName, err);
+		res.status(500);
+		res.send(err);
 	});
 
 	// store all uploads in the /uploads directory
@@ -37,13 +37,12 @@ exports.processFileUpload = function (req, res) {
 				console.log("An error has occured in file rename, ", err);
 			}
 			else {
-				clientInfo.fileName = file.name;
 				fs.readFile(dirName + file.name, 'utf8', function(err, data) {
 					var fileObj = {};
 					fileObj.fileName = file.name;
 					fileObj.fileContent = data;
 					if (err) {
-						res.status(400);
+						res.status(500);
 						res.send(err);
 						console.log("err in file reading, ", err)
 					};
@@ -55,6 +54,8 @@ exports.processFileUpload = function (req, res) {
 
 	// log any errors that occur
 	form.on('error', function(err) {
+		res.status(500);
+		res.send(err);
 		console.log('An error has occured: \n' + err);
 	});
 

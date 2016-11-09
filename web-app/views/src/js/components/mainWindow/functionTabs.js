@@ -25,7 +25,6 @@ var FunctionTabs = React.createClass({
 		};
 	},
 	render: function() {
-		console.log(this.state);
 		return (
 			<div class = "functionTabs">
 				<div class="btn-toolbar">
@@ -139,6 +138,7 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				// Simulate a download a tag to download the pdf trace file
 				var a = document.createElement("a");
 				a.href = "/tracepdf";
 				a.download = "TraceGraph";

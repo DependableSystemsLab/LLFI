@@ -20,44 +20,94 @@ app.use(express.static(path.join(__dirname, '../views')));
 app.use(bodyParser.json());
 
 app.get('/', function(req, res){
-	res.sendFile(path.join(__dirname, 'index.html'));
+	try {
+		res.sendFile(path.join(__dirname, 'index.html'));
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/uploadFile', function(req, res){
-	fileUpload.processFileUpload(req,res);
+	try {
+		fileUpload.processFileUpload(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/compileIR', function(req, res){
-	compileIR.processCompileIR(req,res);
+	try {
+		compileIR.processCompileIR(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/preInstrument', function(req, res){
-	preInstrument.processPreInstrument(req,res);
+	try {
+		preInstrument.processPreInstrument(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/instrument', function(req, res){
-	instrument.processInstrument(req,res);
+	try {
+		instrument.processInstrument(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/profiling', function(req, res){
-	profiling.processProfiling(req,res);
+	try {
+		profiling.processProfiling(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/runtimeOptions', function(req, res){
-	runtimeOptions.processRuntimeOptions(req,res);
+	try {
+		runtimeOptions.processRuntimeOptions(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/faultInjection', function(req, res){
-	faultInjection.processFaultInjection(req,res);
+	try {
+		faultInjection.processFaultInjection(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.post('/traceGraph', function(req, res){
-	traceGraph.processTrace(req,res);
+	try {
+		traceGraph.processTrace(req,res);
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 app.get('/tracepdf', function(req, res){
-	console.log('Trace graph sent');
-	res.download("./uploads/" + req.ip +"/llfi/trace_report_output/TraceGraph.pdf");
+	try {
+		res.download("./uploads/" + req.ip +"/llfi/trace_report_output/TraceGraph.pdf");
+		console.log('Trace graph sent');
+	} catch (err) {
+		res.status(500);
+		res.send(err);
+	}
 });
 
 var server = app.listen(Port, function(){
