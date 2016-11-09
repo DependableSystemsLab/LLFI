@@ -34,6 +34,9 @@ exports.processPreInstrument = function (req, res) {
 				softwareInjectionTypes.push(injectionType);
 			}
 		});
+	}, function(err) {
+		// error here
+		res.send(err);
 	}).then(function(){
 		res.send(softwareInjectionTypes);
 	});

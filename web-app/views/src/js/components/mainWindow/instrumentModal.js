@@ -16,6 +16,7 @@ var softwareInjectionTypeOptions = injectionTypeConfig.softwareInjectionTypeOpti
 var hardwareInjectionTypeOptions = injectionTypeConfig.hardwareInjectionTypeOptions;
 var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
+var errorLogActions = require("./../../actions/errorLogActions");
 
 
 Array.prototype.diff = function(a) {
@@ -59,8 +60,12 @@ var InstrumentModal = React.createClass({
 				}
 				softwareInjectionTypeOptions = softwareTypes;
 			},
-			error: function (err) {
-				console.log("err in preInstrument", err);
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in preInstrument injection type auto scan process, please refresh the page.");
 			}
 		});
 		this.setState({ show: true });
@@ -298,6 +303,13 @@ var InstrumentModal = React.createClass({
 				fileUploadActions.addFiles(files);
 				console.log("instrument success");
 				me.close();
+			},
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in Instrument, please refresh the page.");
 			}
 		});
 	},

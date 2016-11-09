@@ -7,6 +7,7 @@ var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var injectionModeStore = require("./../../stores/injectionModeStore");
 var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
+var errorLogActions = require("./../../actions/errorLogActions");
 var profilingStatusActions = require("./../../actions/profilingStatusActions");
 var faultInjectionStatusActions = require("./../../actions/faultInjectionStatusActions");
 var selectedTraceRunNumberStore = require("./../../stores/selectedTraceRunNumberStore");
@@ -58,6 +59,13 @@ var FunctionTabs = React.createClass({
 				var files = data.files;
 				consoleLogActions.updateConsoleLog(consoleLog);
 				fileUploadActions.addFiles(files);
+			},
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in compileIR, please refresh the page.");
 			}
 		});
 		this.changeButtonStatus(event);
@@ -89,6 +97,13 @@ var FunctionTabs = React.createClass({
 				profilingStatusActions.updateProfilingStatus(profilingStats);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("profiling success");
+			},
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in Profiling, please refresh the page.");
 			}
 		});
 		this.changeButtonStatus(event);
@@ -120,6 +135,13 @@ var FunctionTabs = React.createClass({
 				faultInjectionStatusActions.updateFaultInjectionStatus(faultInjectionStatus);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("faultInjection success");
+			},
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in FaultInjection, please refresh the page.");
 			}
 		});
 		this.changeButtonStatus(event);
@@ -152,6 +174,13 @@ var FunctionTabs = React.createClass({
 					document.body.removeChild(a)
 				}
 				console.log("Generate Trace success");
+			},
+			error: function (error) {
+				if (error.responseJSON.error) {
+					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
+				}
+				console.log(error);
+				window.alert("An error has occured in TraceGraph, please refresh the page.");
 			}
 		});
 		this.changeButtonStatus(event);
