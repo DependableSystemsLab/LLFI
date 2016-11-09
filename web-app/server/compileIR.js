@@ -2,6 +2,7 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 var execPromise = require('./utils/execPromise').execPromise;
+var errorStatus = false;
 
 exports.processCompileIR = function (req, res) {
 
@@ -12,7 +13,7 @@ exports.processCompileIR = function (req, res) {
 
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
 
-	var generateMakeCmd = LLFI_BUILD_ROOT + "tools/GenerateMakefile1 --readable --all -o " + fileName + ".ll";
+	var generateMakeCmd = LLFI_BUILD_ROOT + "tools/GenerateMakefile --readable --all -o " + fileName + ".ll";
 
 
 	var commands = [cdDirCmd + " && " + generateMakeCmd, cdDirCmd + " && " + "make"];
@@ -33,29 +34,32 @@ exports.processCompileIR = function (req, res) {
 		// error here
 		res.status(500);
 		res.send({error: err});
-		console.log("here");
-		return;
+		console.log("err in instrument process", err);
+		errorStatus = true;
 	}).then(function() {
-
+		if (errorStatus) return;
 		var files = [];
 		// Send the .ll file and make file back to front-end
 		fs.readFile("./uploads/"+ req.ip+"/" + fileName + ".ll", 'utf8', function(err, data) {
 			if (err) {
-				console.log("err in file reading, ", err);
 				res.status(500);
 				res.send(err);
-				return;
+				errorStatus = true;
+				console.log("err in file reading, ", err);
 			}
+			if (errorStatus) return;
 			var fileObj = {};
 			fileObj.fileName = fileName + ".ll";
 			fileObj.fileContent = data;
 			files.push(fileObj);
 			fs.readFile("./uploads/"+ req.ip+"/Makefile", 'utf8', function(err, data) {
 				if (err) {
-					console.log("err in file reading, ", err);
 					res.status(500);
 					res.send(err);
+					errorStatus = true;
+					console.log("err in file reading, ", err);
 				}
+				if (errorStatus) return;
 				var fileObj = {};
 				fileObj.fileName = "Makefile";
 				fileObj.fileContent = data;
@@ -67,12 +71,3 @@ exports.processCompileIR = function (req, res) {
 		});
 	});
 }
-
-// var execPromise = function(cmd) {
-// 	return new Promise(function(resolve, reject) {
-// 		exec(cmd, function(err, stdout) {
-// 			if (err) return reject(err);
-// 			resolve(cmd + stdout);
-// 		});
-// 	});
-// }
