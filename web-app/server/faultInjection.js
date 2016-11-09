@@ -33,6 +33,7 @@ exports.processFaultInjection = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
+		if (errorStatus) return;
 		var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
 		var totalRunCount = 0;
 		// Get the total number of Runs

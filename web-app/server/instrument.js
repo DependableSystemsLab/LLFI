@@ -87,6 +87,7 @@ exports.processInstrument = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
+		if (errorStatus) return;
 		if (batchMode) {
 			// Copy the llfi.stat.graph.doc file
 			fs.createReadStream("./uploads/" + req.ip +"/llfi-" + injectionType[0]+"/llfi.stat.graph.dot").pipe(fs.createWriteStream("./uploads/" + req.ip +"/llfi.stat.graph.dot"));
@@ -111,13 +112,13 @@ exports.processInstrument = function (req, res) {
 
 		// Send the llfi_displayIndex file back to front-end
 		fs.readFile(outputIndexFilePath, 'utf8', function(err, data) {
+			if (errorStatus) return;
 			if (err) {
 				res.status(500);
 				res.send(err);
 				errorStatus = true;
 				console.log("err in file reading, ", err);
 			}
-			if (errorStatus) return;
 			var fileObj = {};
 			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
 			fileObj.fileContent = data;

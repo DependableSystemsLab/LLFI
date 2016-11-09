@@ -35,6 +35,7 @@ exports.processProfiling = function (req, res) {
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
+		if (errorStatus) return;
 		var totalIndexFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.totalindex.txt";
 		fs.readFile(totalIndexFilePath, 'utf8', function(err, data) {
 			if (err) {
