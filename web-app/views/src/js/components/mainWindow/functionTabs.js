@@ -59,6 +59,7 @@ var FunctionTabs = React.createClass({
 				var files = data.files;
 				consoleLogActions.updateConsoleLog(consoleLog);
 				fileUploadActions.addFiles(files);
+				window.alert("Your program is successfully compiled to the IR format");
 			},
 			error: function (error) {
 				if (error.responseJSON.error) {
@@ -97,6 +98,7 @@ var FunctionTabs = React.createClass({
 				profilingStatusActions.updateProfilingStatus(profilingStats);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("profiling success");
+				window.alert("Profiling Successful");
 			},
 			error: function (error) {
 				if (error.responseJSON.error) {
@@ -135,6 +137,7 @@ var FunctionTabs = React.createClass({
 				faultInjectionStatusActions.updateFaultInjectionStatus(faultInjectionStatus);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("faultInjection success");
+				window.alert("FaultInjection Successful");
 			},
 			error: function (error) {
 				if (error.responseJSON.error) {

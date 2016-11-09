@@ -2,6 +2,7 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 var execPromise = require('./utils/execPromise').execPromise;
+var errorStatus = false;
 
 // Do a hardware and software auto scan, send the applicable injection types back to the client
 exports.processPreInstrument = function (req, res) {
@@ -36,8 +37,12 @@ exports.processPreInstrument = function (req, res) {
 		});
 	}, function(err) {
 		// error here
-		res.send(err);
+		res.status(500);
+		res.send({error: err});
+		console.log("err in preInstrument process", err);
+		errorStatus = true;
 	}).then(function(){
+		if (errorStatus) return;
 		res.send(softwareInjectionTypes);
 	});
 

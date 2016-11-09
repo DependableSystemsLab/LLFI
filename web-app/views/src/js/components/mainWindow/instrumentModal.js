@@ -303,8 +303,10 @@ var InstrumentModal = React.createClass({
 				fileUploadActions.addFiles(files);
 				console.log("instrument success");
 				me.close();
+				window.alert("Instrument Successful");
 			},
 			error: function (error) {
+				me.close();
 				if (error.responseJSON.error) {
 					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
 				}

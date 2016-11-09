@@ -253,6 +253,7 @@ var RuntimeOptionModal = React.createClass({
 			success: function(data){
 				console.log("runtimeOption submit success");
 				me.close();
+				window.alert("RuntimeOption submit Successful");
 			}
 		});
 	}

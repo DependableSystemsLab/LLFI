@@ -25,6 +25,8 @@ exports.processRuntimeOptions = function (req, res) {
 	}
 	fs.appendFile(inputYamlFilePath, data, function (err) {
 		if (err) {
+			res.status(500);
+			res.send(err);
 			console.log("err in modifying input.yaml file in runtimeOption: ", err);
 		} else {
 			console.log("runtimeOption Submit success");

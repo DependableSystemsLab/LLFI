@@ -2,6 +2,7 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 var execPromise = require('./utils/execPromise').execPromise;
+var errorStatus = false;
 
 exports.processFaultInjection = function (req, res) {
 
@@ -29,8 +30,6 @@ exports.processFaultInjection = function (req, res) {
 				results.push(stdout);
 				consoleLog = results;
 				return results;
-			}, function(err) {
-				console.log("fault injection err: ", err);
 			});
 		});
 	}, Promise.resolve([])).then(function(results) {
@@ -38,6 +37,13 @@ exports.processFaultInjection = function (req, res) {
 		var totalRunCount = 0;
 		// Get the total number of Runs
 		fs.readdir(statOutputDir, (err, files) => {
+			if (err) {
+				res.status(500);
+				res.send(err);
+				errorStatus = true;
+				console.log("err in file reading, ", err);
+			}
+			if (errorStatus) return;
 			files.forEach(file => {
 				// Get the stats of each run
 				if (file.includes("llfi.stat.fi.injectedfaults")) {
@@ -55,6 +61,13 @@ exports.processFaultInjection = function (req, res) {
 			res.send(results);
 			console.log("faultInjection success");
 		})
+	}, function(err) {
+		// error here
+		if (errorStatus) return;
+		res.status(500);
+		res.send({error: err});
+		console.log("err in faultInjection process", err);
+		errorStatus = true;
 	});
 }
 

@@ -2,6 +2,7 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
 var execPromise = require('./utils/execPromise').execPromise;
+var errorStatus = false;
 
 exports.processInstrument = function (req, res) {
 
@@ -110,6 +111,13 @@ exports.processInstrument = function (req, res) {
 
 		// Send the llfi_displayIndex file back to front-end
 		fs.readFile(outputIndexFilePath, 'utf8', function(err, data) {
+			if (err) {
+				res.status(500);
+				res.send(err);
+				errorStatus = true;
+				console.log("err in file reading, ", err);
+			}
+			if (errorStatus) return;
 			var fileObj = {};
 			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
 			fileObj.fileContent = data;
@@ -118,6 +126,13 @@ exports.processInstrument = function (req, res) {
 			console.log("Instrument success");
 			res.send(result);
 		});
+	}, function(err) {
+		// error here
+		if (errorStatus) return;
+		res.status(500);
+		res.send({error: err});
+		console.log("err in Instrument process", err);
+		errorStatus = true;
 	});
 
 

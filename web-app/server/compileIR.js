@@ -34,7 +34,7 @@ exports.processCompileIR = function (req, res) {
 		// error here
 		res.status(500);
 		res.send({error: err});
-		console.log("err in instrument process", err);
+		console.log("err in compileIR process", err);
 		errorStatus = true;
 	}).then(function() {
 		if (errorStatus) return;
