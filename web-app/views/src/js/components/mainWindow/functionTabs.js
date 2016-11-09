@@ -172,10 +172,8 @@ var FunctionTabs = React.createClass({
 				document.body.appendChild(a);
 				a.click();
 				// remove `a` following `Save As` dialog, 
-				// `window` regains `focus`
-				window.onfocus = function () {                     
-					document.body.removeChild(a)
-				}
+				// `window` regains `focus`                 
+				document.body.removeChild(a)
 				console.log("Generate Trace success");
 			},
 			error: function (error) {
