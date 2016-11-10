@@ -164,9 +164,7 @@ var FunctionTabs = React.createClass({
 			return;
 		}
 		var data = {}
-		data.selectedRuns = this.state.selectedTraceRunNumber;
-		data.selectedRuns.sort(compareNumbers);
-		data.runOptions = this.state.runOptions;
+		data.selectedRunIndex = this.state.selectedTraceRunNumber;
 		$.ajax({
 			url: '/traceGraph',
 			type: 'POST',

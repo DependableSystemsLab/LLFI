@@ -6,7 +6,7 @@ var errorStatus = false;
 
 exports.processTrace = function (req, res) {
 
-	var traceRunNumbers = req.body.selectedRuns;
+	var traceRunIndex = req.body.selectedRunIndex;
 	var traceFolder = "./uploads/" + req.ip +"/llfi/trace_report_output/";
 	// Make a dir to store the files from a client
 	if (!fs.existsSync(traceFolder)) {
@@ -30,30 +30,14 @@ exports.processTrace = function (req, res) {
 			console.log("err in file reading, ", err);
 		}
 		if (errorStatus) return;
-		files.forEach(file => {
-			// Get the stats of each run
-			if (file.includes("llfi.stat.fi.injectedfaults")) {
-				var fileName = file;
-				var runOptionNumber = fileName.split("llfi.stat.fi.injectedfaults.")[1];
-				runOptionNumber = parseInt(runOptionNumber.split("-")[0]);
-				if (!runNumbers[runOptionNumber]) {
-					runNumbers[runOptionNumber] = 1;
-				} else {
-					runNumbers[runOptionNumber]++;
-				}
-			}
-		});
 		// Get the selected Trace file names
 		var currentRunOptionNumber = 0;
 		var currentRunNumberOffset = 0;
-		for (var i = 0; i < traceRunNumbers.length; i++) {
-			var traceNumber = traceRunNumbers[i] - currentRunNumberOffset;
-			while (traceNumber >= runNumbers[currentRunOptionNumber]) {
-				currentRunNumberOffset += runNumbers[currentRunOptionNumber];
-				traceNumber -= runNumbers[currentRunOptionNumber];
-				currentRunOptionNumber ++ ;
+		for (var i = 0; i < traceRunIndex.length; i++) {
+			var traceFileName = "llfi.stat.trace." + traceRunIndex[i] + ".txt";
+			if (files.indexOf(traceFileName) > -1) {
+				selectedTraceFileNames.push("llfi.stat.trace." + traceRunIndex[i] + ".txt");
 			}
-			selectedTraceFileNames.push("llfi.stat.trace." + currentRunOptionNumber + "-" + traceNumber + ".txt");
 		}
 
 		// TraceDiff commands

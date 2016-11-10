@@ -15,7 +15,7 @@ var FaultInjectionStatus = React.createClass({
 	render: function() {
 		var className = "faultInjectionStatus" + (this.props.shouldDisplay ? "" : " hide");
 		var injectionStatusRows = this.state.faultInjectionStatus.map(function(data, index) {
-			var traceChecked = this.state.traceRunNumbers.includes(data.runNumber) ? true: false;
+			var traceChecked = this.state.traceRunNumbers.includes(data.runIndex) ? true: false;
 			return (
 				<tr key={index}>
 					<td>{data.runNumber}</td>
@@ -28,7 +28,7 @@ var FaultInjectionStatus = React.createClass({
 					<td>{data.result}</td>
 					<td>
 						<div class="checkbox">
-							<input type="checkbox" id={"checkBoxTrace_" + data.runNumber} onClick={this.selectTrace} checked={traceChecked}/>
+							<input type="checkbox" id={"checkBoxTrace_" + data.runIndex} onClick={this.selectTrace} checked={traceChecked}/>
 						</div>
 					</td>
 				</tr>
@@ -63,7 +63,7 @@ var FaultInjectionStatus = React.createClass({
 		);
 	},
 	selectTrace : function (event) {
-		var selectedRunNumber = parseInt(event.target.id.split("_")[1]);
+		var selectedRunNumber = event.target.id.split("_")[1];
 		var traceChecked = $("#" + event.target.id).is(":checked");
 		var traceRunNumbers = this.state.traceRunNumbers;
 		if (traceChecked) {
@@ -82,7 +82,7 @@ var FaultInjectionStatus = React.createClass({
 		// If check all is checked, add all runs, otherwise, remove all runs
 		if (traceAllChecked) {
 			for (var i = 0; i < this.state.faultInjectionStatus.length; i++) {
-				traceRunNumbers.push(this.state.faultInjectionStatus[i].runNumber);
+				traceRunNumbers.push(this.state.faultInjectionStatus[i].runIndex);
 			}
 		}
 		selectedTraceRunNumberActions.updateSelectedRunNumber(traceRunNumbers);
