@@ -18,9 +18,6 @@ var FaultSummary = React.createClass({
 		return (
 			<div class={className}>
 				<canvas id="faultSummary"></canvas>
-				<div id="SDC" class="hide">{this.state.faultSummary.SDC}</div>
-				<div id="Hanged" class="hide">{this.state.faultSummary.Hanged}</div>
-				<div id="Crashed" class="hide">{this.state.faultSummary.Crashed}</div>
 			</div>
 		);
 	},
