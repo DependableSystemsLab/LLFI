@@ -7,6 +7,7 @@ var errorStatus = false;
 exports.processFaultInjection = function (req, res) {
 
 	var fileName = req.body.fileName;
+	var runOptions = req.body.runOptions;
 	// Remove the file extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 	var input = req.body.input;
@@ -22,6 +23,7 @@ exports.processFaultInjection = function (req, res) {
 	var consoleLog = [];
 	var commands = [];
 	var faultInjectionStatus = [];
+	var faultSummary = {SDC: 0, Hanged: 0, Crashed: 0};
 	commands.push(cdDirCmd + " && " + faultInjectionScript);
 
 	commands.reduce(function(p, cmd) {
@@ -35,9 +37,13 @@ exports.processFaultInjection = function (req, res) {
 	}, Promise.resolve([])).then(function(results) {
 		if (errorStatus) return;
 		var statOutputDir = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
-		var totalRunCount = 0;
-		// Get the total number of Runs
-		fs.readdir(statOutputDir, (err, files) => {
+		var stdOutputDir = "./uploads/" + req.ip +"/llfi/std_output/";
+		var errorDir = "./uploads/" + req.ip +"/llfi/error_output/";
+		var currentRun = 0;
+		var goldenOutputFile = "./uploads/" + req.ip +"/llfi/baseline/golden_std_output";
+		var goldenOutput = "";
+		// Readt golden output
+		fs.readFile(goldenOutputFile, 'utf8', function(err, data) {
 			if (err) {
 				res.status(500);
 				res.send(err);
@@ -45,23 +51,72 @@ exports.processFaultInjection = function (req, res) {
 				console.log("err in file reading, ", err);
 			}
 			if (errorStatus) return;
-			files.forEach(file => {
-				// Get the stats of each run
-				if (file.includes("llfi.stat.fi.injectedfaults")) {
-					var data = fs.readFileSync(statOutputDir + file, 'utf8');
-					var runOption = totalRunCount;
-					var injectionType = getStatusValue("fi_type", data);
-					var index = getStatusValue("fi_index", data);
-					var cycle = getStatusValue("fi_cycle", data);
-					var bit = getStatusValue("fi_bit", data);
-					faultInjectionStatus[totalRunCount] = {runOption, injectionType, index, cycle, bit};
-					totalRunCount ++;
+			goldenOutput = data;
+
+			// Get injection stats of each run
+			for (var runOption = 0 ; runOption < runOptions.length; runOption++) {
+				for (var run = 0; run < runOptions[runOption].numOfRuns; run++) {
+						// Read stats from llfi.stat.fi.injectedfaults files
+						var injectedfaultsStatsFileName = "llfi.stat.fi.injectedfaults." + runOption + "-" + run + ".txt";
+						try {
+							var injectedfaultsStatsData = fs.readFileSync(statOutputDir + injectedfaultsStatsFileName, 'utf8');
+						} catch (err) {
+							res.status(500);
+							res.send(err);
+							errorStatus = true;
+							console.log("err in file reading, ", err);
+						}
+						if (errorStatus) return;
+						var runNumber = currentRun;
+						var runIndex = runOption + "-" + run;
+						var injectionType = getStatusValue("fi_type", injectedfaultsStatsData);
+						var index = getStatusValue("fi_index", injectedfaultsStatsData);
+						var cycle = getStatusValue("fi_cycle", injectedfaultsStatsData);
+						var bit = getStatusValue("fi_bit", injectedfaultsStatsData);
+						var status = "Injected";
+						// Get SDC occurance stats
+						var stdOutputFileName = "std_outputfile-run-" + runOption + "-" + run;
+						try {
+							var stdOutputData = fs.readFileSync(stdOutputDir + stdOutputFileName, 'utf8');
+						} catch (err) {
+							res.status(500);
+							res.send(err);
+							errorStatus = true;
+							console.log("err in file reading, ", err);
+						}
+						if (errorStatus) return;
+						var sdc = goldenOutput === stdOutputData ? "Not Occured" : "Occured";
+						if (sdc === "Occured") faultSummary.SDC ++;
+						// Get result status
+						var result = "Nil";
+						var errorFileName = "errorfile-run-" + runOption + "-" + run;
+						if (fs.existsSync(errorDir + errorFileName)) {
+							try {
+								var errorFileData = fs.readFileSync(errorDir + errorFileName, 'utf8');
+							} catch (err) {
+								res.status(500);
+								res.send(err);
+								errorStatus = true;
+								console.log("err in file reading, ", err);
+							}
+							if (errorStatus) return;
+							if (errorFileData.includes("hanged")) {
+								result = "Hanged";
+								faultSummary.Hanged ++;
+							} else if (errorFileData.includes("crashed")) {
+								result = "Crashed";
+								faultSummary.Crashed ++;
+							}
+						}
+						faultInjectionStatus[currentRun] = {runIndex, runNumber, injectionType, index, cycle, bit, sdc, result, status};
+						currentRun ++;
 				}
-			});
-			var results = {faultInjectionStatus, consoleLog};
+			}
+			var results = {faultInjectionStatus, consoleLog, faultSummary};
 			res.send(results);
 			console.log("faultInjection success");
-		})
+		});
+
 	}, function(err) {
 		// error here
 		if (errorStatus) return;

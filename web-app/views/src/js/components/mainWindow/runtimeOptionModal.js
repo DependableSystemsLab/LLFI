@@ -9,6 +9,7 @@ var Button = require('react-bootstrap').Button;
 var ControlLabel = require('react-bootstrap').ControlLabel;
 var FilteredMultiSelect = require('react-filtered-multiselect');
 var injectionModeStore = require("./../../stores/injectionModeStore");
+var runOptionsActions = require("./../../actions/runOptionsActions");
 
 var RuntimeOptionModal = React.createClass({
 	mixins: [Reflux.connect(injectionModeStore,"injectionMode")],
@@ -244,6 +245,7 @@ var RuntimeOptionModal = React.createClass({
 			}
 		}
 		data.runtimeOptions = runtimeOptions;
+		runOptionsActions.updateRunOptions(runtimeOptions);
 		$.ajax({
 			url: '/runtimeOptions',
 			type: 'POST',

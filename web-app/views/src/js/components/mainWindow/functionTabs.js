@@ -3,25 +3,31 @@ var Reflux = require("reflux");
 
 var InstrumentModal = require('./instrumentModal');
 var RuntimeOptionModal = require('./runtimeOptionModal');
+
 var targetFileNameStore = require("./../../stores/targetFileNameStore");
 var injectionModeStore = require("./../../stores/injectionModeStore");
+var runOptionsStore = require("./../../stores/runOptionsStore");
+var selectedTraceRunNumberStore = require("./../../stores/selectedTraceRunNumberStore");
+
 var fileUploadActions = require("./../../actions/fileUploadActions");
 var consoleLogActions = require("./../../actions/consoleLogActions");
 var errorLogActions = require("./../../actions/errorLogActions");
 var profilingStatusActions = require("./../../actions/profilingStatusActions");
 var faultInjectionStatusActions = require("./../../actions/faultInjectionStatusActions");
-var selectedTraceRunNumberStore = require("./../../stores/selectedTraceRunNumberStore");
+var faultSummaryActions = require("./../../actions/faultSummaryActions");
 
 
 
 var FunctionTabs = React.createClass({
 	mixins: [Reflux.connect(targetFileNameStore,"fileName"),
 		Reflux.connect(injectionModeStore,"injectionMode"),
+		Reflux.connect(runOptionsStore,"runOptions"),
 		Reflux.connect(selectedTraceRunNumberStore,"selectedTraceRunNumber")],
 	getInitialState: function() {
 		return {
 			fileName: '',
 			injectionMode: {},
+			runOptions: [],
 			selectedTraceRunNumber: []
 		};
 	},
@@ -125,6 +131,7 @@ var FunctionTabs = React.createClass({
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
 		data.input = document.getElementById("profilingInput").value;
+		data.runOptions = this.state.runOptions;
 		$.ajax({
 			url: '/faultInjection',
 			type: 'POST',
@@ -132,9 +139,12 @@ var FunctionTabs = React.createClass({
 			processData: false,
 			contentType: 'application/json',
 			success: function(data){
+				console.log(data);
 				var consoleLog = data.consoleLog;
+				var faultSummary = data.faultSummary;
 				var faultInjectionStatus = data.faultInjectionStatus;
 				faultInjectionStatusActions.updateFaultInjectionStatus(faultInjectionStatus);
+				faultSummaryActions.updateFaultSummary(faultSummary);
 				consoleLogActions.updateConsoleLog(consoleLog);
 				console.log("faultInjection success");
 				window.alert("FaultInjection Successful");
@@ -156,6 +166,7 @@ var FunctionTabs = React.createClass({
 		var data = {}
 		data.selectedRuns = this.state.selectedTraceRunNumber;
 		data.selectedRuns.sort(compareNumbers);
+		data.runOptions = this.state.runOptions;
 		$.ajax({
 			url: '/traceGraph',
 			type: 'POST',
@@ -201,7 +212,7 @@ var FunctionTabs = React.createClass({
 });
 
 function compareNumbers(a, b) {
-  return a - b;
+	return a - b;
 }
 
 module.exports = FunctionTabs;
