@@ -87,8 +87,8 @@ exports.processFaultInjection = function (req, res) {
 							console.log("err in file reading, ", err);
 						}
 						if (errorStatus) return;
-						var sdc = goldenOutput === stdOutputData ? "Not Occured" : "Occured";
-						if (sdc === "Occured") faultSummary.SDC ++;
+						var sdc = goldenOutput === stdOutputData ? "Not Occurred" : "Occurred";
+						if (sdc === "Occurred") faultSummary.SDC ++;
 						// Get result status
 						var result = "Nil";
 						var errorFileName = "errorfile-run-" + runOption + "-" + run;
