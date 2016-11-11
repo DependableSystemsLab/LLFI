@@ -61,6 +61,8 @@ exports.processFaultInjection = function (req, res) {
 						try {
 							var injectedfaultsStatsData = fs.readFileSync(statOutputDir + injectedfaultsStatsFileName, 'utf8');
 						} catch (err) {
+							// If the file is not found, close the request, return error.
+							// Todo: need to return the proper LLFI injection status when the [llfi.stat.fi.injectedfaults] file is not found
 							res.status(500);
 							res.send(err);
 							errorStatus = true;
