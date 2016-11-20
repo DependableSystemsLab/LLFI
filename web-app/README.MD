@@ -4,8 +4,9 @@ webpack
 
 Steps to set up the development environment:   
 1: Download this project from Git   
-2: Install libraries: Go to the web-app directory and run "npm install"   
-3: Install Webpack: In the same directory as step 2, run "sudo npm install -g webpack"   
+2: Download NodeJs   
+3: Install libraries: Go to the web-app directory and run "npm install"   
+4: Install Webpack: In the same directory as step 2, run "sudo npm install -g webpack"   
 
 Start the server:   
 Go to the /web-app/server folder and run "node server.js"  
