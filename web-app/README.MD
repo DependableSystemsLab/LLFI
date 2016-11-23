@@ -1,18 +1,15 @@
 Dependencies:
 Nodejs.
+webpack   
 
-After download it from the website.
+Steps to set up the development environment:   
+1: Download this project from Git   
+2: Download NodeJs   
+3: Install libraries: Go to the web-app directory and run "npm install"   
+4: Install Webpack: In the same directory as step 3, run "sudo npm install -g webpack"   
 
-Run:
-npm install
-sudo npm install -g webpack
+Start the server:   
+Go to the /web-app/server folder and run "node server.js"  
 
-
-Run the web as a server:
-node ./server/server.js
-
-
-Frond-end dev tool:
-webpack
-Or
-webpack -w
+Start the front-end dev tool:   
+Go to the web-app directory and run "webpack" or "webpack -w"   
