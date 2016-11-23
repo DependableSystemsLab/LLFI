@@ -180,8 +180,7 @@ var FunctionTabs = React.createClass({
 				a.download = "TraceGraph";
 				document.body.appendChild(a);
 				a.click();
-				// remove `a` following `Save As` dialog, 
-				// `window` regains `focus`                 
+				// remove the a tag after the download           
 				document.body.removeChild(a)
 				console.log("Generate Trace success");
 			},
