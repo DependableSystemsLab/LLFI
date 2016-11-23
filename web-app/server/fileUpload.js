@@ -39,6 +39,8 @@ exports.processFileUpload = function (req, res) {
 				console.log("An error has occured in file rename, ", err);
 			}
 			else {
+
+				// Send the file content back to front end
 				fs.readFile(dirName + file.name, 'utf8', function(err, data) {
 					var fileObj = {};
 					fileObj.fileName = file.name;

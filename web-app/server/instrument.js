@@ -7,7 +7,7 @@ var errorStatus = false;
 exports.processInstrument = function (req, res) {
 
 	var fileName = req.body.fileName;
-	// Remove the file extension
+	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 
 	var injectionMode = req.body.injectionMode;
@@ -78,6 +78,8 @@ exports.processInstrument = function (req, res) {
 	commands.push(cdDirCmd + " && " + intrumentScript);
 	var consoleLog = [];
 	var files = [];
+
+	// Execute the instrument step
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {

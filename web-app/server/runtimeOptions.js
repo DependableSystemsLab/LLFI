@@ -23,6 +23,8 @@ exports.processRuntimeOptions = function (req, res) {
 			data += lastKey + ": " + value + "}\n";
 		}
 	}
+
+	// Append the status to input yaml file
 	fs.appendFile(inputYamlFilePath, data, function (err) {
 		if (err) {
 			res.status(500);

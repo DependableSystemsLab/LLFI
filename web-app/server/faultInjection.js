@@ -8,10 +8,13 @@ exports.processFaultInjection = function (req, res) {
 
 	var fileName = req.body.fileName;
 	var runOptions = req.body.runOptions;
-	// Remove the file extension
+	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 	var input = req.body.input;
 	var batchMode = req.body.injectionMode.isBatchMode;
+
+	// Get the right injection command based on isBatchMode
+	// Todo: Batch mode is not fully supproted, the results of fault injection does not support batch Mode yet
 	var faultInjectionScript;
 	if (batchMode) {
 		faultInjectionScript = LLFI_BUILD_ROOT + "bin/batchInjectfault " + fileName + ".ll " + input;
@@ -26,6 +29,7 @@ exports.processFaultInjection = function (req, res) {
 	var faultSummary = {SDC: 0, Hanged: 0, Crashed: 0};
 	commands.push(cdDirCmd + " && " + faultInjectionScript);
 
+	// Execute the fault injection
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
@@ -42,7 +46,7 @@ exports.processFaultInjection = function (req, res) {
 		var currentRun = 0;
 		var goldenOutputFile = "./uploads/" + req.ip +"/llfi/baseline/golden_std_output";
 		var goldenOutput = "";
-		// Readt golden output
+		// Read golden output
 		fs.readFile(goldenOutputFile, 'utf8', function(err, data) {
 			if (err) {
 				res.status(500);

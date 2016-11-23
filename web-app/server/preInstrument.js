@@ -8,7 +8,7 @@ var errorStatus = false;
 exports.processPreInstrument = function (req, res) {
 	var fileName = req.body.fileName;
 
-	// Remove the file extension
+	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
@@ -19,6 +19,8 @@ exports.processPreInstrument = function (req, res) {
 	commands.push(cdDirCmd + " && " + softwareFailureAutoScanCmd);
 
 	var softwareInjectionTypes = [];
+
+	// Execute the auto scan script
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {

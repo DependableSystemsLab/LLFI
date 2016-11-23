@@ -7,7 +7,7 @@ var errorStatus = false;
 exports.processProfiling = function (req, res) {
 
 	var fileName = req.body.fileName;
-	// Remove the file extension
+	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 	var input = req.body.input;
 	var injectionMode = req.body.injectionMode.injectionMode;
@@ -26,6 +26,7 @@ exports.processProfiling = function (req, res) {
 	var commands = [];
 	commands.push(cdDirCmd + " && " + profilingScript);
 
+	// Execute the profiling step
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
@@ -36,6 +37,7 @@ exports.processProfiling = function (req, res) {
 		});
 	}, Promise.resolve([])).then(function(results) {
 		if (errorStatus) return;
+		// Get the profiling total index status
 		var totalIndexFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.totalindex.txt";
 		fs.readFile(totalIndexFilePath, 'utf8', function(err, data) {
 			if (err) {
@@ -46,6 +48,8 @@ exports.processProfiling = function (req, res) {
 			}
 			if (errorStatus) return;
 			var totalIndex = parseInt(data.split("=")[1]);
+			
+			// Get the lastCycle status
 			var profilingStatsFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.prof.txt";
 			fs.readFile(profilingStatsFilePath, 'utf8', function(err, data) {
 				if (err) {

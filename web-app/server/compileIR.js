@@ -8,17 +8,21 @@ exports.processCompileIR = function (req, res) {
 
 	var fileName = req.body.fileName;
 
-	// Remove the file extension
+	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
 
+	// Cd to the user directory
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
 
+	// The command to genrate make file
 	var generateMakeCmd = LLFI_BUILD_ROOT + "tools/GenerateMakefile --readable --all -o " + fileName + ".ll";
 
 
 	var commands = [cdDirCmd + " && " + generateMakeCmd, cdDirCmd + " && " + "make"];
 
 	var consoleLog = [];
+
+	// Execute the commands
 	commands.reduce(function(p, cmd) {
 		return p.then(function(results) {
 			return execPromise(cmd).then(function(stdout) {
@@ -39,7 +43,7 @@ exports.processCompileIR = function (req, res) {
 	}).then(function() {
 		if (errorStatus) return;
 		var files = [];
-		// Send the .ll file and make file back to front-end
+		// Read the compilred IR file
 		fs.readFile("./uploads/"+ req.ip+"/" + fileName + ".ll", 'utf8', function(err, data) {
 			if (err) {
 				res.status(500);
@@ -52,6 +56,8 @@ exports.processCompileIR = function (req, res) {
 			fileObj.fileName = fileName + ".ll";
 			fileObj.fileContent = data;
 			files.push(fileObj);
+
+			// Load the makefile content
 			fs.readFile("./uploads/"+ req.ip+"/Makefile", 'utf8', function(err, data) {
 				if (err) {
 					res.status(500);
