@@ -1,1 +1,1 @@
-exports.LLFI_BUILD_ROOT = "$llfibuild/";
+exports.LLFI_BUILD_ROOT = "$llfibuild";
