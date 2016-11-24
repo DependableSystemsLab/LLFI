@@ -20,7 +20,7 @@ var errorLogActions = require("./../../actions/errorLogActions");
 
 
 Array.prototype.diff = function(a) {
-    return this.filter(function(i) {return a.indexOf(i) < 0;});
+	return this.filter(function(i) {return a.indexOf(i) < 0;});
 };
 
 var InstrumentModal = React.createClass({
@@ -200,7 +200,7 @@ var InstrumentModal = React.createClass({
 				injectionMode: "software",
 				injectionOptions: softwareInjectionTypeOptions,
 				selectedInjectionType: []
-			 });
+			});
 		} else if (event.target.value === "hardware") {
 			this.enbaleHardwareInjectionElements();
 			// set the states, clear the selected injection type
@@ -208,7 +208,7 @@ var InstrumentModal = React.createClass({
 				injectionMode: "hardware",
 				injectionOptions: hardwareInjectionTypeOptions,
 				selectedInjectionType: []
-			 });
+			});
 		}
 	},
 	enbaleSoftwareInjectionElements : function () {

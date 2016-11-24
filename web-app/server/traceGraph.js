@@ -52,9 +52,9 @@ exports.processTrace = function (req, res) {
 		for (var i = 0; i < selectedTraceFileNames.length; i++) {
 			if (files.indexOf(selectedTraceFileNames[i]) > -1) {
 				var nameParser = selectedTraceFileNames[i].split("llfi.stat.trace.")[1];
-				var runOption = parseInt(nameParser.split("-")[0]);;
-				var runNumber = nameParser.split("-")[1];;
-				runNumber = parseInt(runNumber.split(".txt")[0]);;
+				var runOption = parseInt(nameParser.split("-")[0]);
+				var runNumber = nameParser.split("-")[1];
+				runNumber = parseInt(runNumber.split(".txt")[0]);
 				var tradeDiffFileName = "TraceDiffReportFile." + runOption + "-" + runNumber + ".txt";
 				traceDiffFileNames.push(tradeDiffFileName);
 				var tradeFile = "./llfi/llfi_stat_output/" + selectedTraceFileNames[i];

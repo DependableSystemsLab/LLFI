@@ -49,7 +49,7 @@ exports.processFileUpload = function (req, res) {
 						res.status(500);
 						res.send(err);
 						console.log("err in file reading, ", err)
-					};
+					}
 					res.send(fileObj);
 				});
 			}
