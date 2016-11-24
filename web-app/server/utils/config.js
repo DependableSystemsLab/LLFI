@@ -1,1 +1,1 @@
-exports.LLFI_BUILD_ROOT = "./../../../../installer/llfi/";
+exports.LLFI_BUILD_ROOT = "$llfibuild/";
