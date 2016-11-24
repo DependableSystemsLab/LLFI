@@ -2,11 +2,19 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 var execPromise = require('./utils/execPromise').execPromise;
-var errorStatus = false;
 
 exports.processTrace = function (req, res) {
+	var errorStatus = false;
 
 	var traceRunIndex = req.body.selectedRunIndex;
+
+	// If no trace is selected, end the resquest
+	if (traceRunIndex.length <= 0) {
+		res.status(500);
+		res.send({error: "No trace is selected"});
+		return;
+	}
+
 	var traceFolder = "./uploads/" + req.ip +"/llfi/trace_report_output/";
 	// Make a dir to store the files from a client
 	if (!fs.existsSync(traceFolder)) {
