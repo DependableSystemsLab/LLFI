@@ -2,10 +2,10 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 var execPromise = require('./utils/execPromise').execPromise;
-var errorStatus = false;
 
 // Do a hardware and software auto scan, send the applicable injection types back to the client
 exports.processPreInstrument = function (req, res) {
+	var errorStatus = false;
 	var fileName = req.body.fileName;
 
 	// Extract filename without extension

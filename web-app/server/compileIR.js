@@ -2,10 +2,10 @@ var fs = require('fs');
 var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 var execPromise = require('./utils/execPromise').execPromise;
-var errorStatus = false;
 
 exports.processCompileIR = function (req, res) {
 
+	var errorStatus = false;
 	var fileName = req.body.fileName;
 
 	// Extract filename without extension

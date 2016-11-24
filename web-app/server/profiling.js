@@ -2,10 +2,10 @@ var fs = require('fs');
 var readline = require('readline');
 var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 var execPromise = require('./utils/execPromise').execPromise;
-var errorStatus = false;
 
 exports.processProfiling = function (req, res) {
 
+	var errorStatus = false;
 	var fileName = req.body.fileName;
 	// Extract filename without extension
 	fileName = fileName.replace(/\.[^/.]+$/, "");
@@ -48,7 +48,6 @@ exports.processProfiling = function (req, res) {
 			}
 			if (errorStatus) return;
 			var totalIndex = parseInt(data.split("=")[1]);
-			
 			// Get the lastCycle status
 			var profilingStatsFilePath = "./uploads/" + req.ip +"/" + "llfi.stat.prof.txt";
 			fs.readFile(profilingStatsFilePath, 'utf8', function(err, data) {
