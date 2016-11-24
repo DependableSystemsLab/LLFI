@@ -142,9 +142,9 @@ If you have used `./setup` to install LLFI, you need to set new environment vari
 
 Execute `<LLFI_BUILD_ROOT>/bin/llfi-gui` to start the **GUI**. The outputs will be saved in the directory where you have executed the command.
 
-####Web GUI Setup
+####Web GUI Development Environment Setup
 Dependencies:
-Nodejs.
+Nodejs
 webpack   
 
 Steps to set up the development environment:   
