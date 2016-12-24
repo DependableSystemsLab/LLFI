@@ -25,7 +25,7 @@ exports.processTrace = function (req, res) {
 	var llfi_stat_output = "./uploads/" + req.ip +"/llfi/llfi_stat_output/";
 	var runNumbers = [];
 	var selectedTraceFileNames = [];
-	var traceDiffFileNames = []
+	var traceDiffFileNames = [];
 	var commands = [];
 	var consoleLog = [];
 	var cdDirCmd = "cd ./uploads/" + req.ip +"/";
@@ -70,15 +70,15 @@ exports.processTrace = function (req, res) {
 			traceUnionCmd += "./llfi/trace_report_output/" + traceDiffFileNames[i] + " ";
 		}
 		traceUnionCmd += "> ./llfi/trace_report_output/UnionedDiffReportFile.txt";
-		commands.push(cdDirCmd + " && " + traceUnionCmd)
+		commands.push(cdDirCmd + " && " + traceUnionCmd);
 
 		// traceontograph command
 		var tracetoGraphCmd = LLFI_BUILD_ROOT + "tools/traceontograph ./llfi/trace_report_output/UnionedDiffReportFile.txt ./llfi.stat.graph.dot > ./llfi/trace_report_output/TraceGraph.dot";
-		commands.push(cdDirCmd + " && " + tracetoGraphCmd)
+		commands.push(cdDirCmd + " && " + tracetoGraphCmd);
 
 		//Covert dot file to pdf file
 		var traceCovertCmd = "dot -Tpdf ./llfi/trace_report_output/TraceGraph.dot -o ./llfi/trace_report_output/TraceGraph.pdf";
-		commands.push(cdDirCmd + " && " + traceCovertCmd)
+		commands.push(cdDirCmd + " && " + traceCovertCmd);
 
 		//Execute the commands
 		commands.reduce(function(p, cmd) {
@@ -103,12 +103,12 @@ exports.processTrace = function (req, res) {
 			errorStatus = true;
 		});
 	});
-}
+};
 
 // Parse the file data to get the value of a status
-var getStatusValue = function (statusType, fileData) {1
+var getStatusValue = function (statusType, fileData) {
 	var keyword = statusType + "=";
 	var value = fileData.split(keyword)[1];
 	value = value.split(",")[0];
 	return value;
-}
+};

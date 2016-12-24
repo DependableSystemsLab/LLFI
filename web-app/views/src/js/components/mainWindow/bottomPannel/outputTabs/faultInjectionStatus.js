@@ -32,7 +32,7 @@ var FaultInjectionStatus = React.createClass({
 						</div>
 					</td>
 				</tr>
-			)
+			);
 		}.bind(this));
 		return (
 			<div class={className}>

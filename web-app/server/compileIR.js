@@ -76,4 +76,4 @@ exports.processCompileIR = function (req, res) {
 			});
 		});
 	});
-}
+};

@@ -131,12 +131,12 @@ exports.processFaultInjection = function (req, res) {
 		console.log("err in faultInjection process", err);
 		errorStatus = true;
 	});
-}
+};
 
 // Parse the file data to get the value of a status
-var getStatusValue = function (statusType, fileData) {1
+var getStatusValue = function (statusType, fileData) {
 	var keyword = statusType + "=";
 	var value = fileData.split(keyword)[1];
 	value = value.split(",")[0];
 	return value;
-}
+};

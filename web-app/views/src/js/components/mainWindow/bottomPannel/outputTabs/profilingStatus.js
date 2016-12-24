@@ -18,7 +18,7 @@ var ProfilingStatus = React.createClass({
 					<td class="lastIndex">{data.lastIndex}</td>
 					<td class="lastCycle">{data.lastCycle}</td>
 				</tr>
-			)
+			);
 		});
 		return (
 			<div class={className}>

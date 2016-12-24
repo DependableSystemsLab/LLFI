@@ -44,7 +44,7 @@ var InstrumentModal = React.createClass({
 	},
 
 	open() {
-		var data = {}
+		var data = {};
 		data.fileName = this.state.fileName;
 		$.ajax({
 			url: '/preInstrument',
@@ -55,7 +55,7 @@ var InstrumentModal = React.createClass({
 			success: function(data){
 				var softwareTypes = [];
 				for (var i = 0; i< data.length; i++) {
-					var type = {value: data[i], text: data[i]}
+					var type = {value: data[i], text: data[i]};
 					softwareTypes.push(type);
 				}
 				softwareInjectionTypeOptions = softwareTypes;
@@ -267,7 +267,7 @@ var InstrumentModal = React.createClass({
 	},
 	onClickInstrument: function (event) {
 		var me = this;
-		var data = {}
+		var data = {};
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
 		data.injectionType = [];

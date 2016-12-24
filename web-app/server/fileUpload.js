@@ -48,7 +48,7 @@ exports.processFileUpload = function (req, res) {
 					if (err) {
 						res.status(500);
 						res.send(err);
-						console.log("err in file reading, ", err)
+						console.log("err in file reading, ", err);
 					}
 					res.send(fileObj);
 				});
@@ -69,4 +69,4 @@ exports.processFileUpload = function (req, res) {
 	});
 	// parse the incoming request containing the form data
 	form.parse(req);
-}
+};

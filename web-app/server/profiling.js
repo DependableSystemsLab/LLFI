@@ -58,11 +58,11 @@ exports.processProfiling = function (req, res) {
 					console.log("err in file reading, ", err);
 				}
 				if (errorStatus) return;
-				var lastCycle = parseInt(data.split("=")[1])
+				var lastCycle = parseInt(data.split("=")[1]);
 				lastCycle = lastCycle == 0 ? 0 : lastCycle -1 ;
 				var profilingStats = [{type: profilingType, lastIndex: totalIndex, lastCycle: lastCycle}];
 				console.log("Profiling success");
-				var result = {profilingStats: profilingStats, consoleLog: consoleLog}
+				var result = {profilingStats: profilingStats, consoleLog: consoleLog};
 				res.send(result);
 			});
 		});
@@ -74,4 +74,4 @@ exports.processProfiling = function (req, res) {
 		console.log("err in Profiling process", err);
 		errorStatus = true;
 	});
-}
+};

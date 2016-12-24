@@ -7,4 +7,4 @@ exports.execPromise = function(cmd) {
 			resolve(cmd + stdout);
 		});
 	});
-}
+};

@@ -52,7 +52,7 @@ var FunctionTabs = React.createClass({
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
 			return;
 		}
-		var data = {}
+		var data = {};
 		data.fileName = this.state.fileName;
 		$.ajax({
 			url: '/compileIR',
@@ -88,7 +88,7 @@ var FunctionTabs = React.createClass({
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
 			return;
 		}
-		var data = {}
+		var data = {};
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
 		data.input = document.getElementById("profilingInput").value;
@@ -127,7 +127,7 @@ var FunctionTabs = React.createClass({
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
 			return;
 		}
-		var data = {}
+		var data = {};
 		data.fileName = this.state.fileName;
 		data.injectionMode = this.state.injectionMode;
 		data.input = document.getElementById("profilingInput").value;
@@ -163,7 +163,7 @@ var FunctionTabs = React.createClass({
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
 			return;
 		}
-		var data = {}
+		var data = {};
 		data.selectedRunIndex = this.state.selectedTraceRunNumber;
 		$.ajax({
 			url: '/traceGraph',
@@ -181,7 +181,7 @@ var FunctionTabs = React.createClass({
 				document.body.appendChild(a);
 				a.click();
 				// remove the a tag after the download           
-				document.body.removeChild(a)
+				document.body.removeChild(a);
 				console.log("Generate Trace success");
 			},
 			error: function (error) {

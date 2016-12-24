@@ -103,7 +103,7 @@ exports.processInstrument = function (req, res) {
 		fs.readFileSync(indexFilePath).toString().split('\n').forEach(function (line) {
 			var modefiedLine = line;
 			if (line.includes("!llfi_index !")) {
-				modefiedLine = index + "\t\t" + line.substring(0, line.indexOf("!llfi_index !"))
+				modefiedLine = index + "\t\t" + line.substring(0, line.indexOf("!llfi_index !"));
 				index ++;
 				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
 			} else if (!line.includes("= metadata !")) {
@@ -125,7 +125,7 @@ exports.processInstrument = function (req, res) {
 			fileObj.fileName = fileName + "-llfi_displayIndex.ll";
 			fileObj.fileContent = data;
 			files.push(fileObj);
-			var result = {files: files, consoleLog: consoleLog}
+			var result = {files: files, consoleLog: consoleLog};
 			console.log("Instrument success");
 			res.send(result);
 		});
@@ -137,6 +137,4 @@ exports.processInstrument = function (req, res) {
 		console.log("err in Instrument process", err);
 		errorStatus = true;
 	});
-
-
-}
+};

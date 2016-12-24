@@ -34,6 +34,5 @@ exports.processRuntimeOptions = function (req, res) {
 			console.log("runtimeOption Submit success");
 			res.end();
 		}
-
 	});
-}
+};

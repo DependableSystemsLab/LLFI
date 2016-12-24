@@ -11,7 +11,7 @@ var FaultSummary = React.createClass({
 		};
 	},
 	componentDidUpdate: function () {
-		this._drawChart()
+		this._drawChart();
 	},
 	render: function() {
 		var className = "faultSummary" + (this.props.shouldDisplay ? "" : " hide");
