@@ -7,7 +7,7 @@ var http = require('http');
 
 var Port = 8080;
 var fileUpload = require('./fileUpload');
-var compileIR = require('./compileIR');
+var compileToIR = require('./compileToIR');
 var preInstrument = require('./preInstrument');
 var instrument = require('./instrument');
 var profiling = require('./profiling');
@@ -37,9 +37,9 @@ app.post('/uploadFile', function(req, res){
 	}
 });
 
-app.post('/compileIR', function(req, res){
+app.post('/compileToIR', function(req, res){
 	try {
-		compileIR.processCompileIR(req,res);
+		compileToIR.processCompileToIR(req,res);
 	} catch (err) {
 		res.status(500);
 		res.send(err);

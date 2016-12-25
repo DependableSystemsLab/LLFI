@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 var LLFI_BUILD_ROOT = require('./utils/config').LLFI_BUILD_ROOT;
 var execPromise = require('./utils/execPromise').execPromise;
 
-exports.processCompileIR = function (req, res) {
+exports.processCompileToIR = function (req, res) {
 
 	var errorStatus = false;
 	var fileName = req.body.fileName;
@@ -38,7 +38,7 @@ exports.processCompileIR = function (req, res) {
 		// error here
 		res.status(500);
 		res.send({error: err});
-		console.log("err in compileIR process", err);
+		console.log("err in compileToIR process", err);
 		errorStatus = true;
 	}).then(function() {
 		if (errorStatus) return;
@@ -71,7 +71,7 @@ exports.processCompileIR = function (req, res) {
 				fileObj.fileContent = data;
 				files.push(fileObj);
 				var response = {files: files, consoleLog: consoleLog};
-				console.log("CompileIR success");
+				console.log("CompileToIR success");
 				res.send(response);
 			});
 		});

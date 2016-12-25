@@ -35,7 +35,7 @@ var FunctionTabs = React.createClass({
 		return (
 			<div class = "functionTabs">
 				<div class="btn-toolbar">
-					<button id="compileIRBtn" class={"btn " + (this.state.fileName ? "btn-primary" : "disabled")} onClick={this.onCompileIRClick}>Compile To IR</button>
+					<button id="compileToIRBtn" class={"btn " + (this.state.fileName ? "btn-primary" : "disabled")} onClick={this.onCompileToIRClick}>Compile To IR</button>
 					<button id="instrumentBtn" class="btn disabled" onClick={this.onInstrumentClick}>Instrument</button>
 					<button id="profilingBtn" class="btn disabled" onClick={this.onProfilingClick}>Profiling</button>
 					<button id="runtimeOptionBtn" class="btn disabled" onClick={this.onRuntimeOptionClick}>Runtime Options</button>
@@ -47,15 +47,15 @@ var FunctionTabs = React.createClass({
 			</div>
 		);
 	},
-	// CompileIR
-	onCompileIRClick: function(event) {
+	// CompileToIR
+	onCompileToIRClick: function(event) {
 		if ($("#"+event.currentTarget.id).hasClass("disabled")) {
 			return;
 		}
 		var data = {};
 		data.fileName = this.state.fileName;
 		$.ajax({
-			url: '/compileIR',
+			url: '/compileToIR',
 			type: 'POST',
 			data: JSON.stringify(data),
 			processData: false,
@@ -72,7 +72,7 @@ var FunctionTabs = React.createClass({
 					errorLogActions.updateErrorLog(error.responseJSON.error.cmd);
 				}
 				console.log(error);
-				window.alert("An error has occured in compileIR, please refresh the page.");
+				window.alert("An error has occured in compileToIR, please refresh the page.");
 			}
 		});
 		this.changeButtonStatus(event);
