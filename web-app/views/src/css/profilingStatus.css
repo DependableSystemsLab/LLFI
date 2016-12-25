@@ -1,0 +1,17 @@
+.profilingStatusTable {
+	width:65%;
+	border-style: outset;
+}
+.failureType {
+	width: 50%;
+}
+.lastIndex {
+	width: 25%;
+}
+.lastCycle {
+	width: 25%;
+}
+.profilingStatus {
+	max-height: 250px;
+	overflow: auto;
+}

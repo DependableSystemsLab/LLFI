@@ -1,0 +1,31 @@
+.redColor {
+	color: red
+}
+
+.runtimeContainer {
+	margin: 40px 100px;
+}
+
+.runtimeOptionContainer {
+	margin-top: 80px;
+}
+.runtimeMargin {
+	margin-left: 80px;
+}
+
+.font-size-large {
+	font-size: large;
+}
+
+.alignCenter {
+	text-align: center;
+}
+.runtimeInputs {
+	position: absolute;
+	right: 0;
+	margin-right: 50px;
+}
+
+#fi_type {
+	width: 220px;
+}
