@@ -101,14 +101,14 @@ exports.processInstrument = function (req, res) {
 		var outputIndexFilePath = "./uploads/" + req.ip +"/" + fileName + "-llfi_displayIndex.ll";
 		var index = 1;
 		fs.readFileSync(indexFilePath).toString().split('\n').forEach(function (line) {
-			var modefiedLine = line;
+			var modifiedLine = line;
 			if (line.includes("!llfi_index !")) {
-				modefiedLine = index + "\t\t" + line.substring(0, line.indexOf("!llfi_index !"));
+				modifiedLine = index + "\t\t" + line.substring(0, line.indexOf("!llfi_index !"));
 				index ++;
-				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
+				fs.appendFileSync(outputIndexFilePath, modifiedLine.toString() + "\n");
 			} else if (!line.includes("= metadata !")) {
-				modefiedLine = "\t\t" + line;
-				fs.appendFileSync(outputIndexFilePath, modefiedLine.toString() + "\n");
+				modifiedLine = "\t\t" + line;
+				fs.appendFileSync(outputIndexFilePath, modifiedLine.toString() + "\n");
 			}
 		});
 
