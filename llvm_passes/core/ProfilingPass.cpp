@@ -18,6 +18,9 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/raw_ostream.h"
+//BEHROOZ-JUNE 3rd
+#include "llvm/Support/CommandLine.h"
+
 
 #include <list>
 #include <map>
@@ -31,18 +34,49 @@ using namespace llvm;
 
 namespace llfi {
 
+//BEHROOZ: JUNE 3rd
+extern cl::opt< std::string > llfilogfile;
+
 bool ProfilingPass::runOnModule(Module &M) {
 	LLVMContext &context = M.getContext();
 
   std::map<Instruction*, std::list< int >* > *fi_inst_regs_map;
   Controller *ctrl = Controller::getInstance(M);
   ctrl->getFIInstRegsMap(&fi_inst_regs_map);
+  //BEHROOZ: JUUNE 3rd
+  std::string err;
+  raw_fd_ostream logFile(llfilogfile.c_str(), err, sys::fs::F_Append);
+  //BEHROOZ - END
 
   for (std::map<Instruction*, std::list< int >* >::const_iterator 
        inst_reg_it = fi_inst_regs_map->begin(); 
        inst_reg_it != fi_inst_regs_map->end(); ++inst_reg_it) {
     Instruction *fi_inst = inst_reg_it->first;
     std::list<int > *fi_regs = inst_reg_it->second;
+    //BEHROOZ-MAY27: This section makes sure that we do not instrument the intrinsic functions 
+    if(isa<CallInst>(fi_inst)){
+      bool continue_flag=false;
+      for (std::list<int>::iterator reg_pos_it_mem = fi_regs->begin();
+        (reg_pos_it_mem != fi_regs->end()) && (*reg_pos_it_mem != DST_REG_POS); ++reg_pos_it_mem) {
+        std::string reg_mem = fi_inst->getOperand(*reg_pos_it_mem)->getName();
+        if ((reg_mem.find("memcpy") != std::string::npos) || (reg_mem.find("memset") != std::string::npos) || (reg_mem.find("expect") != std::string::npos) || (reg_mem.find("memmove") != std::string::npos)){
+          logFile << "LLFI cannot instrument " << reg_mem << " intrinsic function"<< "\n";
+          continue_flag=true;
+          break;
+        }
+      }
+      if(continue_flag)
+        continue;
+    }
+    //BEHROOZ-MAY27: This is to make sure we do not instrument landingpad instructions.
+    std::string current_opcode = fi_inst->getOpcodeName();
+    if(current_opcode.find("landingpad") != std::string::npos){
+      logFile << "LLFI cannot instrument " << current_opcode << " instruction" << "\n";
+      continue;
+    }
+    //BEHROOZ-END
+
+
     Value *fi_reg = *(fi_regs->begin())==DST_REG_POS ? fi_inst : (fi_inst->getOperand(*(fi_regs->begin())));
     Instruction *insertptr = getInsertPtrforRegsofInst(fi_reg, fi_inst);
     
@@ -62,6 +96,9 @@ bool ProfilingPass::runOnModule(Module &M) {
     CallInst::Create(profilingfunc, profilingarg_array_ref,
                      "", insertptr);
   }
+
+  //BEHROOZ-JUNE 3rd
+  logFile.close();
 
   addEndProfilingFuncCall(M);
   return true;

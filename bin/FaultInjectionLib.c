@@ -261,10 +261,19 @@ void injectFunc(long llfi_index, unsigned size,
 	  memcpy(&oldbuf, &buf[fi_bytepos], 1);
 	
 	  //======== Add opcode_str QINING @MAR 11th========
+	  /*======================BEHROOZ May 4th==========================*/
 	  fprintf(injectedfaultsFile, 
-          "FI stat: fi_type=%s, fi_max_multiple=%d, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
-          "fi_reg_pos=%u, fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type, config.fi_max_multiple,
+          "FI stat: fi_type=%s, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
+          "fi_reg_pos=%u, fi_reg_width=%u, fi_bit=%u, opcode=%s", config.fi_type,
           llfi_index, fi_cycle_to_print, my_reg_index, reg_pos, size, fi_bit, opcode_str);
+          if(config.fi_max_multiple !=-1)
+          {
+              fprintf(injectedfaultsFile, " fi_max_multiple=%u\n", config.fi_max_multiple);
+          }
+          else
+          {
+              fprintf(injectedfaultsFile, "\n");
+          }
 	  /*======================BEHROOZ May 4th==========================
            The below line is substituted with the above one as there was an 
            issue when we wanted to both inject in multiple bits and multiple

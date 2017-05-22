@@ -29,6 +29,7 @@ from subprocess import TimeoutExpired
 runOverride = False
 optionlist = []
 defaultTimeout = 500
+fi_max_multiple_default = 100
 
 # basedir is assigned in parseArgs(args)
 basedir = ""
@@ -283,11 +284,34 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
   elif key == "window_len":
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >=0, key+" must be greater than or equal to zero in input.yaml"
+  ##==================================================================
+
+  ##======== Add max number of target locations BEHROOZ @APRIL 29th===
+  elif key == "fi_max_multiple":
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >1, key+" must be greater than one in input.yaml"
+    assert int(val) <=int(fi_max_multiple_default), key+" must be smaller than or equal to "+str(fi_max_multiple_default)+ " in input.yaml"
+  ##==============================================================
+
+  ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+  elif key == "window_len_multiple":
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >0, key+" must be greater than zero in input.yaml"
+  elif key == "window_len_multiple_startindex":
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >0, key+" must be greater than zero in input.yaml"
+  elif key == "window_len_multiple_endindex":
+    assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
+    assert int(val) >0, key+" must be greater than zero in input.yaml"
+
   ##==============================================================
 
   elif key == 'fi_cycle':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
-    assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
+    ##======================BEHROOZ @APRIL 29th============================
+    ##===I changed the below line to the current one to fix the fi_cycle===
+    assert int(val) > 0, key+" must be greater than 0 in input.yaml"
+    #assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
     assert int(val) <= int(totalcycles), key +" must be less than or equal to "+totalcycles.strip()+" in input.yaml"
 
   elif key == 'fi_index':
@@ -391,7 +415,19 @@ def main(args):
       ##==============================================================
       if 'fi_random_seed' in locals():
         del fi_random_seed
-
+      ##==============================================================
+      ##======== Add max number of target locations BEHROOZ @APRIL 29th
+      if 'fi_max_multiple' in locals():
+        del fi_max_multiple
+      ##==============================================================
+      ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+      if 'window_len_multiple' in locals():
+        del window_len_multiple
+      if 'window_len_multiple_startindex' in locals():
+        del window_len_multiple_startindex
+      if 'window_len_multiple_endindex' in locals():
+        del window_len_multiple_endindex
+      ##==============================================================
       #write new fi config file according to input.yaml
       if "fi_type" in run["run"]:
         fi_type=run["run"]["fi_type"]
@@ -414,6 +450,65 @@ def main(args):
         window_len=run["run"]["window_len"]
         checkValues("window_len", window_len)
       ##==============================================================
+      ##======== Add max number of target locations BEHROOZ @APRIL 29th
+      if 'fi_max_multiple' in run["run"]:
+        fi_max_multiple=run["run"]["fi_max_multiple"]        
+        checkValues("fi_max_multiple", fi_max_multiple)
+        if ('fi_max_multiple' in locals()) and 'window_len' in locals():
+          print(("\nERROR: window_len and fi_max_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+          exit(1)
+      ##==============================================================
+      ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+      if 'window_len_multiple' in run["run"]:
+        window_len_multiple=run["run"]["window_len_multiple"]
+        checkValues("window_len_multiple", window_len_multiple)
+        if ('window_len_multiple' in locals()):
+          if ('window_len' in run["run"]):
+            print(("\nERROR: window_len and window_len_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif ('window_len_multiple_startindex' in run["run"]):
+            print(("\nERROR: window_len_multiple_startindex and window_len_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif ('window_len_multiple_endindex' in run["run"]):
+            print(("\nERROR: window_len_multiple_endindex and window_len_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+      if 'window_len_multiple_startindex' in run["run"]:
+        window_len_multiple_startindex=run["run"]["window_len_multiple_startindex"]
+        checkValues("window_len_multiple_startindex", window_len_multiple_startindex)
+        if ('window_len_multiple_startindex' in locals()):
+          if ('window_len' in run["run"]):
+            print(("\nERROR: window_len and window_len_multiple_startindex cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif ('window_len_multiple' in run["run"]):
+            print(("\nERROR: window_len_multiple_startindex and window_len_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif ('window_len_multiple_endindex' not in run["run"]):
+            print(("\nERROR: window_len_multiple_startindex should come with window_len_multiple_endindex."
+               " Please specify both."))
+            exit(1)
+      if 'window_len_multiple_endindex' in run["run"]:
+        window_len_multiple_endindex=run["run"]["window_len_multiple_endindex"]
+        checkValues("window_len_multiple_endindex", window_len_multiple_endindex)
+        if ('window_len_multiple_endindex' in locals()):
+          if('window_len' in run["run"]):
+            print(("\nERROR: window_len and window_len_multiple_endindex cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif('window_len_multiple' in run["run"]):
+            print(("\nERROR: window_len_multiple_endindex and window_len_multiple cannot be specified"
+               " at the same time in the input.yaml file. Please choose one."))
+            exit(1)
+          elif('window_len_multiple_startindex' not in run["run"]):
+            print(("\nERROR: window_len_multiple_endindex should come with window_len_multiple_startindex."
+               " Please specify both."))
+            exit(1)
+      ##==============================================================
       if "fi_cycle" in run["run"]:
         fi_cycle=run["run"]["fi_cycle"]
         checkValues("fi_cycle",fi_cycle)
@@ -434,7 +529,21 @@ def main(args):
         print(("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
                "index is %d\n" % fi_index))
+      ##==================BEHROOZ @APRIL 29th=================
+      if ('window_len_multiple' in locals() or 'window_len_multiple_startindex' in locals() or 'window_len_multiple_endindex' in locals()):
+        if('fi_max_multiple' not in locals()):
+          print(("\nINFO: You choose a window length for multiple bit-flip injection, "
+               "however you have not specified the maximum number of locations."
+               " Thus, the maximum number of locations will be chosen as " +str(fi_max_multiple_default)+ ".\n"))
+          fi_max_multiple = int(fi_max_multiple_default)
 
+      if ('window_len_multiple' not in locals() and 'window_len_multiple_startindex' not in locals()) and 'fi_max_multiple' in locals():
+        print(("\nINFO: You choose the maximum number of multiple bit injection, "
+               "however you have not specified the window length for multiple bit-flip injection."
+               " Thus, the window size will be chosen equal to the total number of cycles-1= "
+               + str(int(totalcycles)-1)+ ".\n"))
+        window_len_multiple = int(totalcycles) - 1
+      ##======================================================
       need_to_calc_fi_cycle = True
       if ('fi_cycle' in locals()) or 'fi_index' in locals():
         need_to_calc_fi_cycle = False
@@ -450,9 +559,13 @@ def main(args):
           random.seed(fi_random_seed)
 
         if need_to_calc_fi_cycle:
-          fi_cycle = random.randint(0, int(totalcycles) - 1)
+          ##======================BEHROOZ @APRIL 29th============================
+          ##===I changed the below line to the current one to fix the fi_cycle===
+          fi_cycle = random.randint(1, int(totalcycles))
+          ##fi_cycle = random.randint(0, int(totalcycles) - 1)
 
-        ficonfig_File = open("llfi.config.runtime.txt", 'w')
+        ficonfig_File = open("llfi.config.runtime.txt", 'w')        
+        
         if 'fi_cycle' in locals():
           ficonfig_File.write("fi_cycle="+str(fi_cycle)+'\n')
         elif 'fi_index' in locals():
@@ -470,9 +583,38 @@ def main(args):
         ##==============================================================
         ##======== Add second corrupted regs QINING @MAR 27th===========
         if 'window_len' in locals():
-          fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles) - 1)
+          ##======================BEHROOZ @MAY 2nd============================
+          ##===I changed the below line to the current one to fix the fi_cycle===
+          fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles))
+          #fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles) - 1)
           ficonfig_File.write("fi_second_cycle="+str(fi_second_cycle)+'\n')
-        ##==============================================================
+        ##==================================================================
+        ##======== Add max number of target locations BEHROOZ @APRIL 29th===
+        if ('fi_max_multiple' in locals()):
+          win_start_index = 1
+          win_end_index = 1
+          if('window_len_multiple' in locals()):
+            win_end_index = int(window_len_multiple)
+          elif('window_len_multiple_startindex' in locals() and 'window_len_multiple_endindex' in locals()):
+            win_start_index = window_len_multiple_startindex
+            win_end_index = window_len_multiple_endindex
+            if(win_start_index > win_end_index):
+              print(("\nERROR: In the yaml file, the window_len_multiple_startindex cannot be bigger than window_len_multiple_endindex!"))
+              exit(1)
+          #The line below has been substituted with the one below it. This way the maximum number injection is not selected randomly and is
+          #equal to the value specified by the user   
+          ##selected_num_of_injection = random.randint(1, int(fi_max_multiple))
+          ficonfig_File.write("fi_max_multiple="+str(fi_max_multiple)+'\n')
+          selected_num_of_injection = fi_max_multiple
+          ##======The -1 here is because we have already selected the first location by choosing the fi-cycle
+          ##===== and here we are looking for the remaining cycles.=================
+          fi_next_cycle = fi_cycle
+          for index_multiple in range(1, int(selected_num_of_injection)):
+            fi_next_cycle = min(fi_next_cycle + random.randint(win_start_index, win_end_index), int(totalcycles))
+            ficonfig_File.write("fi_next_cycle="+str(fi_next_cycle)+'\n')
+            if fi_next_cycle == int(totalcycles):
+              break
+        ##==================================================================
         ficonfig_File.close()
 
         # print run index before executing. Comma removes newline for prettier
