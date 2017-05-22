@@ -286,14 +286,14 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
     assert int(val) >=0, key+" must be greater than or equal to zero in input.yaml"
   ##==================================================================
 
-  ##======== Add max number of target locations BEHROOZ @APRIL 29th===
+  ##BEHROOZ: Add max number of target locations
   elif key == "fi_max_multiple":
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >1, key+" must be greater than one in input.yaml"
     assert int(val) <=int(fi_max_multiple_default), key+" must be smaller than or equal to "+str(fi_max_multiple_default)+ " in input.yaml"
   ##==============================================================
 
-  ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+  ##BEHROOZ: Add multiple corrupted regs
   elif key == "window_len_multiple":
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
     assert int(val) >0, key+" must be greater than zero in input.yaml"
@@ -308,8 +308,7 @@ def checkValues(key, val, var1 = None,var2 = None,var3 = None,var4 = None):
 
   elif key == 'fi_cycle':
     assert isinstance(val, int)==True, key+" must be an integer in input.yaml"
-    ##======================BEHROOZ @APRIL 29th============================
-    ##===I changed the below line to the current one to fix the fi_cycle===
+    ##BEHROOZ: I changed the below line to the current one to fix the fi_cycle
     assert int(val) > 0, key+" must be greater than 0 in input.yaml"
     #assert int(val) >= 0, key+" must be greater than or equal to 0 in input.yaml"
     assert int(val) <= int(totalcycles), key +" must be less than or equal to "+totalcycles.strip()+" in input.yaml"
@@ -416,11 +415,11 @@ def main(args):
       if 'fi_random_seed' in locals():
         del fi_random_seed
       ##==============================================================
-      ##======== Add max number of target locations BEHROOZ @APRIL 29th
+      ##BEHROOZ: Add max number of target locations
       if 'fi_max_multiple' in locals():
         del fi_max_multiple
       ##==============================================================
-      ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+      ##BEHROOZ: Add multiple corrupted regs
       if 'window_len_multiple' in locals():
         del window_len_multiple
       if 'window_len_multiple_startindex' in locals():
@@ -450,7 +449,7 @@ def main(args):
         window_len=run["run"]["window_len"]
         checkValues("window_len", window_len)
       ##==============================================================
-      ##======== Add max number of target locations BEHROOZ @APRIL 29th
+      ##BEHROOZ: Add max number of target locations
       if 'fi_max_multiple' in run["run"]:
         fi_max_multiple=run["run"]["fi_max_multiple"]        
         checkValues("fi_max_multiple", fi_max_multiple)
@@ -459,7 +458,7 @@ def main(args):
                " at the same time in the input.yaml file. Please choose one."))
           exit(1)
       ##==============================================================
-      ##======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+      ##BEHROOZ: Add multiple corrupted regs
       if 'window_len_multiple' in run["run"]:
         window_len_multiple=run["run"]["window_len_multiple"]
         checkValues("window_len_multiple", window_len_multiple)
@@ -529,7 +528,7 @@ def main(args):
         print(("\nINFO: You choose to inject faults based on LLFI index, "
                "this will inject into every runtime instruction whose LLFI "
                "index is %d\n" % fi_index))
-      ##==================BEHROOZ @APRIL 29th=================
+      ##BEHROOZ:
       if ('window_len_multiple' in locals() or 'window_len_multiple_startindex' in locals() or 'window_len_multiple_endindex' in locals()):
         if('fi_max_multiple' not in locals()):
           print(("\nINFO: You choose a window length for multiple bit-flip injection, "
@@ -559,8 +558,7 @@ def main(args):
           random.seed(fi_random_seed)
 
         if need_to_calc_fi_cycle:
-          ##======================BEHROOZ @APRIL 29th============================
-          ##===I changed the below line to the current one to fix the fi_cycle===
+          ##BEHROOZ: I changed the below line to the current one to fix the fi_cycle
           fi_cycle = random.randint(1, int(totalcycles))
           ##fi_cycle = random.randint(0, int(totalcycles) - 1)
 
@@ -583,13 +581,12 @@ def main(args):
         ##==============================================================
         ##======== Add second corrupted regs QINING @MAR 27th===========
         if 'window_len' in locals():
-          ##======================BEHROOZ @MAY 2nd============================
-          ##===I changed the below line to the current one to fix the fi_cycle===
+          ##BEHROOZ: I changed the below line to the current one to fix the fi_cycle          
           fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles))
           #fi_second_cycle = min(fi_cycle + random.randint(1, int(window_len)), int(totalcycles) - 1)
           ficonfig_File.write("fi_second_cycle="+str(fi_second_cycle)+'\n')
         ##==================================================================
-        ##======== Add max number of target locations BEHROOZ @APRIL 29th===
+        ##BEHROOZ: Add max number of target locations
         if ('fi_max_multiple' in locals()):
           win_start_index = 1
           win_end_index = 1

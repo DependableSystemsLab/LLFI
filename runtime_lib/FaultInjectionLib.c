@@ -7,15 +7,14 @@
 
 #include "Utils.h"
 #define OPTION_LENGTH 512
-/*BEHROOZ 29 APRIL: We assume that the maximum number of fault injection locations is 100 when
+/*BEHROOZ: We assume that the maximum number of fault injection locations is 100 when
 it comes to multiple bit-flip model.*/
 #define MULTIPLE_CYCLE_LENGTH 100
-/*BEHROOZ MAY 2nd: This variable keeps track of the number of next_cycles*/
+/*BEHROOZ: This variable keeps track of the number of next_cycles*/
 static int fi_next_cycles_count = 0;
 //==============================================================
 
-/*======================BEHROOZ @MAY 2nd============================
-  I changed the below line to the current one to fix the fi_cycle===*/
+/*BEHROOZ: I changed the below line to the current one to fix the fi_cycle*/
 static long long curr_cycle = 1; //static long long curr_cycle = 0;
 
 static FILE *injectedfaultsFile;
@@ -43,7 +42,7 @@ static struct {
   //======== Add second corrupted regs QINING @MAR 27th===========
   long long fi_second_cycle;
   //==============================================================
-  //======== Add multiple corrupted regs BEHROOZ @APRIL 29th======
+  /*BEHROOZ: Add multiple corrupted regs*/
   int fi_max_multiple; //JUNE 3rd
   long long fi_next_cycles[MULTIPLE_CYCLE_LENGTH];
   //==============================================================
@@ -86,7 +85,7 @@ void _parseLLFIConfigFile() {
   char line[CONFIG_LINE_LENGTH];
   char option[OPTION_LENGTH];
   char *value = NULL;
-  /*===============BEHROOZ @MAY 2nd==================*/
+  /*BEHROOZ: */
   int fi_next_cycles_index = 0;
   /*=================================================*/
   while (fgets(line, CONFIG_LINE_LENGTH, ficonfigFile) != NULL) {
@@ -106,8 +105,7 @@ void _parseLLFIConfigFile() {
     } else if (strcmp(option, "fi_cycle") == 0) {
       config.fi_accordingto_cycle = true;
       config.fi_cycle = atoll(value);
-      /*======================BEHROOZ @MAY 2nd============================
-        ===I changed the below line to the current one to fix the fi_cycle===*/
+      /*BEHROOZ: I changed the below line to the current one to fix the fi_cycle*/
       assert(config.fi_cycle > 0 && "invalid fi_cycle in config file"); //assert(config.fi_cycle >= 0 && "invalid fi_cycle in config file");
     } else if (strcmp(option, "fi_index") == 0) {
       config.fi_index = atol(value);
@@ -126,12 +124,11 @@ void _parseLLFIConfigFile() {
     //======== Add second corrupted regs QINING @MAR 27th===========
     } else if (strcmp(option, "fi_second_cycle") == 0){
     	config.fi_second_cycle = atoll(value);
-      /*======================BEHROOZ @MAY 2nd============================
-        ===I changed the below line to the current one to fix the fi_cycle===*/        
+      /*BEHROOZ: I changed the below line to the current one to fix the fi_cycle*/        
     	assert(config.fi_second_cycle > 0 && "invalid fi_second_cycle in config file"); //assert(config.fi_second_cycle >= 0 && "invalid fi_second_cycle in config file");
     //==============================================================
     //==============================================================	
-    //======== Add multiple corrupted regs BEHROOZ @APRIL 29th===========
+    /*BEHROOZ: Add multiple corrupted regs*/
     } else if (strcmp(option, "fi_max_multiple") == 0){
         assert(atoll(value) > 1 && "invalid fi_max_multiple in config file");
     	config.fi_max_multiple = atoi(value);
@@ -234,8 +231,7 @@ void injectFunc(long llfi_index, unsigned size,
   //================================================
   //======== Add opcode_str QINING @MAR 11th========
   int runs =0;
-  /*======================BEHROOZ May 4th==========================
-    We give value to fi_cycle_to_print because we want to make sure that the 
+  /*BEHROOZ: We give value to fi_cycle_to_print because we want to make sure that the 
     fi_cycle that is printed in the for loop has the correct value when it 
     comes to cases where we want to both inject in more than one bit and also
     inject in more than one location.*/
@@ -265,8 +261,7 @@ void injectFunc(long llfi_index, unsigned size,
           "FI stat: fi_type=%s, fi_max_multiple=%d, fi_index=%ld, fi_cycle=%lld, fi_reg_index=%u, "
           "fi_reg_pos=%u, fi_reg_width=%u, fi_bit=%u, opcode=%s\n", config.fi_type, config.fi_max_multiple,
           llfi_index, fi_cycle_to_print, my_reg_index, reg_pos, size, fi_bit, opcode_str);
-	  /*======================BEHROOZ May 4th==========================
-           The below line is substituted with the above one as there was an 
+	  /*BEHROOZ: The below line is substituted with the above one as there was an 
            issue when we wanted to both inject in multiple bits and multiple
            locations.
            llfi_index, config.fi_cycle, my_reg_index, reg_pos, size, fi_bit, opcode_str);*/
@@ -282,7 +277,7 @@ void injectFunc(long llfi_index, unsigned size,
 	  	config.fi_cycle = config.fi_second_cycle;
 	  	config.fi_second_cycle = -1;
 	  }
-          /*====Add multiple corrupted regs BEHROOZ @MAY 2nd===========*/
+          /*BEHROOZ: Add multiple corrupted regs*/
           else
           {
               long long next_cycle = -1;

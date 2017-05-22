@@ -52,7 +52,7 @@ void FaultInjectionPass::insertInjectionFuncCall(
     Instruction *fi_inst = inst_reg_it->first;
     
     std::list<int> *fi_reg_pos_list = inst_reg_it->second;
-    //BEHROOZ-MAY27: This section makes sure that we do not instrument the intrinsic functions
+    /*BEHROOZ: This section makes sure that we do not instrument the intrinsic functions*/
     if(isa<CallInst>(fi_inst)){
       bool continue_flag=false;
       for (std::list<int>::iterator reg_pos_it_mem = fi_reg_pos_list->begin();
@@ -66,12 +66,11 @@ void FaultInjectionPass::insertInjectionFuncCall(
       if(continue_flag)
         continue;
     }
-    //BEHROOZ-MAY27: This is to make sure we do not instrument landingpad instructions.
+    /*BEHROOZ: This is to make sure we do not instrument landingpad instructions.*/
     std::string current_opcode = fi_inst->getOpcodeName();
     if(current_opcode.find("landingpad") != std::string::npos){
       continue;
     }
-    //BEHROOZ-END
 
 
     unsigned reg_index = 0;
