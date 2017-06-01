@@ -121,10 +121,10 @@ runOption:
     - run:
         numOfRuns: 5
         fi_type: BufferOverflow(API)
-		
+    
     ## To inject a maximum of 4 bit-flip errors into multiple registers.
     ## The distance between each consecutive injection is controlled by a random number representing the number of dynamic instructions that needs
-	## to be executed between the consecutive injections. The lower bound and upper bound of the random number are especified as two of the run time options.
+    ## to be executed between the consecutive injections. The lower bound and upper bound of the random number are especified as two of the run time options.
     - run:
         numOfRuns: 5
         fi_type: bitflip
@@ -133,21 +133,21 @@ runOption:
         window_len_multiple_endindex: 100
 
     ## To inject a maximum of 4 bit-flip errors into multiple registers starting from a specific bit of a specific register in a specific cycle.
-	## This configuration is used to compare single bit-flip results with multiple bit-flip results.
+    ## This configuration is used to compare single bit-flip results with multiple bit-flip results.
     ## The distance between each consecutive injection is controlled by a random number representing the number of dynamic instructions that needs
-	## to be executed between the consecutive injections. The lower bound and upper bound of the random number are especified as two of the run time options.
+    ## to be executed between the consecutive injections. The lower bound and upper bound of the random number are especified as two of the run time options.
     - run:
         numOfRuns: 5
         fi_type: bitflip
-		fi_cycle: 684347
-		fi_index: 417
-		fi_reg_index: 0
-		fi_reg_pos: 1
-		fi_bit: 15
+        fi_cycle: 684347
+        fi_index: 417
+        fi_reg_index: 0
+        fi_reg_pos: 1
+        fi_bit: 15
         fi_max_multiple: 4
         window_len_multiple_startindex: 10
         window_len_multiple_endindex: 100
-		
-
+  
+  
 kernelOption:
     - forceRun
