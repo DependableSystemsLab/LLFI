@@ -52,6 +52,27 @@ void FaultInjectionPass::insertInjectionFuncCall(
     Instruction *fi_inst = inst_reg_it->first;
     
     std::list<int> *fi_reg_pos_list = inst_reg_it->second;
+    /*BEHROOZ: This section makes sure that we do not instrument the intrinsic functions*/
+    if(isa<CallInst>(fi_inst)){
+      bool continue_flag=false;
+      for (std::list<int>::iterator reg_pos_it_mem = fi_reg_pos_list->begin();
+       	(reg_pos_it_mem != fi_reg_pos_list->end()) && (*reg_pos_it_mem != DST_REG_POS); ++reg_pos_it_mem) {
+        std::string reg_mem = fi_inst->getOperand(*reg_pos_it_mem)->getName();
+        if ((reg_mem.find("memcpy") != std::string::npos) || (reg_mem.find("memset") != std::string::npos) || (reg_mem.find("expect") != std::string::npos) || (reg_mem.find("memmove") != std::string::npos)){
+          continue_flag=true;
+          break;
+        }
+      }
+      if(continue_flag)
+        continue;
+    }
+    /*BEHROOZ: This is to make sure we do not instrument landingpad instructions.*/
+    std::string current_opcode = fi_inst->getOpcodeName();
+    if(current_opcode.find("landingpad") != std::string::npos){
+      continue;
+    }
+
+
     unsigned reg_index = 0;
     unsigned total_reg_num = fi_reg_pos_list->size();
     for (std::list<int>::iterator reg_pos_it = fi_reg_pos_list->begin(); 

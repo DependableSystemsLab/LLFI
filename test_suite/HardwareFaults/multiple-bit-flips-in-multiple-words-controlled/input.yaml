@@ -1,0 +1,26 @@
+defaultTimeout: 15
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include:
+            - all
+          exclude:
+            - ret
+
+    regSelMethod: regloc
+    regloc: allsrcreg
+
+runOption:
+
+    - run:
+        numOfRuns: 1
+        fi_type: bitflip
+        fi_cycle: 684347
+        fi_index: 417
+        fi_reg_index: 0
+        fi_reg_pos: 1
+        fi_bit: 15
+        fi_max_multiple: 3
+        window_len_multiple_startindex: 10
+        window_len_multiple_endindex: 10

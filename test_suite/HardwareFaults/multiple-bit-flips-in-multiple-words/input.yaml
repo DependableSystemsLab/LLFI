@@ -1,0 +1,70 @@
+defaultTimeout: 15
+
+compileOption:
+    instSelMethod:
+      - insttype:
+          include: 
+            - all
+          exclude:
+            - ret
+
+    regSelMethod: regloc
+    regloc: allsrcreg
+
+runOption:
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 1
+        window_len_multiple_endindex: 1
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 2
+        window_len_multiple_endindex: 10
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 11
+        window_len_multiple_endindex: 100
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 101
+        window_len_multiple_endindex: 1000
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 4
+        window_len_multiple_endindex: 4
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 10
+        window_len_multiple_endindex: 10
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 100
+        window_len_multiple_endindex: 100
+
+    - run:
+        numOfRuns: 5
+        fi_type: bitflip
+        fi_max_multiple: 4
+        window_len_multiple_startindex: 1000
+        window_len_multiple_endindex: 1000
