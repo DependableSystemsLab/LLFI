@@ -7,7 +7,7 @@ The list is formatted to allow easy grepping and
 beautification by scripts.  The fields are: name (N), and description (D).
 
 N: Nithya Narayanamurthy
-D: GUI for LLFI, prepared first release.
+D: Java-based GUI for LLFI 
 
 N: Maryam Raiyat
 D: Initiated and implemented software fault injection capability for LLFI, and designed the initial algorithm for FIDL.
@@ -38,9 +38,13 @@ D: Added Progress Bar to injector, multiple instruction selector, unified execut
 
 N: Kenneth Song
 D: Integrated tracing functionality into GUI, many other changes to the GUI and tracing functionality.
+D: Web front end.
 
 N: Sittipol (Phil) Tribunyatkul
 D: Added Software Fault Injection to the GUI and integrated FIDL into LLFI.
 
 N: Abraham Chan
 D: Added Makefile script to support compilation of entire projects.
+
+N: Behrooz Sangchoolie
+D: Added support for multiple bit fault injections for hardware faults.
