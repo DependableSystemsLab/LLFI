@@ -18,12 +18,6 @@ class InstTypeFIInstSelector: public HardwareFIInstSelector {
   virtual void getCompileTimeInfo(std::map<std::string, std::string>& info){
     info["failure_class"] = "HardwareFault";
     info["failure_mode"] = "SpecifiedInstructionTypes";
-    /*for(std::set<int>::iterator SI = opcodelist.begin();
-      SI != opcodelist.end(); SI++){
-      info["targets"] += string(*SI) + "()/";
-    }*/
-    //remove the '/' at the end
-    /*info["targets"] = info["targets"].substr(0, info["targets"].length()-1);*/
     info["targets"] = "<include list in yaml>";
     info["injector"] = "<fi_type>";
   }
