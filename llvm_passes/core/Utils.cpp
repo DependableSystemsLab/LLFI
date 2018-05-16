@@ -51,6 +51,17 @@ Instruction *getTermInstofFunction(Function *func) {
   BasicBlock &termbb = func->back();
   Instruction *ret = termbb.getTerminator();
 
+  // if the instruction in the last BB is not return/unreachable instruction,
+  // iterate through the main function to find the return/unreachable instruction
+  if( isa<ReturnInst>(ret) || isa<UnreachableInst>(ret) ){}
+  else{
+		for( inst_iterator f_it = inst_begin(func); f_it != inst_end(func); ++f_it ){
+    	if( isa<ReturnInst>(&(*f_it))){
+      	ret = &(*f_it);
+      }
+    }
+  }
+  
   assert(isa<ReturnInst>(ret) || isa<UnreachableInst>(ret) &&
          "Last instruction is not return or exit() instruction");
   return ret;
