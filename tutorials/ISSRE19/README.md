@@ -5,12 +5,16 @@
 
 
 ## Setup
-We provide a VM image with LLFI pre-installed and the tutorial files included, to use please install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
-You are welcome to use your own installation of LLFI, but these instructions assume you are using the VM image.
+We provide a VM image with LLFI and all dependencies pre-installed, with the tutorial files also included. To use the VM image please install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
+You are welcome to use your own installation of LLFI, but these instructions assume you are using the VM image with specific experiment folder paths.
 
-You can download the VirtualBox image from the following url: 
+You can download the VirtualBox image [here](https://drive.google.com/file/d/15KK7-zy7ba-I9tkGloX_XOqipkeQtnWL/view?usp=sharing).
 
-## Notes on the provided benchmarks
+username: `llfi`
+
+password: `root`
+
+## Benchmarks
 We provide two benchmarks to run fault injections for this tutorial. They are simple deterministic programs with predefined inputs.
 
 ### sqrt
