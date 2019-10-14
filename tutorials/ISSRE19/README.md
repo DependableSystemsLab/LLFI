@@ -86,6 +86,7 @@ defaultTimeout: 30
 `$LLFI/injectfault llfi/matmult-faultinjection.exe`
 
 7. Analyze trace propagation:
+
 `$LLFItools/tracediff llfi/baseline/llfi.stat.trace.prof.txt llfi/llfi_stat_output/llfi.stat.trace.0-5.txt > diffReport.txt`(Modify the 5 to the desired trace number.)
 
 `$LLFItools/traceontograph diffReport.txt llfi.stat.graph.dot > tracedGraph.dot`
