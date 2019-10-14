@@ -11,7 +11,7 @@ You are welcome to use your own installation of LLFI, but these instructions ass
 You can download the VirtualBox image from the following url: 
 
 ## Notes on the provided benchmarks
-We provide some benchmarks to run fault injections for this tutorial. They are simple deterministic programs with predefined inputs.
+We provide two benchmarks to run fault injections for this tutorial. They are simple deterministic programs with predefined inputs.
 
 ### sqrt
 This program implements a square root operation using Taylor series. The predefined input to the sqrt program is the floating point number `123.123`.
@@ -41,7 +41,7 @@ This program multiplies two 20 by 20 matrices (predefined). The program outputs 
 7. Execute the `measure.py` script in each benchmark folder to measure the SDC and crash rates.
 `python3 ./measure.py`
 
-8. Navigate to the second benchmark folder `cd ../2-matmult` and repeat Steps 4-7 (make sure to change `sqrt` to `matmult` in the commands).
+8. (Optional) Navigate to the second benchmark folder `cd ../2-matmult` and repeat Steps 4-7 (make sure to change `sqrt` to `matmult` in the commands). Observe the differences in SDC and crash rates.
 
 
 ## Part 2: Specify injection targets
