@@ -24,7 +24,7 @@ This program implements a square root operation using Taylor series. The predefi
 This program multiplies two 20 by 20 matrices (predefined). The program outputs all the values of the result matrix.
 
 ## Part 1: Fault Injection
-1. Navigate to the ISSRE19 folder on the desktop: `cd ~/Desktop/ISSRE19/`
+1. Open a terminal and navigate to the ISSRE19 folder on the desktop: `cd ~/Desktop/ISSRE19/`
 
 2. Navigate to the first benchmark folder: `cd 1-sqrt`
 
