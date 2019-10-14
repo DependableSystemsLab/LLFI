@@ -20,25 +20,28 @@ This program implements a square root operation using Taylor series. The predefi
 This program multiplies two 20 by 20 matrices (predefined). The program outputs all the values of the result matrix.
 
 ## Part 1: Fault Injection
-1. Navigate to the ISSRE19 folder on the desktop.
-`cd ~/Desktop/ISSRE19/`
+1. Navigate to the ISSRE19 folder on the desktop: `cd ~/Desktop/ISSRE19/`
 
-2. Navigate to the first benchmark folder.
-`cd 1-sqrt`
+2. Navigate to the first benchmark folder: `cd 1-sqrt`
 
 3. The compiled LLVM IR file (.ll) is already provided. To re-compile from C to IR use the command:
+
 `clang -S -emit-llvm sqrt.c -o sqrt.ll`
 
 4. Instrumentation phase:
+
 `$LLFI/instrument --readable sqrt.ll`
 
 5. Profiling phase:
+
 `$LLFI/profile llfi/sqrt-profiling.exe`
 
 6. Fault injection phase:
+
 `$LLFI/injectfault llfi/sqrt-faultinjection.exe`
 
 7. Execute the `measure.py` script in each benchmark folder to measure the SDC and crash rates.
+
 `python3 ./measure.py`
 
 8. (Optional) Navigate to the second benchmark folder `cd ../2-matmult` and repeat Steps 4-7 (make sure to change `sqrt` to `matmult` in the commands). Observe the differences in SDC and crash rates.
@@ -74,15 +77,18 @@ defaultTimeout: 30
 
 
 ## Part 3: Trace analysis
-1. Navigate to the last benchmark folder `cd ../3-matmult_trace`.
+1. Navigate to the last benchmark folder: `cd ../3-matmult_trace`
 
 2. Instrumentation phase:
+
 `$LLFI/instrument --readable matmult.ll`
 
 5. Profiling phase:
+
 `$LLFI/profile llfi/matmult-profiling.exe`
 
 6. Fault injection phase:
+
 `$LLFI/injectfault llfi/matmult-faultinjection.exe`
 
 7. Analyze trace propagation:
