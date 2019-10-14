@@ -87,7 +87,9 @@ defaultTimeout: 30
 
 7. Analyze trace propagation:
 `$LLFItools/tracediff llfi/baseline/llfi.stat.trace.prof.txt llfi/llfi_stat_output/llfi.stat.trace.0-5.txt > diffReport.txt`(Modify the 5 to the desired trace number.)
+
 `$LLFItools/traceontograph diffReport.txt llfi.stat.graph.dot > tracedGraph.dot`
+
 `$LLFItools/zgrviewer/run.sh tracedGraph.dot`
 
 
