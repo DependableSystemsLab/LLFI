@@ -1,9 +1,5 @@
 # ISSRE 2019 Tutorial Activity - Instructions
 
-## Tutorial Slides
-
-
-
 ## Setup
 We provide a VM image with LLFI and all dependencies pre-installed, with the tutorial files also included. To use the VM image please install [VirtualBox](https://www.virtualbox.org/wiki/Downloads).
 You are welcome to use your own installation of LLFI, but these instructions assume you are using the VM image with specific experiment folder paths.
