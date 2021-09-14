@@ -178,6 +178,7 @@ in the *llfi* directory.
 References
 ----------
 * [LLFI Paper](http://blogs.ubc.ca/karthik/2013/02/15/llfi-an-intermediate-code-level-fault-injector-for-soft-computing-applications/)
+* [FIDL Paper](http://blogs.ubc.ca/karthik/2016/05/05/fidl-a-fault-injection-description-language-for-compiler-based-sfi-tools/)
 * [LLFI Wiki](https://github.com/DependableSystemsLab/LLFI/wiki)
 
 ======		
