@@ -8,7 +8,7 @@ else:
     import urlparse
 import subprocess
 import hashlib
-import imp
+import importlib as imp
 import site
 import xml.etree.ElementTree as ET
 import argparse
